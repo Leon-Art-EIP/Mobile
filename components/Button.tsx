@@ -20,40 +20,27 @@ const Button = ({
   secondary = false,
   tertiary = false,
   disabled = false
-}: ButtonProps) => {
-  const getContainerStyle = () => {
-    let a = (tertiary ? styles.tertiaryContainerStyle :
-      secondary ? styles.secondaryContainerStyle :
-      styles.primaryContainerStyle
-    );
-    a.backgroundColor = a.backgroundColor.toString() + (disabled ? '77' : 'ff');
-    return a;
-  }
-
-  const getTextStyle = () => {
-    let a = (tertiary ? styles.tertiaryTextStyle :
-      secondary ? styles.secondaryTextStyle :
-      styles.primaryTextStyle
-    );
-    a.color = a.color.toString() + (disabled ? '99' : 'ff');
-    return a;
-  }
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
-      style={[
-        getContainerStyle(),
-        style
-      ]}
-    >
-      <Text style={[getTextStyle(), textStyle]}>
-        { value }
-      </Text>
-    </TouchableOpacity>
-  )
-}
+}: ButtonProps) => (
+  <TouchableOpacity
+    onPress={onPress}
+    disabled={disabled}
+    style={[
+      styles.primaryContainerStyle,
+      secondary && styles.secondaryContainerStyle,
+      tertiary && styles.tertiaryContainerStyle,
+      style
+    ]}
+  >
+    <Text style={[
+      styles.primaryTextStyle,
+      secondary && styles.secondaryTextStyle,
+      tertiary && styles.tertiaryTextStyle,
+      textStyle
+    ]}>
+      { value }
+    </Text>
+  </TouchableOpacity>
+)
 
 const styles = StyleSheet.create({
   primaryContainerStyle: {
@@ -67,21 +54,9 @@ const styles = StyleSheet.create({
   },
   secondaryContainerStyle: {
     backgroundColor: colors.secondary,
-    margin: 16,
-    borderRadius: 50,
-    alignItems: 'center',
-    elevation: 2,
-    paddingHorizontal: 20,
-    paddingVertical: 10
   },
   tertiaryContainerStyle: {
     backgroundColor: colors.tertiary,
-    margin: 16,
-    borderRadius: 50,
-    alignItems: 'center',
-    elevation: 2,
-    paddingHorizontal: 20,
-    paddingVertical: 10
   },
   primaryTextStyle: {
     color: colors.primaryText,
@@ -90,13 +65,9 @@ const styles = StyleSheet.create({
   },
   secondaryTextStyle: {
     color: colors.secondaryText,
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 18
   },
   tertiaryTextStyle: {
     color: colors.tertiaryText,
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 18
   }
 });
 

@@ -20,7 +20,7 @@ const Input = ({
   onError = () => {},
   error = false,
   disabled = false
-}) => {
+}: InputProps) => {
   const [textValue, setTextValue] = useState<string>(value);
 
   const changeText = (new_value: string) => {

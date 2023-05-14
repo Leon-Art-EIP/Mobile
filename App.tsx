@@ -29,35 +29,31 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import Button from './components/Button';
+import Card from './components/Card';
 import Input from './components/Input';
+import colors from './constants/colors';
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
   const [text, setText] = useState<string>("");
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   return (
     <SafeAreaView style={styles.backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <Button disabled />
-      <Input
-        value={text}
-        onTextChanged={setText}
-      />
+      <Card>
+        <Button style={{ margin: 0 }} />
+        <Input
+          value={text}
+          onTextChanged={setText}
+          style={{ marginHorizontal: 0 }}
+        />
+      </Card>
     </SafeAreaView>
 );
 };
 
 const styles = StyleSheet.create({
-  backgroundColor: {
+  backgroundStyle: {
     flex: 1,
-    backgroundColor: '#ececec'
+    backgroundColor: colors.white
   }
 });
 
