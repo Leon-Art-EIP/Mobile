@@ -31,6 +31,7 @@ import {
 import Button from './components/Button';
 import Card from './components/Card';
 import Input from './components/Input';
+import Title from './components/Title';
 import colors from './constants/colors';
 
 const App = () => {
@@ -39,6 +40,7 @@ const App = () => {
   return (
     <SafeAreaView style={styles.backgroundStyle}>
       <Card>
+        <Title>Leon'Art</Title>
         <Button style={{ margin: 0 }} />
         <Input
           value={text}

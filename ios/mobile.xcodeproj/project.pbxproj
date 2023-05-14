@@ -32,6 +32,13 @@
 		287C6133B2574F9A80FB796B /* Montserrat-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E42A64E4F4BA4F6D992142E5 /* Montserrat-SemiBoldItalic.ttf */; };
 		4932702A57BD4029909F0235 /* Montserrat-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 06B49E2EF0C24463BDF8408B /* Montserrat-Thin.ttf */; };
 		59D139E66A68470EA098325B /* Montserrat-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2947D40108B941EB8468DB7D /* Montserrat-ThinItalic.ttf */; };
+		D92DAC3575A94692AAA15F84 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4174AD920DDA49408205B4A9 /* Manrope-Bold.ttf */; };
+		52747B8C8B804169A2F570EA /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FE81E6809A1A4F4CA34FDDD9 /* Manrope-ExtraBold.ttf */; };
+		EC83B7194C794BFBB7B0BEC9 /* Manrope-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BCC81648E6114B849BA9057D /* Manrope-ExtraLight.ttf */; };
+		1B323CD88E5846B58863F64A /* Manrope-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D4E294223FA4D4DA67BF5D1 /* Manrope-Light.ttf */; };
+		9A1F597BE4EE467B929DB0FC /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2E5805BB66BB46219E9FD328 /* Manrope-Medium.ttf */; };
+		0517EB99151246748F2E0546 /* Manrope-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 461F317C642A45618149B204 /* Manrope-Regular.ttf */; };
+		E1F151E7B49A4E0681DC4E0C /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8EE26161DDE6443EBA33DCCE /* Manrope-SemiBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +87,13 @@
 		E42A64E4F4BA4F6D992142E5 /* Montserrat-SemiBoldItalic.ttf */ = {isa = PBXFileReference; name = "Montserrat-SemiBoldItalic.ttf"; path = "../assets/fonts/Montserrat-SemiBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		06B49E2EF0C24463BDF8408B /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; name = "Montserrat-Thin.ttf"; path = "../assets/fonts/Montserrat-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		2947D40108B941EB8468DB7D /* Montserrat-ThinItalic.ttf */ = {isa = PBXFileReference; name = "Montserrat-ThinItalic.ttf"; path = "../assets/fonts/Montserrat-ThinItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4174AD920DDA49408205B4A9 /* Manrope-Bold.ttf */ = {isa = PBXFileReference; name = "Manrope-Bold.ttf"; path = "../assets/fonts/Manrope-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		FE81E6809A1A4F4CA34FDDD9 /* Manrope-ExtraBold.ttf */ = {isa = PBXFileReference; name = "Manrope-ExtraBold.ttf"; path = "../assets/fonts/Manrope-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BCC81648E6114B849BA9057D /* Manrope-ExtraLight.ttf */ = {isa = PBXFileReference; name = "Manrope-ExtraLight.ttf"; path = "../assets/fonts/Manrope-ExtraLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		0D4E294223FA4D4DA67BF5D1 /* Manrope-Light.ttf */ = {isa = PBXFileReference; name = "Manrope-Light.ttf"; path = "../assets/fonts/Manrope-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		2E5805BB66BB46219E9FD328 /* Manrope-Medium.ttf */ = {isa = PBXFileReference; name = "Manrope-Medium.ttf"; path = "../assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		461F317C642A45618149B204 /* Manrope-Regular.ttf */ = {isa = PBXFileReference; name = "Manrope-Regular.ttf"; path = "../assets/fonts/Manrope-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		8EE26161DDE6443EBA33DCCE /* Manrope-SemiBold.ttf */ = {isa = PBXFileReference; name = "Manrope-SemiBold.ttf"; path = "../assets/fonts/Manrope-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +220,13 @@
 				E42A64E4F4BA4F6D992142E5 /* Montserrat-SemiBoldItalic.ttf */,
 				06B49E2EF0C24463BDF8408B /* Montserrat-Thin.ttf */,
 				2947D40108B941EB8468DB7D /* Montserrat-ThinItalic.ttf */,
+				4174AD920DDA49408205B4A9 /* Manrope-Bold.ttf */,
+				FE81E6809A1A4F4CA34FDDD9 /* Manrope-ExtraBold.ttf */,
+				BCC81648E6114B849BA9057D /* Manrope-ExtraLight.ttf */,
+				0D4E294223FA4D4DA67BF5D1 /* Manrope-Light.ttf */,
+				2E5805BB66BB46219E9FD328 /* Manrope-Medium.ttf */,
+				461F317C642A45618149B204 /* Manrope-Regular.ttf */,
+				8EE26161DDE6443EBA33DCCE /* Manrope-SemiBold.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -325,6 +346,13 @@
 				287C6133B2574F9A80FB796B /* Montserrat-SemiBoldItalic.ttf in Resources */,
 				4932702A57BD4029909F0235 /* Montserrat-Thin.ttf in Resources */,
 				59D139E66A68470EA098325B /* Montserrat-ThinItalic.ttf in Resources */,
+				D92DAC3575A94692AAA15F84 /* Manrope-Bold.ttf in Resources */,
+				52747B8C8B804169A2F570EA /* Manrope-ExtraBold.ttf in Resources */,
+				EC83B7194C794BFBB7B0BEC9 /* Manrope-ExtraLight.ttf in Resources */,
+				1B323CD88E5846B58863F64A /* Manrope-Light.ttf in Resources */,
+				9A1F597BE4EE467B929DB0FC /* Manrope-Medium.ttf in Resources */,
+				0517EB99151246748F2E0546 /* Manrope-Regular.ttf in Resources */,
+				E1F151E7B49A4E0681DC4E0C /* Manrope-SemiBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,6 +2,34 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/Manrope-Bold.ttf",
+      "sha1": "6ac76705d556e62a621d382688851644f6ef8c5e"
+    },
+    {
+      "path": "assets/fonts/Manrope-ExtraBold.ttf",
+      "sha1": "354f38624776caf6ea35d04d8b23d66caed334db"
+    },
+    {
+      "path": "assets/fonts/Manrope-ExtraLight.ttf",
+      "sha1": "21fb00fbdba1f3c035398d3dbb75841805fb9783"
+    },
+    {
+      "path": "assets/fonts/Manrope-Light.ttf",
+      "sha1": "88b1a067d025a2a344406770a21e7cd67bca48ee"
+    },
+    {
+      "path": "assets/fonts/Manrope-Medium.ttf",
+      "sha1": "d8d99489be0842910ab8d185a5061c6f0016df82"
+    },
+    {
+      "path": "assets/fonts/Manrope-Regular.ttf",
+      "sha1": "9889c929884c8ae90aa507ff9fa9c94716b708b4"
+    },
+    {
+      "path": "assets/fonts/Manrope-SemiBold.ttf",
+      "sha1": "5a58a5ddc7415d660644b8ff233712d2122ad4dd"
+    },
+    {
       "path": "assets/fonts/Montserrat-Black.ttf",
       "sha1": "f81e2ccfd59349731d96e4db0856e84f9491ae4b"
     },
