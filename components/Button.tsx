@@ -62,7 +62,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     elevation: 2,
-    padding: 16
+    paddingHorizontal: 20,
+    paddingVertical: 10
   },
   secondaryContainerStyle: {
     backgroundColor: colors.secondary,
@@ -70,7 +71,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     elevation: 2,
-    padding: 16
+    paddingHorizontal: 20,
+    paddingVertical: 10
   },
   tertiaryContainerStyle: {
     backgroundColor: colors.tertiary,
@@ -78,7 +80,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     elevation: 2,
-    padding: 16
+    paddingHorizontal: 20,
+    paddingVertical: 10
   },
   primaryTextStyle: {
     color: colors.primaryText,

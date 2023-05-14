@@ -8,7 +8,7 @@
  * @format
  */
 
-import React, { type PropsWithChildren } from 'react';
+import React, { useEffect, useState, type PropsWithChildren } from 'react';
 import {
     Dimensions,
   SafeAreaView,
@@ -29,9 +29,11 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import Button from './components/Button';
+import Input from './components/Input';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [text, setText] = useState<string>("");
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -44,6 +46,10 @@ const App = () => {
         backgroundColor={backgroundStyle.backgroundColor}
       />
       <Button disabled />
+      <Input
+        value={text}
+        onTextChanged={setText}
+      />
     </SafeAreaView>
 );
 };
