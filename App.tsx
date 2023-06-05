@@ -8,6 +8,7 @@
  * @format
  */
 
+import { NavigationContainer } from '@react-navigation/native';
 import React, { useEffect, useState, type PropsWithChildren } from 'react';
 import {
     Dimensions,
@@ -38,18 +39,10 @@ const App = () => {
   const [text, setText] = useState<string>("");
 
   return (
-    <SafeAreaView style={styles.backgroundStyle}>
-      <Card>
-        <Title>Leon'Art</Title>
-        <Button style={{ margin: 0 }} />
-        <Input
-          value={text}
-          onTextChanged={setText}
-          style={{ marginHorizontal: 0 }}
-        />
-      </Card>
-    </SafeAreaView>
-);
+    <NavigationContainer>
+
+    </NavigationContainer>
+  );
 };
 
 const styles = StyleSheet.create({
