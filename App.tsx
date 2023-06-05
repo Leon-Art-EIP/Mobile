@@ -9,9 +9,10 @@
  */
 
 import { NavigationContainer } from '@react-navigation/native';
-import React, { useEffect, useState, type PropsWithChildren } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useEffect } from 'react';
 import {
-    Dimensions,
+  Dimensions,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -21,34 +22,31 @@ import {
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-import Button from './components/Button';
-import Card from './components/Card';
-import Input from './components/Input';
-import Title from './components/Title';
-import colors from './constants/colors';
+import Login from './screens/Login';
+import Signup from './screens/Signup';
+import MainNavigator from './screens/MainNavigator';
 
 const App = () => {
-  const [text, setText] = useState<string>("");
+  const Stack =  createNativeStackNavigator();
+
+  useEffect(() => {
+    //TODO get connection token in localstorage
+  }, []);
+
+  let isConnected = true;
+
+  // disables headers for this navigator
+  const options = { headerShown: false };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer independent>
+      <Stack.Navigator initialRouteName={isConnected ? "main" : "signup"}>
+        <Stack.Screen name="login" component={Login} options={options} />
+        <Stack.Screen name="signup" component={Signup} options={options} />
+        <Stack.Screen name="main" component={MainNavigator} options={options} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  backgroundStyle: {
-    flex: 1,
-    backgroundColor: colors.white
-  }
-});
 
 export default App;
