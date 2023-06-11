@@ -11,20 +11,10 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
-import {
-  Dimensions,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
 import Login from './screens/Login';
 import Signup from './screens/Signup';
-import MainNavigator from './screens/MainNavigator';
+import MainNavigator from './navigators/MainNavigator';
 
 const App = () => {
   const Stack =  createNativeStackNavigator();
@@ -33,6 +23,7 @@ const App = () => {
     //TODO get connection token in localstorage
   }, []);
 
+  // will be removed as soon as we check for tokens in localstorage
   let isConnected = true;
 
   // disables headers for this navigator

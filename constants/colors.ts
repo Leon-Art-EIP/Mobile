@@ -14,7 +14,7 @@ const colors = {
 
   primaryText: '#eeeeee',
   secondaryText: '#2D142C',
-  tertiaryText: '#eeeeee'
+  tertiaryText: '#eeeeee',
 };
 
 export default colors;

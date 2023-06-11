@@ -6,7 +6,7 @@ interface TitleProps {
   style?: StyleProp<TextStyle>;
   bold?: boolean;
   size?: 42 | 36 | 24 | 18;
-};
+}
 
 const Title = ({
   children = "Title",
@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Manrope-Bold',
     fontSize: 42,
+    color: '#2C2C2C'
   },
   bold: {
     fontWeight: 'bold'
