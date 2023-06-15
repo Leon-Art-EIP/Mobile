@@ -22,7 +22,26 @@ const const_news: NewsType[] = [
   }
 ];
 
+const const_artists: NewsType[] = [
+  {
+    id: 0,
+    title: "Marine Weber",
+    imgUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?cs=srgb&dl=pexels-mohamed-abdelghaffar-771742.jpg&fm=jpg"
+  },
+  {
+    id: 1,
+    title: "Evan Koehler",
+    imgUrl: "https://e1.pxfuel.com/desktop-wallpaper/903/679/desktop-wallpaper-97-aesthetic-best-profile-pic-for-instagram-for-boy-instagram-dp-boys.jpg",
+  },
+  {
+    id: 2,
+    title: "Vivant Garrigues",
+    imgUrl: "https://media.sproutsocial.com/uploads/2022/06/profile-picture.jpeg"
+  }
+];
+
 export type { NewsType };
 export {
-  const_news
+  const_news,
+  const_artists
 };
