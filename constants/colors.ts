@@ -15,6 +15,8 @@ const colors = {
   primaryText: '#eeeeee',
   secondaryText: '#2D142C',
   tertiaryText: '#eeeeee',
+
+  sampleBg: '#D3A1A1'
 };
 
 export default colors;

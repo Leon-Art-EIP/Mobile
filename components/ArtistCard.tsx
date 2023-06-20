@@ -15,8 +15,9 @@ const ArtistCard = (item: NewsType) => (
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#F00',
+    margin: 0,
     width: 120,
-    height: 120,
+    height: 150,
     position: "relative"
   },
   image: {
