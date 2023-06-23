@@ -2,19 +2,18 @@ import {NewsType} from "../constants/homeValues";
 import {Image, StyleSheet, View} from "react-native";
 import Card from "./Card";
 import Title from "./Title";
+import colors from "../constants/colors";
 
 const ArtistCard = (item: NewsType) => (
   <Card style={styles.container}>
     <Image style={styles.image} />
-    <View>
-      <Title>{ item.title }</Title>
-    </View>
+      <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{ item.title }</Title>
   </Card>
 );
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F00',
+    backgroundColor: colors.sampleBg,
     margin: 0,
     width: 120,
     height: 150,

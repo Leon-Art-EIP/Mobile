@@ -60,7 +60,8 @@ const HomeScreen = () => {
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Artistes</Title>
           <FlatList
             data={artists}
-            style={{ marginHorizontal: 14 }}
+            style={{ marginHorizontal: 8 }}
+            keyExtractor={(item: NewsType) => item.id.toString()}
             showsHorizontalScrollIndicator={false}
             renderItem={(e: ListRenderItemInfo<NewsType>) => ArtistCard(e.item)}
             horizontal
@@ -74,7 +75,7 @@ const HomeScreen = () => {
               scrollEnabled={false}
               data={forYou}
               renderItem={(e: any) => ForYouArt(e.item)}
-              keyExtractor={(item: number) => item.toString()}
+              keyExtractor={(item: number) => item.toString() + Math.random().toString()}
               numColumns={3}
               style={{ display: 'flex', marginHorizontal: 14 }}
             />
