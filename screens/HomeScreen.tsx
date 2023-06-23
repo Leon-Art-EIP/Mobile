@@ -70,8 +70,7 @@ const HomeScreen = () => {
         {/* Oeuvres */}
         <View>
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Pour vous</Title>
-          <NestableScrollContainer>
-            <NestableDraggableFlatList
+            <FlatList
               scrollEnabled={false}
               data={forYou}
               renderItem={(e: any) => ForYouArt(e.item)}
@@ -79,7 +78,6 @@ const HomeScreen = () => {
               numColumns={3}
               style={{ display: 'flex', marginHorizontal: 14 }}
             />
-          </NestableScrollContainer>
         </View>
       </ScrollView>
     </SafeAreaView>
