@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native'
 import { get } from '../constants/fetch';
+import Button, { ButtonProps } from '../components/Button';
+import Input, { InputProps } from '../components/Input';
+import Title, { TitleProps } from '../components/Title';
 
 const Login = () => {
-  const onPageRendered = () => {
-    get('/api/auth/login', (response: any) => {
-      console.log('Response: ', response);
-    });
-  }
   const handleLogin = () => {
     // Logique de connexion ici
   };
@@ -20,50 +18,58 @@ const Login = () => {
     // Logique d'inscription ici
   };
 
-  useEffect(onPageRendered, []);
+  const handleEmailChange = (email: string) => {
+    // Logique pour gérer le changement d'e-mail
+  };
 
+  const handlePasswordChange = (password: string) => {
+    // Logique pour gérer le changement de mot de passe
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>LeonArt</Text>
+      <Title style={styles.title}>LeonArt</Title>
 
-      <Text style={styles.loginTitle}>Login</Text>
+      <Title style={styles.loginTitle}>Login</Title>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-      </View>
+      <Input
+        placeholder="Enter your email"
+        onTextChanged={handleEmailChange}
+        style={styles.input}
+      />
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your password"
-          secureTextEntry
-        />
-      </View>
+      <Input
+        placeholder="Enter your password"
+        onTextChanged={handlePasswordChange}
+        style={styles.input}
+        // secureTextEntry
+      />
 
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Login</Text>
-      </TouchableOpacity>
+      <Button
+        onPress={handleLogin}
+        value="Login"
+        style={styles.loginButton}
+        textStyle={styles.loginButtonText}
+      />
 
       <Text style={styles.orText}>Or</Text>
 
-      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
-        <Text style={styles.googleButtonText}>Login with Google</Text>
-      </TouchableOpacity>
+      <Button
+        onPress={handleGoogleLogin}
+        value="Login with Google"
+        style={styles.googleButton}
+        textStyle={styles.googleButtonText}
+      />
 
-      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-        <Text style={styles.registerButtonText}>Register</Text>
-      </TouchableOpacity>
+      <Button
+        onPress={handleRegister}
+        value="Register"
+        style={styles.registerButton}
+        textStyle={styles.registerButtonText}
+      />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -83,30 +89,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
   input: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 4,
-    padding: 8,
-    fontSize: 16,
+    marginBottom: 16,
   },
   loginButton: {
-    backgroundColor: 'blue',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
-    marginBottom: 16,
+    marginVertical: 16,
   },
   loginButtonText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -116,29 +105,23 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   googleButton: {
+    marginVertical: 16,
     backgroundColor: 'red',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
-    marginBottom: 16,
   },
   googleButtonText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: 'white',
   },
   registerButton: {
     backgroundColor: 'gray',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
   },
   registerButtonText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: 'white',
   },
 });
 
