@@ -1,14 +1,20 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
-const BACKEND: string = "http://localhost:5000";
+// const BACKEND: string = "http://127.0.0.1:5000";
+const BACKEND: string = "http://10.0.2.2:5000";
 
 
 const get = (
   url: string = "/",
   callback: ((response: any) => void) = () => {}
 ) => {
-  axios.get(BACKEND + url)
+  const requestUrl = BACKEND + url;
+
+  axios.get(requestUrl)
   .then(callback)
+  .catch((error: any) => {
+    console.error('Catched error: ', error);
+  });
 }
 
 
@@ -21,8 +27,14 @@ const post = (
     console.warn("[WARNING] Empty body for post request");
   }
 
-  axios.post(BACKEND + url, body)
-  .then(callback);
+  const requestUrl = BACKEND + url;
+  console.log("calling : ", requestUrl);
+
+  axios.post(requestUrl, body)
+  .then(callback)
+  .catch((error: any) => {
+    console.error(error.response);
+  });
 }
 
 

@@ -24,14 +24,14 @@ const App = () => {
   }, []);
 
   // will be removed as soon as we check for tokens in localstorage
-  let isConnected = true;
+  let isConnected = false;
 
   // disables headers for this navigator
   const options = { headerShown: false };
 
   return (
     <NavigationContainer independent>
-      <Stack.Navigator initialRouteName={isConnected ? "main" : "signup"}>
+      <Stack.Navigator initialRouteName={isConnected ? "main" : "login"}>
         <Stack.Screen name="login" component={Login} options={options} />
         <Stack.Screen name="signup" component={Signup} options={options} />
         <Stack.Screen name="main" component={MainNavigator} options={options} />
