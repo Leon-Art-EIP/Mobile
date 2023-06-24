@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {
-  Dimensions,
   FlatList,
-  Image,
-  ListRenderItemInfo, ScrollView,
+  ListRenderItemInfo,
+  ScrollView,
   StyleSheet,
-  Text,
-  View, VirtualizedList
+  View,
+  LogBox
 } from 'react-native'
 import {SafeAreaView} from "react-native-safe-area-context";
 import Title from "../components/Title";
@@ -15,7 +14,6 @@ import colors from "../constants/colors";
 import NewsCard from "../components/NewsCard";
 import ArtistCard from "../components/ArtistCard";
 import ForYouArt from "../components/ForYouArt";
-import {NestableDraggableFlatList, NestableScrollContainer} from "react-native-draggable-flatlist";
 
 const HomeScreen = () => {
   const [news, setNews] = useState<NewsType[]>([]);
@@ -27,6 +25,9 @@ const HomeScreen = () => {
     // fetch news from back/firebase
     setNews([ ...const_news ]);
     setArtists([ ...const_artists ]);
+
+    // ignore nested virtualized lists warning until I can find a solution
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
   return (
