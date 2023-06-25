@@ -49,27 +49,30 @@ const Login = () => {
       <Input
         placeholder="Email"
         onTextChanged={handleEmailChange}
-        style={[styles.input, {marginHorizontal: 10}]}
+        style={[styles.input]}
       />
 
       <Input
         placeholder="Mot de passe"
         onTextChanged={handlePasswordChange}
-        style={[styles.input, {marginHorizontal: 10}]}
+        style={styles.input}
         // secureTextEntry
       />
 
       <View style={styles.rememberForgotContainer}>
         <View style={styles.rememberMeContainer}>
-          {/* <CheckBox
-            value={rememberMe}
-            onValueChange={handleRememberMeChange}
-          /> */}
-          <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
+          <TouchableOpacity onPress={() => handleRememberMeChange(!rememberMe)}>
+            {/* <CheckBox
+              value={rememberMe}
+              onValueChange={handleRememberMeChange}
+            /> */}
+            <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
           </TouchableOpacity>
         </View>
+        <View style={{ flex: 1 }} />
+        <TouchableOpacity onPress={handleForgotPassword}>
+          <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
+        </TouchableOpacity>
       </View>
 
       <Button
@@ -79,7 +82,7 @@ const Login = () => {
         textStyle={styles.loginButtonText}
       />
 
-      <Text style={styles.orText}>sOr</Text>
+      <Text style={styles.orText}>Or</Text>
 
       <Button
         onPress={handleGoogleLogin}
@@ -101,7 +104,7 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     padding: 16,
   },
   loginTitle: {
@@ -115,7 +118,8 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
-    width: '100%',
+    marginLeft: 10,
+    marginRight: 10,
   },
   loginButton: {
     marginVertical: 16,
@@ -161,15 +165,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textDecorationLine: 'underline',
     color: 'black',
-    marginLeft: 'auto'
+    marginRight: 20,
   },
   rememberForgotContainer: {
     flexDirection: 'row',
     marginBottom: 16,
     marginTop: 10,
+    alignItems: 'center',
   },
   rememberMeContainer: {
     flexDirection: 'row',
+    marginLeft: 10,
     alignItems: 'center',
   },
   rememberMeText: {
