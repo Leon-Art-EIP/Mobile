@@ -6,9 +6,15 @@ import 'react-native';
 import React from 'react';
 import App from '../App';
 
-// Note: test renderer must be required after react-native.
-import renderer from 'react-test-renderer';
+// We're replacing the react-test-renderer with the react-native testing library
+import { render } from '@testing-library/react-native';
+
+
+jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+
 
 it('renders correctly', () => {
-  renderer.create(<App />);
+  // Use the `render` function from the react-native testing library
+  const { getByTestId } = render(<App />);
+
 });
