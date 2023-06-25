@@ -44,6 +44,8 @@ const Login = ({ navigation }: any) => {
     setPassword(value);
   };
 
+  const handleRecover = () => navigation.navigate('recover');
+
   return (
     <View style={styles.container}>
       <Title style={styles.title}>LeonArt</Title>
@@ -82,12 +84,19 @@ const Login = ({ navigation }: any) => {
         textStyle={styles.googleButtonText}
       />
 
-      <Button
-        onPress={handleRegister}
-        value="Register"
-        style={styles.registerButton}
-        textStyle={styles.registerButtonText}
-      />
+      <View style={{ flexDirection: "row" }}>
+        <Button
+          onPress={handleRegister}
+          value="Register"
+          secondary
+        />
+
+        <Button
+          onPress={handleRecover}
+          value="Forgot password"
+          tertiary
+        />
+      </View>
     </View>
   );
 };
