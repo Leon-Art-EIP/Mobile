@@ -12,7 +12,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
 
-import Login from './screens/Login';
+import Login from './screens/LoginPage/LoginPage';
 import Signup from './screens/Signup';
 import MainNavigator from './navigators/MainNavigator';
 

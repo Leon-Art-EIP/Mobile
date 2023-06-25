@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native'
-import { get } from '../constants/fetch';
-import Button, { ButtonProps } from '../components/Button';
-import Input, { InputProps } from '../components/Input';
-import Title, { TitleProps } from '../components/Title';
-import colors from "../constants/colors";
+import { Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native';
+import { get } from '../../constants/fetch';
+import Button, { ButtonProps } from '../../components/Button';
+import Input, { InputProps } from '../../components/Input';
+import Title, { TitleProps } from '../../components/Title';
+import CheckBox from '@react-native-community/checkbox';
+import colors from '../../constants/colors';
 
 const Login = () => {
   const handleLogin = () => {
@@ -31,9 +32,9 @@ const Login = () => {
     // Logique pour gérer le clic sur "Mot de passe oublié ?"
   };
 
-  const handleRememberMeChange = (checked: boolean) => {
+  const handleRememberMeChange = () => {
     // Logique pour gérer le changement de la case "Se souvenir de moi"
-    setRememberMe(checked);
+    setRememberMe(!rememberMe);
   };
 
   const [rememberMe, setRememberMe] = useState(false);
@@ -41,8 +42,8 @@ const Login = () => {
   return (
     <View style={styles.container}>
       <View style={styles.titleView}>
-        <Title style={{color: colors.primary, fontSize: 70 }}>Leon</Title>
-        <Title style={{fontSize: 70}}>'Art</Title>
+        <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
+        <Title style={{ fontSize: 70 }}>'Art</Title>
       </View>
       <Title style={styles.loginTitle}>Connexion</Title>
 
@@ -59,22 +60,18 @@ const Login = () => {
         // secureTextEntry
       />
 
-      <View style={styles.rememberForgotContainer}>
-        <View style={styles.rememberMeContainer}>
-          <TouchableOpacity onPress={() => handleRememberMeChange(!rememberMe)}>
-            {/* Ajouter une checkbox ici */}
-            {/* <CheckBox
-              value={rememberMe}
-              onValueChange={handleRememberMeChange}
-            /> */}
-            <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
-          </TouchableOpacity>
+      <TouchableOpacity onPress={handleRememberMeChange}>
+        <View style={styles.checkboxContainer}>
+          <CheckBox
+            value={rememberMe}
+            onValueChange={handleRememberMeChange}
+          />
+          <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
         </View>
-        <View style={{ flex: 1 }} />
-        <TouchableOpacity onPress={handleForgotPassword}>
-          <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
-        </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleForgotPassword}>
+        <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
+      </TouchableOpacity>
 
       <Button
         onPress={handleLogin}
@@ -98,7 +95,7 @@ const Login = () => {
 
       <Button
         onPress={handleRegister}
-        value="Register"
+        value="S'inscrire"
         style={styles.registerButton}
         textStyle={styles.registerButtonText}
       />
@@ -109,7 +106,6 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
     padding: 16,
   },
   loginTitle: {
@@ -166,7 +162,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textDecorationLine: 'underline',
     color: 'black',
-    marginRight: 15,
+    marginLeft: 'auto',
+    marginRight: 20,
   },
   rememberForgotContainer: {
     flexDirection: 'row',
@@ -197,6 +194,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 1,
     backgroundColor: 'black',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    marginLeft: 10,
+    alignItems: 'center',
   },
 });
 
