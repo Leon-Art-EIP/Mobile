@@ -1,32 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { get, post } from '../../constants/fetch';
 import Button, { ButtonProps } from '../../components/Button';
 import Input, { InputProps } from '../../components/Input';
 import Title, { TitleProps } from '../../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../../constants/colors';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   
+  // const handleLogin = () => {
+  //   post(
+  //     '/api/auth/login',
+  //     { email, password },
+  //     () => navigation.navigate('main'),
+  //     (error: any) => {
+  //       console.log('response received : ', error.response.status);
+  //       switch (error.response.status) {
+  //         case (401): setError('Invalid password or email'); break;
+  //         case (422): setError('Invalid password or email'); break;
+  //         default: setError(undefined);
+  //       }
+  //     }
+  //   );
+  // };
+  // Should be the correct implementation when connected to back
   const handleLogin = () => {
-    post(
-      '/api/auth/login',
-      { email, password },
-      () => navigation.navigate('main'),
-      (error: any) => {
-        console.log('response received : ', error.response.status);
-        switch (error.response.status) {
-          case (401): setError('Invalid password or email'); break;
-          case (422): setError('Invalid password or email'); break;
-          default: setError(undefined);
-        }
-      }
-    );
+    post('/api/auth/login', { email, password }, (response: any) => {
+      console.log('response received : ', response);
+    });
   };
+
+  // const handleLogin = () => {
+  //   if (!email || !password) {
+  //     Alert.alert('Champs manquants', 'Veuillez remplir tous les champs.');
+  //     return;
+  //   }
+  
+  //   if (!email.includes('@')) {
+  //     Alert.alert('Email invalide', 'L\'adresse email que vous avez entré est invalide.');
+  //     setError('Invalid password or email');
+  //     return;
+  //   }
+  
+  //   setError(undefined);
+  //   navigation.navigate('main');
+  // };
 
   const handleGoogleLogin = () => {
     // Logique de connexion avec Google ici
@@ -45,7 +68,7 @@ const Login = ({ navigation }: any) => {
   };
 
   const handleForgotPassword = () => {
-    navigation.navigate('recover')
+    navigation.navigate('recover');
   };
 
   const handleRememberMeChange = () => {
