@@ -11,7 +11,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
 
 import ComponentsShow from './screens/ComponentsShow';
 import Login from './screens/Login';
@@ -27,8 +26,8 @@ const App = () => {
   }, []);
 
   // will be removed as soon as we check for tokens in localstorage
-  let isConnected = true;
-  let isShowingComponents = false;
+  let isConnected = false;
+  let isShowingComponents = true;
 
   // disables headers for this navigator
   const options = { headerShown: false };

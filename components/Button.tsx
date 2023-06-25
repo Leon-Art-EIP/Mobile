@@ -22,6 +22,7 @@ const Button = ({
   disabled = false
 }: ButtonProps) => (
   <TouchableOpacity
+    accessibilityRole="button"
     onPress={onPress}
     disabled={disabled}
     style={[

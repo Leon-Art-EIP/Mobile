@@ -13,9 +13,9 @@ const ComponentsShow = () => {
     <View>
       <Card>
         <Title>Buttons</Title>
-        <Button />
-        <Button secondary />
-        <Button tertiary />
+        <Button value='primary' />
+        <Button secondary value='secondary' />
+        <Button tertiary value='tertiary' />
       </Card>
       <Card>
         <Title>Big title</Title>

@@ -18,7 +18,7 @@ const Login = ({ navigation }: any) => {
       { email, password },
       () => navigation.navigate('main'),
       (error: any) => {
-        console.log('response received : ', error.response.status);
+        // console.log('response received : ', error.response.status);
         switch (error.response.status) {
           case (401): setError('Invalid password or email'); break;
           case (422): setError('Invalid password or email'); break;
@@ -50,7 +50,7 @@ const Login = ({ navigation }: any) => {
     <View style={styles.container}>
       <Title style={styles.title}>LeonArt</Title>
 
-      <Title style={styles.loginTitle}>Login</Title>
+      {/* <Title style={styles.loginTitle}>Login</Title> */}
 
       <Input
         placeholder="Enter your email"
