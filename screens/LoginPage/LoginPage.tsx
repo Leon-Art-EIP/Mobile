@@ -1,15 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native';
-import { get } from '../../constants/fetch';
+import { get, post } from '../../constants/fetch';
 import Button, { ButtonProps } from '../../components/Button';
 import Input, { InputProps } from '../../components/Input';
 import Title, { TitleProps } from '../../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../../constants/colors';
 
-const Login = () => {
+const Login = ({ navigation }: any) => {
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [password, setPassword] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
+  
   const handleLogin = () => {
-    // Logique de connexion ici
+    post(
+      '/api/auth/login',
+      { email, password },
+      () => navigation.navigate('main'),
+      (error: any) => {
+        console.log('response received : ', error.response.status);
+        switch (error.response.status) {
+          case (401): setError('Invalid password or email'); break;
+          case (422): setError('Invalid password or email'); break;
+          default: setError(undefined);
+        }
+      }
+    );
   };
 
   const handleGoogleLogin = () => {
@@ -17,19 +33,19 @@ const Login = () => {
   };
 
   const handleRegister = () => {
-    // Logique d'inscription ici
+    navigation.navigate('signup');
   };
 
-  const handleEmailChange = (email: string) => {
-    // Logique pour gérer le changement d'e-mail
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
   };
 
-  const handlePasswordChange = (password: string) => {
-    // Logique pour gérer le changement de mot de passe
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
   };
 
   const handleForgotPassword = () => {
-    // Logique pour gérer le clic sur "Mot de passe oublié ?"
+    navigation.navigate('recover')
   };
 
   const handleRememberMeChange = () => {

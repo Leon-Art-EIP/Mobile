@@ -15,6 +15,7 @@ import React, { useEffect } from 'react';
 import Login from './screens/LoginPage/LoginPage';
 import Signup from './screens/Signup';
 import MainNavigator from './navigators/MainNavigator';
+import ForgotPassword from './screens/ForgotPassword';
 
 const App = () => {
   const Stack =  createNativeStackNavigator();
@@ -35,6 +36,7 @@ const App = () => {
         <Stack.Screen name="login" component={Login} options={options} />
         <Stack.Screen name="signup" component={Signup} options={options} />
         <Stack.Screen name="main" component={MainNavigator} options={options} />
+        <Stack.Screen name='recover' component={ForgotPassword} options={options} />
       </Stack.Navigator>
     </NavigationContainer>
   );
