@@ -11,7 +11,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
+import { View } from 'react-native';
 
+import ComponentsShow from './screens/ComponentsShow';
 import Login from './screens/Login';
 import Signup from './screens/Signup';
 import MainNavigator from './navigators/MainNavigator';
@@ -25,18 +27,21 @@ const App = () => {
   }, []);
 
   // will be removed as soon as we check for tokens in localstorage
-  let isConnected = false;
+  let isConnected = true;
+  let isShowingComponents = false;
 
   // disables headers for this navigator
   const options = { headerShown: false };
 
-  return (
+  return isShowingComponents ? (
+    <ComponentsShow />
+  ) : (
     <NavigationContainer independent>
       <Stack.Navigator initialRouteName={isConnected ? "main" : "login"}>
         <Stack.Screen name="login" component={Login} options={options} />
         <Stack.Screen name="signup" component={Signup} options={options} />
         <Stack.Screen name="main" component={MainNavigator} options={options} />
-        <Stack.Screen name='recover' component={ForgotPassword} options={options} />
+        <Stack.Screen name="recover" component={ForgotPassword} options={options} />
       </Stack.Navigator>
     </NavigationContainer>
   );
