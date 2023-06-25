@@ -5,15 +5,27 @@ import Button, { ButtonProps } from '../components/Button';
 import Input, { InputProps } from '../components/Input';
 import Title, { TitleProps } from '../components/Title';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import colors from '../constants/colors';
 
-const Login = () => {
+const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleLogin = () => {
-    post('/api/auth/login', { email, password }, (response: any) => {
-      console.log('response received : ', response);
-    });
+    post(
+      '/api/auth/login',
+      { email, password },
+      () => navigation.navigate('main'),
+      (error: any) => {
+        console.log('response received : ', error.response.status);
+        switch (error.response.status) {
+          case (401): setError('Invalid password or email'); break;
+          case (422): setError('Invalid password or email'); break;
+          default: setError(undefined);
+        }
+      }
+    );
   };
 
   const handleGoogleLogin = () => {
@@ -21,7 +33,7 @@ const Login = () => {
   };
 
   const handleRegister = () => {
-    // Logique d'inscription ici
+    navigation.navigate('signup');
   };
 
   const handleEmailChange = (value: string) => {
@@ -59,6 +71,9 @@ const Login = () => {
       />
 
       <Text style={styles.orText}>Or</Text>
+      { error && (
+        <Text style={styles.errorText}>{ error }</Text>
+      ) }
 
       <Button
         onPress={handleGoogleLogin}
@@ -129,6 +144,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
   },
+  errorText: {
+    fontSize: 14,
+    color: colors.error
+  }
 });
 
 export default Login;
