@@ -1,100 +1,103 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TouchableOpacity } from 'react-native'
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { get, post } from '../constants/fetch';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Title from '../components/Title';
-import colors from '../constants/colors';
+import colors from "../constants/colors";
 
 const Signup = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
-  const [fullName, setFullName] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
   const [phone, setPhone] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleSignup = () => {
-    // handle signup logic here
+    post(
+      '/api/auth/signup',
+      { email, username, phone },
+      () => navigation.navigate('main'),
+      (error: any) => {
+        console.log('réponse reçue : ', error.response.status);
+        switch (error.response.status) {
+          case 409: setError('Email déjà utilisé'); break;
+          case 422: {
+            const errorMessages = error.response.data.errors.map((e: any) => e.msg).join('\n');
+            setError(errorMessages);
+            break;
+          }
+          default: setError('Erreur serveur inattendue. Veuillez réessayer plus tard.');
+        }
+      }
+    );
   };
 
   const handleLoginNavigation = () => {
     navigation.navigate('login');
   };
 
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-  };
-
-  const handleFullNameChange = (value: string) => {
-    setFullName(value);
-  };
-
-  const handlePhoneChange = (value: string) => {
-    setPhone(value);
-  };
-
   return (
     <View style={styles.container}>
-      <Title style={styles.title}>LeonArt</Title>
-      <Title style={styles.signupTitle}>Sign Up</Title>
+      <View style={styles.titleView}>
+        <Title style={{color: colors.primary, fontSize: 70 }}>Leon</Title>
+        <Title style={{fontSize: 70}}>'Art</Title>
+      </View>
+      <Title style={styles.signupTitle}>Inscription</Title>
 
       <Input
-        placeholder="E-mail"
-        onTextChanged={handleEmailChange}
+        placeholder="Email"
+        onTextChanged={setEmail}
         style={styles.input}
       />
 
       <Input
-        placeholder="Full Name"
-        onTextChanged={handleFullNameChange}
+        placeholder="Nom d'utilisateur"
+        onTextChanged={setUsername}
         style={styles.input}
       />
 
       <Input
-        placeholder="Phone"
-        onTextChanged={handlePhoneChange}
+        placeholder="Téléphone"
+        onTextChanged={setPhone}
         style={styles.input}
       />
 
       <Button
         onPress={handleSignup}
-        value="Continue"
-        style={styles.signupButton}
+        value="Continuer"
+        style={[styles.signupButton, { backgroundColor: colors.primary }]}
         textStyle={styles.signupButtonText}
       />
 
-      { error && (
-        <Text style={styles.errorText}>{ error }</Text>
-      ) }
-
-      <View style={{ flexDirection: "row" }}>
-        <Text style={styles.alreadyJoinedText}>Joined us before ?</Text>
+      <View style={styles.existingUserContainer}>
+        <Text style={styles.existingUserText}>Déjà inscrit ?</Text>
         <TouchableOpacity onPress={handleLoginNavigation}>
-          <Text style={styles.loginText}>Login</Text>
+          <Text style={styles.loginText}>Se connecter</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 32,
-  },
   signupTitle: {
-    fontSize: 18,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 16,
+    marginTop: 20,
+    marginRight: 'auto',
+    marginLeft: 15,
     textAlign: 'center',
   },
   input: {
     marginBottom: 16,
+    marginLeft: 10,
+    marginRight: 10,
   },
   signupButton: {
     marginVertical: 16,
@@ -103,19 +106,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: 'white',
   },
-  alreadyJoinedText: {
-    fontSize: 14,
+  titleView: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 70,
+    marginBottom: 40,
+  },
+  existingUserContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  existingUserText: {
     marginRight: 8,
   },
   loginText: {
-    fontSize: 14,
+    fontSize: 16,
+    textDecorationLine: 'underline',
     color: 'blue',
   },
-  errorText: {
-    fontSize: 14,
-    color: colors.error
-  }
 });
 
 export default Signup;
