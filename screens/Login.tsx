@@ -1,13 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native'
-import { get } from '../constants/fetch';
+import { get, post } from '../constants/fetch';
 import Button, { ButtonProps } from '../components/Button';
 import Input, { InputProps } from '../components/Input';
 import Title, { TitleProps } from '../components/Title';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 const Login = () => {
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [password, setPassword] = useState<string | undefined>(undefined);
+
   const handleLogin = () => {
-    // Logique de connexion ici
+    post('/api/auth/login', { email, password }, (response: any) => {
+      console.log('response received : ', response);
+    });
   };
 
   const handleGoogleLogin = () => {
@@ -18,12 +24,12 @@ const Login = () => {
     // Logique d'inscription ici
   };
 
-  const handleEmailChange = (email: string) => {
-    // Logique pour gérer le changement d'e-mail
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
   };
 
-  const handlePasswordChange = (password: string) => {
-    // Logique pour gérer le changement de mot de passe
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
   };
 
   return (

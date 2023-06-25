@@ -1,8 +1,7 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 // const BACKEND: string = "http://127.0.0.1:5000";
 const BACKEND: string = "http://10.0.2.2:5000";
-
 
 const get = (
   url: string = "/",
@@ -33,7 +32,7 @@ const post = (
   axios.post(requestUrl, body)
   .then(callback)
   .catch((error: any) => {
-    console.error(error.response);
+    console.error('Catched error: ', error);
   });
 }
 
