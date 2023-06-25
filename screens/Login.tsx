@@ -44,7 +44,7 @@ const Login = () => {
         <Title style={{color: colors.primary, fontSize: 70 }}>Leon</Title>
         <Title style={{fontSize: 70}}>'Art</Title>
       </View>
-      <Title style={styles.loginTitle}>Log In</Title>
+      <Title style={styles.loginTitle}>Connexion</Title>
 
       <Input
         placeholder="Email"
@@ -62,6 +62,7 @@ const Login = () => {
       <View style={styles.rememberForgotContainer}>
         <View style={styles.rememberMeContainer}>
           <TouchableOpacity onPress={() => handleRememberMeChange(!rememberMe)}>
+            {/* Ajouter une checkbox ici */}
             {/* <CheckBox
               value={rememberMe}
               onValueChange={handleRememberMeChange}
@@ -77,16 +78,20 @@ const Login = () => {
 
       <Button
         onPress={handleLogin}
-        value="Login"
+        value="Se connecter"
         style={[styles.loginButton, { backgroundColor: colors.primary }]}
         textStyle={styles.loginButtonText}
       />
 
-      <Text style={styles.orText}>Or</Text>
+      <View style={styles.orContainer}>
+        <View style={styles.line} />
+        <Text style={styles.orText}>Ou</Text>
+        <View style={styles.line} />
+      </View>
 
       <Button
         onPress={handleGoogleLogin}
-        value="Login with Google"
+        value="Se connecter avec Google"
         style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
         textStyle={styles.googleButtonText}
       />
@@ -130,10 +135,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
   },
-  orText: {
-    fontSize: 16,
-    marginBottom: 16,
-  },
   googleButton: {
     marginVertical: 16,
     backgroundColor: 'red',
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textDecorationLine: 'underline',
     color: 'black',
-    marginRight: 20,
+    marginRight: 15,
   },
   rememberForgotContainer: {
     flexDirection: 'row',
@@ -180,6 +181,22 @@ const styles = StyleSheet.create({
   },
   rememberMeText: {
     marginLeft: 8,
+  },
+  orContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 16,
+  },
+  orText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 8,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'black',
   },
 });
 
