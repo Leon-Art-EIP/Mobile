@@ -6,6 +6,7 @@ interface InputProps {
   placeholder?: string;
   value?: string;
   onTextChanged?: (e: string) => void;
+  secureTextEntry?: boolean;
   style?: StyleProp<ViewStyle>;
   onError?: () => void;
   error?: boolean;
@@ -16,6 +17,7 @@ const Input = ({
   placeholder = "Enter your text here ...",
   value = "",
   onTextChanged = (_: string) => {},
+  secureTextEntry = true,
   style = {},
   onError = () => {},
   error = false,

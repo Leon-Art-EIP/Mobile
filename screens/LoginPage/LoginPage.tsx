@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert, Platform, Image } from 'react-native';
 import { get, post } from '../../constants/fetch';
 import Button, { ButtonProps } from '../../components/Button';
 import Input, { InputProps } from '../../components/Input';
@@ -7,49 +7,21 @@ import Title, { TitleProps } from '../../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../../constants/colors';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import eyeIcon from '../../assets/eye_icon.png';
+import mailIcon from '../../assets/mail_icon.png';
+import passwordIcon from '../../assets/password_icon.png';
 
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
-  
-  // const handleLogin = () => {
-  //   post(
-  //     '/api/auth/login',
-  //     { email, password },
-  //     () => navigation.navigate('main'),
-  //     (error: any) => {
-  //       console.log('response received : ', error.response.status);
-  //       switch (error.response.status) {
-  //         case (401): setError('Invalid password or email'); break;
-  //         case (422): setError('Invalid password or email'); break;
-  //         default: setError(undefined);
-  //       }
-  //     }
-  //   );
-  // };
-  // Should be the correct implementation when connected to back
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleLogin = () => {
     post('/api/auth/login', { email, password }, (response: any) => {
       console.log('response received : ', response);
     });
   };
-
-  // const handleLogin = () => {
-  //   if (!email || !password) {
-  //     Alert.alert('Champs manquants', 'Veuillez remplir tous les champs.');
-  //     return;
-  //   }
-  
-  //   if (!email.includes('@')) {
-  //     Alert.alert('Email invalide', 'L\'adresse email que vous avez entré est invalide.');
-  //     setError('Invalid password or email');
-  //     return;
-  //   }
-  
-  //   setError(undefined);
-  //   navigation.navigate('main');
-  // };
 
   const handleGoogleLogin = () => {
     // Logique de connexion avec Google ici
@@ -71,12 +43,11 @@ const Login = ({ navigation }: any) => {
     navigation.navigate('recover');
   };
 
+  const [rememberMe, setRememberMe] = useState(false);
+
   const handleRememberMeChange = () => {
-    // Logique pour gérer le changement de la case "Se souvenir de moi"
     setRememberMe(!rememberMe);
   };
-
-  const [rememberMe, setRememberMe] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -85,29 +56,45 @@ const Login = ({ navigation }: any) => {
         <Title style={{ fontSize: 70 }}>'Art</Title>
       </View>
       <Title style={styles.loginTitle}>Connexion</Title>
-
-      <Input
-        placeholder="Email"
-        onTextChanged={handleEmailChange}
-        style={[styles.input]}
-      />
-
-      <Input
-        placeholder="Mot de passe"
-        onTextChanged={handlePasswordChange}
-        style={styles.input}
-        // secureTextEntry
-      />
+      <View style={styles.passwordContainer}>
+        <View style={styles.inputContainer}>
+          <Image source={mailIcon} style={styles.icon} />
+          <TextInput
+            placeholder="Email"
+            onChangeText={handleEmailChange}
+            style={styles.passwordInput}
+          />
+        </View>
+      </View>
+      <View style={styles.passwordContainer}>
+        <View style={styles.inputContainer}>
+          <Image source={passwordIcon} style={styles.icon} />
+          <TextInput
+            placeholder="Mot de passe"
+            onChangeText={handlePasswordChange}
+            style={styles.passwordInput}
+            secureTextEntry={!showPassword}
+            value={password}
+          />
+          {password ? (
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+              activeOpacity={0.7}
+            >
+              <Image source={eyeIcon} style={styles.eyeIconImage} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      </View>
 
       <TouchableOpacity onPress={handleRememberMeChange}>
         <View style={styles.checkboxContainer}>
-          <CheckBox
-            value={rememberMe}
-            onValueChange={handleRememberMeChange}
-          />
+          <CheckBox value={rememberMe} onValueChange={handleRememberMeChange} />
           <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
         </View>
       </TouchableOpacity>
+
       <TouchableOpacity onPress={handleForgotPassword}>
         <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
       </TouchableOpacity>
@@ -160,7 +147,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     marginLeft: 10,
     marginRight: 10,
-  },
+    backgroundColor: '#fff',
+    borderRadius: 100,
+    paddingHorizontal: 10,
+  },  
   loginButton: {
     marginVertical: 16,
   },
@@ -200,7 +190,7 @@ const styles = StyleSheet.create({
   forgotPassword: {
     fontSize: 14,
     textDecorationLine: 'underline',
-    color: 'black',
+    color: colors.tertiary,
     marginLeft: 'auto',
     marginRight: 20,
   },
@@ -217,6 +207,7 @@ const styles = StyleSheet.create({
   },
   rememberMeText: {
     marginLeft: 8,
+    color: colors.tertiary
   },
   orContainer: {
     flexDirection: 'row',
@@ -239,6 +230,36 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     alignItems: 'center',
   },
+  passwordContainer: {
+    marginBottom: 16,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 100,
+    marginBottom: 16,
+    paddingHorizontal: 10,
+  },
+  passwordInput: {
+    marginLeft: 0,
+    marginRight: 0,
+    flex: 1,
+  },
+  eyeIcon: {
+    padding: 10,
+  },
+  eyeIconImage: {
+    width: 20,
+    height: 20,
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },  
 });
 
 export default Login;
