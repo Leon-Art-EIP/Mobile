@@ -5,14 +5,16 @@ import colors from '../constants/colors';
 interface CardProps {
   style?: StyleProp<ViewStyle>;
   children?: any | undefined;
+  id?: number;
 }
 
 const Card = ({
   style = {},
-  children = undefined
+  children = undefined,
+  id = 0
 }: CardProps) => {
   return (
-    <View style={[ styles.container, style ]}>
+    <View style={[ styles.container, style ]} id={id}>
       { children && children }
     </View>
   );

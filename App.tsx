@@ -26,8 +26,8 @@ const App = () => {
   }, []);
 
   // will be removed as soon as we check for tokens in localstorage
-  let isConnected = false;
-  let isShowingComponents = true;
+  let isConnected = true;
+  let isShowingComponents = false;
 
   // disables headers for this navigator
   const options = { headerShown: false };

@@ -5,7 +5,7 @@ import React from "react";
 import colors from "../constants/colors";
 
 const NewsCard = (news: NewsType) => (
-  <Card style={styles.newsCard}>
+  <Card style={styles.newsCard} id={news.id}>
     <Image
       key={news.id}
       source={{ uri: news.imgUrl }}

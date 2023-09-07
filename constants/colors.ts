@@ -16,7 +16,9 @@ const colors = {
   secondaryText: '#2D142C',
   tertiaryText: '#eeeeee',
 
-  sampleBg: '#D3A1A1'
+  sampleBg: '#D3A1A1',
+  darkGreyBg: '#3E3E3E',
+  darkGreyFg: '#251A00'
 };
 
 export default colors;

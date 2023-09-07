@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import colors from "../constants/colors";
 
 const ForYouArt = (index: number) => (
-  <View style={styles.container} />
+  <View style={styles.container} key={index.toString() + Math.random()} />
 );
 
 const styles = StyleSheet.create({
