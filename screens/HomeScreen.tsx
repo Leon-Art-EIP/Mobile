@@ -81,14 +81,14 @@ const HomeScreen = () => {
         {/* Oeuvres */}
         <View>
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Pour vous</Title>
-          <FlatList
-            scrollEnabled={false}
-            data={forYou}
-            renderItem={(e: any) => ForYouArt(e.item)}
-            keyExtractor={(item: number) => item.toString() + Math.random().toString()}
-            numColumns={3}
-            style={{ display: 'flex', marginHorizontal: 14 }}
-          />
+          {/* <FlatList */}
+          {/*   scrollEnabled={false} */}
+          {/*   data={forYou} */}
+          {/*   renderItem={(e: any) => ForYouArt(e.item)} */}
+          {/*   keyExtractor={(item: number) => item.toString() + Math.random().toString()} */}
+          {/*   numColumns={3} */}
+          {/*   style={{ display: 'flex', marginHorizontal: 14 }} */}
+          {/* /> */}
           {/* <View style={{ flexWrap: 'wrap', flexDirection: 'row' }}> */}
           {/*   { forYou.map((item: number) => ForYouArt(item)) } */}
           {/* </View> */}

@@ -5,7 +5,7 @@ interface TitleProps {
   children?: string;
   style?: StyleProp<TextStyle>;
   bold?: boolean;
-  size?: 42 | 36 | 24 | 18;
+  size?: number;
 }
 
 const Title = ({

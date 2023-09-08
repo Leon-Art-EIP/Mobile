@@ -49,7 +49,8 @@ const MessageTabs = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    display: 'flex'
+    display: 'flex',
+    marginBottom: 12
   },
   bubble: {
     borderRadius: 50,
