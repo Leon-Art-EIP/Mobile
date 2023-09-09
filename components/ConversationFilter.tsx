@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import Title from '../components/Title';
 import colors from '../constants/colors';
 
@@ -15,12 +15,14 @@ type ConversationFilterType = {
   status: 'untreated' | 'waiting' | 'finished';
   name: string;
   data: ConversationType[]
+  navigation: any;
 };
 
 const ConversationFilter = ({
   status = 'untreated',
   name = "Non traitées",
-  data = []
+  data = [],
+  navigation = undefined
 }: ConversationFilterType) => {
   const [isOpened, setIsOpened] = useState<boolean>(true);
 
@@ -39,7 +41,11 @@ const ConversationFilter = ({
         </View>
       </TouchableWithoutFeedback>
       { isOpened && data.map((conversation: ConversationType) => conversation.status === status ? (
-        <View key={conversation.id.toString()} style={styles.conversationView}>
+        <TouchableOpacity
+          key={conversation.id.toString()}
+          style={styles.conversationView}
+          onPress={() => navigation?.navigate('conversation', { id: conversation.username })}
+        >
           <View style={{ flexDirection: 'row', height: 60 }}>
 
             {/* Unread dot */}
@@ -55,7 +61,8 @@ const ConversationFilter = ({
             <View>
               <Title size={16}>{ conversation.username }</Title>
               <Text style={{
-                fontWeight: conversation.unread ? 'bold' : 'normal' }}>{ conversation.lastMessage }</Text>
+                fontWeight: conversation.unread ? 'bold' : 'normal' }}
+              >{ conversation.lastMessage }</Text>
             </View>
           </View>
           <View style={styles.lineView} />

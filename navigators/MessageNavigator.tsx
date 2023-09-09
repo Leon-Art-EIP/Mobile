@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
+import Conversation from "../screens/Conversation";
 import InboxScreen from "../screens/InboxScreen";
 
 const MessageNavigator = () => {
@@ -10,12 +11,19 @@ const MessageNavigator = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="conversations" component={InboxScreen} options={options} />
-      {/* <Stack.Screen */}
-      {/*   name="conversation" */}
-      {/*   component={ConversationScreen} */}
-      {/*   options={options} */}
-      {/* /> */}
+
+      <Stack.Screen
+        name="conversations"
+        component={InboxScreen}
+        options={options}
+      />
+
+      <Stack.Screen
+        name="single_conversation"
+        component={Conversation}
+        options={options}
+      />
+
     </Stack.Navigator>
   );
 }

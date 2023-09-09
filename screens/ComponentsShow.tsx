@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native'
 
 
@@ -9,6 +9,8 @@ import Input from '../components/Input';
 
 
 const ComponentsShow = () => {
+  useEffect(() => console.log('ComponentsShow'));
+
   return (
     <View>
       <Card>

@@ -50,8 +50,6 @@ const Login = ({ navigation }: any) => {
     <View style={styles.container}>
       <Title style={styles.title}>LeonArt</Title>
 
-      {/* <Title style={styles.loginTitle}>Login</Title> */}
-
       <Input
         placeholder="Enter your email"
         onTextChanged={handleEmailChange}

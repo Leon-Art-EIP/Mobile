@@ -15,7 +15,7 @@ type ConversationType = {
 };
 
 const InboxScreen = ({ navigation }: any) => {
-  const [conversations, setConversations] = useState<ConversationType[]>([ ...CONVERSATIONS, ...CONVERSATIONS]);
+  const [conversations, setConversations] = useState<ConversationType[]>(CONVERSATIONS);
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80 }}>
@@ -29,7 +29,7 @@ const InboxScreen = ({ navigation }: any) => {
           <TouchableOpacity
             key={conversation.id.toString()}
             style={styles.conversationView}
-            onPress={() => navigation.navigate('conversation', { id: conversation.id })}
+            onPress={() => navigation.navigate('single_conversation', { id: conversation.id, name: conversation.username })}
           >
             <View style={{ flexDirection: 'row', height: 60 }}>
 
