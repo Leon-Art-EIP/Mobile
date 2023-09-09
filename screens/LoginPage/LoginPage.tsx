@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert, Platform, Image } from 'react-native';
-import { get, post } from '../../constants/fetch';
-import Button, { ButtonProps } from '../../components/Button';
-import Input, { InputProps } from '../../components/Input';
-import Title, { TitleProps } from '../../components/Title';
+import { post } from '../../constants/fetch';
+import Button from '../../components/Button';
+import Title from '../../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../../constants/colors';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import eyeIcon from '../../assets/eye_icon.png';
 import mailIcon from '../../assets/mail_icon.png';
 import passwordIcon from '../../assets/password_icon.png';
@@ -14,7 +12,6 @@ import passwordIcon from '../../assets/password_icon.png';
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
-  const [error, setError] = useState<string | undefined>(undefined);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
