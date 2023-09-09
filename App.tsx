@@ -13,7 +13,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
 
 import ComponentsShow from './screens/ComponentsShow';
-import Login from './screens/Login';
+import Login from './screens/LoginPage/LoginPage';
 import Signup from './screens/Signup';
 import MainNavigator from './navigators/MainNavigator';
 import ForgotPassword from './screens/ForgotPassword';
