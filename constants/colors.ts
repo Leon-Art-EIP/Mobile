@@ -5,6 +5,7 @@ const colors = {
   disabledFg: '#afafaf',
   error: '#F16565',
 
+  transparent: '#00000000',
   black: '#000',
   white: '#fff',
 
@@ -14,7 +15,11 @@ const colors = {
 
   primaryText: '#eeeeee',
   secondaryText: '#2D142C',
-  tertiaryText: '#eeeeee'
+  tertiaryText: '#eeeeee',
+
+  sampleBg: '#D3A1A1',
+  darkGreyBg: '#3E3E3E',
+  darkGreyFg: '#251A00'
 };
 
 export default colors;

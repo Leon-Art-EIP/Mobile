@@ -6,6 +6,7 @@ interface InputProps {
   placeholder?: string;
   value?: string;
   onTextChanged?: (e: string) => void;
+  secureTextEntry?: boolean;
   style?: StyleProp<ViewStyle>;
   onError?: () => void;
   error?: boolean;
@@ -16,10 +17,11 @@ const Input = ({
   placeholder = "Enter your text here ...",
   value = "",
   onTextChanged = (_: string) => {},
+  secureTextEntry = true,
   style = {},
   onError = () => {},
   error = false,
-  disabled = false
+  disabled = false,
 }: InputProps) => {
   const [textValue, setTextValue] = useState<string>(value);
 
@@ -35,7 +37,7 @@ const Input = ({
   }, [error]);
 
   return (
-    <TextInput 
+    <TextInput
       editable={!disabled}
       placeholder={placeholder}
       value={textValue}
@@ -72,3 +74,4 @@ const styles = StyleSheet.create({
 });
 
 export default Input;
+export type { InputProps };
