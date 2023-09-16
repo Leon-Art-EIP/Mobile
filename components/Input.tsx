@@ -21,7 +21,7 @@ const Input = ({
   style = {},
   onError = () => {},
   error = false,
-  disabled = false
+  disabled = false,
 }: InputProps) => {
   const [textValue, setTextValue] = useState<string>(value);
 
@@ -37,7 +37,7 @@ const Input = ({
   }, [error]);
 
   return (
-    <TextInput 
+    <TextInput
       editable={!disabled}
       placeholder={placeholder}
       value={textValue}

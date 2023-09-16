@@ -5,6 +5,7 @@ const colors = {
   disabledFg: '#afafaf',
   error: '#F16565',
 
+  transparent: '#00000000',
   black: '#000',
   white: '#fff',
 

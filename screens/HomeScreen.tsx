@@ -5,7 +5,8 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  LogBox
+  LogBox,
+  StatusBar
 } from 'react-native'
 import { SafeAreaView } from "react-native-safe-area-context";
 import Title from "../components/Title";
@@ -32,6 +33,7 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={colors.bg} />
       <ScrollView nestedScrollEnabled>
 
         {/* Title */}
@@ -100,6 +102,8 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: colors.bg,
+    flex: 1
   },
   titleView: {
     display: 'flex',

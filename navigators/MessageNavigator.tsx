@@ -13,7 +13,7 @@ const MessageNavigator = () => {
     <Stack.Navigator>
 
       <Stack.Screen
-        name="conversations"
+        name="inbox"
         component={InboxScreen}
         options={options}
       />

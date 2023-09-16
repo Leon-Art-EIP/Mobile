@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import colors from '../constants/colors';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import colors from '../../constants/colors';
 
 type TabType = {
   id: string;
@@ -13,18 +13,18 @@ const TABS: TabType[] = [
     name: 'Conversations'
   },
   {
-    id: 'commandes',
+    id: 'commands',
     name: 'Commandes'
   },
   {
-    id: 'panier',
+    id: 'cart',
     name: 'Panier'
   }
 ];
 
 const MessageTabs = ({
-  navigation,
-  active = 'conversations'
+  active = 'conversations',
+  setActive = (e: string) => {}
 }: any) => {
   return (
     <View style={styles.container}>
@@ -35,7 +35,7 @@ const MessageTabs = ({
             styles.bubble,
             { backgroundColor: active === tab.id ? colors.darkGreyBg : colors.disabledBg }
           ]}
-          onPress={() => navigation?.navigate(tab.id)}
+          onPress={() => setActive(tab.id)}
         >
           <Text
             style={{ color: active === tab.id ? colors.white : colors.darkGreyFg }}
