@@ -1,17 +1,20 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native'
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native'
 import colors from '../constants/colors';
 import bannerImage from '../assets/images/banner.jpg'
 import profilePicture from '../assets/images/user.png'
+import Button from '../components/Button';
 
 const ProfileScreen = () => {
   // Placer ici les élements de boutons
     // const [email, setEmail] = useState<string | undefined>(undefined);
+    const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
 
   // Placer ici les handles
   return (
+    <ScrollView nestedScrollEnabled>
     <View>
-      {/* Bannière en haut de l'écran */}
+      {/* Bannière */}
       <View style={styles.banner}>
         <Image
           source={bannerImage} // Remplacez par le chemin de votre image
@@ -19,28 +22,96 @@ const ProfileScreen = () => {
           resizeMode="cover" // Pour remplir la bannière
         />
       </View>
-      {/* Contenu de l'écran en dessous de la bannière */}
+      {/* Photo de profile */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
-            source={profilePicture} // Chemin de votre image
+            source={profilePicture}
             style={styles.profilePicture}
-            // style={styles.overlayImage} // Style pour l'image par-dessus
           />
         </View>
       </View>
-      
-      <View style={styles.content}>
-        <Text>Profile screen</Text>
-        {/* Ajoutez d'autres éléments de contenu ici */}
+      {/* Blocs de texte */}
+      <View style={styles.textBlocks}>
+        {/* Bloc de texte follower */}
+        <View style={styles.textBlock}>
+          {/* TODO : remplacer par les vrais valeurs */}
+          <Text style={styles.value}>1.3k</Text>
+          <Text style={styles.title}>followers</Text>
+        </View>
+
+        {/* Bloc de texte au centre */}
+        <View style={styles.centerTextBlock}>
+          {/* TODO : remplacer par les vrais valeurs */}
+          <Text style={styles.centerTitle}>Linus T</Text>
+          <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+        </View>
+
+        {/* Bloc de texte posts */}
+        <View style={styles.textBlock}>
+          {/* TODO : remplacer par les vrais valeurs */}
+          <Text style={styles.value}>64</Text>
+          <Text style={styles.title}>posts</Text>
+        </View>
       </View>
+      {/* Boutons "Suivre" et "Ecrire" */}
+      <View style={styles.contactAndFollow}>
+        <Button
+          value="Suivre"
+          style={{width: 150, height: 38, borderRadius: 10, justifyContent: 'center',}}
+          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
+          />
+        <Button
+          value="Ecrire"
+          secondary
+          style={{width: 150, height: 38, borderRadius: 10,}}
+          textStyle={{fontSize: 14}}
+          />
+      </View>
+      {/* Trait décoratif de séparation */}
+      <View style={styles.decorativeLine} />
+      {/* Boutons d'onglet, "Artwork", "Collections" et "A propos" */}
+      <View style={styles.tabsNavigation}>
+        <Button
+          value="Artwork"
+          secondary={activeTab !== 'Artwork'} // Utilisez secondary si ce n'est pas le bouton actif
+          tertiary={activeTab === 'Artwork'} // Utilisez tertiary si c'est le bouton actif
+          style={[styles.navigationTabButton, styles.marginRightForTabs]}
+          textStyle={styles.navigationTabButtonText}
+          onPress={() => setActiveTab('Artwork')} // Met à jour le bouton actif
+          />
+        <Button
+          value="Collection"
+          secondary={activeTab !== 'Collection'}
+          tertiary={activeTab === 'Collection'}
+          style={[styles.navigationTabButton, styles.marginRightForTabs]}
+          textStyle={styles.navigationTabButtonText}
+          onPress={() => setActiveTab('Collection')} // Met à jour le bouton actif
+          />
+        <Button
+          value="A propos"
+          secondary={activeTab !== 'A propos'}
+          tertiary={activeTab === 'A propos'}
+          style={styles.navigationTabButton}
+          textStyle={styles.navigationTabButtonText}
+          onPress={() => setActiveTab('A propos')} // Met à jour le bouton actif
+          />
+      </View>
+      {/* Ensembles de cadres carrés */}
+      {Array.from({ length: 7 }, (_, rowIndex) => (
+        <View key={rowIndex} style={styles.rowContainer}>
+          {Array.from({ length: 3 }, (_, colIndex) => (
+            <View key={colIndex} style={styles.squareFrame} />
+          ))}
+        </View>
+      ))}
     </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  banner: {
-    // Style de la bannière
+  banner: { // Style de la bannière
     backgroundColor: 'lightblue',
     height: 180, // Hauteur de la bannière (ajustez selon vos besoins)
     width: '100%', // Largeur de la bannière
@@ -57,21 +128,92 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Centrer horizontalement l'image
   },
   profilePicture: {
-    width: 150,
-    height: 150,
+    width: 110,
+    height: 110,
   },
   circleImageContainer: {
-    width: 150,
-    height: 150,
+    width: 110,
+    height: 110,
     borderRadius: 100, // La moitié de la largeur/hauteur pour créer un cercle
     overflow: 'hidden', // Cache tout ce qui dépasse du cercle
+    position: 'absolute',
+    top: -55, // L'image est remontée de moitiée pour que son centre
+    // soit sur le bord infèrieur de la bannière.
   },
-  content: {
-    padding: 16
+  textBlocks: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 70,
   },
-  container: {
+  textBlock: {
     flex: 1,
-    padding: 16,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 15,
+    fontStyle: 'normal',
+    fontWeight: '400',
+    color: colors.tertiary,
+  },
+  value: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: colors.tertiary,
+  },
+  centerTextBlock: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  centerTitle: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: colors.tertiary,
+  },
+  centerSubtitle: {
+    fontSize: 12,
+    color: 'rgba(112, 0, 255, 1)', // TODO : mettre une valeur provenant de colors
+  },
+  contactAndFollow: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 37,
+    flexDirection: 'row',
+    paddingVertical: 0,
+    paddingHorizontal: 17,
+  },
+  decorativeLine: {
+    height: 1,
+    backgroundColor: colors.tertiary,
+    marginVertical: 10, // Espace verticalement
+    marginLeft: 30,
+    marginRight: 30,
+  },
+  tabsNavigation: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  navigationTabButton: {
+    width: 105, height: 38, justifyContent: 'center',
+  },
+  navigationTabButtonText: {
+    fontSize: 12,
+  },
+  marginRightForTabs: {
+    marginRight: 5, // Espacement entre chaque bouton d'onglet
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  squareFrame: {
+    width: 115, // Largeur souhaitée du cadre carré
+    height: 115, // Hauteur souhaitée du cadre carré
+    backgroundColor: 'lightgray', // Couleur de fond du cadre
+    borderRadius: 10, // Légèrement arrondi sur les bords
   },
 });
 
