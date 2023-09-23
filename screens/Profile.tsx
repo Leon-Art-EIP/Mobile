@@ -1,19 +1,39 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import colors from '../constants/colors';
 import bannerImage from '../assets/images/banner.jpg'
 import profilePicture from '../assets/images/user.png'
+import BackArrow from '../assets/images/back_arrow.png'
 import Button from '../components/Button';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
   // Placer ici les élements de boutons
-    // const [email, setEmail] = useState<string | undefined>(undefined);
-    const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
-
+  const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
   // Placer ici les handles
+  const handleBackButtonClick = () => {
+    navigation.goBack();
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Vous pouvez laisser cette fonction de rappel vide car vous avez déjà déclaré handleBackButtonClick
+      // en dehors de cette fonction.
+    }, [navigation])
+  );
+
   return (
     <ScrollView nestedScrollEnabled>
     <View>
+      {/* Bouton de retour en haut à gauche */}
+      <TouchableOpacity
+          onPress={() => handleBackButtonClick()}
+          style={styles.backButton}
+        >
+          {/* Utilisez l'image PNG importée */}
+          <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
+        </TouchableOpacity>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
@@ -55,7 +75,7 @@ const ProfileScreen = () => {
         </View>
       </View>
       {/* Boutons "Suivre" et "Ecrire" */}
-      <View style={styles.contactAndFollow}>
+      {/* <View style={styles.contactAndFollow}>
         <Button
           value="Suivre"
           style={{width: 150, height: 38, borderRadius: 10, justifyContent: 'center',}}
@@ -67,7 +87,7 @@ const ProfileScreen = () => {
           style={{width: 150, height: 38, borderRadius: 10,}}
           textStyle={{fontSize: 14}}
           />
-      </View>
+      </View> */}
       {/* Trait décoratif de séparation */}
       <View style={styles.decorativeLine} />
       {/* Boutons d'onglet, "Artwork", "Collections" et "A propos" */}
@@ -98,13 +118,15 @@ const ProfileScreen = () => {
           />
       </View>
       {/* Ensembles de cadres carrés */}
-      {Array.from({ length: 7 }, (_, rowIndex) => (
-        <View key={rowIndex} style={styles.rowContainer}>
-          {Array.from({ length: 3 }, (_, colIndex) => (
-            <View key={colIndex} style={styles.squareFrame} />
-          ))}
-        </View>
-      ))}
+      {activeTab === 'Artwork' &&
+        Array.from({ length: 7 }, (_, rowIndex) => (
+          <View key={rowIndex} style={styles.rowContainer}>
+            {Array.from({ length: 3 }, (_, colIndex) => (
+              <View key={colIndex} style={styles.squareFrame} />
+            ))}
+          </View>
+        ))
+      }
     </View>
     </ScrollView>
   );
@@ -214,6 +236,12 @@ const styles = StyleSheet.create({
     height: 115, // Hauteur souhaitée du cadre carré
     backgroundColor: 'lightgray', // Couleur de fond du cadre
     borderRadius: 10, // Légèrement arrondi sur les bords
+  },
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
   },
 });
 
