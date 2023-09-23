@@ -7,10 +7,13 @@ import Button from '../components/Button';
 import TagButton from '../components/TagButton';
 import Toggle from '../assets/images/toggle.svg'
 
-const nextPage = () => {
+const nextPage = ({ navigation }: any) => {
     navigation.navigate('profilingQuizzArtist2');
+    
 };
-
+const selectTag = () => {
+    // Save user preferences
+};
 const ProfilingQuizz = () => {
   return (
 <View style={styles.container}>
@@ -18,25 +21,34 @@ const ProfilingQuizz = () => {
         <Title style={{ color: colors.primary}}>Leon</Title>
         <Title>'Art</Title>
     </View>
-        <Text style={styles.homeTitle}>Bienvenue !</Text>
-        <Text style={styles.homeText}>Avec Leon'Art vous souhaitez...</Text>
+    <Text style={styles.question}>2/3 - Souhaitez-vous proposer des créations personnalisées ?</Text>
     <View style={styles.Tags}>
-        <Button style={styles.TagButton} textStyle={styles.TagButtonText}
-            value="Découvrir des œuvres d'art"
-            // onPress={handleRegister}
+        <TagButton
+        value="Oui"
+        style={styles.TagButton}
+        textStyle={styles.TagButtonText}
+        onPress={selectTag}
         />
-        <Button style={styles.TagButton} textStyle={styles.TagButtonText}
-            value="Acheter des œuvres d'art"
-            // onPress={handleRegister}
-            />
-        <Button style={styles.TagButton} textStyle={styles.TagButtonText}
-            value="Vendre mes œuvres d'art"
-            // onPress={handleRegister}
-            />
-        <TagButton/>
+        <TagButton 
+        value="Non"
+        style={styles.TagButton}
+        textStyle={styles.TagButtonText}
+        onPress={selectTag}
+        />
+        <TagButton 
+        value="Peut-être plus tard"
+        style={styles.TagButton}
+        textStyle={styles.TagButtonText}
+        onPress={selectTag}
+        />
     </View>
     <Button
         value="Suivant"
+        onPress={nextPage}
+        // onPress={handleRegister}
+    />
+    <Button  style={styles.backButton}
+        value="Retour"
         onPress={nextPage}
         // onPress={handleRegister}
     />
@@ -59,32 +71,19 @@ const styles = StyleSheet.create({
         marginTop: 70,
         marginBottom: 30,
     },
-    homeTitle: {
-        marginLeft: 'auto',
-        marginRight: 'auto',
+    question: {
+        height: 60,
+        marginLeft: 18,
         marginTop: 20,
         marginBottom: 0,
-        fontSize: 30,
-        // bold: true,
-        // font-family: 'Inter',
-        // marginBottom: 40,
-        // width: 169,
-        color: '#000',
-    },
-    homeText: {
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        marginTop: 20,
-        marginBottom: 40,
         fontSize: 18,
-        // font-family: 'Inter',
-        // marginBottom: 40,
-        // width: 169,
+        fontWeight: 'bold',
         color: '#000',
     },
     Tags: {
-        margin: 15,
-        gap: 43,
+        // flexDirection: 'center/',
+        flex: 1,
+        padding: 20,
     },
     TagButton: {
         marginBottom: 20,
@@ -94,6 +93,10 @@ const styles = StyleSheet.create({
     TagButtonText: {
         color: '#000',
     },
+    backButton: {
+        backgroundColor: '#F4F4F4',
+        color: '#000',
+    }
 });
 
 
