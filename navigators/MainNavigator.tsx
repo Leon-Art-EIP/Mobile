@@ -6,6 +6,7 @@ import HomeNavigator from './HomeNavigator';
 import MessageNavigator from './MessageNavigator';
 import CartNavigator from './CartNavigator';
 import ProfileNavigator from './ProfileNavigator';
+// import OtherProfileNavigator from './OtherProfileNavigator';
 import HomeSVG from '../assets/icons/home.svg';
 
 const MainNavigator = () => {
@@ -30,6 +31,7 @@ const MainNavigator = () => {
       <Tab.Screen name="messages" component={MessageNavigator} options={options} />
       <Tab.Screen name="cart" component={CartNavigator} options={options} />
       <Tab.Screen name="profile" component={ProfileNavigator} options={options} />
+      {/* <Tab.Screen name="other_profile" component={OtherProfileNavigator} options={options} /> */}
     </Tab.Navigator>
   );
 }

@@ -1,9 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import Profile from '../screens/Profile';
+import OtherProfile from '../screens/OtherProfile';
 
-const ProfileNavigator = () => {
+const OtherProfileNavigator = () => {
   const Stack = createNativeStackNavigator();
 
   // disables header for this navigator
@@ -11,7 +11,7 @@ const ProfileNavigator = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="profile" component={Profile} options={options} />
+      <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
     </Stack.Navigator>
       // <Stack.Navigator>
 
@@ -31,5 +31,5 @@ const ProfileNavigator = () => {
   );
 }
 
-export default ProfileNavigator;
+export default OtherProfileNavigator;
 

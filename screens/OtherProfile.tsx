@@ -4,13 +4,10 @@ import colors from '../constants/colors';
 import bannerImage from '../assets/images/banner.jpg'
 import profilePicture from '../assets/images/user.png'
 import BackArrow from '../assets/images/back_arrow.png'
-import EditButtonImage from '../assets/images/edit_logo.png'
-import SettingsButtonImage from '../assets/images/settings_logo.png'
-
 import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
-const Profile = () => {
+const OtherProfile = () => {
   const navigation = useNavigation();
   // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
@@ -18,11 +15,9 @@ const Profile = () => {
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
-  const handleEditButtonClick = () => {
-    navigation.navigate('editprofile');
-  };
-  const handleSettingsButtonClick = () => {
-    navigation.navigate('settings');
+  const handleContactButtonClick = () => {
+    //TO DO : rediriger dynamiquement vers la bonne page
+    navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
   };
 
   useFocusEffect(
@@ -35,26 +30,14 @@ const Profile = () => {
   return (
     <ScrollView nestedScrollEnabled>
     <View>
-      <View style={{ flexDirection: 'row', marginRight: 20 }}>
-        <TouchableOpacity
+      {/* Bouton de retour en haut à gauche */}
+      <TouchableOpacity
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
         >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+          {/* Utilisez l'image PNG importée */}
+          <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleEditButtonClick()}
-          style={styles.editButton}
-        >
-          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleSettingsButtonClick()}
-          style={styles.settingButton}
-        >
-          <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
-        </TouchableOpacity>
-      </View>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
@@ -84,7 +67,7 @@ const Profile = () => {
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
           {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.centerTitle}>Linus T</Text>
+          <Text style={styles.centerTitle}>Marine Weber</Text>
           <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
         </View>
 
@@ -94,6 +77,22 @@ const Profile = () => {
           <Text style={styles.value}>64</Text>
           <Text style={styles.title}>posts</Text>
         </View>
+      </View>
+      {/* Boutons "Suivre" et "Ecrire" */}
+      <View style={styles.contactAndFollow}>
+        <Button
+          value="Suivre"
+          style={{width: 150, height: 38, borderRadius: 10, justifyContent: 'center',}}
+          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
+          />
+        <Button
+          value="Ecrire"
+          secondary
+          style={{width: 150, height: 38, borderRadius: 10,}}
+          textStyle={{fontSize: 14}}
+          // onPress={() => navigation?.navigate('single_conversation', { id: conversation.id, name: conversation.username }
+          onPress={() => handleContactButtonClick()}
+          />
       </View>
       {/* Trait décoratif de séparation */}
       <View style={styles.decorativeLine} />
@@ -124,22 +123,12 @@ const Profile = () => {
           onPress={() => setActiveTab('A propos')} // Met à jour le bouton actif
           />
       </View>
-      {/* Artworks */}
+      {/* Ensembles de cadres carrés */}
       {activeTab === 'Artwork' &&
         Array.from({ length: 7 }, (_, rowIndex) => (
           <View key={rowIndex} style={styles.rowContainer}>
             {Array.from({ length: 3 }, (_, colIndex) => (
-              <View key={colIndex} style={styles.squareFrameArtwork} />
-            ))}
-          </View>
-        ))
-      }
-      {/* Collection */}
-      {activeTab === 'Collection' &&
-        Array.from({ length: 7 }, (_, rowIndex) => (
-          <View key={rowIndex} style={styles.rowContainer}>
-            {Array.from({ length: 2 }, (_, colIndex) => (
-              <View key={colIndex} style={styles.squareFrameCollection} />
+              <View key={colIndex} style={styles.squareFrame} />
             ))}
           </View>
         ))
@@ -249,16 +238,10 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
   },
-  squareFrameArtwork: {
+  squareFrame: {
     width: 115, // Largeur souhaitée du cadre carré
     height: 115, // Hauteur souhaitée du cadre carré
     backgroundColor: 'lightgray', // Couleur de fond du cadre
-    borderRadius: 10, // Légèrement arrondi sur les bords
-  },
-  squareFrameCollection: {
-    width: 174, // Largeur souhaitée du cadre carré
-    height: 115, // Hauteur souhaitée du cadre carré
-    backgroundColor: colors.tertiary, // Couleur de fond du cadre
     borderRadius: 10, // Légèrement arrondi sur les bords
   },
   backButton: {
@@ -267,18 +250,6 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 1, // Pour placer le bouton au-dessus de la bannière
   },
-  editButton: {
-    position: 'absolute',
-    top: 16,
-    right: 50,
-    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
-  },
-  settingButton: {
-    position: 'absolute',
-    top: 16,
-    right: 0,
-    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
-  },
 });
 
-export default Profile;
+export default OtherProfile;
