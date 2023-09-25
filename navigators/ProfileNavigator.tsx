@@ -1,8 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-
-import ProfileScreen from '../screens/Profile';
+import Profile from '../screens/Profile';
 
 const ProfileNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -12,8 +11,23 @@ const ProfileNavigator = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="profilemain" component={ProfileScreen} options={options} />
+      <Stack.Screen name="profile" component={Profile} options={options} />
     </Stack.Navigator>
+      // <Stack.Navigator>
+
+      //   <Stack.Screen
+      //     name="inbox"
+      //     component={InboxScreen}
+      //     options={options}
+      //   />
+  
+      //   <Stack.Screen
+      //     name="single_conversation"
+      //     component={Conversation}
+      //     options={options}
+      //   />
+  
+      // </Stack.Navigator>
   );
 }
 

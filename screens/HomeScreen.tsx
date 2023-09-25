@@ -15,12 +15,18 @@ import colors from "../constants/colors";
 import NewsCard from "../components/NewsCard";
 import ArtistCard from "../components/ArtistCard";
 import ForYouArt from "../components/ForYouArt";
+import { useNavigation } from '@react-navigation/native';
+
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
   const [news, setNews] = useState<NewsType[]>([]);
   const [artists, setArtists] = useState<NewsType[]>([]);
   const [forYou, setForYou] = useState<number[]>(Array(100).fill((index: number) => index));
 
+  const handleToArtistProfile = () => {
+    navigation.navigate('other_profile');
+  };
   // run at startup
   useEffect(() => {
     // fetch news from back/firebase
@@ -71,7 +77,15 @@ const HomeScreen = () => {
             style={{ marginHorizontal: 8 }}
             keyExtractor={(item: NewsType) => item.id.toString()}
             showsHorizontalScrollIndicator={false}
-            renderItem={(e: ListRenderItemInfo<NewsType>) => ArtistCard(e.item)}
+            // renderItem={(e: ListRenderItemInfo<NewsType>) => ArtistCard(e.item, 'path/to/profile')}
+
+            renderItem={(e: ListRenderItemInfo<NewsType>) => (
+              <ArtistCard
+                onPress={handleToArtistProfile}
+                item={e.item}
+                path="other_profile"
+              />
+            )}
             horizontal
             nestedScrollEnabled
           />
