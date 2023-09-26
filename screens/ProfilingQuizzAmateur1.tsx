@@ -1,114 +1,143 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native'
+import { View, StyleSheet, Text, ScrollView } from 'react-native'
 import { post } from '../constants/fetch';
+
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import TagButton from '../components/TagButton';
 import Toggle from '../assets/images/toggle.svg'
+import { Image } from 'react-native-svg';
 
-const nextPage = ({ navigation }: any) => {
-    navigation.navigate('profilingQuizzArtist2');
-    
-};
-const selectTag = () => {
-    // Save user preferences
-};
-const ProfilingQuizz = () => {
-  return (
-<View style={styles.container}>
-    <View style={styles.logo}>
-        <Title style={{ color: colors.primary}}>Leon</Title>
-        <Title>'Art</Title>
-    </View>
-    <Text style={styles.question}>1/3 - Quel type d'art vous intéresse ?</Text>
-    <View style={styles.Tags}>
-        <TagButton
-        value="Peinture"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Calligraphie"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Photographie"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Mode"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Design Graphique"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Tattoo"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Dessin"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Illustration"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Sculpture"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Ecriture"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Video"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-        <TagButton 
-        value="Autre"
-        style={styles.TagButton}
-        textStyle={styles.TagButtonText}
-        onPress={selectTag}
-        />
-    </View>
-    <Text>
-    Localiser ma position et optimise mon référencement sur l’application
-    </Text>
-    <Button
-        value="Suivant"
-        onPress={nextPage}
-        // onPress={handleRegister}
-    />
-    <Button  style={styles.backButton}
-        value="Retour"
-        onPress={nextPage}
-        // onPress={handleRegister}
-    />
+const ProfilingQuizzAmateur = ({ navigation }: any) => {
+
+  const [artInterestType, setArtInterest] = useState<string[]>([]);
+
+  const getArtInterest = (value: string) => {
+    if (artInterestType.includes(value)) {
+      // If yes, remove it
+      const updatedInterestType = artInterestType.filter((tag) => tag !== value);
+      setArtInterest(updatedInterestType);
+    } else {
+      // If not, add it
+      setArtInterest([...artInterestType, value]);
+    }
+  };
+
+  const next = () => {
+    console.log('ici', artInterestType);
+    console.log('Art Interest Types:', artInterestType);
+    if (artInterestType.length === 0) {
+      console.log('No parameter found');
+      return;
+    }
+    post(
+      '/api/quizz/submit/',
+      { artInterestType },
+      () => navigation.navigate('ProfilingQuizzArtist'),
+      () => {
+      console.log('Objective', artInterestType)
+          navigation.navigate('ProfilingQuizzAmateur2');
+        }
+      )
+  };
+
+  const previous = () => {
+      navigation.navigate('ProfilingQuizz');      
+  };
+
+return (
+  <View style={styles.container}>
+      <View style={styles.logo}>
+          <Title style={{ color: colors.primary}}>Leon</Title>
+          <Title>'Art</Title>
+      </View>
+      <Text style={styles.question}>1/3 - Quel type d'art vous intéresse ?</Text>
+      <ScrollView style={styles.Tags}>
+          <TagButton
+          value="Peinture"
+          style={styles.TagButton}
+          onPress={() => getArtInterest("peinture")}
+          // selected={artInterestType.includes("peinture")}
+          />
+          <TagButton 
+          value="Calligraphie"
+          style={styles.TagButton}
+          onPress={() => getArtInterest("calligraphie")}
+          // selected={artInterestType.includes("calligraphie")}
+          />
+          <TagButton 
+          value="Photographie"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Mode"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Design Graphique"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Tattoo"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Dessin"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Illustration"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Sculpture"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Ecriture"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Video"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+          <TagButton 
+          value="Autre"
+          style={styles.TagButton}
+          onPress={getArtInterest}
+          />
+      </ScrollView>
+      {/* <Image source={{'../assets/images'}}/> */}
+      <View style={{ flexDirection: 'row' }}>
+          <TagButton 
+              style={ styles.toggle }
+              value="Oui"
+              // onPress={getArtInterest}
+          />
+          <Text style={{paddingRight: 20}}>
+          Localiser ma position et optimise mon référencement sur l’application
+          </Text>
+      </View>
+      <Button
+          value="Suivant"
+          onPress={next}
+      />
+      <Button
+          style={{ backgroundColor: colors.secondary }}
+          textStyle={{ color: colors.black}}
+          value="Retour"
+          onPress={previous}
+      />
     </View>
   );
 };
@@ -118,6 +147,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         color: '#FFFF',
+        backgroundColor: colors.white,
     },
     logo: {
         display: 'flex',
@@ -135,37 +165,29 @@ const styles = StyleSheet.create({
         marginBottom: 0,
         fontSize: 18,
         fontWeight: 'bold',
-        // bold: true,
-        // font-family: 'Inter',
-        // marginBottom: 40,
-        // width: 169,
         color: '#000',
     },
     Tags: {
-        flexDirection: 'row',
-        // height: 10,
-        flex: 1,
-        padding: 20,
-        // display: 'flex',
-        // justify-content: 'center',
-        // align-items: 'center',
-        // align-content: 'center',
-        // gap: 26,
-        // flex-wrap: 'wrap',
+        // padding: 20,     
+        margin: 50,   
+        // flex: 1,
+
     },
     TagButton: {
-        marginBottom: 20,
-        backgroundColor: '#F4F4F4',
-        
-    },
-    TagButtonText: {
-        color: '#000',
+        // alignItems: 'center',
+        // justifyContent: 'space-between',
+        // padding: 20,
+        // margin: 15,
+        // color: colors.white,
     },
     backButton: {
-        backgroundColor: '#F4F4F4',
-        color: '#000',
+        backgroundColor: colors.primary,
+    },
+    toggle:
+    {
+        // borderRadius: 55,
+        // minHeight: 14,
     }
 });
 
-
-export default ProfilingQuizz;
+export default ProfilingQuizzAmateur;

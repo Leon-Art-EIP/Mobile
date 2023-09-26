@@ -1,100 +1,136 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native'
-import { post } from '../constants/fetch';
+ import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { get, post} from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
-import Button from '../components/Button';
 import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg'
+import Button from '../components/Button';
+import ProfilingQuizzArtist1 from './ProfilingQuizzArtist1';
 
-const nextPage = () => {
-    navigation.navigate('profilingQuizzArtist2');
-};
+const ProfilingQuizz = ({ navigation }: any) => {
+   
+  const [objective, setPurpose] = useState<string | null>(null);
 
-const ProfilingQuizz = () => {
-  return (
-<View style={styles.container}>
+  const handleUserStatus = () => {
+    console.log('iobjectif111', objective)
+    if (objective === null) {
+      console.log('No prarameter found');
+      return;
+    }
+      post(
+          '/api/quizz/submit/',
+          { objective },
+          () => navigation.navigate('ProfilingQuizzArtist'),
+          () => {
+      console.log('Objective', objective)
+            if (objective === 'sell') {
+              navigation.navigate('ProfilingQuizzArtist');
+            } else if (objective === 'both' || objective === 'discover') {
+              navigation.navigate('ProfilingQuizzAmateur');
+            }
+          }
+      )
+  };
+
+  useEffect(() => {
+    console.log('OBJECTIF', objective);
+  }, [objective]); 
+
+  const getPurpose = (value: string) => {
+    console.log('value before', objective);
+    if (objective === value)
+      setPurpose(null);
+    else
+      setPurpose(value);
+  };
+
+// ProfilingQuizz.js
+
+// ...
+
+return (
+  <View style={styles.container}>
     <View style={styles.logo}>
-        <Title style={{ color: colors.primary}}>Leon</Title>
-        <Title>'Art</Title>
+      <Title style={{ color: colors.primary }}>Leon</Title>
+      <Title>'Art</Title>
     </View>
-        <Text style={styles.homeTitle}>Bienvenue !</Text>
-        <Text style={styles.homeText}>Avec Leon'Art vous souhaitez...</Text>
+    <Text style={styles.homeTitle}>Bienvenue !</Text>
+    <Text style={styles.homeText}>Avec Leon'Art vous souhaitez...</Text>
+
     <View style={styles.Tags}>
-        <Button style={styles.TagButton} textStyle={styles.TagButtonText}
-            value="Découvrir des œuvres d'art"
-            // onPress={handleRegister}
-        />
-        <Button style={styles.TagButton} textStyle={styles.TagButtonText}
-            value="Acheter des œuvres d'art"
-            // onPress={handleRegister}
-            />
-        <Button style={styles.TagButton} textStyle={styles.TagButtonText}
-            value="Vendre mes œuvres d'art"
-            // onPress={handleRegister}
-            />
-        <TagButton/>
+      <TagButton
+        style={styles.TagButton}
+        value="Découvrir des œuvres d’art"
+        onPress={() => getPurpose("discover")}
+        selected={objective === "discover"}
+        testID="discover-button" // Add testID for discover button
+      />
+      <TagButton
+        style={styles.TagButton}
+        textStyle={styles.TagButton}
+        value="Vendre mes œuvres d’art"
+        onPress={() => getPurpose("sell")}
+        selected={objective === "sell"}
+        testID="sell-button" // Add testID for sell button
+      />
+      <TagButton
+        style={styles.TagButton}
+        value="Les deux"
+        onPress={() => getPurpose("both")}
+        selected={objective === "both"}
+        testID="both-button" // Add testID for both button
+      />
     </View>
-    <Button
-        value="Suivant"
-        onPress={nextPage}
-        // onPress={handleRegister}
-    />
-    </View>
-  );
+
+    <Button value="Suivant" onPress={handleUserStatus} testID="suivant-button" />
+  </View>
+);
+
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        color: '#FFFF',
-    },
-    logo: {
-        display: 'flex',
-        flexDirection: 'row',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        fontSize: 40,
-        marginTop: 70,
-        marginBottom: 30,
-    },
-    homeTitle: {
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        marginTop: 20,
-        marginBottom: 0,
-        fontSize: 30,
-        // bold: true,
-        // font-family: 'Inter',
-        // marginBottom: 40,
-        // width: 169,
-        color: '#000',
-    },
-    homeText: {
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        marginTop: 20,
-        marginBottom: 40,
-        fontSize: 18,
-        // font-family: 'Inter',
-        // marginBottom: 40,
-        // width: 169,
-        color: '#000',
-    },
-    Tags: {
-        margin: 15,
-        gap: 43,
-    },
-    TagButton: {
-        marginBottom: 20,
-        backgroundColor: '#F4F4F4',
-        
-    },
-    TagButtonText: {
-        color: '#000',
-    },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: colors.white,
+  },
+  logo: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    fontSize: 40,
+    marginTop: 70,
+    marginBottom: 30,
+  },
+  homeTitle: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 20,
+    marginBottom: 0,
+    fontSize: 30,
+    color: '#000',
+  },
+  homeText: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 20,
+    marginBottom: 40,
+    fontSize: 18,
+    color: '#000',
+  },
+  Tags: {
+    justifyContent: 'space-between',
+    margin: 50,
+    flex: 1,
+  },
+  TagButton: {
+    backgroundColor: '#F4F4F4',
+  },
+  TagButtonText: {
+    color: '#000',
+  },
 });
-
 
 export default ProfilingQuizz;
