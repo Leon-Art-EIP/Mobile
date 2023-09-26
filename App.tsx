@@ -7,10 +7,11 @@ import Login from './screens/LoginPage/LoginPage';
 import Signup from './screens/Signup';
 import MainNavigator from './navigators/MainNavigator';
 import ForgotPassword from './screens/ForgotPassword';
-import OtherProfile from './navigators/OtherProfileNavigator';
 import EditProfile from './navigators/EditProfileNavigator';
 import Settings from './navigators/SettingsNavigator';
-
+import OtherProfileNavigator from './navigators/OtherProfileNavigator';
+import OtherProfile from './screens/OtherProfile';
+import Conversation from './screens/Conversation';
 
 const App = () => {
   const Stack =  createNativeStackNavigator();
@@ -35,9 +36,11 @@ const App = () => {
         <Stack.Screen name="signup" component={Signup} options={options} />
         <Stack.Screen name="main" component={MainNavigator} options={options} />
         <Stack.Screen name="recover" component={ForgotPassword} options={options} />
-        <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
         <Stack.Screen name="settings" component={Settings} options={options} />
         <Stack.Screen name="editprofile" component={EditProfile} options={options} />
+        {/* <Stack.Screen name="otherprofile" component={OtherProfileNavigator} options={options} /> */}
+        <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
+        <Stack.Screen name="single_conversation" component={Conversation} options={options} />
       </Stack.Navigator>
     </NavigationContainer>
   );

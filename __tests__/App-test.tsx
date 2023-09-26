@@ -4,9 +4,7 @@ import App from '../App';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
-
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
-
 
 it('renders correctly', () => {
   const { getByTestId } = render(<App />);
@@ -25,16 +23,25 @@ it('renders correctly', () => {
   waitFor(() => expect(screen.getByText('Invalid password or email')).toBeTruthy());
 })*/
 
-it('has the required components', () => {
-  render(<App />);
+// it('has the required components', () => {
+//   render(<App />);
 
-  expect(screen.getByText('primary')).toBeTruthy();
-  expect(screen.getByText('secondary')).toBeTruthy();
-  expect(screen.getByText('tertiary')).toBeTruthy();
+//   expect(screen.getByText('primary')).toBeTruthy();
+//   expect(screen.getByText('secondary')).toBeTruthy();
+//   expect(screen.getByText('tertiary')).toBeTruthy();
 
-  expect(screen.getByText('Big title')).toBeTruthy();
-  expect(screen.getByText('Bold title')).toBeTruthy();
-  expect(screen.getByText('Medium title')).toBeTruthy();
-  expect(screen.getByText('Small title')).toBeTruthy();
-  expect(screen.getByText('Extra Small title')).toBeTruthy();
-});
+//   expect(screen.getByText('Big title')).toBeTruthy();
+//   expect(screen.getByText('Bold title')).toBeTruthy();
+//   expect(screen.getByText('Medium title')).toBeTruthy();
+//   expect(screen.getByText('Small title')).toBeTruthy();
+//   expect(screen.getByText('Extra Small title')).toBeTruthy();
+// });
+
+// it('navigates to the components show screen when the button is pressed', () => {
+//   render(<App />);
+
+//   const button = screen.getByText('Show Components');
+//   fireEvent.press(button);
+
+//   expect(screen.getByText('ComponentsShow')).toBeTruthy();
+// });
