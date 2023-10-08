@@ -7,7 +7,11 @@ const CommandsComponent = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={flexRow}>
-        <Image style={{ width: 50, height: 50 }} source={require('../../assets/images/user.png')} />
+        <Image
+          style={{ width: 50, height: 50 }}
+          source={require('../../assets/images/user.png')}
+          testID="command-img"
+        />
         <View style={[ml8, mt4]}>
           <Text style={fwBold}>Mer de nuages</Text>
           <Text>40€</Text>

@@ -10,6 +10,7 @@ const CartComponent = () => {
         <Image
           style={{ width: 50, height: 50, borderRadius: 12 }}
           source={require('../../assets/images/merDeNuages.webp')}
+          testID="cart-img"
         />
         <View style={[ml8, mt4]}>
           <Text style={fwBold}>Mer de nuages</Text>
