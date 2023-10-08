@@ -44,9 +44,5 @@ const styles = StyleSheet.create({
   }
 });
 
-<<<<<<< HEAD
-export default ArtistCard;
-=======
 export default ArtistCard;
 export type { ArtistCardProps };
->>>>>>> origin/dev

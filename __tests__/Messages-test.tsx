@@ -3,6 +3,7 @@ import 'react-native';
 import App from '../App';
 import {expect, jest, test} from '@jest/globals';
 import { fireEvent, render } from '@testing-library/react-native';
+import { dateToHour } from '../helpers/DateHelper';
 
 
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
@@ -60,7 +61,7 @@ it('displays timestamp when bubble is pressed', () => {
   fireEvent.press(getByText('Marine Weber'));
 
   // verifies timestamps are not here by default
-  const timestamp1 = queryByText('2:34 PM');
+  const timestamp1 = queryByText(dateToHour((new Date).getTime()));
   expect(timestamp1).toBeNull();
 
   // presses on a bubble
@@ -68,6 +69,6 @@ it('displays timestamp when bubble is pressed', () => {
   fireEvent.press(answer);
 
   // verifies timestamp appears
-  const timestamp2 = queryByText('2:34 PM');
+  const timestamp2 = queryByText(dateToHour((new Date).getTime()));
   expect(timestamp2).toBeDefined();
 });
