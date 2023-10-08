@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert, Platform, Image } from 'react-native';
+import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { post } from '../../constants/fetch';
 import Button from '../../components/Button';
 import Title from '../../components/Title';

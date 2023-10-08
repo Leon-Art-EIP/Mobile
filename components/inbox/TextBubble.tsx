@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import colors from '../../constants/colors';
 import { MessageType } from '../../constants/conversations';
-import { flex1, flexRow, fwBold, mlAuto, mrAuto, noMargin, noVMargin } from '../../constants/styles';
+import { flex1, flexRow, fwBold, mlAuto, mrAuto, noVMargin } from '../../constants/styles';
 import { dateToHour } from '../../helpers/DateHelper';
 import Button from '../Button';
 

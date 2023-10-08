@@ -11,5 +11,3 @@ it('renders correctly', () => {
   const { getByText } = render(<App />);
   expect(getByText("Actualités")).toBeDefined();
 });
-
-/* messagesTest() */
