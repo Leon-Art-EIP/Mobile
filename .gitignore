@@ -1,5 +1,5 @@
 coverage
-coerage/*
+coerage/**
 # OSX
 node_modules
 #
