@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     margin: 16,
     borderRadius: 50,
     alignItems: 'center',
-    elevation: 2,
+    alignContent: 'center',
     paddingHorizontal: 20,
     paddingVertical: 10
   },
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   primaryTextStyle: {
     color: colors.primaryText,
     fontFamily: 'Montserrat-SemiBold',
-    fontSize: 18
+    fontSize: 12
   },
   secondaryTextStyle: {
     color: colors.secondaryText,

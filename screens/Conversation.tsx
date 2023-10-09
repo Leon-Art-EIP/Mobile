@@ -10,20 +10,14 @@ import {
   StatusBar
 } from 'react-native';
 import Button from '../components/Button';
+import TextBubble from '../components/inbox/TextBubble';
 import Input from '../components/Input';
 import colors from '../constants/colors';
 import { MESSAGES, MessageType } from '../constants/conversations';
 
 
-type Message = {
-  senderId: number;
-  receiverId: number;
-  bodyType: string; // either 'text', 'image', or 'offer'
-  body: string | number;
-};
-
 const Conversation = ({ navigation, route }: any) => {
-  const [messages, setMessages] = useState<Message[]>([ ...MESSAGES ]);
+  const [messages, setMessages] = useState<MessageType[]>([ ...MESSAGES ]);
   const [newMessage, setNewMessage] = useState<string>("");
 
   const sendMessage = () => {
@@ -34,6 +28,7 @@ const Conversation = ({ navigation, route }: any) => {
 
   useEffect(() => {
   }, []);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -68,11 +63,9 @@ const Conversation = ({ navigation, route }: any) => {
 
       {/* Messages */}
       <ScrollView style={styles.conversationContainer}>
-        <Button value='Charger plus de messages' />
-        { messages.map((msg: Message) => (
-          <View key={msg.body.toString()}>
-            <Text>{ msg.body }</Text>
-          </View>
+        {/* <Button value='Charger plus de messages' /> */}
+        { messages.map((msg: MessageType) => (
+          <TextBubble message={msg} key={msg.body + Math.random().toString()} />
         )) }
       </ScrollView>
 
@@ -122,6 +115,8 @@ const styles = StyleSheet.create({
   conversationContainer: {
     backgroundColor: colors.white,
     flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20
   },
@@ -176,31 +171,33 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     backgroundColor: colors.white,
-    paddingBottom: 20
+    paddingBottom: 12
   },
   messageView: {
     backgroundColor: '#F8F8F9',
     borderRadius: 50,
     flexDirection: 'row',
     marginHorizontal: 12,
-    padding: 8,
+    paddingHorizontal: 4,
+    alignItems: 'center'
   },
   messageInput: {
     backgroundColor: colors.transparent,
     shadowColor: colors.transparent,
     borderRadius: 0,
-    placeholderColor: '#B1B1B1'
+    placeholderColor: '#B1B1B1',
+    marginLeft: 0
   },
   micView: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     backgroundColor: '#F4CCCC',
     alignItems: 'center',
     borderRadius: 50
   },
   micImage: {
-    width: 32,
-    height: 32,
+    width: 24,
+    height: 24,
     marginTop: 'auto',
     marginBottom: 'auto'
   }

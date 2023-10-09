@@ -14,5 +14,4 @@ module.exports = {
     '^.+\\.tsx?$': 'babel-jest',
   },
   preset: '@testing-library/react-native',
-  collectCoverage: true,
 };

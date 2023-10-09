@@ -13,21 +13,6 @@ const ProfileNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="profile" component={Profile} options={options} />
     </Stack.Navigator>
-      // <Stack.Navigator>
-
-      //   <Stack.Screen
-      //     name="inbox"
-      //     component={InboxScreen}
-      //     options={options}
-      //   />
-  
-      //   <Stack.Screen
-      //     name="single_conversation"
-      //     component={Conversation}
-      //     options={options}
-      //   />
-  
-      // </Stack.Navigator>
   );
 }
 
