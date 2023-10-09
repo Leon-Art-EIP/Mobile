@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native'
+import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, StyleSheet, } from 'react-native'
 import colors from '../constants/colors';
 
 interface ButtonProps {
@@ -10,6 +10,7 @@ interface ButtonProps {
   secondary?: boolean;
   tertiary?: boolean;
   disabled?: boolean;
+  color?:string;
 }
 
 const Button = ({
@@ -47,9 +48,9 @@ const styles = StyleSheet.create({
   primaryContainerStyle: {
     backgroundColor: colors.primary,
     margin: 16,
-    borderRadius: 50,
+    borderRadius: 17,
     alignItems: 'center',
-    elevation: 2,
+    elevation: 0,
     paddingHorizontal: 20,
     paddingVertical: 10
   },
@@ -61,8 +62,9 @@ const styles = StyleSheet.create({
   },
   primaryTextStyle: {
     color: colors.primaryText,
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 18
+    fontFamily: 'Manrope',
+    fontStyle: 'normal',
+    fontSize: 20,
   },
   secondaryTextStyle: {
     color: colors.secondaryText,

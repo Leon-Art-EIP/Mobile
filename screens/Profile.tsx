@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import colors from '../constants/colors';
-import bannerImage from '../assets/images/banner.jpg'
+// import bannerImage from '../assets/images/banner.jpg'
 import profilePicture from '../assets/images/user.png'
-import BackArrow from '../assets/images/back_arrow.png'
+// import BackArrow from '../assets/images/back_arrow.png'
 import Button from '../components/Button';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 

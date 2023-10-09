@@ -1,80 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, StyleSheet, Dimensions } from 'react-native';
 import colors from '../constants/colors';
 
 interface ButtonProps {
-  onPress?: () => void;
+  // onPress?: (parameter: any) => void;
+  onPress?: (parameter: string) => void;
   style?: StyleProp<ViewStyle>;
   value?: string;
   textStyle?: StyleProp<TextStyle>;
   secondary?: boolean;
   tertiary?: boolean;
   disabled?: boolean;
+  selected?: boolean;
 }
 
 const TagButton = ({
   onPress = () => {},
   style = {},
-  value = "Click here",
+  value = "",
   textStyle = {},
   secondary = false,
   tertiary = false,
   disabled = false
 }: ButtonProps) => {
-  // Calculate the width and height based on the text size
-  const { width, height } = Dimensions.get('window');
-  const buttonWidth = width * 0.2; // Adjust the multiplier as needed
-  const buttonHeight = height * 0.04; // Adjust the multiplier as needed
+  const [isPressed, setIsPressed] = useState(false); // State to track if the button is pressed
+
+  const handlePress = () => {
+    setIsPressed(!isPressed); // Toggle the pressed state
+    onPress(value); // Call the provided onPress function
+  };
 
   return (
     <TouchableOpacity
       accessibilityRole="button"
-      onPress={onPress}
+      onPress={handlePress} // Call the new handlePress function
       disabled={disabled}
       style={[
-        styles.primaryContainerStyle,
-        secondary && styles.secondaryContainerStyle,
-        tertiary && styles.tertiaryContainerStyle,
-        style,
-        { width: buttonWidth, height: buttonHeight }
+        styles.containerStyle,
+        isPressed && { backgroundColor: colors.pressedTag },
       ]}
     >
-      <Text style={[
-        styles.primaryTextStyle,
-        secondary && styles.secondaryTextStyle,
-        tertiary && styles.tertiaryTextStyle,
-        textStyle
-      ]}>
-        { value }
+      <Text 
+        style={[
+          styles.textStyle,
+          isPressed && { color: colors.white }, // Set the text color to white when pressed
+        ]}
+      >
+        {value}
       </Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  primaryContainerStyle: {
+  containerStyle: {
     borderRadius: 50,
     alignItems: 'center',
-    elevation: 1,
+    // elevation: 0,
     justifyContent: 'center',
-  },
-  secondaryContainerStyle: {
     backgroundColor: colors.secondary,
+    paddingLeft: 18.5,
+    paddingRight: 18.5,
+    paddingTop: 8,
+    paddingBottom: 8,
+    fontSize: 40,
+    // gap: 19,
+    color: colors.black,
   },
-  tertiaryContainerStyle: {
-    backgroundColor: colors.tertiary,
-  },
-  primaryTextStyle: {
-    color: colors.primaryText,
+  textStyle: {
+    text: '',
+    textAlign: 'center',
     fontFamily: 'Manrope',
-    fontSize: 16
+    fontSize: 16,
+    color: '#000',
   },
-  secondaryTextStyle: {
-    color: colors.secondaryText,
-  },
-  tertiaryTextStyle: {
-    color: colors.tertiaryText,
-  }
 });
 
 export default TagButton;
