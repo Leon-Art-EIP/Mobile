@@ -1,4 +1,4 @@
-#Sun Oct 08 17:31:40 CEST 2023
+#Sun Oct 08 17:55:21 CEST 2023
 base.0=/home/ekoehler/Documents/leonart/mobile/android/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
 base.1=/home/ekoehler/Documents/leonart/mobile/android/app/build/intermediates/dex/debug/mergeLibDexDebug/10/classes.dex
 base.10=/home/ekoehler/Documents/leonart/mobile/android/app/build/intermediates/dex/debug/mergeProjectDexDebug/3/classes.dex
