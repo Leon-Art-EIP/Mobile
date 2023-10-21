@@ -15,7 +15,9 @@ const MainNavigator = () => {
   const options = { headerShown: false };
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{
+      tabBarHideOnKeyboard: true
+    }}>
       <Tab.Screen
         name="home"
         component={HomeNavigator}

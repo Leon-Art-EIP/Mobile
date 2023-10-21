@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import colors from '../constants/colors';
-// import bannerImage from '../assets/images/banner.jpg'
+import bannerImage from '../assets/images/banner.jpg'
 import profilePicture from '../assets/images/user.png'
-// import BackArrow from '../assets/images/back_arrow.png'
-import Button from '../components/Button';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import BackArrow from '../assets/images/back_arrow.png'
+import EditButtonImage from '../assets/images/edit_logo.png'
+import SettingsButtonImage from '../assets/images/settings_logo.png'
 
-const ProfileScreen = () => {
+import Button from '../components/Button';
+import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+
+const Profile = () => {
   const navigation = useNavigation();
   // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
   // Placer ici les handles
   const handleBackButtonClick = () => {
     navigation.goBack();
+  };
+  const handleEditButtonClick = () => {
+    navigation.navigate('editprofile');
+  };
+  const handleSettingsButtonClick = () => {
+    navigation.navigate('settings');
   };
 
   useFocusEffect(
@@ -26,14 +35,26 @@ const ProfileScreen = () => {
   return (
     <ScrollView nestedScrollEnabled>
     <View>
-      {/* Bouton de retour en haut à gauche */}
-      <TouchableOpacity
+      <View style={{ flexDirection: 'row', marginRight: 20 }}>
+        <TouchableOpacity
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
         >
-          {/* Utilisez l'image PNG importée */}
-          <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
+          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleEditButtonClick()}
+          style={styles.editButton}
+        >
+          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleSettingsButtonClick()}
+          style={styles.settingButton}
+        >
+          <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
+        </TouchableOpacity>
+      </View>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
@@ -74,20 +95,6 @@ const ProfileScreen = () => {
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
-      {/* Boutons "Suivre" et "Ecrire" */}
-      {/* <View style={styles.contactAndFollow}>
-        <Button
-          value="Suivre"
-          style={{width: 150, height: 38, borderRadius: 10, justifyContent: 'center',}}
-          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
-          />
-        <Button
-          value="Ecrire"
-          secondary
-          style={{width: 150, height: 38, borderRadius: 10,}}
-          textStyle={{fontSize: 14}}
-          />
-      </View> */}
       {/* Trait décoratif de séparation */}
       <View style={styles.decorativeLine} />
       {/* Boutons d'onglet, "Artwork", "Collections" et "A propos" */}
@@ -117,12 +124,22 @@ const ProfileScreen = () => {
           onPress={() => setActiveTab('A propos')} // Met à jour le bouton actif
           />
       </View>
-      {/* Ensembles de cadres carrés */}
+      {/* Artworks */}
       {activeTab === 'Artwork' &&
         Array.from({ length: 7 }, (_, rowIndex) => (
           <View key={rowIndex} style={styles.rowContainer}>
             {Array.from({ length: 3 }, (_, colIndex) => (
-              <View key={colIndex} style={styles.squareFrame} />
+              <View key={colIndex} style={styles.squareFrameArtwork} />
+            ))}
+          </View>
+        ))
+      }
+      {/* Collection */}
+      {activeTab === 'Collection' &&
+        Array.from({ length: 7 }, (_, rowIndex) => (
+          <View key={rowIndex} style={styles.rowContainer}>
+            {Array.from({ length: 2 }, (_, colIndex) => (
+              <View key={colIndex} style={styles.squareFrameCollection} />
             ))}
           </View>
         ))
@@ -190,6 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: colors.tertiary,
+    textAlign: 'center',
   },
   centerSubtitle: {
     fontSize: 12,
@@ -231,10 +249,16 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
   },
-  squareFrame: {
+  squareFrameArtwork: {
     width: 115, // Largeur souhaitée du cadre carré
     height: 115, // Hauteur souhaitée du cadre carré
     backgroundColor: 'lightgray', // Couleur de fond du cadre
+    borderRadius: 10, // Légèrement arrondi sur les bords
+  },
+  squareFrameCollection: {
+    width: 174, // Largeur souhaitée du cadre carré
+    height: 115, // Hauteur souhaitée du cadre carré
+    backgroundColor: colors.tertiary, // Couleur de fond du cadre
     borderRadius: 10, // Légèrement arrondi sur les bords
   },
   backButton: {
@@ -243,6 +267,18 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 1, // Pour placer le bouton au-dessus de la bannière
   },
+  editButton: {
+    position: 'absolute',
+    top: 16,
+    right: 50,
+    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
+  },
+  settingButton: {
+    position: 'absolute',
+    top: 16,
+    right: 0,
+    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
+  },
 });
 
-export default ProfileScreen;
+export default Profile;

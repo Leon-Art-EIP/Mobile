@@ -1,15 +1,31 @@
-import {NewsType} from "../constants/homeValues";
-import {Image, StyleSheet, View} from "react-native";
+import React from 'react';
+import { TouchableOpacity, Image, StyleSheet } from 'react-native'
+import colors from '../constants/colors';
+import { NewsType } from "../constants/homeValues";
 import Card from "./Card";
 import Title from "./Title";
-import colors from "../constants/colors";
 
-const ArtistCard = (item: NewsType) => (
-  <Card style={styles.container}>
-    <Image style={styles.image} />
+interface ArtistCardProps {
+  onPress?: () => void;
+  item: NewsType;
+  path: string;
+}
+
+const ArtistCard = ({
+  onPress = () => {},
+  item,
+  path,
+}: ArtistCardProps) => (
+  <TouchableOpacity
+    accessibilityRole="button"
+    onPress={onPress}
+  >
+    <Card style={styles.container}>
+      <Image style={styles.image} />
       <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{ item.title }</Title>
-  </Card>
-);
+    </Card>
+  </TouchableOpacity>
+)
 
 const styles = StyleSheet.create({
   container: {
@@ -29,3 +45,4 @@ const styles = StyleSheet.create({
 });
 
 export default ArtistCard;
+export type { ArtistCardProps };
