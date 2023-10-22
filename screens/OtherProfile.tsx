@@ -23,24 +23,20 @@ const OtherProfile = () => {
     navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
   };
   const handleFollowButtonClick = async () => {
-    try {
-      const response = await axios.post('http://10.0.2.2:5000/api/follow/652bc1fb1753a08d6c7d3f5d', {
-        
-      });
-  
-      // Si la requête réussit, le backend devrait renvoyer un JWT dans la réponse.
-      const token = response.data.token;
-  
-      // Stocker le token dans AsyncStorage pour une utilisation ultérieure.
-      await AsyncStorage.setItem('jwt', token);
-  
-      // Rediriger l'utilisateur vers la page d'accueil.
-      navigation.navigate('main'); // Remplacez 'HomeScreen' par le nom de votre écran d'accueil.
-  
-    } catch (error) {
-      console.error('Erreur de connexion :', error);
-      Alert.alert('Erreur de connexion', 'Vérifiez vos identifiants et réessayez.');
-    }
+    //TODO : rendre dynamique
+    post(
+      '/api/auth/login',
+      { email, password },
+      () => navigation.navigate('main'),
+      (error: any) => {
+        // console.log('response received : ', error.response.status);
+        switch (error.response.status) {
+          case (401): setError('Invalid password or email'); break;
+          case (422): setError('Invalid password or email'); break;
+          default: setError(undefined);
+        }
+      }
+    );
   }
   useFocusEffect(
     React.useCallback(() => {
