@@ -2,7 +2,7 @@ import axios from "axios";
 
 // const BACKEND: string = "http://127.0.0.1:5000";
 // const BACKEND: string = "http://10.0.2.2:5000";
-const BACKEND: string = "http://20.199.102.240:5000";
+const BACKEND: string = "localhost:5000";
 
 const get = (
   url: string = "/",
@@ -38,7 +38,6 @@ const post = (
   .then(callback)
   .catch(onErrorCallback);
 }
-
 
 export {
   get,

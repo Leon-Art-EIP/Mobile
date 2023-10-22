@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { post } from '../../constants/fetch';
 import Button from '../../components/Button';
 import Title from '../../components/Title';
@@ -8,18 +8,36 @@ import colors from '../../constants/colors';
 import eyeIcon from '../../assets/eye_icon.png';
 import mailIcon from '../../assets/mail_icon.png';
 import passwordIcon from '../../assets/password_icon.png';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    post('/api/auth/login', { email, password }, (response: any) => {
-      console.log('response received : ', response);
-    });
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://10.0.2.2:5000/api/auth/login', {
+        email: email,
+        password: password,
+      });
+  
+      // Si la requête réussit, le backend devrait renvoyer un JWT dans la réponse.
+      const token = response.data.token;
+  
+      // Stocker le token dans AsyncStorage pour une utilisation ultérieure.
+      await AsyncStorage.setItem('jwt', token);
+  
+      // Rediriger l'utilisateur vers la page d'accueil.
+      navigation.navigate('main'); // Remplacez 'HomeScreen' par le nom de votre écran d'accueil.
+  
+    } catch (error) {
+      console.error('Erreur de connexion :', error);
+      Alert.alert('Erreur de connexion', 'Vérifiez vos identifiants et réessayez.');
+    }
   };
-
+  
   const handleGoogleLogin = () => {
     // Logique de connexion avec Google ici
   };

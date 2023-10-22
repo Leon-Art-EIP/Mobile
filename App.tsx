@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import ComponentsShow from './screens/ComponentsShow';
 import Login from './screens/LoginPage/LoginPage';
@@ -13,12 +13,11 @@ import OtherProfileNavigator from './navigators/OtherProfileNavigator';
 import OtherProfile from './screens/OtherProfile';
 import Conversation from './screens/Conversation';
 import { MainContextProvider, MainContext } from './context/MainContext';
+import { ActivityIndicator, Text } from 'react-native';
 
 const App = () => {
   const Stack =  createNativeStackNavigator();
   const context = useContext(MainContext);
-
-  useEffect(() => {}, []);
 
   // will be removed as soon as we check for tokens in localstorage
   let isShowingComponents = false;
@@ -33,6 +32,7 @@ const App = () => {
     <MainContextProvider>
       <NavigationContainer independent>
         <Stack.Navigator initialRouteName={context?.token === undefined ? "login" : "main"}>
+        {/* <Stack.Navigator initialRouteName={context?.token === undefined ? "login" : "main"}> */}
           <Stack.Screen name="login" component={Login} options={options} />
           <Stack.Screen name="signup" component={Signup} options={options} />
           <Stack.Screen name="main" component={MainNavigator} options={options} />

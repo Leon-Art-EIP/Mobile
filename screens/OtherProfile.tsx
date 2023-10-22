@@ -6,8 +6,11 @@ import profilePicture from '../assets/images/user.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OtherProfile = () => {
+  const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
   // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
@@ -16,10 +19,29 @@ const OtherProfile = () => {
     navigation.goBack();
   };
   const handleContactButtonClick = () => {
-    //TO DO : rediriger dynamiquement vers la bonne page
+    //TODO : rediriger dynamiquement vers la bonne page
     navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
   };
-
+  const handleFollowButtonClick = async () => {
+    try {
+      const response = await axios.post('http://10.0.2.2:5000/api/follow/652bc1fb1753a08d6c7d3f5d', {
+        
+      });
+  
+      // Si la requête réussit, le backend devrait renvoyer un JWT dans la réponse.
+      const token = response.data.token;
+  
+      // Stocker le token dans AsyncStorage pour une utilisation ultérieure.
+      await AsyncStorage.setItem('jwt', token);
+  
+      // Rediriger l'utilisateur vers la page d'accueil.
+      navigation.navigate('main'); // Remplacez 'HomeScreen' par le nom de votre écran d'accueil.
+  
+    } catch (error) {
+      console.error('Erreur de connexion :', error);
+      Alert.alert('Erreur de connexion', 'Vérifiez vos identifiants et réessayez.');
+    }
+  }
   useFocusEffect(
     React.useCallback(() => {
       // Vous pouvez laisser cette fonction de rappel vide car vous avez déjà déclaré handleBackButtonClick
@@ -84,6 +106,7 @@ const OtherProfile = () => {
           value="Suivre"
           style={{width: 150, height: 38, borderRadius: 10, justifyContent: 'center',}}
           textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
+          onPress={() => handleBackButtonClick()}
           />
         <Button
           value="Ecrire"

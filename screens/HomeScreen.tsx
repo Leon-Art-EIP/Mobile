@@ -15,8 +15,11 @@ import colors from "../constants/colors";
 import NewsCard from "../components/NewsCard";
 import ArtistCard from "../components/ArtistCard";
 import ForYouArt from "../components/ForYouArt";
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
+  const latestArtist = 0;
+  const navigation = useNavigation();
   const [news, setNews] = useState<NewsType[]>([]);
   const [artists, setArtists] = useState<NewsType[]>([]);
   const [forYou, setForYou] = useState<number[]>(Array(100).fill((index: number) => index));
@@ -45,7 +48,6 @@ const HomeScreen = () => {
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
         </View>
-
 
         {/* Actualités */}
         <View>
@@ -111,5 +113,4 @@ const styles = StyleSheet.create({
     margin: 'auto'
   },
 });
-
 export default HomeScreen;
