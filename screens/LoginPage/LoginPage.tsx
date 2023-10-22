@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
-import { post } from '../../constants/fetch';
+import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import axios from 'axios';
 import Button from '../../components/Button';
 import Title from '../../components/Title';
 import CheckBox from '@react-native-community/checkbox';
@@ -10,14 +10,27 @@ import mailIcon from '../../assets/mail_icon.png';
 import passwordIcon from '../../assets/password_icon.png';
 
 const Login = ({ navigation }: any) => {
-  const [email, setEmail] = useState<string | undefined>(undefined);
-  const [password, setPassword] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
-    post('/api/auth/login', { email, password }, (response: any) => {
-      console.log('response received : ', response);
-    });
+    const requestData = { email, password };
+    axios.post('http://10.0.2.2:5001/api/auth/login', requestData)
+      .then(response => {
+        if (response && response.data && response.data.token) {
+          const tokenFromDB = response.data.token;
+          console.log('Token from DB:', tokenFromDB);
+          // Handle token storage here, for example using AsyncStorage or any other storage solution
+        } else {
+          console.error('Invalid response format: ', response);
+          Alert.alert('Login Failed', 'Invalid response format');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching token:', error);
+        Alert.alert('Login Failed', 'Error fetching token');
+      });
   };
 
   const handleGoogleLogin = () => {

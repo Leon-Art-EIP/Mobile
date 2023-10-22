@@ -19,7 +19,7 @@ const MainNavigator = () => {
       tabBarHideOnKeyboard: true
     }}>
       <Tab.Screen
-        name="home"
+        name="Home"
         component={HomeNavigator}
         options={{
           headerShown: false,
@@ -29,9 +29,10 @@ const MainNavigator = () => {
           )
         }}
       />
-      <Tab.Screen name="messages" component={MessageNavigator} options={options} />
-      <Tab.Screen name="cart" component={CartNavigator} options={options} />
-      <Tab.Screen name="profile" component={ProfileNavigator} options={options} />
+      <Tab.Screen name="Messages" component={MessageNavigator} options={options} />
+      <Tab.Screen name="Add" component={MessageNavigator} options={options} />
+      <Tab.Screen name="Cart" component={CartNavigator} options={options} />
+      <Tab.Screen name="Profile" component={ProfileNavigator} options={options} />
     </Tab.Navigator>
   );
 }
