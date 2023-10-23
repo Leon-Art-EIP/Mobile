@@ -20,6 +20,7 @@ import ProfilingArtist2 from './screens/ProfilingQuizzArtist2'
 import ProfilingAmateur1 from './screens/ProfilingQuizzAmateur1'
 import ProfilingAmateur2 from './screens/ProfilingQuizzAmateur2'
 import ProfilingLast from './screens/ProfilingQuizzFinal';
+import SingleArt from './screens/SingleArt';
 
 
 // Navigators
@@ -57,6 +58,7 @@ const App = () => {
           <Stack.Screen name="profilingAmateur" component={ProfilingAmateur1} options={options} />
           <Stack.Screen name="profilingAmateur2" component={ProfilingAmateur2} options={options} />
           <Stack.Screen name="profilingLast" component={ProfilingLast} options={options} />
+          <Stack.Screen name="singleArt" component={SingleArt} options={options} />
         </Stack.Navigator>
       </NavigationContainer>
     </MainContextProvider>

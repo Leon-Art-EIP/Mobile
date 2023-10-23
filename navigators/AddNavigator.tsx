@@ -1,7 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-
-import HomeScreen from '../screens/HomeScreen';
+import AddPublication from '../screens/AddPublication'
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -11,7 +10,7 @@ const HomeNavigator = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="homemain" component={HomeScreen} options={options} />
+      <Stack.Screen name="addpublication" component={AddPublication} options={options} />
     </Stack.Navigator>
   );
 }

@@ -6,12 +6,11 @@ import HomeNavigator from './HomeNavigator';
 import MessageNavigator from './MessageNavigator';
 import CartNavigator from './CartNavigator';
 import ProfileNavigator from './ProfileNavigator';
+import AddNavigator from './AddNavigator'
 import HomeSVG from '../assets/icons/home.svg';
 
 const MainNavigator = () => {
   const Tab = createBottomTabNavigator();
-
-  // disables header for this navigator
   const options = { headerShown: false };
 
   return (
@@ -23,14 +22,13 @@ const MainNavigator = () => {
         component={HomeNavigator}
         options={{
           headerShown: false,
-          /* tabBarOptions: { showLabel: false }, */
-          tabBarIcon: ({ color, size }) => (
+                    tabBarIcon: ({ color, size }) => (
             <SvgUri width="50%" height="50%" svgXmlData={HomeSVG} />
           )
         }}
       />
       <Tab.Screen name="Messages" component={MessageNavigator} options={options} />
-      <Tab.Screen name="Add" component={MessageNavigator} options={options} />
+      <Tab.Screen name="Add" component={AddNavigator} options={options} />
       <Tab.Screen name="Cart" component={CartNavigator} options={options} />
       <Tab.Screen name="Profile" component={ProfileNavigator} options={options} />
     </Tab.Navigator>

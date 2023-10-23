@@ -22,39 +22,21 @@ const SingleArt = () => {
         <Title>'Art</Title>
       </View>
       <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <TagButton
-          value="<"
-          onPress={selectTag}
-        />
-        <Text style={styles.artTitle}>Les voix du Néant</Text>
+        <Text style={styles.artTitle}>Add Publication Page</Text>
       </View>
       <View>
         <Image style={styles.img} />
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
-        <TagButton value="" />
-        <Text style={{ marginLeft: 170, fontSize: 20 }}/>
-        <TagButton value="Save" />
-        <TagButton value="Like" />
-      </View>
-      <View>
-      <Text style={{ marginLeft: 20, fontSize: 20 }}>
-          200€
-        </Text>
-      <Text style={{ marginLeft: 20, fontSize: 15 }}>
-        Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum
-      </Text>
-      </View>
-      <View style={{ marginTop: 20 }}>
 
+      <View style={{ marginTop: 20 }}>
         <Button
-          value="Acheter"
+          value=""
           onPress={nextPage}
         />
         <Button
           style={{ backgroundColor: colors.secondary }}
           textStyle={{ color: colors.black }}
-          value="Retour"
+          value=""
           onPress={nextPage}
         />
       </View>

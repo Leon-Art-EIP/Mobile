@@ -12,9 +12,9 @@ import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navig
 
 const Profile = () => {
   const navigation = useNavigation();
-  // Placer ici les élements de boutons
-  const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
-  // Placer ici les handles
+  
+  const [activeTab, setActiveTab] = useState('Artwork'); 
+  
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
@@ -27,8 +27,8 @@ const Profile = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Vous pouvez laisser cette fonction de rappel vide car vous avez déjà déclaré handleBackButtonClick
-      // en dehors de cette fonction.
+      
+      
     }, [navigation])
   );
 
@@ -55,15 +55,15 @@ const Profile = () => {
           <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
         </TouchableOpacity>
       </View>
-      {/* Bannière */}
+      
       <View style={styles.banner}>
         <Image
-          source={bannerImage} // Remplacez par le chemin de votre image
-          style={styles.bannerImage} // Style pour l'image
-          resizeMode="cover" // Pour remplir la bannière
+          source={bannerImage} 
+          style={styles.bannerImage} 
+          resizeMode="cover" 
         />
       </View>
-      {/* Photo de profile */}
+      
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
@@ -72,40 +72,40 @@ const Profile = () => {
           />
         </View>
       </View>
-      {/* Blocs de texte */}
+      
       <View style={styles.textBlocks}>
-        {/* Bloc de texte follower */}
+        
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
+          
           <Text style={styles.value}>1.3k</Text>
           <Text style={styles.title}>followers</Text>
         </View>
 
-        {/* Bloc de texte au centre */}
+        
         <View style={styles.centerTextBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
+          
           <Text style={styles.centerTitle}>Linus T</Text>
           <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
         </View>
 
-        {/* Bloc de texte posts */}
+        
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
+          
           <Text style={styles.value}>64</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
-      {/* Trait décoratif de séparation */}
+      
       <View style={styles.decorativeLine} />
-      {/* Boutons d'onglet, "Artwork", "Collections" et "A propos" */}
+      
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
-          secondary={activeTab !== 'Artwork'} // Utilisez secondary si ce n'est pas le bouton actif
-          tertiary={activeTab === 'Artwork'} // Utilisez tertiary si c'est le bouton actif
+          secondary={activeTab !== 'Artwork'} 
+          tertiary={activeTab === 'Artwork'} 
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Artwork')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Artwork')} 
           />
         <Button
           value="Collection"
@@ -113,7 +113,7 @@ const Profile = () => {
           tertiary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collection')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Collection')} 
           />
         <Button
           value="A propos"
@@ -121,10 +121,10 @@ const Profile = () => {
           tertiary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('A propos')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('A propos')} 
           />
       </View>
-      {/* Artworks */}
+      
       {activeTab === 'Artwork' &&
         Array.from({ length: 7 }, (_, rowIndex) => (
           <View key={rowIndex} style={styles.rowContainer}>
@@ -134,7 +134,7 @@ const Profile = () => {
           </View>
         ))
       }
-      {/* Collection */}
+      
       {activeTab === 'Collection' &&
         Array.from({ length: 7 }, (_, rowIndex) => (
           <View key={rowIndex} style={styles.rowContainer}>
@@ -150,21 +150,21 @@ const Profile = () => {
 }
 
 const styles = StyleSheet.create({
-  banner: { // Style de la bannière
+  banner: { 
     backgroundColor: 'lightblue',
-    height: 180, // Hauteur de la bannière (ajustez selon vos besoins)
-    width: '100%', // Largeur de la bannière
-    justifyContent: 'center', // Aligner l'image au centre verticalement
-    alignItems: 'center', // Centrer l'image horizontalement
+    height: 180, 
+    width: '100%', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
   },
   bannerImage: {
-    width: '100%', // Pour remplir la largeur de la bannière
-    height: '100%', // Pour remplir la hauteur de la bannière
+    width: '100%', 
+    height: '100%', 
   },
   overlayImage: {
     flex: 1,
-    justifyContent: 'center', // Centrer l'image verticalement
-    alignItems: 'center', // Centrer horizontalement l'image
+    justifyContent: 'center', 
+    alignItems: 'center', 
   },
   profilePicture: {
     width: 110,
@@ -173,11 +173,11 @@ const styles = StyleSheet.create({
   circleImageContainer: {
     width: 110,
     height: 110,
-    borderRadius: 100, // La moitié de la largeur/hauteur pour créer un cercle
-    overflow: 'hidden', // Cache tout ce qui dépasse du cercle
+    borderRadius: 100, 
+    overflow: 'hidden', 
     position: 'absolute',
-    top: -55, // L'image est remontée de moitiée pour que son centre
-    // soit sur le bord infèrieur de la bannière.
+    top: -55, 
+    
   },
   textBlocks: {
     flexDirection: 'row',
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   centerSubtitle: {
     fontSize: 12,
-    color: 'rgba(112, 0, 255, 1)', // TODO : mettre une valeur provenant de colors
+    color: 'rgba(112, 0, 255, 1)', 
   },
   contactAndFollow: {
     justifyContent: 'center',
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   decorativeLine: {
     height: 1,
     backgroundColor: colors.tertiary,
-    marginVertical: 10, // Espace verticalement
+    marginVertical: 10, 
     marginLeft: 30,
     marginRight: 30,
   },
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   marginRightForTabs: {
-    marginRight: 5, // Espacement entre chaque bouton d'onglet
+    marginRight: 5, 
   },
   rowContainer: {
     flexDirection: 'row',
@@ -250,34 +250,34 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrameArtwork: {
-    width: 115, // Largeur souhaitée du cadre carré
-    height: 115, // Hauteur souhaitée du cadre carré
-    backgroundColor: 'lightgray', // Couleur de fond du cadre
-    borderRadius: 10, // Légèrement arrondi sur les bords
+    width: 115, 
+    height: 115, 
+    backgroundColor: 'lightgray', 
+    borderRadius: 10, 
   },
   squareFrameCollection: {
-    width: 174, // Largeur souhaitée du cadre carré
-    height: 115, // Hauteur souhaitée du cadre carré
-    backgroundColor: colors.tertiary, // Couleur de fond du cadre
-    borderRadius: 10, // Légèrement arrondi sur les bords
+    width: 174, 
+    height: 115, 
+    backgroundColor: colors.tertiary, 
+    borderRadius: 10, 
   },
   backButton: {
     position: 'absolute',
     top: 16,
     left: 16,
-    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
+    zIndex: 1, 
   },
   editButton: {
     position: 'absolute',
     top: 16,
     right: 50,
-    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
+    zIndex: 1, 
   },
   settingButton: {
     position: 'absolute',
     top: 16,
     right: 0,
-    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
+    zIndex: 1, 
   },
 });
 

@@ -12,7 +12,6 @@ jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 it('navigates to commands', () => {
   const { getByText, queryByText } = render(<App />);
 
-  // navigates to command screen
   fireEvent.press(getByText('messages'));
   fireEvent.press(getByText('Commandes'));
 
