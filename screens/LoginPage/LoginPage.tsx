@@ -28,7 +28,7 @@ const Login = ({ navigation }: any) => {
   
       // Stocker le token dans AsyncStorage pour une utilisation ultérieure.
       await AsyncStorage.setItem('jwt', token);
-  
+      console.log(token);
       // Rediriger l'utilisateur vers la page d'accueil.
       navigation.navigate('main'); // Remplacez 'HomeScreen' par le nom de votre écran d'accueil.
   

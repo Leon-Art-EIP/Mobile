@@ -16,16 +16,14 @@ const Login = ({ navigation }: any) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://10.0.2.2:5000/api/follow/652bc1fb1753a08d6c7d3f5d', {
-        
-      });
+      const response = await axios.post('http://10.0.2.2:5000/api/login', {});
   
       // Si la requête réussit, le backend devrait renvoyer un JWT dans la réponse.
       const token = response.data.token;
   
       // Stocker le token dans AsyncStorage pour une utilisation ultérieure.
       await AsyncStorage.setItem('jwt', token);
-  
+      console.log(token);
       // Rediriger l'utilisateur vers la page d'accueil.
       navigation.navigate('main'); // Remplacez 'HomeScreen' par le nom de votre écran d'accueil.
   
