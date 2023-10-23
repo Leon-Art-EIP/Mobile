@@ -7,8 +7,7 @@
   // 'http://10.0.2.2:5000/api/auth/login'
 
 const variables = {
-    API_URL: 'http://10.0.2.2:5001/',
-  };
-  
-  export default variables;
-  
+  API_URL: 'http://10.0.2.2:5000/',
+};
+
+export default variables;
