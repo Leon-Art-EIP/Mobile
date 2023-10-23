@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
-import { post } from '../../constants/fetch';
+import React, { useState, useEffect } from 'react';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import env from '../../env';
+
 import Button from '../../components/Button';
 import Title from '../../components/Title';
 import CheckBox from '@react-native-community/checkbox';
@@ -9,19 +12,57 @@ import eyeIcon from '../../assets/eye_icon.png';
 import mailIcon from '../../assets/mail_icon.png';
 import passwordIcon from '../../assets/password_icon.png';
 
+
 const Login = ({ navigation }: any) => {
-  const [email, setEmail] = useState<string | undefined>(undefined);
-  const [password, setPassword] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    post('/api/auth/login', { email, password }, (response: any) => {
-      console.log('response received : ', response);
-    });
-  };
 
+  const handleLogin = () => {
+    const { API_URL } = env;
+    const requestData = { email, password };
+
+    axios.post(`${API_URL}api/auth/login`, requestData)
+      .then(async response => {
+        if (response && response.data && response.data.token) {
+          const tokenFromDB = response.data.token;
+          console.log('Token from DB:', tokenFromDB);
+
+          try {
+            await AsyncStorage.setItem('jwt', tokenFromDB);
+            navigation.navigate('main');
+          } catch (error) {
+            console.error('Error storing token:', error);
+            Alert.alert('Login Failed', 'Error storing token');
+          }
+        } else {
+          console.error('Invalid response format: ', response);
+          Alert.alert('Login Failed', 'Invalid response format');
+        }
+      })
+      .catch(error => {
+        if (error.response) {
+          console.error('Server responded with an error:', error.response.data);
+          if (error.response.status === 422) {
+            console.error('Validation error. Please check your input data.');
+            Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+          } else {
+            console.error('Other server error:', error.response.status);
+            Alert.alert('Signup Failed', 'Other server error');
+          }
+        } else if (error.request) {
+          console.error('Request was made but no response was received:', error.request);
+          Alert.alert('Signup Failed', 'Request was made but no response was received');
+        } else {
+          console.error('Error setting up the request:', error.message);
+          Alert.alert('Signup Failed', 'Error setting up the request');
+        }
+        console.error('Error config:', error.config);
+      });
+  };
+  
   const handleGoogleLogin = () => {
-    // Logique de connexion avec Google ici
   };
 
   const handleRegister = () => {

@@ -20,7 +20,7 @@ it('navigates to inbox', () => {
 it('navigates to conversation', () => {
   const { getByText } = render(<App />);
 
-  // navigates to inbox
+  
   fireEvent.press(getByText('messages'));
   fireEvent.press(getByText('Marine Weber'));
 
@@ -39,14 +39,14 @@ it('navigates to conversation', () => {
 
 
 it('writes something in the input when we type something', () => {
-  // render app
+  
   const { getByPlaceholderText, getByText } = render(<App />);
 
-  // navigates to conversation screen
+  
   fireEvent.press(getByText('messages'));
   fireEvent.press(getByText('Marine Weber'));
 
-  // test the input
+  
   const msgInput = getByPlaceholderText('Message ...');
   fireEvent.changeText(msgInput, "Hello World!");
   expect(msgInput.props.value).toBe("Hello World!");
@@ -56,19 +56,19 @@ it('writes something in the input when we type something', () => {
 it('displays timestamp when bubble is pressed', () => {
   const { getByText, queryByText } = render(<App />);
 
-  // navigates to conversation screen
+  
   fireEvent.press(getByText('messages'));
   fireEvent.press(getByText('Marine Weber'));
 
-  // verifies timestamps are not here by default
+  
   const timestamp1 = queryByText(dateToHour((new Date).getTime()));
   expect(timestamp1).toBeNull();
 
-  // presses on a bubble
+  
   const answer = getByText('Yes of course !');
   fireEvent.press(answer);
 
-  // verifies timestamp appears
+  
   const timestamp2 = queryByText(dateToHour((new Date).getTime()));
   expect(timestamp2).toBeDefined();
 });

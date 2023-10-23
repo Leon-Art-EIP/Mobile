@@ -28,28 +28,22 @@ describe('Profile Component', () => {
     expect(artworkTab.props.style[0].backgroundColor).toBe('lightgray');
   });
 
-  // Nouveaux tests
+  
   it('handles back button click correctly', () => {
     const { getByImage } = render(<Profile />);
     const backButton = getByImage({ source: BackArrow });
     fireEvent.press(backButton);
-
-    // TODO : Vérifier que la navigation s'est correctement effectuée
   });
 
   it('handles edit button click correctly', () => {
     const { getByImage } = render(<Profile />);
     const editButton = getByImage({ source: EditButtonImage });
     fireEvent.press(editButton);
-
-    // TODO : Vérifier que la navigation s'est correctement effectuée
   });
 
   it('handles settings button click correctly', () => {
     const { getByImage } = render(<Profile />);
     const settingsButton = getByImage({ source: SettingsButtonImage });
     fireEvent.press(settingsButton);
-
-    // TODO : Vérifier que la navigation s'est correctement effectuée
   });
 });
