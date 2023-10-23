@@ -1,39 +1,68 @@
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { get, post } from '../constants/fetch';
+import axios from 'axios';
+import env from '../env';
+
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Title from '../components/Title';
-import colors from "../constants/colors";
+import colors from '../constants/colors';
 
 const Signup = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
-  const [phone, setPhone] = useState<string | undefined>(undefined);
+  const [password, setPassword] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleSignup = () => {
-    post(
-      '/api/auth/signup',
-      { email, username, phone },
-      () => navigation.navigate('main'),
-      (error: any) => {
-        console.log('réponse reçue : ', error.response.status);
-        switch (error.response.status) {
-          case 409: setError('Email déjà utilisé'); break;
-          case 422: {
-            const errorMessages = error.response.data.errors.map((e: any) => e.msg).join('\n');
-            setError(errorMessages);
-            break;
+    const { API_URL } = env;
+    const requestData = { username, email, password };
+  
+    axios.post(`${API_URL}api/auth/signup`, requestData)
+      .then(async response => {
+        if (response && response.data && response.data.token) {
+          const tokenFromDB = response.data.token;
+          console.log('Server response', response.data);
+          console.log('Token from DB:', tokenFromDB);
+  
+          try {
+            await AsyncStorage.setItem('jwt', tokenFromDB);
+            navigation.navigate('profiling');
+          } catch (error) {
+            console.error('Error storing token:', error);
+            Alert.alert('Signup Failed');
           }
-          default: setError('Erreur serveur inattendue. Veuillez réessayer plus tard.');
+        } else {
+          console.error('Invalid response format: ', response);
+          Alert.alert('Signup Failed', 'Invalid response format');
         }
-      }
-    );
+      })
+      .catch(error => {
+        if (error.response) {
+          console.error('Server responded with an error:', error.response.data);
+          if (error.response.status === 422) {
+            console.error('Validation error. Please check your input data.');
+            Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+          } else {
+            console.error('Other server error:', error.response.status);
+            Alert.alert('Signup Failed', 'Other server error');
+          }
+        } else if (error.request) {
+          console.error('Request was made but no response was received:', error.request);
+          Alert.alert('Signup Failed', 'Request was made but no response was received');
+        } else {
+          console.error('Error setting up the request:', error.message);
+          Alert.alert('Signup Failed', 'Error setting up the request');
+        }
+        console.error('Error config:', error.config);
+      });
   };
+  
 
   const handleLoginNavigation = () => {
-    navigation.navigate('login');
+    navigation.navigate('signup');
   };
 
   return (
@@ -45,20 +74,20 @@ const Signup = ({ navigation }: any) => {
       <Title style={styles.signupTitle}>Inscription</Title>
 
       <Input
-        placeholder="Email"
-        onTextChanged={setEmail}
-        style={styles.input}
-      />
-
-      <Input
         placeholder="Nom d'utilisateur"
         onTextChanged={setUsername}
         style={styles.input}
       />
 
       <Input
-        placeholder="Téléphone"
-        onTextChanged={setPhone}
+        placeholder="Email"
+        onTextChanged={setEmail}
+        style={styles.input}
+      />
+
+      <Input
+        placeholder="Password"
+        onTextChanged={setPassword}
         style={styles.input}
       />
 

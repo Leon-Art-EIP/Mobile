@@ -2,36 +2,38 @@
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { get, post} from '../constants/fetch';
+
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import TagButton from '../components/TagButton';
 import Button from '../components/Button';
-import ProfilingQuizzArtist1 from './ProfilingQuizzArtist1';
+
+import ProfilingArtist from './ProfilingQuizzArtist1';
 
 const ProfilingQuizz = ({ navigation }: any) => {
    
   const [objective, setPurpose] = useState<string | null>(null);
 
-  const handleUserStatus = () => {
-    console.log('iobjectif111', objective)
-    if (objective === null) {
-      console.log('No prarameter found');
-      return;
-    }
-      post(
-          '/api/quizz/submit/',
-          { objective },
-          () => navigation.navigate('ProfilingQuizzArtist'),
-          () => {
-      console.log('Objective', objective)
-            if (objective === 'sell') {
-              navigation.navigate('ProfilingQuizzArtist');
-            } else if (objective === 'both' || objective === 'discover') {
-              navigation.navigate('ProfilingQuizzAmateur');
-            }
+const handleUserStatus = () => {
+  console.log('User Purpose', objective)
+  if (objective === null) {
+    console.log('No prarameter found');
+    return;
+  }
+    post(
+        '/api/quizz/submit/',
+        { objective },
+        () => navigation.navigate(''),
+        () => {
+    console.log('Objective', objective)
+          if (objective === 'sell') {
+            navigation.navigate('profilingArtist');
+          } else if (objective === 'both' || objective === 'discover') {
+            navigation.navigate('profilingAmateur');
           }
-      )
-  };
+        }
+    )
+};
 
   useEffect(() => {
     console.log('OBJECTIF', objective);
@@ -44,10 +46,6 @@ const ProfilingQuizz = ({ navigation }: any) => {
     else
       setPurpose(value);
   };
-
-// ProfilingQuizz.js
-
-// ...
 
 return (
   <View style={styles.container}>
@@ -64,7 +62,7 @@ return (
         value="Découvrir des œuvres d’art"
         onPress={() => getPurpose("discover")}
         selected={objective === "discover"}
-        testID="discover-button" // Add testID for discover button
+        testID="discover-button"
       />
       <TagButton
         style={styles.TagButton}
@@ -72,14 +70,14 @@ return (
         value="Vendre mes œuvres d’art"
         onPress={() => getPurpose("sell")}
         selected={objective === "sell"}
-        testID="sell-button" // Add testID for sell button
+        testID="sell-button"
       />
       <TagButton
         style={styles.TagButton}
         value="Les deux"
         onPress={() => getPurpose("both")}
         selected={objective === "both"}
-        testID="both-button" // Add testID for both button
+        testID="both-button"
       />
     </View>
 

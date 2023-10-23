@@ -40,7 +40,6 @@ const post = (
   .catch(onErrorCallback);
 }
 
-
 export {
   get,
   post

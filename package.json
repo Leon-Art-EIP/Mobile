@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.19.3",
     "@react-native-community/checkbox": "^0.5.16",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/native": "^6.1.6",
@@ -28,7 +29,11 @@
     "react-native-screens": "^3.20.0",
     "react-native-svg": "^13.13.0",
     "react-native-vector-icons": "^9.2.0",
-    "regexpu-core": "^5.3.2"
+    "regexpu-core": "^5.3.2",
+    "swagger-client": "^3.23.1",
+    "swagger-react-native-client": "^3.8.27",
+    "swagger-ui": "^5.9.0",
+    "swagger-ui-dist": "^5.9.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

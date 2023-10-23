@@ -6,8 +6,11 @@ import profilePicture from '../assets/images/user.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OtherProfile = () => {
+  const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
   // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
@@ -16,10 +19,25 @@ const OtherProfile = () => {
     navigation.goBack();
   };
   const handleContactButtonClick = () => {
-    //TO DO : rediriger dynamiquement vers la bonne page
+    //TODO : rediriger dynamiquement vers la bonne page
     navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
   };
-
+  const handleFollowButtonClick = async () => {
+    //TODO : rendre dynamique
+    post(
+      '/api/auth/login',
+      { email, password },
+      () => navigation.navigate('main'),
+      (error: any) => {
+        // console.log('response received : ', error.response.status);
+        switch (error.response.status) {
+          case (401): setError('Invalid password or email'); break;
+          case (422): setError('Invalid password or email'); break;
+          default: setError(undefined);
+        }
+      }
+    );
+  }
   useFocusEffect(
     React.useCallback(() => {
       // Vous pouvez laisser cette fonction de rappel vide car vous avez déjà déclaré handleBackButtonClick
@@ -84,6 +102,7 @@ const OtherProfile = () => {
           value="Suivre"
           style={{width: 150, height: 38, borderRadius: 10, justifyContent: 'center',}}
           textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
+          onPress={() => handleBackButtonClick()}
           />
         <Button
           value="Ecrire"

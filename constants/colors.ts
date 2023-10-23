@@ -21,10 +21,10 @@ const colors = {
   darkGreyBg: '#3E3E3E',
   darkGreyFg: '#251A00',
   
-    //Tags Selected
-    tag: '#FF7F74',
-    pressedTag: '#FF7F74',
-    tagText: '#FFF',
+  //Tags Selected
+  tag: '#FF7F74',
+  pressedTag: '#FF7F74',
+  tagText: '#FFF',
 };
 
 export default colors;

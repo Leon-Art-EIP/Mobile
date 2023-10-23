@@ -21,23 +21,9 @@ const ProfilingQuizzFinal = ({ navigation }: any) => {
         () => navigation.navigate(),
         () => {
         console.log('selectedTag', selectedTag)
-          navigation.navigate('home');
+          navigation.navigate('main');
         }
       )
-    // if (selectedTag !== null) {
-    //   // Post the selected tag to the API
-    //   post('/api/quizz/submit/', { selectedTag }, () => {
-    //     // Handle successful API post if needed
-    //     // Then navigate to the next screen
-    //     // () => navigation.navigate(),
-    //     () => {
-    //     navigation.navigate('main');
-    //     }
-    //   });
-    // } else {
-    //   // If no tag is selected, prevent navigation
-    //   console.log('No tag selected');
-    // }
   };
 
   useEffect(() => {
@@ -47,7 +33,6 @@ const ProfilingQuizzFinal = ({ navigation }: any) => {
 
   const selectTag = (tag: string) => {
     console.log('Tag:', selectedTag);
-    // Save the selected tag in the state
     if (selectedTag != tag)
         setSelectedTag(tag);
     else

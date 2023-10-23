@@ -27,13 +27,13 @@ const ProfilingQuizzAmateur2 = ({ navigation }: any) => {
           () => navigation.navigate(),
           () => {
           console.log('budget', budget)
-            navigation.navigate('ProfilingQuizzFinal');
+            navigation.navigate('profilingLast');
           }
         )
       };
 
     const previous = () => {
-        navigation.navigate('ProfilingQuizzAmateur');
+        navigation.navigate('profilingAmateur');
     };
 
     useEffect(() => {

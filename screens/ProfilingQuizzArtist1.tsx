@@ -31,16 +31,16 @@ const ProfilingQuizzArtist = ({ navigation }: any) => {
     post(
       '/api/quizz/submit/',
       { artSellingType },
-      () => navigation.navigate('ProfilingQuizzArtist2'),
+      () => navigation.navigate('profilingArtist2'),
       () => {
         console.log('Objective', artSellingType)
-        navigation.navigate('ProfilingQuizzArtist2');
+        navigation.navigate('profilingArtist2');
       }
     );
   };
 
   const previous = () => {
-    navigation.navigate('ProfilingQuizz');
+    navigation.navigate('profiling');
   };
 
   return (

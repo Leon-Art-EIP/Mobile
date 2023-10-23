@@ -20,25 +20,24 @@ const ProfilingQuizzArtist2 = ({ navigation }: any) => {
     post(
       '/api/quizz/submit/',
       { customCommands },
-      () => navigation.navigate('ProfilingQuizzFinal'),
+      () => navigation.navigate(),
       () => {
         console.log('Offer Custom Creations:', customCommands);
-        navigation.navigate('ProfilingQuizzFinal');
+        navigation.navigate('profilingLast');
 
       }
     );
   };
 
   const previous = () => {
-    navigation.navigate('ProfilingQuizzArtist');
-  };
+    navigation.navigate('profilingArtist');
+};
 
   useEffect(() => {
     console.log('customCommands', customCommands);
   }, [customCommands]); 
 
   const selectTag = (value: string) => {
-    // console.log('customCommands 1', customCommands);
     if (customCommands === value) {
         setCustomCommands(null);
       }
