@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import colors from '../constants/colors';
 import bannerImage from '../assets/images/banner.jpg'
 import profilePicture from '../assets/images/user.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import SettingsButtonImage from '../assets/images/settings_logo.png'
-
 import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import env from '../env';
 
 const Profile = () => {
+  const { API_URL } = env;
   const navigation = useNavigation();
-  
   const [activeTab, setActiveTab] = useState('Artwork'); 
-  
+  const [userCollections, setUserCollections] = useState([]);
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
@@ -31,7 +34,32 @@ const Profile = () => {
       
     }, [navigation])
   );
-
+  useEffect(() => {
+    // Appelez checkIsFollowing lors du chargement de la page
+    updateCollections();
+  }, []);
+  const updateCollections = async () => {
+    const token = await AsyncStorage.getItem('jwt');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+  
+        // Effectuez l'appel API pour obtenir les collections de l'utilisateur connecté
+        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const userCollections = collectionsResponse.data;
+        setUserCollections(userCollections);
+        console.log(userCollections);
+      }
+      else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+  }
   return (
     <ScrollView nestedScrollEnabled>
     <View>
@@ -135,15 +163,20 @@ const Profile = () => {
         ))
       }
       
-      {activeTab === 'Collection' &&
-        Array.from({ length: 7 }, (_, rowIndex) => (
-          <View key={rowIndex} style={styles.rowContainer}>
-            {Array.from({ length: 2 }, (_, colIndex) => (
-              <View key={colIndex} style={styles.squareFrameCollection} />
-            ))}
-          </View>
-        ))
-      }
+      {activeTab === 'Collection' && userCollections.length > 0 && (
+        <View>
+          {userCollections.map(collection => (
+            <View key={collection._id}>
+              <Text style={styles.collectionName}>{collection.name}</Text>
+              {collection.artPublications.map(artworkId => (
+                <Text key={artworkId} style={styles.artworkName}>
+                  {artworkId}
+                </Text>
+              ))}
+            </View>
+          ))}
+        </View>
+      )}
     </View>
     </ScrollView>
   );
@@ -278,6 +311,22 @@ const styles = StyleSheet.create({
     top: 16,
     right: 0,
     zIndex: 1, 
+  },
+  collectionName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white', // Texte en blanc
+    backgroundColor: colors.tertiary, // Fond noir pour la capsule
+    padding: 10, // Espace autour du texte à l'intérieur de la capsule
+    marginBottom: 10, // Espace entre les capsules de collection
+    borderRadius: 40, // Coins arrondis pour la capsule
+    marginLeft: 10,
+    marginRight: 30,
+  },
+  artworkName: {
+    fontSize: 16,
+    color: 'black',
+    marginLeft: 20,
   },
 });
 

@@ -22,9 +22,11 @@ const SingleArt = () => {
   const { API_URL } = env;
   // const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   useEffect(() => {
     // Appelez checkIsFollowing lors du chargement de la page
     checkIsLiked();
+    checkIsSaved();
   }, []);
   const handleLikeButtonClick = async () => {
     //TODO : rendre dynamique
@@ -50,6 +52,36 @@ const SingleArt = () => {
       Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
     }
     checkIsLiked();
+  };
+  const handleSavedButtonClick = async () => {
+    //TODO : rendre dynamique
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const requestBody = {
+          artPublicationId: "65377fcbbfacccdbe11c44ce",
+          collectionName: "Oeuvres likées",
+          isPublic: true,
+        };  
+        const response = await axios.post(`${API_URL}api/collection`, requestBody, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+      else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+    }
+    catch (error) {
+      console.error('Erreur d\'enregistrement :', error);
+      Alert.alert('Erreur d\'enregistrement', 'Une erreur s\'est produite.');
+    }
+    checkIsSaved();
   };
   const checkIsLiked = async () => {
     try {
@@ -83,7 +115,50 @@ const SingleArt = () => {
       Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
     }
   };
-
+  const checkIsSaved = async () => {
+    try {
+      // Récupérez le jeton JWT depuis le stockage local (AsyncStorage ou autre)
+      const token = await AsyncStorage.getItem('jwt');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+  
+        // Effectuez l'appel API pour obtenir les collections de l'utilisateur connecté
+        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const userCollections = collectionsResponse.data;
+  
+        // Recherchez la collection "Oeuvres likées" dans les collections de l'utilisateur
+        const oeuvresLikeesCollection = userCollections.find(collection => collection.name === "Oeuvres likées");
+  
+        if (oeuvresLikeesCollection) {
+          // Si la collection "Oeuvres likées" est trouvée, effectuez un appel API pour obtenir les détails de cette collection
+          const oeuvresLikeesCollectionId = oeuvresLikeesCollection._id;
+          const oeuvresLikeesDetailsResponse = await axios.get(`${API_URL}api/collection/${oeuvresLikeesCollectionId}/publications`, {
+            headers,
+          });
+          const oeuvresLikeesPublications = oeuvresLikeesDetailsResponse.data;
+  
+          // Vérifiez si l'œuvre avec l'ID spécifié se trouve dans la collection "Oeuvres likées"
+          const isArtSaved = oeuvresLikeesPublications.some(publication => publication._id === "65377fcbbfacccdbe11c44ce");
+          setIsSaved(isArtSaved);
+        } else {
+          setIsSaved(false); // La collection "Oeuvres likées" n'a pas été trouvée
+        }
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification du suivi :', error);
+      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
+    }
+    console.log(isSaved);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
@@ -101,7 +176,8 @@ const SingleArt = () => {
         <Image style={styles.img} />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
-        <Text style={{ marginLeft: 140, fontSize: 20 }}/>
+        <TagButton/>
+        <Text style={{ marginLeft: 80, fontSize: 20 }}/>
         {/* <TagButton value="Save" /> */}
         <Button
           value={isLiked ? "Liké" : "Like"}
@@ -115,8 +191,17 @@ const SingleArt = () => {
           textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
           onPress={() => handleLikeButtonClick()}
           />
-        <TagButton
-          value="Save"
+        <Button
+          value={isSaved ? "Saved" : "Save"}
+          secondary= {isSaved ? true : false}
+          style={{
+            width: 80,
+            height: 38,
+            borderRadius: 50,
+            justifyContent: 'center',
+          }}
+          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
+          onPress={() => handleSavedButtonClick()}
           />
       </View>
       <View>
