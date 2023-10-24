@@ -18,45 +18,6 @@ const nextPage = () => {
 
 const selectTag = () => {
 };
-// const YourComponent = () => {
-//   const [image, setImage] = useState<ImagePickerResponse | null>(null);
-
-//   const handleChoosePhoto = () => {
-//     const options = {
-//       noData: true,
-//     };
-//     ImagePicker.launchCamera(options, response => {
-//       if (response.uri) {
-//         setImage(response);
-//         uploadImage(response);
-//       }
-//     });
-//   };
-// }
-
-// const uploadImage = async image => {
-//   const data = new FormData();
-//   data.append('image', {
-//     uri: image.uri,
-//     type: 'image/jpeg',
-//     name: 'image.jpg',
-//   });
-
-//   try {
-//     const response = await axios.post('YOUR_API_ENDPOINT', data, {
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'multipart/form-data',
-//       },
-//     });
-//     console.log('Image uploaded successfully', response.data);
-//     // Add any handling of the API response here
-//   } catch (error) {
-//     console.error('Error uploading image', error);
-//     // Handle the error here
-//   }
-// };
-
 
 const SingleArt = () => {
   return (
@@ -68,34 +29,27 @@ const SingleArt = () => {
       <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
         <Text style={styles.artTitle}>Add Publication Page</Text>
       </View>
-      {/* <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      {image && (
-        <Image
-          source={{ uri: image.uri }}
-          style={{ width: 200, height: 200, marginBottom: 10 }}
+      <Button
+          style={{ backgroundColor: colors.secondary }}
+          textStyle={{ color: colors.black }}
+          value="+"
+          onPress={nextPage}
         />
-      )}
-      <Button title="Take a Photo" onPress={handleChoosePhoto} />
-      </View> */}
       <View>
       <TextInput
           placeholder="Titre"
-          // onChangeText={handleEmailChange}
           style={styles.textInput}
           />
         <TextInput
           placeholder="Description"
-          // onChangeText={handleEmailChange}
           style={styles.textInput}
           />
         <TextInput
           placeholder="Prix"
-          // onChangeText={handleEmailChange}
           style={styles.textInput}
           />          
         <TextInput
         placeholder="Genre"
-        // onChangeText={handleEmailChange}
         style={styles.textInput}
         />
       </View>
