@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import colors from '../constants/colors';
 import bannerImage from '../assets/images/banner.jpg'
 import profilePicture from '../assets/images/user.png'
@@ -8,13 +8,21 @@ import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import env from '../env';
 
 const OtherProfile = () => {
   const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const { API_URL } = env;
+
   // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
   // Placer ici les handles
+  const handleSquareClick = (pageName) => {
+    // Utilisez la fonction navigate pour rediriger vers la page spécifique
+    navigation.navigate(pageName);
+  };
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
@@ -24,20 +32,63 @@ const OtherProfile = () => {
   };
   const handleFollowButtonClick = async () => {
     //TODO : rendre dynamique
-    post(
-      '/api/auth/login',
-      { email, password },
-      () => navigation.navigate('main'),
-      (error: any) => {
-        // console.log('response received : ', error.response.status);
-        switch (error.response.status) {
-          case (401): setError('Invalid password or email'); break;
-          case (422): setError('Invalid password or email'); break;
-          default: setError(undefined);
-        }
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const response = await axios.post(`${API_URL}api/follow/652bc1fb1753a08d6c7d3f5d`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
       }
-    );
-  }
+      else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+    }
+    catch (error) {
+      console.error('Erreur de follow :', error);
+      Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+    }
+    checkIsFollowing();
+  };
+  const checkIsFollowing = async () => {
+    try {
+      // Récupérez le jeton JWT depuis le stockage local (AsyncStorage ou autre)
+      const token = await AsyncStorage.getItem('jwt'); // Assurez-vous que c'est le bon nom de clé
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`, // Ajoutez le jeton JWT dans l'en-tête
+        };
+  
+        const response = await axios.get(`${API_URL}api/follow/following`, {
+          headers,
+          params: {
+            limit: 10,
+          },
+        });
+        const responseData = response.data;
+        const subscriptions = responseData.subscriptions;
+
+        const isUserFollowed = subscriptions.some((subscription: { _id: string; }) => subscription._id === "652bc1fb1753a08d6c7d3f5d");
+        setIsFollowing(isUserFollowed);
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification du suivi :', error);
+      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
+    }
+  };
+
+  useEffect(() => {
+    // Appelez checkIsFollowing lors du chargement de la page
+    checkIsFollowing();
+  }, []);
   useFocusEffect(
     React.useCallback(() => {
       // Vous pouvez laisser cette fonction de rappel vide car vous avez déjà déclaré handleBackButtonClick
@@ -50,12 +101,12 @@ const OtherProfile = () => {
     <View>
       {/* Bouton de retour en haut à gauche */}
       <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
-        >
-          {/* Utilisez l'image PNG importée */}
-          <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
-        </TouchableOpacity>
+        onPress={() => handleBackButtonClick()}
+        style={styles.backButton}
+      >
+        {/* Utilisez l'image PNG importée */}
+        <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
+      </TouchableOpacity>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
@@ -99,10 +150,16 @@ const OtherProfile = () => {
       {/* Boutons "Suivre" et "Ecrire" */}
       <View style={styles.contactAndFollow}>
         <Button
-          value="Suivre"
-          style={{width: 150, height: 38, borderRadius: 10, justifyContent: 'center',}}
+          value={isFollowing ? "Suivi" : "Suivre"}
+          secondary= {isFollowing ? true : false}
+          style={{
+            width: 150,
+            height: 38,
+            borderRadius: 10,
+            justifyContent: 'center',
+          }}
           textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
-          onPress={() => handleBackButtonClick()}
+          onPress={() => handleFollowButtonClick()}
           />
         <Button
           value="Ecrire"
@@ -147,7 +204,11 @@ const OtherProfile = () => {
         Array.from({ length: 7 }, (_, rowIndex) => (
           <View key={rowIndex} style={styles.rowContainer}>
             {Array.from({ length: 3 }, (_, colIndex) => (
-              <View key={colIndex} style={styles.squareFrame} />
+              <TouchableOpacity
+                key={colIndex}
+                style={styles.squareFrame}
+                onPress={() => handleSquareClick('singleArt')}
+              />
             ))}
           </View>
         ))
