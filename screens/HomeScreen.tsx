@@ -1,5 +1,6 @@
 import React, { NewLifecycle, useEffect, useState } from 'react';
 import {
+  TouchableOpacity,
   FlatList,
   ListRenderItemInfo,
   ScrollView,
@@ -14,7 +15,9 @@ import { const_news, NewsType, const_artists } from "../constants/homeValues";
 import colors from "../constants/colors";
 import NewsCard from "../components/NewsCard";
 import ArtistCard from "../components/ArtistCard";
+import ArtPieces from "../components/ArtPieces"
 import ForYouArt from "../components/ForYouArt";
+import Card from "../components/Card";
 import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
@@ -92,6 +95,7 @@ const HomeScreen = () => {
         {/* Oeuvres */}
         <View>
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Pour vous</Title>
+        {/* Clickable card */}
         </View>
       </ScrollView>
     </SafeAreaView>
