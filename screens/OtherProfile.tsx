@@ -8,11 +8,13 @@ import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import env from '../env';
 
 const OtherProfile = () => {
   const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
   const [isFollowing, setIsFollowing] = useState(false);
+  const { API_URL } = env;
 
   // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
@@ -36,7 +38,7 @@ const OtherProfile = () => {
         const headers = {
           Authorization: `Bearer ${token}`,
         };
-        const response = await axios.post('http://10.0.2.2:5000/api/follow/652bc1fb1753a08d6c7d3f5d', {}, {
+        const response = await axios.post(`${API_URL}api/follow/652bc1fb1753a08d6c7d3f5d`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -62,7 +64,7 @@ const OtherProfile = () => {
           Authorization: `Bearer ${token}`, // Ajoutez le jeton JWT dans l'en-tête
         };
   
-        const response = await axios.get('http://10.0.2.2:5000/api/follow/following', {
+        const response = await axios.get(`${API_URL}api/follow/following`, {
           headers,
           params: {
             limit: 10,
@@ -99,12 +101,12 @@ const OtherProfile = () => {
     <View>
       {/* Bouton de retour en haut à gauche */}
       <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
-        >
-          {/* Utilisez l'image PNG importée */}
-          <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
-        </TouchableOpacity>
+        onPress={() => handleBackButtonClick()}
+        style={styles.backButton}
+      >
+        {/* Utilisez l'image PNG importée */}
+        <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
+      </TouchableOpacity>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
