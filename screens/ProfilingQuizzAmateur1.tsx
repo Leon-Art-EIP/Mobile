@@ -15,11 +15,9 @@ const ProfilingQuizzAmateur = ({ navigation }: any) => {
 
   const getArtInterest = (value: string) => {
     if (artInterestType.includes(value)) {
-      // If yes, remove it
       const updatedInterestType = artInterestType.filter((tag) => tag !== value);
       setArtInterest(updatedInterestType);
     } else {
-      // If not, add it
       setArtInterest([...artInterestType, value]);
     }
   };
@@ -58,13 +56,11 @@ return (
           value="Peinture"
           style={styles.TagButton}
           onPress={() => getArtInterest("peinture")}
-          // selected={artInterestType.includes("peinture")}
           />
           <TagButton 
           value="Calligraphie"
           style={styles.TagButton}
           onPress={() => getArtInterest("calligraphie")}
-          // selected={artInterestType.includes("calligraphie")}
           />
           <TagButton 
           value="Photographie"
@@ -117,12 +113,10 @@ return (
           onPress={getArtInterest}
           />
       </ScrollView>
-      {/* <Image source={{'../assets/images'}}/> */}
       <View style={{ flexDirection: 'row' }}>
           <TagButton 
               style={ styles.toggle }
               value="Oui"
-              // onPress={getArtInterest}
           />
           <Text style={{paddingRight: 20}}>
           Localiser ma position et optimise mon référencement sur l’application
