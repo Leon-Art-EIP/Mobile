@@ -17,6 +17,10 @@ const OtherProfile = () => {
   // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
   // Placer ici les handles
+  const handleSquareClick = (pageName) => {
+    // Utilisez la fonction navigate pour rediriger vers la page spécifique
+    navigation.navigate(pageName);
+  };
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
@@ -24,7 +28,6 @@ const OtherProfile = () => {
     //TODO : rediriger dynamiquement vers la bonne page
     navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
   };
-
   const handleFollowButtonClick = async () => {
     //TODO : rendre dynamique
     try {
@@ -49,8 +52,7 @@ const OtherProfile = () => {
       Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
     }
     checkIsFollowing();
-  }
-
+  };
   const checkIsFollowing = async () => {
     try {
       // Récupérez le jeton JWT depuis le stockage local (AsyncStorage ou autre)
@@ -200,7 +202,11 @@ const OtherProfile = () => {
         Array.from({ length: 7 }, (_, rowIndex) => (
           <View key={rowIndex} style={styles.rowContainer}>
             {Array.from({ length: 3 }, (_, colIndex) => (
-              <View key={colIndex} style={styles.squareFrame} />
+              <TouchableOpacity
+                key={colIndex}
+                style={styles.squareFrame}
+                onPress={() => handleSquareClick('singleArt')}
+              />
             ))}
           </View>
         ))
