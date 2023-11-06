@@ -11,12 +11,22 @@ type TextBubbleType = {
   message: MessageType;
 };
 
+type MessageType = {
+  "_id": string,
+  "content": string,
+  "contentType": string,
+  "dateTime": string,
+  "id": number,
+  "read": boolean,
+  "sender": number
+};
+
 const TextBubble = ({
   message
 }: TextBubbleType) => {
   const [isHourDisplayed, setIsHourDisplayed] = useState<boolean>(false);
 
-  switch (message.bodyType) {
+  switch (message.contentType) {
     case ('text'): return (
       <TouchableOpacity
         onPress={() => setIsHourDisplayed(current => !current)}
@@ -24,15 +34,15 @@ const TextBubble = ({
       >
         <View style={[
           styles.bubbleView,
-          message.status === 'received' ? styles.bubbleLeftView : styles.bubbleRightView
+          message.read ? styles.bubbleLeftView : styles.bubbleRightView
         ]}>
           <Text style={
-            message.status === 'received' ? styles.bubbleLeftText : styles.bubbleRighText
-          }>{ message.body }</Text>
+            message.read ? styles.bubbleLeftText : styles.bubbleRighText
+          }>{ message.content }</Text>
         </View>
         { isHourDisplayed && (
-          <Text style={message.status === 'received' ? mrAuto : mlAuto}>
-            { dateToHour(message.datetime) }
+          <Text style={message.read ? mrAuto : mlAuto}>
+            { dateToHour(message.dateTime) }
           </Text>
         ) }
       </TouchableOpacity>
@@ -44,7 +54,7 @@ const TextBubble = ({
             Vous avez reçu une offre à
           </Text>
           <Text style={[ styles.offerText, fwBold ]}>
-            { ' ' + message.body.toString() + ' ' }
+            { ' ' + message.content.toString() + ' ' }
           </Text>
           <Text style={styles.offerText}>€</Text>
         </View>
@@ -67,15 +77,15 @@ const TextBubble = ({
         activeOpacity={1}
       >
         <Image
-          source={{ uri: message.body.toString() }}
+          source={{ uri: message.content.toString() }}
           style={[
             styles.image,
-            message.status === 'received' ? mrAuto : mlAuto
+            message.read ? mrAuto : mlAuto
           ]}
         />
         { isHourDisplayed && (
-          <Text style={message.status === 'received' ? mrAuto : mlAuto}>
-            { dateToHour(message.datetime) }
+          <Text style={message.read ? mrAuto : mlAuto}>
+            { dateToHour(message.dateTime) }
           </Text>
         ) }
       </TouchableOpacity>
@@ -86,7 +96,8 @@ const TextBubble = ({
 const styles = StyleSheet.create({
   bubbleView: {
     maxWidth: '70%',
-    borderRadius: 22,
+    borderRadius: 12,
+    marginVertical: 2,
     paddingVertical: 12,
     paddingHorizontal: 18,
   },
@@ -103,7 +114,7 @@ const styles = StyleSheet.create({
   offerView: {
     backgroundColor: colors.offerBg,
     width: '80%',
-    borderRadius: 22,
+    borderRadius: 12,
     alignItems: 'center',
     marginVertical: 12,
     marginLeft: 'auto',
@@ -120,7 +131,7 @@ const styles = StyleSheet.create({
     color: colors.offerFg
   },
   image: {
-    borderRadius: 22,
+    borderRadius: 12,
     width: '70%'
   }
 });

@@ -1,3 +1,5 @@
+import { useRoute } from '@react-navigation/native';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
@@ -16,9 +18,34 @@ import colors from '../constants/colors';
 import { MESSAGES, MessageType } from '../constants/conversations';
 
 
-const Conversation = ({ navigation, route }: any) => {
-  const [messages, setMessages] = useState<MessageType[]>([ ...MESSAGES ]);
+type ConversationParams = {
+  name: string;
+  id: number;
+} | undefined;
+
+type MessageType = {
+  "_id": string,
+  "content": string,
+  "contentType": string,
+  "dateTime": string,
+  "id": number,
+  "read": boolean,
+  "sender": number
+};
+
+/*
+ * There is a problem that prevents the app to get
+ * values from the .env file, so Imma just go with
+ * a constant value until it's fixed
+ */
+const API_URL = "http://10.0.2.2:5000/";
+
+
+const Conversation = ({ navigation }: any) => {
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
+  const route: any = useRoute();
+  const params = route.params;
 
   const sendMessage = () => {
     // use newMessage to send the message via the backend
@@ -26,7 +53,18 @@ const Conversation = ({ navigation, route }: any) => {
   }
 
 
+  const getConversation = () => {
+    axios.post(
+      API_URL + "api/conversations/messages",
+      { body: { convId: params?.id } },
+      { headers: { 'Content-Type': 'application/json' }}
+    )
+    .then((response) => setMessages(response.data?.messages))
+    .catch((err) => console.error(err));
+  }
+
   useEffect(() => {
+    getConversation();
   }, []);
 
 
@@ -64,7 +102,7 @@ const Conversation = ({ navigation, route }: any) => {
       {/* Messages */}
       <ScrollView style={styles.conversationContainer}>
         {/* <Button value='Charger plus de messages' /> */}
-        { messages.map((msg: MessageType) => (
+        { messages && messages.map((msg: MessageType) => (
           <TextBubble message={msg} key={msg.body + Math.random().toString()} />
         )) }
       </ScrollView>
