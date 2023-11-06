@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import env from '../../env';
@@ -61,7 +62,7 @@ const Login = ({ navigation }: any) => {
         console.error('Error config:', error.config);
       });
   };
-  
+
   const handleGoogleLogin = () => {
   };
 
@@ -89,88 +90,97 @@ const Login = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleView}>
-        <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
-        <Title style={{ fontSize: 70 }}>'Art</Title>
-      </View>
-      <Title style={styles.loginTitle}>Connexion</Title>
-      <View style={styles.passwordContainer}>
-        <View style={styles.inputContainer}>
-          <Image source={mailIcon} style={styles.icon} />
-          <TextInput
-            placeholder="Email"
-            onChangeText={handleEmailChange}
-            style={styles.passwordInput}
-          />
+      <StatusBar backgroundColor="#F2F2F2" />
+      <SafeAreaView style={styles.safeView}>
+        <View style={styles.titleView}>
+          <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
+          <Title style={{ fontSize: 70 }}>'Art</Title>
         </View>
-      </View>
-      <View style={styles.passwordContainer}>
-        <View style={styles.inputContainer}>
-          <Image source={passwordIcon} style={styles.icon} />
-          <TextInput
-            placeholder="Mot de passe"
-            onChangeText={handlePasswordChange}
-            style={styles.passwordInput}
-            secureTextEntry={!showPassword}
-            value={password}
-          />
-          {password ? (
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-              activeOpacity={0.7}
-            >
-              <Image source={eyeIcon} style={styles.eyeIconImage} />
-            </TouchableOpacity>
-          ) : null}
+        <Title style={styles.loginTitle}>Connexion</Title>
+        <View style={styles.passwordContainer}>
+          <View style={styles.inputContainer}>
+            <Image source={mailIcon} style={styles.icon} />
+            <TextInput
+              placeholder="Email"
+              onChangeText={handleEmailChange}
+              style={styles.passwordInput}
+            />
+          </View>
         </View>
-      </View>
-
-      <TouchableOpacity onPress={handleRememberMeChange}>
-        <View style={styles.checkboxContainer}>
-          <CheckBox value={rememberMe} onValueChange={handleRememberMeChange} />
-          <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
+        <View style={styles.passwordContainer}>
+          <View style={styles.inputContainer}>
+            <Image source={passwordIcon} style={styles.icon} />
+            <TextInput
+              placeholder="Mot de passe"
+              onChangeText={handlePasswordChange}
+              style={styles.passwordInput}
+              secureTextEntry={!showPassword}
+              value={password}
+            />
+            {password ? (
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+                activeOpacity={0.7}
+              >
+                <Image source={eyeIcon} style={styles.eyeIconImage} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
-      </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleForgotPassword}>
-        <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={handleRememberMeChange}>
+          <View style={styles.checkboxContainer}>
+            <CheckBox value={rememberMe} onValueChange={handleRememberMeChange} />
+            <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
+          </View>
+        </TouchableOpacity>
 
-      <Button
-        onPress={handleLogin}
-        value="Se connecter"
-        style={[styles.loginButton, { backgroundColor: colors.primary }]}
-        textStyle={styles.loginButtonText}
-      />
+        <TouchableOpacity onPress={handleForgotPassword}>
+          <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
+        </TouchableOpacity>
 
-      <View style={styles.orContainer}>
-        <View style={styles.line} />
-        <Text style={styles.orText}>Ou</Text>
-        <View style={styles.line} />
-      </View>
+        <Button
+          onPress={handleLogin}
+          value="Se connecter"
+          style={[styles.loginButton, { backgroundColor: colors.primary }]}
+          textStyle={styles.loginButtonText}
+        />
 
-      <Button
-        onPress={handleGoogleLogin}
-        value="Se connecter avec Google"
-        style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
-        textStyle={styles.googleButtonText}
-      />
+        <View style={styles.orContainer}>
+          <View style={styles.line} />
+          <Text style={styles.orText}>Ou</Text>
+          <View style={styles.line} />
+        </View>
 
-      <Button
-        onPress={handleRegister}
-        value="S'inscrire"
-        style={styles.registerButton}
-        textStyle={styles.registerButtonText}
-      />
+        <Button
+          onPress={handleGoogleLogin}
+          value="Se connecter avec Google"
+          style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
+          textStyle={styles.googleButtonText}
+        />
+
+        <Button
+          onPress={handleRegister}
+          value="S'inscrire"
+          style={styles.registerButton}
+          textStyle={styles.registerButtonText}
+        />
+      </SafeAreaView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
+    margin: 0,
+    paddingHorizontal: 16,
+    flex: 1
+  },
+  safeView: {
+    backgroundColor: '#F2F2F2',
+    width:  '100%',
+    height: Dimensions.get('window').height
   },
   loginTitle: {
     fontSize: 30,
@@ -188,7 +198,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 100,
     paddingHorizontal: 10,
-  },  
+  },
   loginButton: {
     marginVertical: 16,
   },
@@ -297,7 +307,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: 10,
-  },  
+  }
 });
 
 export default Login;
