@@ -12,19 +12,26 @@ const colors = {
   primary: '#E11C0A',
   secondary: '#F5F5F5',
   tertiary: '#2D142C',
-  
+
   primaryText: '#FFFF',
   secondaryText: '#000',
   tertiaryText: '#eeeeee',
-  
+
   sampleBg: '#D3A1A1',
   darkGreyBg: '#3E3E3E',
   darkGreyFg: '#251A00',
-  
-  //Tags Selected
+
   tag: '#FF7F74',
   pressedTag: '#FF7F74',
   tagText: '#FFF',
+
+  // inbox
+  offerFg: '#6C0F7B',
+  offerBg: '#FFE0E0',
+  bubbleFgReceived: '#fff',
+  bubbleBgReceived: '#2D142C',
+  bubbleFgSent: '#000',
+  bubbleBgSent: '#F7F7F8'
 };
 
 export default colors;
