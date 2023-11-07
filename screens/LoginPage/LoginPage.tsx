@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,12 +12,15 @@ import colors from '../../constants/colors';
 import eyeIcon from '../../assets/eye_icon.png';
 import mailIcon from '../../assets/mail_icon.png';
 import passwordIcon from '../../assets/password_icon.png';
+import { MainContext } from '../../context/MainContext';
 
 
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const context = useContext(MainContext);
 
 
   const handleLogin = () => {
@@ -28,11 +31,11 @@ const Login = ({ navigation }: any) => {
       .then(async response => {
         if (response && response.data && response.data.token) {
           const tokenFromDB = response.data.token;
-          console.log('Token from DB:', tokenFromDB);
 
           try {
             await AsyncStorage.setItem('jwt', tokenFromDB);
-            navigation.navigate('main');
+            context?.setToken(tokenFromDB);
+            return navigation.navigate('main');
           } catch (error) {
             console.error('Error storing token:', error);
             Alert.alert('Login Failed', 'Error storing token');
@@ -63,34 +66,41 @@ const Login = ({ navigation }: any) => {
       });
   };
 
-  const handleGoogleLogin = () => {
-  };
+
+  const handleGoogleLogin = () => {};
+
 
   const handleRegister = () => {
     navigation.navigate('signup');
   };
 
+
   const handleEmailChange = (value: string) => {
     setEmail(value);
   };
+
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
   };
 
+
   const handleForgotPassword = () => {
     navigation.navigate('recover');
   };
 
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleRememberMeChange = () => {
     setRememberMe(!rememberMe);
   };
 
+
   return (
     <View style={styles.container}>
+
+      {/* Use this to set the correct color on the status bar */}
       <StatusBar backgroundColor="#F2F2F2" />
+
       <SafeAreaView style={styles.safeView}>
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
@@ -170,6 +180,7 @@ const Login = ({ navigation }: any) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -309,5 +320,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
   }
 });
+
 
 export default Login;
