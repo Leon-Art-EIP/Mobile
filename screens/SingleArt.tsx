@@ -10,6 +10,8 @@ import Toggle from '../assets/images/toggle.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import env from '../env';
+import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+
 
 const nextPage = () => {
 };
@@ -23,11 +25,17 @@ const SingleArt = () => {
   // const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const navigation = useNavigation();
   useEffect(() => {
     // Appelez checkIsFollowing lors du chargement de la page
     checkIsLiked();
     checkIsSaved();
   }, []);
+
+  const handleArtistButtonClick = async () => {
+    navigation.navigate('other_profile');
+
+  }
   const handleLikeButtonClick = async () => {
     //TODO : rendre dynamique
     try {
@@ -176,7 +184,8 @@ const SingleArt = () => {
         <Image style={styles.img} />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
-        <TagButton/>
+        <TagButton
+        onPress={handleArtistButtonClick}/>
         <Text style={{ marginLeft: 80, fontSize: 20 }}/>
         {/* <TagButton value="Save" /> */}
         <Button
