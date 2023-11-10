@@ -3,7 +3,6 @@ import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, StyleSheet, Di
 import colors from '../constants/colors';
 
 interface ButtonProps {
-  // onPress?: (parameter: any) => void;
   onPress?: (parameter: string) => void;
   style?: StyleProp<ViewStyle>;
   value?: string;

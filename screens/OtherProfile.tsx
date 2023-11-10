@@ -16,11 +16,8 @@ const OtherProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const { API_URL } = env;
 
-  // Placer ici les élements de boutons
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
-  // Placer ici les handles
   const handleSquareClick = (pageName) => {
-    // Utilisez la fonction navigate pour rediriger vers la page spécifique
     navigation.navigate(pageName);
   };
   const handleBackButtonClick = () => {
@@ -57,11 +54,10 @@ const OtherProfile = () => {
   };
   const checkIsFollowing = async () => {
     try {
-      // Récupérez le jeton JWT depuis le stockage local (AsyncStorage ou autre)
-      const token = await AsyncStorage.getItem('jwt'); // Assurez-vous que c'est le bon nom de clé
+      const token = await AsyncStorage.getItem('jwt');
       if (token) {
         const headers = {
-          Authorization: `Bearer ${token}`, // Ajoutez le jeton JWT dans l'en-tête
+          Authorization: `Bearer ${token}`,
         };
   
         const response = await axios.get(`${API_URL}api/follow/following`, {
@@ -86,14 +82,10 @@ const OtherProfile = () => {
   };
 
   useEffect(() => {
-    // Appelez checkIsFollowing lors du chargement de la page
     checkIsFollowing();
   }, []);
   useFocusEffect(
-    React.useCallback(() => {
-      // Vous pouvez laisser cette fonction de rappel vide car vous avez déjà déclaré handleBackButtonClick
-      // en dehors de cette fonction.
-    }, [navigation])
+    React.useCallback(() => {}, [navigation])
   );
 
   return (
@@ -104,15 +96,14 @@ const OtherProfile = () => {
         onPress={() => handleBackButtonClick()}
         style={styles.backButton}
       >
-        {/* Utilisez l'image PNG importée */}
         <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
       </TouchableOpacity>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage} // Remplacez par le chemin de votre image
-          style={styles.bannerImage} // Style pour l'image
-          resizeMode="cover" // Pour remplir la bannière
+          source={bannerImage}
+          style={styles.bannerImage}
+          resizeMode="cover"
         />
       </View>
       {/* Photo de profile */}
@@ -166,7 +157,6 @@ const OtherProfile = () => {
           secondary
           style={{width: 150, height: 38, borderRadius: 10,}}
           textStyle={{fontSize: 14}}
-          // onPress={() => navigation?.navigate('single_conversation', { id: conversation.id, name: conversation.username }
           onPress={() => handleContactButtonClick()}
           />
       </View>
@@ -219,21 +209,21 @@ const OtherProfile = () => {
 }
 
 const styles = StyleSheet.create({
-  banner: { // Style de la bannière
+  banner: {
     backgroundColor: 'lightblue',
-    height: 180, // Hauteur de la bannière (ajustez selon vos besoins)
-    width: '100%', // Largeur de la bannière
-    justifyContent: 'center', // Aligner l'image au centre verticalement
-    alignItems: 'center', // Centrer l'image horizontalement
+    height: 180,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bannerImage: {
-    width: '100%', // Pour remplir la largeur de la bannière
-    height: '100%', // Pour remplir la hauteur de la bannière
+    width: '100%',
+    height: '100%',
   },
   overlayImage: {
     flex: 1,
-    justifyContent: 'center', // Centrer l'image verticalement
-    alignItems: 'center', // Centrer horizontalement l'image
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   profilePicture: {
     width: 110,
@@ -242,11 +232,10 @@ const styles = StyleSheet.create({
   circleImageContainer: {
     width: 110,
     height: 110,
-    borderRadius: 100, // La moitié de la largeur/hauteur pour créer un cercle
-    overflow: 'hidden', // Cache tout ce qui dépasse du cercle
+    borderRadius: 100,
+    overflow: 'hidden',
     position: 'absolute',
-    top: -55, // L'image est remontée de moitiée pour que son centre
-    // soit sur le bord infèrieur de la bannière.
+    top: -55,
   },
   textBlocks: {
     flexDirection: 'row',
@@ -293,7 +282,7 @@ const styles = StyleSheet.create({
   decorativeLine: {
     height: 1,
     backgroundColor: colors.tertiary,
-    marginVertical: 10, // Espace verticalement
+    marginVertical: 10,
     marginLeft: 30,
     marginRight: 30,
   },
@@ -309,7 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   marginRightForTabs: {
-    marginRight: 5, // Espacement entre chaque bouton d'onglet
+    marginRight: 5,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -319,16 +308,16 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrame: {
-    width: 115, // Largeur souhaitée du cadre carré
-    height: 115, // Hauteur souhaitée du cadre carré
-    backgroundColor: 'lightgray', // Couleur de fond du cadre
-    borderRadius: 10, // Légèrement arrondi sur les bords
+    width: 115,
+    height: 115,
+    backgroundColor: 'lightgray',
+    borderRadius: 10,
   },
   backButton: {
     position: 'absolute',
     top: 16,
     left: 16,
-    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
+    zIndex: 1,
   },
 });
 

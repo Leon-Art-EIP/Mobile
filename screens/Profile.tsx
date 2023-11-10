@@ -35,7 +35,6 @@ const Profile = () => {
     }, [navigation])
   );
   useEffect(() => {
-    // Appelez checkIsFollowing lors du chargement de la page
     updateCollections();
   }, []);
   const updateCollections = async () => {
@@ -315,11 +314,11 @@ const styles = StyleSheet.create({
   collectionName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white', // Texte en blanc
-    backgroundColor: colors.tertiary, // Fond noir pour la capsule
-    padding: 10, // Espace autour du texte à l'intérieur de la capsule
-    marginBottom: 10, // Espace entre les capsules de collection
-    borderRadius: 40, // Coins arrondis pour la capsule
+    color: 'white',
+    backgroundColor: colors.tertiary,
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 40,
     marginLeft: 10,
     marginRight: 30,
   },

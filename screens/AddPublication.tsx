@@ -47,26 +47,6 @@ const addPublication = ({ navigation }: any) => {
       console.log('requestData', requestData)
           }
         )
-  
-      // ** If this POST method doesn't work ** 
-      // === > Use the ProiflingQuizz POST method temporarely
-
-      // axios.post(`${API_URL}/api/art-publication`, requestData)
-      //   .then(async response => {
-      //     console.log('RequestData: ', requestData);
-      //     if (response) {
-      //       console.log('server response:', response);
-      //       Alert.alert('Publication done !');
-      //     }
-      //   })
-      //   .catch(error => {
-      //     if (error.response) {
-      //       console.error('Server error:', error.response.data);
-      //     }
-      //     console.error('Error config:', error.config);
-      //     Alert.alert('Publication Error');
-      //   });
-        // navigation.navigate('main');
     };
 
   const handleName = (value: string) => {
