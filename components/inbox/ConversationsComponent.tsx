@@ -1,6 +1,7 @@
 //* Standard imports
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native'
 
 //* Local imports
@@ -8,17 +9,40 @@ import colors from '../../constants/colors';
 import { CONVERSATIONS } from '../../constants/conversations';
 import Title from '../Title';
 
+/*
+ * There is a problem that prevents the app to get
+ * values from the .env file, so Imma just go with
+ * a constant value until it's fixed
+ */
+const API_URL = "http://10.0.2.2:5000/";
+
 type ConversationType = {
-  id: number;
-  unread: boolean;
-  status: 'untreated' | 'waiting' | 'finished';
-  username: string;
-  lastMessage: string;
+  "_id": string,
+  "id": number,
+  "lastMessage": string,
+  "profileName": string,
+  "profilePicture": string,
+  "unreadMessages": boolean
 };
 
 const ConversationsComponent = () => {
   const navigation = useNavigation();
-  const [conversations, setConversations] = useState<ConversationType[]>(CONVERSATIONS);
+  const [conversations, setConversations] = useState<ConversationType[]>([]);
+
+  // get conversations through back end
+  const getConversations = () => {
+    axios.get(API_URL + "api/conversations", {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then((response: any) => setConversations([
+      ...(response.data?.conversations as ConversationType[])
+    ]))
+    .catch((err) => console.error({ ...err }));
+  }
+
+  useEffect(getConversations, []);
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
@@ -26,14 +50,20 @@ const ConversationsComponent = () => {
         <TouchableOpacity
           key={conversation.id.toString()}
           style={styles.conversationView}
-          onPress={() => navigation?.navigate('single_conversation', { id: conversation.id, name: conversation.username })}
+          onPress={() => navigation?.navigate(
+            'single_conversation',
+            {
+              id: conversation.id,
+              name: conversation.profileName
+            }
+          )}
         >
           <View style={{ flexDirection: 'row', height: 60 }}>
 
             {/* Unread dot */}
             <View style={[
               styles.unreadDot,
-              { backgroundColor: conversation.unread ? colors.primary : colors.white }
+              { backgroundColor: conversation.unreadMessages ? colors.primary : colors.white }
             ]} />
 
             <Image
@@ -41,9 +71,9 @@ const ConversationsComponent = () => {
               style={styles.conversationPicture}
             />
             <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-              <Title size={16}>{ conversation.username }</Title>
+              <Title size={16}>{ conversation.profileName }</Title>
               <Text numberOfLines={1} style={{
-                fontWeight: conversation.unread ? 'bold' : 'normal',
+                fontWeight: conversation.unreadMessages ? 'bold' : 'normal',
                 flexShrink: 1
               }}>{ conversation.lastMessage }</Text>
             </View>
