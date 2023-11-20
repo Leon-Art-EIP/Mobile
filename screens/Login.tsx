@@ -9,9 +9,9 @@ import Button from '../components/Button';
 import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
-import eyeIcon from '../../assets/eye_icon.png';
-import mailIcon from '../../assets/mail_icon.png';
-import passwordIcon from '../../assets/password_icon.png';
+/* import eyeIcon from '../../assets/eye_icon.png'; */
+/* import mailIcon from '../../assets/mail_icon.png'; */
+/* import passwordIcon from '../../assets/password_icon.png'; */
 import { MainContext } from '../context/MainContext';
 
 
@@ -109,7 +109,7 @@ const Login = ({ navigation }: any) => {
         <Title style={styles.loginTitle}>Connexion</Title>
         <View style={styles.passwordContainer}>
           <View style={styles.inputContainer}>
-            <Image source={mailIcon} style={styles.icon} />
+            <Image source={require('../assets/mail_icon.png')} style={styles.icon} />
             <TextInput
               placeholder="Email"
               onChangeText={handleEmailChange}
@@ -119,7 +119,7 @@ const Login = ({ navigation }: any) => {
         </View>
         <View style={styles.passwordContainer}>
           <View style={styles.inputContainer}>
-            <Image source={passwordIcon} style={styles.icon} />
+            <Image source={require('../assets/password_icon.png')} style={styles.icon} />
             <TextInput
               placeholder="Mot de passe"
               onChangeText={handlePasswordChange}
@@ -133,7 +133,7 @@ const Login = ({ navigation }: any) => {
                 style={styles.eyeIcon}
                 activeOpacity={0.7}
               >
-                <Image source={eyeIcon} style={styles.eyeIconImage} />
+                <Image source={require('../assets/eye_icon.png')} style={styles.eyeIconImage} />
               </TouchableOpacity>
             ) : null}
           </View>
