@@ -9,7 +9,7 @@ import env from './env';
 
 // Screens
 import ComponentsShow from './screens/ComponentsShow';
-import Login from './screens/LoginPage/LoginPage';
+import Login from './screens/Login';
 import Signup from './screens/Signup';
 import ForgotPassword from './screens/ForgotPassword';
 import OtherProfile from './screens/OtherProfile';

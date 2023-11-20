@@ -1,131 +1,214 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native'
-import { get, post } from '../constants/fetch';
-import Button, { ButtonProps } from '../components/Button';
-import Input, { InputProps } from '../components/Input';
-import Title, { TitleProps } from '../components/Title';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import colors from '../constants/colors';
-import axios from 'axios';
+import React, { useState, useEffect, useContext } from 'react';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import env from '../env';
+
+import Button from '../components/Button';
+import Title from '../components/Title';
+import CheckBox from '@react-native-community/checkbox';
+import colors from '../constants/colors';
+import eyeIcon from '../../assets/eye_icon.png';
+import mailIcon from '../../assets/mail_icon.png';
+import passwordIcon from '../../assets/password_icon.png';
+import { MainContext } from '../context/MainContext';
+
 
 const Login = ({ navigation }: any) => {
-  const [email, setEmail] = useState<string | undefined>(undefined);
-  const [password, setPassword] = useState<string | undefined>(undefined);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const context = useContext(MainContext);
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('http://10.0.2.2:5000/api/follow/652bc1fb1753a08d6c7d3f5d', {
-        
+
+  const handleLogin = () => {
+    const { API_URL } = env;
+    const requestData = { email, password };
+
+    axios.post(`${API_URL}api/auth/login`, requestData)
+      .then(async response => {
+        if (response && response.data && response.data.token) {
+          const tokenFromDB = response.data.token;
+
+          try {
+            await AsyncStorage.setItem('jwt', tokenFromDB);
+            context?.setToken(tokenFromDB);
+            return navigation.navigate('main');
+          } catch (error) {
+            console.error('Error storing token:', error);
+            Alert.alert('Login Failed', 'Error storing token');
+          }
+        } else {
+          console.error('Invalid response format: ', response);
+          Alert.alert('Login Failed', 'Invalid response format');
+        }
+      })
+      .catch(error => {
+        if (error.response) {
+          console.error('Server responded with an error:', error.response.data);
+          if (error.response.status === 422) {
+            console.error('Validation error. Please check your input data.');
+            Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+          } else {
+            console.error('Other server error:', error.response.status);
+            Alert.alert('Signup Failed', 'Other server error');
+          }
+        } else if (error.request) {
+          console.error('Request was made but no response was received:', error.request);
+          Alert.alert('Signup Failed', 'Request was made but no response was received');
+        } else {
+          console.error('Error setting up the request:', error.message);
+          Alert.alert('Signup Failed', 'Error setting up the request');
+        }
+        console.error('Error config:', error.config);
       });
-  
-      // Si la requête réussit, le backend devrait renvoyer un JWT dans la réponse.
-      const token = response.data.token;
-  
-      // Stocker le token dans AsyncStorage pour une utilisation ultérieure.
-      await AsyncStorage.setItem('jwt', token);
-  
-      // Rediriger l'utilisateur vers la page d'accueil.
-      navigation.navigate('main'); // Remplacez 'HomeScreen' par le nom de votre écran d'accueil.
-  
-    } catch (error) {
-      console.error('Erreur de connexion :', error);
-      Alert.alert('Erreur de connexion', 'Vérifiez vos identifiants et réessayez.');
-    }
   };
 
-  const handleGoogleLogin = () => {
-    // Logique de connexion avec Google ici
-  };
+
+  const handleGoogleLogin = () => {};
+
 
   const handleRegister = () => {
     navigation.navigate('signup');
   };
 
+
   const handleEmailChange = (value: string) => {
     setEmail(value);
   };
+
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
   };
 
-  const handleRecover = () => navigation.navigate('recover');
+
+  const handleForgotPassword = () => {
+    navigation.navigate('recover');
+  };
+
+
+  const handleRememberMeChange = () => {
+    setRememberMe(!rememberMe);
+  };
+
 
   return (
     <View style={styles.container}>
-      <Title style={styles.title}>LeonArt</Title>
 
-      <Input
-        placeholder="Enter your email"
-        onTextChanged={handleEmailChange}
-        style={styles.input}
-      />
+      {/* Use this to set the correct color on the status bar */}
+      <StatusBar backgroundColor="#F2F2F2" />
 
-      <Input
-        placeholder="Enter your password"
-        onTextChanged={handlePasswordChange}
-        style={styles.input}
-        // secureTextEntry
-      />
+      <SafeAreaView style={styles.safeView}>
+        <View style={styles.titleView}>
+          <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
+          <Title style={{ fontSize: 70 }}>'Art</Title>
+        </View>
+        <Title style={styles.loginTitle}>Connexion</Title>
+        <View style={styles.passwordContainer}>
+          <View style={styles.inputContainer}>
+            <Image source={mailIcon} style={styles.icon} />
+            <TextInput
+              placeholder="Email"
+              onChangeText={handleEmailChange}
+              style={styles.passwordInput}
+            />
+          </View>
+        </View>
+        <View style={styles.passwordContainer}>
+          <View style={styles.inputContainer}>
+            <Image source={passwordIcon} style={styles.icon} />
+            <TextInput
+              placeholder="Mot de passe"
+              onChangeText={handlePasswordChange}
+              style={styles.passwordInput}
+              secureTextEntry={!showPassword}
+              value={password}
+            />
+            {password ? (
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+                activeOpacity={0.7}
+              >
+                <Image source={eyeIcon} style={styles.eyeIconImage} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
 
-      <Button
-        onPress={handleLogin}
-        value="Login"
-        style={styles.loginButton}
-        textStyle={styles.loginButtonText}
-      />
+        <TouchableOpacity onPress={handleRememberMeChange}>
+          <View style={styles.checkboxContainer}>
+            <CheckBox value={rememberMe} onValueChange={handleRememberMeChange} />
+            <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
+          </View>
+        </TouchableOpacity>
 
-      <Text style={styles.orText}>Or</Text>
-      { error && (
-        <Text style={styles.errorText}>{ error }</Text>
-      ) }
+        <TouchableOpacity onPress={handleForgotPassword}>
+          <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
+        </TouchableOpacity>
 
-      <Button
-        onPress={handleGoogleLogin}
-        value="Login with Google"
-        style={styles.googleButton}
-        textStyle={styles.googleButtonText}
-      />
+        <Button
+          onPress={handleLogin}
+          value="Se connecter"
+          style={[styles.loginButton, { backgroundColor: colors.primary }]}
+          textStyle={styles.loginButtonText}
+        />
 
-      <View style={{ flexDirection: "row" }}>
+        <View style={styles.orContainer}>
+          <View style={styles.line} />
+          <Text style={styles.orText}>Ou</Text>
+          <View style={styles.line} />
+        </View>
+
+        <Button
+          onPress={handleGoogleLogin}
+          value="Se connecter avec Google"
+          style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
+          textStyle={styles.googleButtonText}
+        />
+
         <Button
           onPress={handleRegister}
-          value="Register"
-          secondary
+          value="S'inscrire"
+          style={styles.registerButton}
+          textStyle={styles.registerButtonText}
         />
-
-        <Button
-          onPress={handleRecover}
-          value="Forgot password"
-          tertiary
-        />
-      </View>
+      </SafeAreaView>
     </View>
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
+    margin: 0,
+    paddingHorizontal: 16,
+    flex: 1
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 32,
+  safeView: {
+    backgroundColor: '#F2F2F2',
+    width:  '100%',
+    height: Dimensions.get('window').height
   },
   loginTitle: {
-    fontSize: 18,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 16,
+    marginTop: 20,
+    marginRight: 'auto',
+    marginLeft: 15,
     textAlign: 'center',
   },
   input: {
     marginBottom: 16,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: '#fff',
+    borderRadius: 100,
+    paddingHorizontal: 10,
   },
   loginButton: {
     marginVertical: 16,
@@ -134,10 +217,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-  },
-  orText: {
-    fontSize: 16,
-    marginBottom: 16,
+    color: 'white',
   },
   googleButton: {
     marginVertical: 16,
@@ -158,10 +238,88 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
   },
-  errorText: {
+  titleView: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 70,
+    marginBottom: 40,
+  },
+  forgotPassword: {
     fontSize: 14,
-    color: colors.error
+    textDecorationLine: 'underline',
+    color: colors.tertiary,
+    marginLeft: 'auto',
+    marginRight: 20,
+  },
+  rememberForgotContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  rememberMeContainer: {
+    flexDirection: 'row',
+    marginLeft: 10,
+    alignItems: 'center',
+  },
+  rememberMeText: {
+    marginLeft: 8,
+    color: colors.tertiary
+  },
+  orContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 16,
+  },
+  orText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 8,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'black',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    marginLeft: 10,
+    alignItems: 'center',
+  },
+  passwordContainer: {
+    marginBottom: 16,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 100,
+    marginBottom: 16,
+    paddingHorizontal: 10,
+  },
+  passwordInput: {
+    marginLeft: 0,
+    marginRight: 0,
+    flex: 1,
+  },
+  eyeIcon: {
+    padding: 10,
+  },
+  eyeIconImage: {
+    width: 20,
+    height: 20,
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
   }
 });
+
 
 export default Login;
