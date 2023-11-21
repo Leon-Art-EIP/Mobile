@@ -57,7 +57,7 @@ mv NAME.keystore android/app # In case you forgot how to move a file (day 2 of C
 Then, under the `android/app/build.gradle` file, you may fill those lines:
 ```kotlin
 android {
-...
+  ...
   signingConfigs {
     release {
       storeFile file('NAME.keystore')
@@ -119,9 +119,9 @@ FAILURE: Build failed with an exception.
 Execution failed for task ‘:app:processReleaseResources’.
 > com.android.ide.common.process.ProcessException: Failed to execute aapt
 ```
-Saying there is a dupplicate resource, you need to delete all the `android/app/src/main/res` directory:
+Saying there is a dupplicate resource, you need to delete all the `android/app/src/main/res` directory content:
 ```bash 
-rm -rf app/src/main/res
+rm -rf app/src/main/res/*
 ```
 And try again.
 
