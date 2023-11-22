@@ -9,9 +9,9 @@ import Button from '../components/Button';
 import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
-import eyeIcon from '../../assets/eye_icon.png';
-import mailIcon from '../../assets/mail_icon.png';
-import passwordIcon from '../../assets/password_icon.png';
+import eyeIcon from '../assets/eye_icon.png';
+import mailIcon from '../assets/mail_icon.png';
+import passwordIcon from '../assets/password_icon.png';
 import { MainContext } from '../context/MainContext';
 
 
@@ -35,6 +35,7 @@ const Login = ({ navigation }: any) => {
           try {
             await AsyncStorage.setItem('jwt', tokenFromDB);
             context?.setToken(tokenFromDB);
+            console.log(tokenFromDB);
             return navigation.navigate('main');
           } catch (error) {
             console.error('Error storing token:', error);
