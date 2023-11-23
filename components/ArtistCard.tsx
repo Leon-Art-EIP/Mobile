@@ -1,13 +1,13 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native'
 import colors from '../constants/colors';
-import { NewsType } from "../constants/homeValues";
+import { ArtistType } from "../constants/homeValues";
 import Card from "./Card";
 import Title from "./Title";
 
 interface ArtistCardProps {
   onPress?: () => void;
-  item: NewsType;
+  item: ArtistType;
   path: string;
 }
 
@@ -22,7 +22,7 @@ const ArtistCard = ({
   >
     <Card style={styles.container}>
       <Image style={styles.image} />
-      <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{ item.title }</Title>
+      <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{ item.username }</Title>
     </Card>
   </TouchableOpacity>
 )
