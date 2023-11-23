@@ -15,14 +15,10 @@ const get = (
     console.warn("Token is empty");
   }
   const requestUrl = BACKEND + url;
-  console.log('Calling: ', requestUrl);
 
   axios.get(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token } })
   .then(callback)
-  .catch((error) => {
-    onErrorCallback(error);
-    return console.error(error);
-  });
+  .catch(onErrorCallback);
 }
 
 

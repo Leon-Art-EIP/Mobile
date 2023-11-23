@@ -23,6 +23,7 @@ import { useNavigation } from '@react-navigation/native';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const HomeScreen = () => {
   const context = useContext(MainContext);
@@ -30,7 +31,6 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [news, setNews] = useState<NewsType[]>([]);
   const [artists, setArtists] = useState<ArtistType[]>([]);
-  /* const [forYou, setForYou] = useState<string[]>((new Array(100)).map((e: number) => e.toString())); */
   const [forYou, setForYou] = useState<string[]>(Array(100).fill(0));
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
@@ -49,8 +49,7 @@ const HomeScreen = () => {
       "/api/artists/latest?limit=5&page=0",
       context?.token,
       (response: any) => {
-        console.log(response?.data);
-        return setArtists(response?.data?.artists);
+        setArtists(response?.data?.artists);
       }
     )
   }
@@ -190,8 +189,7 @@ const HomeScreen = () => {
                 data={forYou}
                 contentContainerStyle={{ width: '100%' }}
                 renderItem={(e: ListRenderItemInfo<string>) => (
-                  <View style={{ flex: 1, backgroundColor: colors.primary, borderRadius: 5, margin: 2, height: 100 }}>
-                    <Text>{ e.item.toString() }</Text>
+                  <View style={{ flex: 1, backgroundColor: colors.disabledBg, borderRadius: 5, margin: 2, height: 100 }}>
                   </View>
                 )}
                 scrollEnabled={false}
