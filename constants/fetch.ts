@@ -1,19 +1,22 @@
 import axios from "axios";
 
-// const BACKEND: string = "http://127.0.0.1:5000";
-// const BACKEND: string = "http://10.0.2.2:5000";
-const BACKEND: string = "http://localhost:5001";
+/* const BACKEND: string = "http://localhost:5000"; */
+const BACKEND: string = "http://10.0.2.2:5000";
 
 const get = (
   url: string = "/",
+  token: string | undefined = undefined,
   callback: ((response: any) => void) = () => {},
   onErrorCallback: ((error: any) => void) = (e: any) => {
-    console.error("get failed with code ", e.response.status);
+    console.error("get failed: ", { ...e });
   }
 ) => {
+  if (!token) {
+    console.warn("Token is empty");
+  }
   const requestUrl = BACKEND + url;
 
-  axios.get(requestUrl)
+  axios.get(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token } })
   .then(callback)
   .catch(onErrorCallback);
 }
@@ -22,20 +25,22 @@ const get = (
 const post = (
   url: string = "/",
   body: any = undefined,
+  token: string | undefined = undefined,
   callback: ((response: any) => void) = () => {},
   onErrorCallback: ((error: any) => void) = (e: any) => {
     console.error("get failed with code ", e.response.status);
   }
 ) => {
   if (!body) {
-    console.warn("[WARNING] Empty body for post request");
+    console.warn("Empty body for post request");
+  }
+  if (!token) {
+    console.warn("Token is empty");
   }
 
   const requestUrl = BACKEND + url;
-  console.log("calling : ", requestUrl);
 
-  axios.post(requestUrl)
-  // .post(requestUrl, body)
+  axios.post(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token }})
   .then(callback)
   .catch(onErrorCallback);
 }

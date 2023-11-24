@@ -28,12 +28,13 @@ import MainNavigator from './navigators/MainNavigator';
 import EditProfile from './navigators/EditProfileNavigator';
 import OtherProfileNavigator from './navigators/OtherProfileNavigator';
 import Settings from './navigators/SettingsNavigator';
+import BottomNavigator from './navigators/BottomNavigator';
 
 const App = () => {
   const Stack =  createNativeStackNavigator();
   const context = useContext(MainContext);
   const [loading, setLoading] = useState(true);
-  
+
   let isShowingComponents = false;
   const options = { headerShown: false };
 
@@ -46,7 +47,7 @@ const App = () => {
         <Stack.Navigator initialRouteName={context?.token === undefined ? "login" : "main"}>
           <Stack.Screen name="login" component={Login} options={options} />
           <Stack.Screen name="signup" component={Signup} options={options} />
-          <Stack.Screen name="main" component={MainNavigator} options={options} />
+          <Stack.Screen name="main" component={BottomNavigator} options={options} />
           <Stack.Screen name="recover" component={ForgotPassword} options={options} />
           <Stack.Screen name="settings" component={Settings} options={options} />
           <Stack.Screen name="editprofile" component={EditProfile} options={options} />
