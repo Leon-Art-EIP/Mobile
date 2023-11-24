@@ -20,12 +20,12 @@ const MainNavigator = () => {
       <Tab.Screen
         name="Home"
         component={HomeNavigator}
-        options={{
-          headerShown: false,
-                    tabBarIcon: ({ color, size }) => (
-            <SvgUri width="50%" height="50%" svgXmlData={HomeSVG} />
-          )
-        }}
+        // options={{
+        //   headerShown: false,
+        //             tabBarIcon: ({ color, size }) => (
+        //     <SvgUri width="50%" height="50%" svgXmlData={HomeSVG} />
+        //   )
+        // }}
       />
       <Tab.Screen name="Messages" component={MessageNavigator} options={options} />
       <Tab.Screen name="Add" component={AddNavigator} options={options} />
