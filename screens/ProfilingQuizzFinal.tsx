@@ -21,7 +21,7 @@ const ProfilingQuizzFinal = ({ navigation }: any) => {
         () => navigation.navigate(),
         () => {
         console.log('selectedTag', selectedTag)
-          navigation.navigate('main');
+          navigation.navigate('mainNav');
         }
       )
   };
