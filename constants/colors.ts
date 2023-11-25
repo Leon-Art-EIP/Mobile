@@ -1,7 +1,7 @@
 const colors = {
   bg: '#FFFF',
   placeholder: '#8f8f8f',
-  disabledBg: '#FFFF',
+  disabledBg: '#F5F5F5',
   disabledFg: '#afafaf',
   error: '#F16565',
 
