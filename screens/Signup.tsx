@@ -31,7 +31,7 @@ const Signup = ({ navigation }: any) => {
   
           try {
             await AsyncStorage.setItem('jwt', tokenFromDB);
-            navigation.navigate('profiling');
+            navigation.navigate('profilingquizz');
           } catch (error) {
             console.error('Error storing token:', error);
             Alert.alert('Signup Failed');

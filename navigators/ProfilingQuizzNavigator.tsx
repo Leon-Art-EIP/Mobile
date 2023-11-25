@@ -2,6 +2,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
+// Navigators
+import MainNavigator from './MainNavigator';
+
 //Screens
 import Profiling from '../screens/ProfilingQuizz'
 import ProfilingArtist1 from '../screens/ProfilingQuizzArtist1'
@@ -12,17 +15,18 @@ import ProfilingLast from '../screens/ProfilingQuizzFinal';
 
 const ProfilingQuizzNavigator = () => {
   const Stack = createNativeStackNavigator();
-  const options = { headerShown: true };
+  const options = { headerShown: false };
 
     return (
         <Stack.Navigator>
             <Stack.Screen name="profiling" component={Profiling} options={options}/>
-            <Stack.Screen name="profilingartist1" component={ProfilingArtist1} options={options}/>
-            <Stack.Screen name="profilingartist2" component={ProfilingArtist2} options={options}/>
-            <Stack.Screen name="profilingamateur1" component={ProfilingAmateur1} options={options}/>
-            <Stack.Screen name="profilingamateur1" component={ProfilingAmateur2} options={options}/>
-            <Stack.Screen name="profilinglast" component={ProfilingLast} options={options}/>
+            <Stack.Screen name="profilingArtist" component={ProfilingArtist1} options={options}/>
+            <Stack.Screen name="profilingArtist2" component={ProfilingArtist2} options={options}/>
+            <Stack.Screen name="profilingAmateur" component={ProfilingAmateur1} options={options}/>
+            <Stack.Screen name="profilingAmateur2" component={ProfilingAmateur2} options={options}/>
+            <Stack.Screen name="profilingLast" component={ProfilingLast} options={options}/>
+            <Stack.Screen name="main" component={MainNavigator} options={options} />
         </Stack.Navigator>
     );
 }
-export default ProfilingQuizzNavigator;
+export default ProfilingQuizzNavigator

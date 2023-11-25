@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { Alert, TextInput, View, StyleSheet, Text, Image } from 'react-native';
+import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import env from '../env';
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
@@ -7,12 +12,6 @@ import Title from '../components/Title';
 import Button from '../components/Button';
 import TagButton from '../components/TagButton';
 import Toggle from '../assets/images/toggle.svg';
-
-import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import env from '../env';
-
 
 
 const addPublication = ({ navigation }: any) => {
@@ -69,7 +68,7 @@ const addPublication = ({ navigation }: any) => {
 
   const previous = () => {
     // Please try the following code :
-    // navigation.navigate('main');      
+    navigation.navigate('main');      
   }
 
 return (
@@ -79,7 +78,7 @@ return (
       <Title>'Art</Title>
     </View>
     <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-      <Text style={styles.artTitle}>Add Publication Page</Text>
+      <Text style={styles.artTitle}>Add Publication</Text>
     </View>
     <Button
         style={{ backgroundColor: colors.secondary }}
