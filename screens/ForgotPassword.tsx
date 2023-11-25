@@ -38,7 +38,7 @@ const ForgotPassword = ({ navigation }: any) => {
       />
 
       <View style={styles.loginContainer}>
-        <Text style={styles.loginText}>Retourner à la </Text>
+        <Text style={styles.loginText}>Retour à la </Text>
         <TouchableOpacity onPress={handleLoginNavigation}>
           <Text style={styles.loginLinkText}>connexion</Text>
         </TouchableOpacity>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loginText: {
-    marginRight: 8,
+    marginRight: 3,
   },
   loginLinkText: {
     fontSize: 16,

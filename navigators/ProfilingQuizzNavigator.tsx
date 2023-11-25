@@ -25,7 +25,7 @@ const ProfilingQuizzNavigator = () => {
             <Stack.Screen name="profilingAmateur" component={ProfilingAmateur1} options={options}/>
             <Stack.Screen name="profilingAmateur2" component={ProfilingAmateur2} options={options}/>
             <Stack.Screen name="profilingLast" component={ProfilingLast} options={options}/>
-            <Stack.Screen name="main" component={MainNavigator} options={options} />
+            <Stack.Screen name="mainNav" component={MainNavigator} options={options} />
         </Stack.Navigator>
     );
 }

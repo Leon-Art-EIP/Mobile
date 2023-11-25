@@ -29,7 +29,7 @@ const ConnexionNavigator = () => {
         <Stack.Screen name="login" component={Login} options={options} />
         <Stack.Screen name="signup" component={Signup} options={options} />
         <Stack.Screen name="google" component={GoogleLogin} options={options} />
-        <Stack.Screen name="resetpassword" component={ForgotPassword} options={options} />
+        <Stack.Screen name="recover" component={ForgotPassword} options={options} />
         <Stack.Screen name="profilingquizz" component={ProfilingQuizzNavigator} options={options} />
       </Stack.Navigator>
     );
