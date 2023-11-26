@@ -18,13 +18,10 @@ const MainNavigator = () => {
       tabBarHideOnKeyboard: true
     }}>
       <Tab.Screen
-        name="Home"
+        name="main"
         component={HomeNavigator}
         options={{
-          headerShown: false,
-                    tabBarIcon: ({ color, size }) => (
-            <SvgUri width="50%" height="50%" svgXmlData={HomeSVG} />
-          )
+          headerShown: false
         }}
       />
       <Tab.Screen name="Messages" component={MessageNavigator} options={options} />

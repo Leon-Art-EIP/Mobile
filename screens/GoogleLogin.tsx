@@ -26,18 +26,15 @@ const Login = ({ navigation }: any) => {
   const handleLogin = () => {
     const { API_URL } = env;
     const requestData = { email, password };
-    console.log("IN LOGIN");
     
     axios.post(`${API_URL}api/auth/login`, requestData)
       .then(async response => {
         if (response && response.data && response.data.token) {
           const tokenFromDB = response.data.token;
-          const idFromDB = response.data.user.id;
+
           try {
             await AsyncStorage.setItem('jwt', tokenFromDB);
-            await AsyncStorage.setItem('id', idFromDB);
             context?.setToken(tokenFromDB);
-            // console.log(tokenFromDB);
             return navigation.navigate('main');
           } catch (error) {
             console.error('Error storing token:', error);
@@ -70,9 +67,7 @@ const Login = ({ navigation }: any) => {
   };
 
 
-  const handleGoogleLogin = () => {
-    navigation.navigate('google');
-  };
+  const handleGoogleLogin = () => {};
 
 
   const handleRegister = () => {
@@ -111,7 +106,7 @@ const Login = ({ navigation }: any) => {
           <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
           <Title style={{ fontSize: 70 }}>'Art</Title>
         </View>
-        <Title style={styles.loginTitle}>Connexion</Title>
+        <Title style={styles.loginTitle}>Se connecter avec Google</Title>
         <View style={styles.passwordContainer}>
           <View style={styles.inputContainer}>
             <Image source={require('../assets/mail_icon.png')} style={styles.icon} />
@@ -167,13 +162,6 @@ const Login = ({ navigation }: any) => {
           <Text style={styles.orText}>Ou</Text>
           <View style={styles.line} />
         </View>
-
-        <Button
-          onPress={handleGoogleLogin}
-          value="Se connecter avec Google"
-          style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
-          textStyle={styles.googleButtonText}
-        />
 
         <Button
           onPress={handleRegister}

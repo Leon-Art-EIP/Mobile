@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Alert, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { get, post } from '../constants/fetch';
 import axios from 'axios';
 import env from '../env';
+import { MainContext } from '../context/MainContext';
 
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -15,6 +16,7 @@ const Signup = ({ navigation }: any) => {
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
+  const context = useContext(MainContext);
 
   const handleSignup = () => {
     const { API_URL } = env;
@@ -29,7 +31,7 @@ const Signup = ({ navigation }: any) => {
   
           try {
             await AsyncStorage.setItem('jwt', tokenFromDB);
-            navigation.navigate('profiling');
+            navigation.navigate('profilingquizz');
           } catch (error) {
             console.error('Error storing token:', error);
             Alert.alert('Signup Failed');
@@ -62,7 +64,7 @@ const Signup = ({ navigation }: any) => {
   
 
   const handleLoginNavigation = () => {
-    navigation.navigate('signup');
+    navigation.navigate('login');
   };
 
   return (

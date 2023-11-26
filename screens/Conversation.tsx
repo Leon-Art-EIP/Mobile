@@ -38,7 +38,7 @@ type MessageType = {
  * values from the .env file, so Imma just go with
  * a constant value until it's fixed
  */
-const API_URL = "http://10.0.2.2:5000/";
+const API_URL = "http://10.0.2.2:5001/";
 
 
 const Conversation = ({ navigation }: any) => {
