@@ -3,16 +3,15 @@ import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimen
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import env from '../env';
 
 import Button from '../components/Button';
 import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
-/* import eyeIcon from '../../assets/eye_icon.png'; */
-/* import mailIcon from '../../assets/mail_icon.png'; */
-/* import passwordIcon from '../../assets/password_icon.png'; */
 import { MainContext } from '../context/MainContext';
+
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 
 const Login = ({ navigation }: any) => {
@@ -24,10 +23,9 @@ const Login = ({ navigation }: any) => {
 
 
   const handleLogin = () => {
-    const { API_URL } = env;
     const requestData = { email, password };
-    
-    axios.post(`${API_URL}api/auth/login`, requestData)
+
+    axios.post(`${API_URL}/api/auth/login`, requestData)
       .then(async response => {
         if (response && response.data && response.data.token) {
           const tokenFromDB = response.data.token;

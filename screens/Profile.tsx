@@ -10,12 +10,14 @@ import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import env from '../env';
+
+
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+
 
 const Profile = () => {
-  const { API_URL } = env;
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('Artwork'); 
+  const [activeTab, setActiveTab] = useState('Artwork');
   const [userCollections, setUserCollections] = useState([]);
 
   const handleBackButtonClick = () => {
@@ -30,8 +32,8 @@ const Profile = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      
-      
+
+
     }, [navigation])
   );
   useEffect(() => {
@@ -43,9 +45,9 @@ const Profile = () => {
         const headers = {
           Authorization: `Bearer ${token}`,
         };
-  
+
         // Effectuez l'appel API pour obtenir les collections de l'utilisateur connecté
-        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
+        const collectionsResponse = await axios.get(`${API_URL}/api/collection/my-collections`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -82,15 +84,15 @@ const Profile = () => {
           <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.banner}>
         <Image
-          source={bannerImage} 
-          style={styles.bannerImage} 
-          resizeMode="cover" 
+          source={bannerImage}
+          style={styles.bannerImage}
+          resizeMode="cover"
         />
       </View>
-      
+
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
@@ -99,40 +101,40 @@ const Profile = () => {
           />
         </View>
       </View>
-      
+
       <View style={styles.textBlocks}>
-        
+
         <View style={styles.textBlock}>
-          
+
           <Text style={styles.value}>1.3k</Text>
           <Text style={styles.title}>followers</Text>
         </View>
 
-        
+
         <View style={styles.centerTextBlock}>
-          
+
           <Text style={styles.centerTitle}>Linus T</Text>
           <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
         </View>
 
-        
+
         <View style={styles.textBlock}>
-          
+
           <Text style={styles.value}>64</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
-      
+
       <View style={styles.decorativeLine} />
-      
+
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
-          secondary={activeTab !== 'Artwork'} 
-          tertiary={activeTab === 'Artwork'} 
+          secondary={activeTab !== 'Artwork'}
+          tertiary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Artwork')} 
+          onPress={() => setActiveTab('Artwork')}
           />
         <Button
           value="Collection"
@@ -140,7 +142,7 @@ const Profile = () => {
           tertiary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collection')} 
+          onPress={() => setActiveTab('Collection')}
           />
         <Button
           value="A propos"
@@ -148,10 +150,10 @@ const Profile = () => {
           tertiary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('A propos')} 
+          onPress={() => setActiveTab('A propos')}
           />
       </View>
-      
+
       {activeTab === 'Artwork' &&
         Array.from({ length: 7 }, (_, rowIndex) => (
           <View key={rowIndex} style={styles.rowContainer}>
@@ -161,7 +163,7 @@ const Profile = () => {
           </View>
         ))
       }
-      
+
       {activeTab === 'Collection' && userCollections.length > 0 && (
         <View>
           {userCollections.map(collection => (
@@ -182,21 +184,21 @@ const Profile = () => {
 }
 
 const styles = StyleSheet.create({
-  banner: { 
+  banner: {
     backgroundColor: 'lightblue',
-    height: 180, 
-    width: '100%', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+    height: 180,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bannerImage: {
-    width: '100%', 
-    height: '100%', 
+    width: '100%',
+    height: '100%',
   },
   overlayImage: {
     flex: 1,
-    justifyContent: 'center', 
-    alignItems: 'center', 
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   profilePicture: {
     width: 110,
@@ -205,11 +207,11 @@ const styles = StyleSheet.create({
   circleImageContainer: {
     width: 110,
     height: 110,
-    borderRadius: 100, 
-    overflow: 'hidden', 
+    borderRadius: 100,
+    overflow: 'hidden',
     position: 'absolute',
-    top: -55, 
-    
+    top: -55,
+
   },
   textBlocks: {
     flexDirection: 'row',
@@ -243,7 +245,7 @@ const styles = StyleSheet.create({
   },
   centerSubtitle: {
     fontSize: 12,
-    color: 'rgba(112, 0, 255, 1)', 
+    color: 'rgba(112, 0, 255, 1)',
   },
   contactAndFollow: {
     justifyContent: 'center',
@@ -256,7 +258,7 @@ const styles = StyleSheet.create({
   decorativeLine: {
     height: 1,
     backgroundColor: colors.tertiary,
-    marginVertical: 10, 
+    marginVertical: 10,
     marginLeft: 30,
     marginRight: 30,
   },
@@ -272,7 +274,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   marginRightForTabs: {
-    marginRight: 5, 
+    marginRight: 5,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -282,34 +284,34 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrameArtwork: {
-    width: 115, 
-    height: 115, 
-    backgroundColor: 'lightgray', 
-    borderRadius: 10, 
+    width: 115,
+    height: 115,
+    backgroundColor: 'lightgray',
+    borderRadius: 10,
   },
   squareFrameCollection: {
-    width: 174, 
-    height: 115, 
-    backgroundColor: colors.tertiary, 
-    borderRadius: 10, 
+    width: 174,
+    height: 115,
+    backgroundColor: colors.tertiary,
+    borderRadius: 10,
   },
   backButton: {
     position: 'absolute',
     top: 16,
     left: 16,
-    zIndex: 1, 
+    zIndex: 1,
   },
   editButton: {
     position: 'absolute',
     top: 16,
     right: 50,
-    zIndex: 1, 
+    zIndex: 1,
   },
   settingButton: {
     position: 'absolute',
     top: 16,
     right: 0,
-    zIndex: 1, 
+    zIndex: 1,
   },
   collectionName: {
     fontSize: 18,

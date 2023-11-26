@@ -1,34 +1,38 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar } from 'react-native';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import env from '../env';
 
 import Button from '../components/Button';
 import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
-/* import eyeIcon from '../../assets/eye_icon.png'; */
-/* import mailIcon from '../../assets/mail_icon.png'; */
-/* import passwordIcon from '../../assets/password_icon.png'; */
 import { MainContext } from '../context/MainContext';
 
 
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+
+
 const Login = ({ navigation }: any) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const context = useContext(MainContext);
 
 
   const handleLogin = () => {
-    const { API_URL } = env;
     const requestData = { email, password };
     console.log("IN LOGIN");
-    
-    axios.post(`${API_URL}api/auth/login`, requestData)
+
+    if (!API_URL) {
+      return console.warn("Backend URL is empty");
+    }
+    setIsLoading(true);
+
+    axios.post(`${API_URL}/api/auth/login`, requestData)
       .then(async response => {
         if (response && response.data && response.data.token) {
           const tokenFromDB = response.data.token;
@@ -36,7 +40,7 @@ const Login = ({ navigation }: any) => {
           try {
             await AsyncStorage.setItem('jwt', tokenFromDB);
             context?.setToken(tokenFromDB);
-            return navigation.navigate('main');
+            navigation.navigate('main');
           } catch (error) {
             console.error('Error storing token:', error);
             Alert.alert('Login Failed', 'Error storing token');
@@ -45,6 +49,7 @@ const Login = ({ navigation }: any) => {
           console.error('Invalid response format: ', response);
           Alert.alert('Login Failed', 'Invalid response format');
         }
+        setIsLoading(false);
       })
       .catch(error => {
         if (error.response) {
@@ -64,6 +69,7 @@ const Login = ({ navigation }: any) => {
           Alert.alert('Signup Failed', 'Error setting up the request');
         }
         console.error('Error config:', error.config);
+        setIsLoading(false);
       });
   };
 
@@ -153,10 +159,17 @@ const Login = ({ navigation }: any) => {
           <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
         </TouchableOpacity>
 
+        { isLoading && (
+          <ActivityIndicator color={colors.primary} />
+        )}
         <Button
           onPress={handleLogin}
           value="Se connecter"
-          style={[styles.loginButton, { backgroundColor: colors.primary }]}
+          disabled={isLoading}
+          style={[
+            styles.loginButton,
+            { backgroundColor: isLoading ? "#CA847A" : colors.primary }
+          ]}
           textStyle={styles.loginButtonText}
         />
 

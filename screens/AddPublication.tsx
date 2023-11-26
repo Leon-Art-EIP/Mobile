@@ -1,21 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Alert, TextInput, View, StyleSheet, Text, Image } from 'react-native';
-import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import env from '../env';
 
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
-import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg';
-
+import { MainContext } from '../context/MainContext';
 
 const addPublication = ({ navigation }: any) => {
-
     const [image, setImage] = useState('');
     const [name, setName] = useState('');
     const [artType, setType] = useState('');
@@ -24,9 +16,9 @@ const addPublication = ({ navigation }: any) => {
     const [isForSale, setSale] = useState('');
     const [price, setPrice] = useState('');
     const [location, setLocation] = useState('');
-    
+    const context = useContext(MainContext);
+
     const publish = () => {
-      const { API_URL } = env;
       const requestData = {
         image,
         name,
@@ -41,6 +33,7 @@ const addPublication = ({ navigation }: any) => {
       post(
           '/api/art-publication',
           { requestData },
+          context?.token,
           () => navigation.navigate('main'),
           () => {
       console.log('requestData', requestData)
@@ -61,14 +54,14 @@ const addPublication = ({ navigation }: any) => {
   const handleType = (value: string) => {
     setType(value);
   };
-  
+
   const selectImage = () => {
     // Add Image
   };
 
   const previous = () => {
     // Please try the following code :
-    navigation.navigate('main');      
+    navigation.navigate('main');
   }
 
 return (
@@ -101,7 +94,7 @@ return (
         placeholder="Prix"
         onChangeText={handlePrice}
         style={styles.textInput}
-        />          
+        />
       <TextInput
       placeholder="Genre"
       onChangeText={handleType}
@@ -160,7 +153,7 @@ const styles = StyleSheet.create({
     },
     TagButton: {
         backgroundColor: '#F4F4F4',
-        
+
     },
     TagButtonText: {
         color: '#000',

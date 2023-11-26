@@ -1,7 +1,8 @@
 import axios from "axios";
 
 /* const BACKEND: string = "http://localhost:5000"; */
-const BACKEND: string = "http://10.0.2.2:5000";
+/* const BACKEND: string = "http://10.0.2.2:5000"; */
+const BACKEND: string | undefined = process.env.REACT_APP_API_URL;
 
 const get = (
   url: string = "/",
@@ -14,7 +15,12 @@ const get = (
   if (!token) {
     console.warn("Token is empty");
   }
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
+
   const requestUrl = BACKEND + url;
+  console.log(requestUrl);
 
   axios.get(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token } })
   .then(callback)
@@ -37,8 +43,12 @@ const post = (
   if (!token) {
     console.warn("Token is empty");
   }
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
 
   const requestUrl = BACKEND + url;
+  console.log(requestUrl);
 
   axios.post(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token }})
   .then(callback)
