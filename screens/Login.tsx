@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from 'react-native';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -20,6 +20,7 @@ const Login = ({ navigation }: any) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [log, setLog] = useState<string | undefined>(undefined);
   const context = useContext(MainContext);
 
 
@@ -32,45 +33,49 @@ const Login = ({ navigation }: any) => {
     }
     setIsLoading(true);
 
+    setLog(e => e + "\nAsking backend...");
     axios.post(`${API_URL}/api/auth/login`, requestData)
-      .then(async response => {
-        if (response && response.data && response.data.token) {
-          const tokenFromDB = response.data.token;
+    .then(async response => {
+      setLog(e => e + "\nReceived answer");
+      if (response && response.data && response.data.token) {
+        const tokenFromDB = response.data.token;
 
-          try {
-            await AsyncStorage.setItem('jwt', tokenFromDB);
-            context?.setToken(tokenFromDB);
-            navigation.navigate('main');
-          } catch (error) {
-            console.error('Error storing token:', error);
-            Alert.alert('Login Failed', 'Error storing token');
-          }
-        } else {
-          console.error('Invalid response format: ', response);
-          Alert.alert('Login Failed', 'Invalid response format');
+        try {
+          await AsyncStorage.setItem('jwt', tokenFromDB);
+          context?.setToken(tokenFromDB);
+          navigation.navigate('main');
+        } catch (error) {
+          console.error('Error storing token:', error);
+          Alert.alert('Login Failed', 'Error storing token');
         }
-        setIsLoading(false);
-      })
-      .catch(error => {
-        if (error.response) {
-          console.error('Server responded with an error:', error.response.data);
-          if (error.response.status === 422) {
-            console.error('Validation error. Please check your input data.');
-            Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
-          } else {
-            console.error('Other server error:', error.response.status);
-            Alert.alert('Signup Failed', 'Other server error');
-          }
-        } else if (error.request) {
-          console.error('Request was made but no response was received:', error.request);
-          Alert.alert('Signup Failed', 'Request was made but no response was received');
+      } else {
+        console.error('Invalid response format: ', response);
+        Alert.alert('Login Failed', 'Invalid response format');
+      }
+      setIsLoading(false);
+    })
+    .catch(error => {
+      setLog(e => e + "\nError: " + { ...error} );
+      console.log({ ...error._response });
+      if (error.response) {
+        console.error('Server responded with an error:', { ...error.response.data });
+        if (error.response.status === 422) {
+          console.error('Validation error. Please check your input data.');
+          Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
         } else {
-          console.error('Error setting up the request:', error.message);
-          Alert.alert('Signup Failed', 'Error setting up the request');
+          console.error('Other server error:', { ...error.response.status });
+          Alert.alert('Signup Failed', 'Other server error');
         }
-        console.error('Error config:', error.config);
-        setIsLoading(false);
-      });
+      } else if (error.request) {
+        console.error('Request was made but no response was received:', { ...error.request });
+        Alert.alert('Signup Failed', 'Request was made but no response was received');
+      } else {
+        console.error('Error setting up the request:', { ...error.message });
+        Alert.alert('Signup Failed', 'Error setting up the request');
+      }
+      console.error('Error config:', { ...error.config });
+      setIsLoading(false);
+    });
   };
 
 
@@ -102,6 +107,10 @@ const Login = ({ navigation }: any) => {
   const handleRememberMeChange = () => {
     setRememberMe(!rememberMe);
   };
+
+  useEffect(() => {
+    setLog(e => e + "\n" + API_URL);
+  }, []);
 
 
   return (
@@ -192,6 +201,11 @@ const Login = ({ navigation }: any) => {
           style={styles.registerButton}
           textStyle={styles.registerButtonText}
         />
+        { log && (
+          <ScrollView scrollEnabled contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+            <Text>{ log }</Text>
+          </ScrollView>
+        ) }
       </SafeAreaView>
     </View>
   );
