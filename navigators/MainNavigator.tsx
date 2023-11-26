@@ -18,7 +18,7 @@ const MainNavigator = () => {
       tabBarHideOnKeyboard: true
     }}>
       <Tab.Screen
-        name="main"
+        name="home"
         component={HomeNavigator}
         options={{
           headerShown: false
