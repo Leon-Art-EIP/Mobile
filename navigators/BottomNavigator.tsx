@@ -7,10 +7,7 @@ import CartNavigator from './CartNavigator';
 import ProfileNavigator from './ProfileNavigator';
 import AddNavigator from './AddNavigator'
 
-import HomeSVG from '../assets/SVGComponents/Home';
-import { Image, Text, ToastAndroid, View } from 'react-native';
 import colors from '../constants/colors';
-import Icon from "react-native-vector-icons/Octicons";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
