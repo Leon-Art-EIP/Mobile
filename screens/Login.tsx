@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useState, useContext } from 'react';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -25,12 +25,11 @@ const Login = ({ navigation }: any) => {
 
   const handleLogin = () => {
     const requestData = { email, password };
-    console.log("IN LOGIN");
+    setIsLoading(true);
 
     if (!API_URL) {
       return console.warn("Backend URL is empty");
     }
-    setIsLoading(true);
 
     axios.post(`${API_URL}/api/auth/login`, requestData)
     .then(async response => {
