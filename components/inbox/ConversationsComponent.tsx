@@ -6,7 +6,6 @@ import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View } from 'rea
 
 //* Local imports
 import colors from '../../constants/colors';
-import { CONVERSATIONS } from '../../constants/conversations';
 import Title from '../Title';
 
 /*
@@ -14,7 +13,7 @@ import Title from '../Title';
  * values from the .env file, so Imma just go with
  * a constant value until it's fixed
  */
-const API_URL = "http://10.0.2.2:5000/";
+const API_URL = process.env.REACT_APP_API_URL;
 
 type ConversationType = {
   "_id": string,
@@ -31,7 +30,7 @@ const ConversationsComponent = () => {
 
   // get conversations through back end
   const getConversations = () => {
-    axios.get(API_URL + "api/conversations", {
+    axios.get(API_URL + "/api/conversations", {
       headers: {
         'Content-Type': 'application/json',
       }
@@ -46,7 +45,7 @@ const ConversationsComponent = () => {
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-      { conversations.map((conversation: ConversationType) => (
+      { conversations.length > 0 ? conversations.map((conversation: ConversationType) => (
         <TouchableOpacity
           key={conversation.id.toString()}
           style={styles.conversationView}
@@ -80,7 +79,15 @@ const ConversationsComponent = () => {
           </View>
           <View style={styles.lineView} />
         </TouchableOpacity>
-      )) }
+      )) : (
+        <View style={{ alignSelf: 'center', flex: 1, alignItems: 'center' }}>
+          <Image
+            source={require('../../assets/icons/box.png')}
+            style={styles.emptyImg}
+          />
+          <Text style={{ marginBottom: 'auto' }}>Looks empty right there !</Text>
+        </View>
+      ) }
     </ScrollView>
   )
 }
@@ -113,6 +120,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginTop: 'auto',
     marginBottom: 'auto',
+  },
+  emptyImg: {
+    height: 100,
+    width: 100,
+    marginTop: 'auto',
+    marginBottom: 12
   }
 });
 

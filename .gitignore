@@ -1,5 +1,4 @@
 .env
-android/app/src/main/assets/index.android.bundle
 *.apk
 notes
 coverage
@@ -95,3 +94,5 @@ Thumbs.db
 #.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
 .gradle
 build/
+android/app/src/main/assets/index.android.bundle
+.gitignore
