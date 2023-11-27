@@ -20,7 +20,6 @@ const Login = ({ navigation }: any) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [log, setLog] = useState<string | undefined>(undefined);
   const context = useContext(MainContext);
 
 
@@ -33,10 +32,8 @@ const Login = ({ navigation }: any) => {
     }
     setIsLoading(true);
 
-    setLog(e => e + "\nAsking backend...");
     axios.post(`${API_URL}/api/auth/login`, requestData)
     .then(async response => {
-      setLog(e => e + "\nReceived answer");
       if (response && response.data && response.data.token) {
         const tokenFromDB = response.data.token;
 
@@ -55,7 +52,6 @@ const Login = ({ navigation }: any) => {
       setIsLoading(false);
     })
     .catch(error => {
-      setLog(e => e + "\nError: " + { ...error} );
       console.log({ ...error._response });
       if (error.response) {
         console.error('Server responded with an error:', { ...error.response.data });
@@ -107,11 +103,6 @@ const Login = ({ navigation }: any) => {
   const handleRememberMeChange = () => {
     setRememberMe(!rememberMe);
   };
-
-  useEffect(() => {
-    setLog(e => e + "\n" + API_URL);
-  }, []);
-
 
   return (
     <View style={styles.container}>
@@ -201,11 +192,6 @@ const Login = ({ navigation }: any) => {
           style={styles.registerButton}
           textStyle={styles.registerButtonText}
         />
-        { log && (
-          <ScrollView scrollEnabled contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
-            <Text>{ log }</Text>
-          </ScrollView>
-        ) }
       </SafeAreaView>
     </View>
   );
