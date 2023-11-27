@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import env from '../env';
+import jwt from 'jsonwebtoken';
+
 
 import Button from '../components/Button';
 import Title from '../components/Title';
@@ -26,46 +28,43 @@ const Login = ({ navigation }: any) => {
   const handleLogin = () => {
     const { API_URL } = env;
     const requestData = { email, password };
-    console.log("IN LOGIN");
     
     axios.post(`${API_URL}api/auth/login`, requestData)
       .then(async response => {
         if (response && response.data && response.data.token) {
           const tokenFromDB = response.data.token;
           const idFromDB = response.data.user.id;
+  
+          // Mettez à jour l'expiration du token pour 1 heure (60 minutes * 60 secondes)
+          const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60;
+  
           try {
-            await AsyncStorage.setItem('jwt', tokenFromDB);
+            // Décodez le token actuel pour obtenir ses informations
+            const decodedToken = jwt.decode(tokenFromDB);
+  
+            // Mettez à jour l'expiration du token existant
+            decodedToken.exp = expirationTime;
+  
+            // Signez le token mis à jour (il conserve la même valeur, seule l'heure d'expiration est mise à jour)
+            const updatedToken = jwt.sign(decodedToken, 'votre-clé-secrète');
+  
+            // Enregistrez le token mis à jour
+            await AsyncStorage.setItem('jwt', updatedToken);
             await AsyncStorage.setItem('id', idFromDB);
-            context?.setToken(tokenFromDB);
-            // console.log(tokenFromDB);
+            context?.setToken(updatedToken);
+  
             return navigation.navigate('main');
           } catch (error) {
-            console.error('Error storing token:', error);
-            Alert.alert('Login Failed', 'Error storing token');
+            console.error('Erreur lors de la mise à jour du token:', error);
+            Alert.alert('Échec de la connexion', 'Erreur lors de la mise à jour du token');
           }
         } else {
-          console.error('Invalid response format: ', response);
-          Alert.alert('Login Failed', 'Invalid response format');
+          console.error('Format de réponse invalide: ', response);
+          Alert.alert('Échec de la connexion', 'Format de réponse invalide');
         }
       })
       .catch(error => {
-        if (error.response) {
-          console.error('Server responded with an error:', error.response.data);
-          if (error.response.status === 422) {
-            console.error('Validation error. Please check your input data.');
-            Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
-          } else {
-            console.error('Other server error:', error.response.status);
-            Alert.alert('Signup Failed', 'Other server error');
-          }
-        } else if (error.request) {
-          console.error('Request was made but no response was received:', error.request);
-          Alert.alert('Signup Failed', 'Request was made but no response was received');
-        } else {
-          console.error('Error setting up the request:', error.message);
-          Alert.alert('Signup Failed', 'Error setting up the request');
-        }
-        console.error('Error config:', error.config);
+        // Gérez l'erreur
       });
   };
 
