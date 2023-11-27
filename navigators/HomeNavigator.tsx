@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
 import HomeScreen from '../screens/HomeScreen';
+import OtherProfile from '../screens/OtherProfile';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -12,6 +13,7 @@ const HomeNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="homemain" component={HomeScreen} options={options} />
+      <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
     </Stack.Navigator>
   );
 }
