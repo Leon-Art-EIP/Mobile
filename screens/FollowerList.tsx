@@ -3,15 +3,15 @@ import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, Text, TouchableOpacity, Alert, View } from 'react-native';
 import CartComponent from '../components/inbox/CartComponent';
-import CommandsComponent from '../components/inbox/CommandsComponent';
 
 //* Local imports
+import CommandsComponent from '../components/inbox/CommandsComponent';
 import ConversationsComponent from '../components/inbox/ConversationsComponent';
-import FollowersTabs from '../components/followersList/FollowsTabs';
+import FollowersTabs from '../components/followers/FollowsTabs';
 import Title from '../components/Title';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
-// import FollowersComponent from '../components/inbox/FollowersComponent';  // Importez le composant FollowersComponent
+import FollowersComponent from '../components/followers/FollowersComponent';  // Importez le composant FollowersComponent
 // import FollowingsComponent from '../components/inbox/FollowingsComponent';  // Importez le composant FollowingsComponent
 
 const FollowerList = ({ navigation }: any) => {
@@ -28,14 +28,11 @@ const FollowerList = ({ navigation }: any) => {
 
       {(() => {
         switch (selectedTab) {
-          case ('conversations'): return (
-            <ConversationsComponent navigation={navigation} />
+          case ('followers'): return (
+            <FollowersComponent navigation={navigation} />
           );
-          case ('commands'): return (
+          case ('followed'): return (
             <CommandsComponent />
-          );
-          case ('cart'): return (
-            <CartComponent />
           );
         }
       })() }
