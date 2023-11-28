@@ -25,3 +25,19 @@ export const retrieveToken = async (): Promise<string | null> => {
     return null;
   }
 };
+
+export const isTokenExpired = async () => {
+  try {
+    const expirationTime = await AsyncStorage.getItem('expirationTime');
+    if (expirationTime && Date.now() > parseInt(expirationTime, 10)) {
+      // Le token a expiré
+      return true;
+    }
+    // Le token n'a pas encore expiré
+    return false;
+  } catch (error) {
+    console.error('Error checking token expiration:', error);
+    // Handle the error, e.g., return false or throw an exception
+    return false;
+  }
+};

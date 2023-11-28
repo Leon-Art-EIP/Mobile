@@ -13,14 +13,12 @@ import colors from '../constants/colors';
 /* import passwordIcon from '../../assets/password_icon.png'; */
 import { MainContext } from '../context/MainContext';
 
-
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const context = useContext(MainContext);
-
 
   const handleLogin = () => {
     const { API_URL } = env;
@@ -32,7 +30,8 @@ const Login = ({ navigation }: any) => {
           const tokenFromDB = response.data.token;
           const idFromDB = response.data.user.id;
   
-          // Mettez à jour l'heure d'expiration pour 1 heure (en millisecondes)
+          // Temps d'expiration du token : 1h
+          // const expirationTime = Date.now() + 60 * 60 * 1000;
           const expirationTime = Date.now() + 60 * 60 * 1000;
   
           try {

@@ -11,7 +11,8 @@ import {
   Image,
   ToastAndroid,
   Text,
-  RefreshControl
+  RefreshControl,
+  Alert
 } from 'react-native'
 import { SafeAreaView } from "react-native-safe-area-context";
 import Title from "../components/Title";
@@ -22,8 +23,8 @@ import ArtistCard from "../components/ArtistCard";
 import { useNavigation } from '@react-navigation/native';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {isTokenExpired} from '../utils/storage'
 
 const HomeScreen = () => {
   const context = useContext(MainContext);
@@ -35,10 +36,19 @@ const HomeScreen = () => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
-  const handleToArtistProfile = () => {
-    navigation.navigate('other_profile');
+  const handleToArtistProfile = async () => {
+    try {
+      if (await isTokenExpired()) {
+        Alert.alert('Le token a expiré');
+        navigation.navigate('login');
+      } else {
+        navigation.navigate('other_profile');
+      }
+    } catch (error) {
+      console.error('Error handling token:', error);
+      // Handle the error, e.g., show an error message to the user
+    }
   };
-
 
   const getArtists = () => {
     if (!context?.token) {

@@ -82,10 +82,13 @@ const Profile = () => {
       
     }, [navigation])
   );
+
+
   useEffect(() => {
     updateCollections();
     fetchUserArtworks();
   }, []);
+
   const updateCollections = async () => {
     const token = await AsyncStorage.getItem('jwt');
       if (token) {
@@ -93,7 +96,6 @@ const Profile = () => {
           Authorization: `Bearer ${token}`,
         };
   
-        // Effectuez l'appel API pour obtenir les collections de l'utilisateur connecté
         const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
           headers: {
             Authorization: `Bearer ${token}`,
