@@ -5,6 +5,7 @@ type NewsType = {
 }
 
 type ArtistType = {
+  _id: string;
   username: string;
   email: string;
   is_artist: boolean;

@@ -11,10 +11,12 @@ interface ArtistCardProps {
   path: string;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
+
 const ArtistCard = ({
   onPress = () => {},
   item,
-  path,
 }: ArtistCardProps) => (
   <TouchableOpacity
     accessibilityRole="button"
@@ -22,7 +24,10 @@ const ArtistCard = ({
   >
     <Card style={styles.container}>
       { item?.profilePicture && (
-        <Image style={styles.image} source={{ uri: item.profilePicture }} />
+        <Image
+          style={styles.image}
+          source={{ uri: API_URL + "/api" + item.profilePicture }}
+        />
       ) }
       <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{ item.username }</Title>
     </Card>

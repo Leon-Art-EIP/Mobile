@@ -11,9 +11,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const OtherProfile = () => {
+const OtherProfile = ({ route }: any) => {
   const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
+  const id = route?.params?.id;     // this is the received user_id you have to fetch
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
   // TODO : remplacer pars cette version quand SingleArt est ready
@@ -73,7 +74,7 @@ const OtherProfile = () => {
         const headers = {
           Authorization: `Bearer ${token}`,
         };
-  
+
         const response = await axios.get(`${API_URL}api/follow/following`, {
           headers,
           params: {
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
     borderRadius: 10,
     margin: 5,
-  },  
+  },
   squareContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',

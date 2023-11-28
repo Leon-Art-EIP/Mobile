@@ -9,6 +9,7 @@ import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
+import { post } from '../constants/fetch';
 
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
@@ -23,6 +24,49 @@ const Login = ({ navigation }: any) => {
   const context = useContext(MainContext);
 
 
+  const onLogin = async (response: any) => {
+    if (response && response.data && response.data.token) {
+      const tokenFromDB = response.data.token;
+
+      try {
+        await AsyncStorage.setItem('jwt', tokenFromDB);
+        context?.setToken(tokenFromDB);
+        navigation.navigate('main');
+      } catch (error) {
+        console.error('Error storing token:', error);
+        Alert.alert('Login Failed', 'Error storing token');
+      }
+    } else {
+      console.error('Invalid response format: ', response);
+      Alert.alert('Login Failed', 'Invalid response format');
+    }
+    setIsLoading(false);
+  }
+
+
+  const onLoginError = async (error: any) =>{
+    console.log({ ...error._response });
+    if (error.response) {
+      console.error('Server responded with an error:', { ...error.response.data });
+      if (error.response.status === 422) {
+        console.error('Validation error. Please check your input data.');
+        Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+      } else {
+        console.error('Other server error:', { ...error.response.status });
+        Alert.alert('Signup Failed', 'Other server error');
+      }
+    } else if (error.request) {
+      console.error('Request was made but no response was received:', { ...error.request });
+      Alert.alert('Signup Failed', 'Request was made but no response was received');
+    } else {
+      console.error('Error setting up the request:', { ...error.message });
+      Alert.alert('Signup Failed', 'Error setting up the request');
+    }
+    console.error('Error config:', { ...error.config });
+    setIsLoading(false);
+  }
+
+
   const handleLogin = () => {
     const requestData = { email, password };
     setIsLoading(true);
@@ -31,46 +75,13 @@ const Login = ({ navigation }: any) => {
       return console.warn("Backend URL is empty");
     }
 
-    axios.post(`${API_URL}/api/auth/login`, requestData)
-    .then(async response => {
-      if (response && response.data && response.data.token) {
-        const tokenFromDB = response.data.token;
-
-        try {
-          await AsyncStorage.setItem('jwt', tokenFromDB);
-          context?.setToken(tokenFromDB);
-          navigation.navigate('main');
-        } catch (error) {
-          console.error('Error storing token:', error);
-          Alert.alert('Login Failed', 'Error storing token');
-        }
-      } else {
-        console.error('Invalid response format: ', response);
-        Alert.alert('Login Failed', 'Invalid response format');
-      }
-      setIsLoading(false);
-    })
-    .catch(error => {
-      console.log({ ...error._response });
-      if (error.response) {
-        console.error('Server responded with an error:', { ...error.response.data });
-        if (error.response.status === 422) {
-          console.error('Validation error. Please check your input data.');
-          Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
-        } else {
-          console.error('Other server error:', { ...error.response.status });
-          Alert.alert('Signup Failed', 'Other server error');
-        }
-      } else if (error.request) {
-        console.error('Request was made but no response was received:', { ...error.request });
-        Alert.alert('Signup Failed', 'Request was made but no response was received');
-      } else {
-        console.error('Error setting up the request:', { ...error.message });
-        Alert.alert('Signup Failed', 'Error setting up the request');
-      }
-      console.error('Error config:', { ...error.config });
-      setIsLoading(false);
-    });
+    post(
+      `/api/auth/login`,
+      requestData,
+      undefined,
+      onLogin,
+      onLoginError
+    )
   };
 
 

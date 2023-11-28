@@ -37,6 +37,8 @@ const post = (
     console.error("get failed with code ", e.response.status);
   }
 ) => {
+  let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
+
   if (!body) {
     console.warn("Empty body for post request");
   }
@@ -50,7 +52,7 @@ const post = (
   const requestUrl = BACKEND + url;
   console.log(requestUrl);
 
-  axios.post(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token }})
+  axios.post(requestUrl, body, token ? headers : {})
   .then(callback)
   .catch(onErrorCallback);
 }

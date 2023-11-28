@@ -32,8 +32,9 @@ const HomeScreen = () => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
-  const handleToArtistProfile = () => {
-    navigation.navigate('other_profile');
+  const handleToArtistProfile = (artist: ArtistType) => {
+    console.log('artist id: ', artist._id);
+    navigation.navigate('other_profile', { id: artist._id });
   };
 
 
@@ -46,6 +47,7 @@ const HomeScreen = () => {
       "/api/artists/latest?limit=5&page=0",
       context?.token,
       (response: any) => {
+        console.log(response?.data?.artists[0]);
         setArtists(response?.data?.artists);
       }
     )
@@ -139,7 +141,7 @@ const HomeScreen = () => {
               showsHorizontalScrollIndicator={false}
               renderItem={(e: ListRenderItemInfo<ArtistType>) => (
                 <ArtistCard
-                  onPress={handleToArtistProfile}
+                  onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
                   path="other_profile"
                 />
