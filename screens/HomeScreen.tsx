@@ -1,4 +1,3 @@
-import React, { useContext, useEffect, useState } from 'react';
 import {
   TouchableOpacity,
   FlatList,
@@ -13,32 +12,54 @@ import {
   Text,
   RefreshControl
 } from 'react-native'
+
+import React, { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
 import { SafeAreaView } from "react-native-safe-area-context";
-import Title from "../components/Title";
-import { const_news, NewsType, const_artists, ArtistType } from "../constants/homeValues";
+import { MainContext } from '../context/MainContext';
+import { useNavigation } from '@react-navigation/native';
+import env from '../env';
+
 import colors from "../constants/colors";
+import { const_news, NewsType, const_artists, ArtistType } from "../constants/homeValues";
+import { get } from '../constants/fetch';
+
+import Title from "../components/Title";
 import NewsCard from "../components/NewsCard";
 import ArtistCard from "../components/ArtistCard";
-import { useNavigation } from '@react-navigation/native';
-import { get } from '../constants/fetch';
-import { MainContext } from '../context/MainContext';
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const HomeScreen = () => {
+  const { API_URL } = env;
+  const [news, setNews] = useState([]);
+  
   const context = useContext(MainContext);
   const latestArtist = 0;
   const navigation = useNavigation();
-  const [news, setNews] = useState<NewsType[]>([]);
   const [artists, setArtists] = useState<ArtistType[]>([]);
+  const [articles, setArticles] = useState<NewsType[]>([]);
   const [forYou, setForYou] = useState<string[]>(Array(100).fill(0));
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
-
+  
   const handleToArtistProfile = () => {
-    navigation.navigate('other_profile');
+    navigation.navigate('singleart');
   };
 
+  const getArticles = () => {
+    if (!context?.token) {
+      return ToastAndroid.show("Problem authentificating", ToastAndroid.SHORT);
+    }
+    console.log('IN ARTICLES');
+    get(
+      "/api/article/latest?limit=1&page=1",
+      context?.token,
+      (response: any) => {
+        setArticles(response?.data?.artists);
+        console.log(response.data); // Log the response here
+      }
+    )
+  }
 
   const getArtists = () => {
     if (!context?.token) {
@@ -60,7 +81,7 @@ const HomeScreen = () => {
     if (!isRefreshing) {
       return;
     }
-
+    getArticles();
     getArtists();
     setIsRefreshing(false);
   }, [isRefreshing]);
@@ -69,8 +90,10 @@ const HomeScreen = () => {
   // run at startup
   useEffect(() => {
     // fetch news from back/firebase
-    setNews([...const_news]);
+    // setNews([...const_news]);
+
     getArtists();
+    getArticles();
 
     // ignore nested virtualized lists warning until I can find a solution
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
@@ -86,35 +109,32 @@ const HomeScreen = () => {
           onRefresh={() => setIsRefreshing(current => !current)}
         />
       }>
-
-        {/* Title */}
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
         </View>
-
-        {/* Actualités */}
         <View>
-          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Actualités</Title>
-
+          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+            Actualités
+          </Title>
           <FlatList
             data={news}
+            renderItem={({ item }) => <NewsCard news={item} />}
+            keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.flatList}
-            renderItem={(e: ListRenderItemInfo<NewsType>) => NewsCard(e.item)}
-            keyExtractor={(item: NewsType) => item.id.toString()}
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScrollIndicator={true}
             pagingEnabled
             horizontal
             scrollEnabled
           />
         </View>
-
-        {/* Artistes */}
         <View>
           <Title
             size={24}
             style={{ margin: 32, marginBottom: 4 }}
-          >Artistes</Title>
+          >
+            Artistes
+          </Title>
 
           { artists.length === 0 ? (
 
@@ -180,7 +200,7 @@ const HomeScreen = () => {
               <Text style={{
                 fontWeight: '500',
                 color: colors.disabledFg
-              }}>Try to refresh the page</Text>
+              }}>Try to refresh page</Text>
             </View>
 
           ) : (

@@ -3,19 +3,34 @@ import Card from "./Card";
 import {Dimensions, Image, StyleSheet, Text, View} from "react-native";
 import React from "react";
 import colors from "../constants/colors";
+import Button from "./Button";
 
-const NewsCard = (news: NewsType) => (
+
+const NewsCard = ({news}) => (
   <Card style={styles.newsCard} id={news.id}>
     <Image
       key={news.id}
       source={{ uri: news.imgUrl }}
       style={styles.newsCardImage}
-    />
+      />
     <View style={styles.newsCardTitleView}>
       <Text style={styles.newsCardTitle}>{ news.title }</Text>
     </View>
   </Card>
 );
+
+// const NewsCard = (news: NewsType) => (
+//   <Card style={styles.newsCard} id={news.id}>
+//     <Image
+//       key={news.id}
+//       source={{ uri: news.imgUrl }}
+//       style={styles.newsCardImage}
+//       />
+//     <View style={styles.newsCardTitleView}>
+//       <Text style={styles.newsCardTitle}>{ news.title }</Text>
+//     </View>
+//   </Card>
+// );
 
 const styles = StyleSheet.create({
   newsCard: {
