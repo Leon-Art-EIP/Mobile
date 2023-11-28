@@ -37,12 +37,12 @@ const ArticleCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.sampleBg,
+    backgroundColor: colors.articlePlHolder,
     margin: 0,
-    width: 120,
-    height: 150,
+    width: 230,
+    height: 130,
     position: "relative",
-    borderRadius: 5, // Add a border radius if needed
+    borderRadius: 15,
   },
   image: {
     position: "absolute",
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: 120,
     height: 120,
-    borderRadius: 5, // Add a border radius if needed
+    borderRadius: 15,
   }
 });
 

@@ -1,24 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ToastAndroid, LogBox, ScrollView, StyleSheet, View, StatusBar, Image, Text, RefreshControl, FlatList, ListRenderItemInfo, TouchableOpacity } from 'react-native';
-import axios from 'axios';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { useNavigation } from '@react-navigation/native';
-import env from '../env';
 
 import colors from "../constants/colors";
-import { const_news, NewsType, const_artists, ArtistType, ArticleType } from "../constants/homeValues";
+import { ArtistType, ArticleType } from "../constants/homeValues";
 import { get } from '../constants/fetch';
 
 import Title from "../components/Title";
-import NewsCard from "../components/NewsCard";
 import ArtistCard from "../components/ArtistCard";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ArticleCard from '../components/ArticleCard';
 
 const HomeScreen = () => {
-  const { API_URL } = env;
-  const [news, setNews] = useState([]);
   const context = useContext(MainContext);
   const navigation = useNavigation();
   const [artists, setArtists] = useState<ArtistType[]>([]);
@@ -30,21 +24,19 @@ const HomeScreen = () => {
     navigation.navigate('singleart');
   };
 
-  const handleToArticle = () => {
-    navigation.navigate('article');
+  const handleToArticle = (article: ArticleType) => {
+    navigation.navigate('article', { article });
   };
+  
 
   const getArticles = () => {
     if (!context?.token) {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
-  
-    console.log('IN ARTICLES');
-    get(
+      get(
       "/api/article/latest?limit=5&page=0",
       context?.token,
       (response) => {
-        console.log("API Response for Articles:", response);
         setArticles(response?.data || []);
       },
       (error) => {
@@ -69,7 +61,6 @@ const HomeScreen = () => {
   }
 
   useEffect(() => {
-    console.log("Articles state updated:", articles);
   }, [articles]);
 
   useEffect(() => {
@@ -121,7 +112,7 @@ const HomeScreen = () => {
             contentContainerStyle={styles.flatList}
             renderItem={(e: ListRenderItemInfo<ArticleType>) => (
               <ArticleCard
-                onPress={handleToArticle}
+                onPress={() => handleToArticle(e.item)}
                 item={e.item}
                 path="article"
               />
@@ -178,14 +169,6 @@ const HomeScreen = () => {
               )}
               horizontal
               nestedScrollEnabled
-              ListFooterComponent={() => (
-                <TouchableOpacity style={styles.moreArrowView}>
-                  <Image
-                    source={require('../assets/icons/arrow.png')}
-                    style={styles.moreArrowImage}
-                  />
-                </TouchableOpacity>
-              )}
             />
           ) }
         </View>
@@ -218,7 +201,13 @@ const HomeScreen = () => {
                 data={forYou}
                 contentContainerStyle={{ width: '100%' }}
                 renderItem={(e: ListRenderItemInfo<string>) => (
-                  <View style={{ flex: 1, backgroundColor: colors.disabledBg, borderRadius: 5, margin: 2, height: 100 }}>
+                  <View style={{ 
+                    flex: 1,
+                    backgroundColor: colors.forYouPlHolder,
+                    borderRadius: 7,
+                    margin: 5,
+                    height: 120,
+                    width: 100 }}>
                   </View>
                 )}
                 scrollEnabled={false}

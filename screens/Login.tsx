@@ -9,9 +9,6 @@ import Button from '../components/Button';
 import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
-/* import eyeIcon from '../../assets/eye_icon.png'; */
-/* import mailIcon from '../../assets/mail_icon.png'; */
-/* import passwordIcon from '../../assets/password_icon.png'; */
 import { MainContext } from '../context/MainContext';
 
 
@@ -26,7 +23,6 @@ const Login = ({ navigation }: any) => {
   const handleLogin = () => {
     const { API_URL } = env;
     const requestData = { email, password };
-    console.log("IN LOGIN");
     
     axios.post(`${API_URL}api/auth/login`, requestData)
       .then(async response => {

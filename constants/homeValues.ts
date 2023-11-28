@@ -7,7 +7,8 @@ type NewsType = {
 type ArticleType = {
   id: number;
   title: string;
-  imgUrl: string;
+  mainImage: string;
+  content: string;
 };
 
 type ArtistType = {

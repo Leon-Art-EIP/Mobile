@@ -22,12 +22,10 @@ const selectTag = () => {
 
 const SingleArt = () => {
   const { API_URL } = env;
-  // const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const navigation = useNavigation();
   useEffect(() => {
-    // Appelez checkIsFollowing lors du chargement de la page
     checkIsLiked();
     checkIsSaved();
   }, []);
@@ -36,8 +34,12 @@ const SingleArt = () => {
     navigation.navigate('other_profile');
 
   }
+
+  const previous = async () => {
+    navigation.navigate('homemain');
+  }
+
   const handleLikeButtonClick = async () => {
-    //TODO : rendre dynamique
     try {
       const token = await AsyncStorage.getItem('jwt');
       if (token) {
@@ -93,7 +95,6 @@ const SingleArt = () => {
   };
   const checkIsLiked = async () => {
     try {
-      // Récupérez le jeton JWT depuis le stockage local (AsyncStorage ou autre)
       const token = await AsyncStorage.getItem('jwt');
       if (token) {
         const headers = {
@@ -107,10 +108,7 @@ const SingleArt = () => {
         });
         const responseData = response.data;
         const usersWhoLiked = responseData.users;
-  
-        // Vérifie si l'utilisateur actuellement connecté est dans la liste des utilisateurs qui ont aimé la publication
-        //TODO: rendre dynamique
-        const currentUserUsername = "VivantGarrigues"; // Remplacez par le nom d'utilisateur de l'utilisateur connecté
+        const currentUserUsername = "VivantGarrigues";
         const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
   
         setIsLiked(isArtLiked);
@@ -125,37 +123,29 @@ const SingleArt = () => {
   };
   const checkIsSaved = async () => {
     try {
-      // Récupérez le jeton JWT depuis le stockage local (AsyncStorage ou autre)
       const token = await AsyncStorage.getItem('jwt');
       if (token) {
         const headers = {
           Authorization: `Bearer ${token}`,
         };
-  
-        // Effectuez l'appel API pour obtenir les collections de l'utilisateur connecté
         const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const userCollections = collectionsResponse.data;
-  
-        // Recherchez la collection "Oeuvres likées" dans les collections de l'utilisateur
         const oeuvresLikeesCollection = userCollections.find(collection => collection.name === "Oeuvres likées");
   
         if (oeuvresLikeesCollection) {
-          // Si la collection "Oeuvres likées" est trouvée, effectuez un appel API pour obtenir les détails de cette collection
           const oeuvresLikeesCollectionId = oeuvresLikeesCollection._id;
           const oeuvresLikeesDetailsResponse = await axios.get(`${API_URL}api/collection/${oeuvresLikeesCollectionId}/publications`, {
             headers,
           });
           const oeuvresLikeesPublications = oeuvresLikeesDetailsResponse.data;
-  
-          // Vérifiez si l'œuvre avec l'ID spécifié se trouve dans la collection "Oeuvres likées"
           const isArtSaved = oeuvresLikeesPublications.some(publication => publication._id === "65377fcbbfacccdbe11c44ce");
           setIsSaved(isArtSaved);
         } else {
-          setIsSaved(false); // La collection "Oeuvres likées" n'a pas été trouvée
+          setIsSaved(false);
         }
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -174,10 +164,6 @@ const SingleArt = () => {
         <Title>'Art</Title>
       </View>
       <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <TagButton
-          value="<"
-          onPress={selectTag}
-        />
         <Text style={styles.artTitle}>Les voix du Néant</Text>
       </View>
       <View>
@@ -185,32 +171,35 @@ const SingleArt = () => {
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
         <TagButton
-        onPress={handleArtistButtonClick}/>
-        <Text style={{ marginLeft: 80, fontSize: 20 }}/>
-        {/* <TagButton value="Save" /> */}
-        <Button
-          value={isLiked ? "Liké" : "Like"}
-          secondary= {isLiked ? true : false}
-          style={{
-            width: 80,
-            height: 38,
-            borderRadius: 50,
-            justifyContent: 'center',
-          }}
-          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
-          onPress={() => handleLikeButtonClick()}
-          />
+          onPress={handleArtistButtonClick}/>
+        <Text style={{ marginLeft: 90, fontSize: 10 }}/>
         <Button
           value={isSaved ? "Saved" : "Save"}
           secondary= {isSaved ? true : false}
           style={{
-            width: 80,
+            backgroundColor: colors.secondary,
+            width: 75,
             height: 38,
-            borderRadius: 50,
+            borderRadius: 30,
+            marginLeft: 55,
             justifyContent: 'center',
           }}
-          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
+          textStyle={{fontSize: 14, textAlign: 'center', color: colors.black}}
           onPress={() => handleSavedButtonClick()}
+          />
+        <Button
+          value={isLiked ? "Liké" : "Like"}
+          secondary= {isLiked ? true : false}
+          style={{
+            width: 70,
+            height: 38,
+            borderRadius: 30,
+            marginLeft: 0,
+            justifyContent: 'center',
+            backgroundColor: colors.artistPlHolder,
+          }}
+          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
+          onPress={() => handleLikeButtonClick()}
           />
       </View>
       <View>
@@ -221,7 +210,7 @@ const SingleArt = () => {
         Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum
       </Text>
       </View>
-      <View style={{ marginTop: 20 }}>
+      <View style={{ marginTop: 20, marginBottom: 30 }}>
 
         <Button
           value="Acheter"
@@ -231,7 +220,7 @@ const SingleArt = () => {
           style={{ backgroundColor: colors.secondary }}
           textStyle={{ color: colors.black }}
           value="Retour"
-          onPress={nextPage}
+          onPress={previous}
         />
       </View>
     </View>
@@ -254,13 +243,15 @@ const styles = StyleSheet.create({
     img: {
         margin: 13,
         height: 300,
-        borderRadius: 4.5,
-        backgroundColor: colors.placeholder,
+        borderRadius: 15,
+        backgroundColor: colors.articlePlHolder,
     },
     artTitle: {
         textAlign: 'center',
         marginBottom: 0,
-        fontSize: 30,
+        marginTop: 0,
+        marginLeft: 75,
+        fontSize: 25,
         color: '#000',
     },
     artText: {
