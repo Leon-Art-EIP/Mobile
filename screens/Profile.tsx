@@ -195,12 +195,13 @@ const Profile = () => {
         <Text style={styles.title}>followers</Text>
       </View>
 
+        {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
-          
-          <Text style={styles.centerTitle}>Linus T</Text>
-          <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
+          {userData && userData.availability !== "unavailable" && (
+            <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          )}
         </View>
-
         
         <View style={styles.textBlock}>
           
@@ -338,17 +339,18 @@ const styles = StyleSheet.create({
   centerTextBlock: {
     flex: 1,
     alignItems: 'center',
+    marginBottom: 10,
   },
   centerTitle: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     color: colors.tertiary,
     textAlign: 'center',
   },
   centerSubtitle: {
     fontSize: 12,
-    color: 'rgba(112, 0, 255, 1)', 
-  },
+    color: 'rgba(112, 0, 255, 1)',
+  }, 
   contactAndFollow: {
     justifyContent: 'center',
     alignItems: 'center',

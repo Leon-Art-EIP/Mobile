@@ -217,9 +217,10 @@ const OtherProfile = () => {
 
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.centerTitle}>Marine Weber</Text>
-          <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
+          {userData && userData.availability !== "unavailable" && (
+            <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          )}
         </View>
 
         {/* Bloc de texte posts */}
@@ -356,17 +357,18 @@ const styles = StyleSheet.create({
   centerTextBlock: {
     flex: 1,
     alignItems: 'center',
+    marginBottom: 10,
   },
   centerTitle: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     color: colors.tertiary,
     textAlign: 'center',
   },
   centerSubtitle: {
     fontSize: 12,
-    color: 'rgba(112, 0, 255, 1)', // TODO : mettre une valeur provenant de colors
-  },
+    color: 'rgba(112, 0, 255, 1)',
+  },  
   contactAndFollow: {
     justifyContent: 'center',
     alignItems: 'center',
