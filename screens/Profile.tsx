@@ -20,6 +20,11 @@ const Profile = () => {
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
+
+  const handleToFollowerList = () => {
+    navigation.navigate('follower_list');
+  };
+
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
@@ -192,17 +197,24 @@ const Profile = () => {
       </View>
       
       <View style={styles.textBlocks}>
-      <View style={styles.textBlock}>
-      <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-        <Text style={styles.title}>followers</Text>
-      </View>
+
+        {/* Bloc de texte followers */}
+        <View style={styles.textBlock}>
+          <TouchableOpacity onPress={handleToFollowerList}>
+            <View style={styles.centeredText}>
+              <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
+              <Text style={styles.title}>followers</Text>
+            </View>
+
+          </TouchableOpacity>
+        </View>
 
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
           {userData && userData.availability !== "unavailable" && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
-          )}
+            )}
         </View>
         
         <View style={styles.textBlock}>
@@ -288,6 +300,10 @@ const Profile = () => {
 }
 
 const styles = StyleSheet.create({
+  centeredText: {
+    justifyContent: 'center',
+    alignItems: 'center', // Ajoutez cette ligne
+  },
   banner: { 
     backgroundColor: 'lightblue',
     height: 180, 

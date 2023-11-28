@@ -212,9 +212,9 @@ const OtherProfile = () => {
       <View style={styles.textBlocks}>
         {/* Bloc de texte follower */}
         <View style={styles.textBlock}>
-        <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-        <Text style={styles.title}>followers</Text>
-      </View>
+          <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
+          <Text style={styles.title}>followers</Text>
+        </View>
 
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
