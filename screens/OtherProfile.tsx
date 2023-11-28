@@ -16,10 +16,10 @@ const OtherProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const { API_URL } = env;
 
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followersList, setFollowersList] = useState([]);
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
+
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
@@ -120,7 +120,6 @@ const OtherProfile = () => {
     bannerPicture: string;
     profilePicture: string;
   }
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
 
   const fetchUserArtworks = async () => {
     try {
@@ -161,8 +160,6 @@ const OtherProfile = () => {
           `${API_URL}api/user/profile/${userId}`,
           { headers }
         );
-
-        // Set user data
         setUserData(response.data);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');

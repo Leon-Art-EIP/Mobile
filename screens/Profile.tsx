@@ -17,6 +17,8 @@ const Profile = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Artwork'); 
   const [userCollections, setUserCollections] = useState([]);
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
@@ -39,9 +41,22 @@ const Profile = () => {
     comments: any[];
     __v: number;
   }
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followersList, setFollowersList] = useState([]);
+  interface UserData {
+    _id: string;
+    username: string;
+    is_artist: boolean;
+    availability: string;
+    subscription: string;
+    collections: any[]; // Replace with the actual type
+    subscriptions: any[]; // Replace with the actual type
+    subscribers: any[]; // Replace with the actual type
+    subscribersCount: number;
+    likedPublications: any[]; // Replace with the actual type
+    canPostArticles: boolean;
+    __v: number;
+    bannerPicture: string;
+    profilePicture: string;
+  }
 
   const fetchUserArtworks = async () => {
     try {
@@ -68,8 +83,8 @@ const Profile = () => {
       Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
   };
-  
-  const fetchFollowers = async () => {
+
+  const fetchUserData = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
       const userId = await AsyncStorage.getItem('id');
@@ -77,23 +92,19 @@ const Profile = () => {
         const headers = {
           Authorization: `Bearer ${token}`,
         };
-        const responseFollowers = await axios.get(`${API_URL}api/follow/${userId}/followers`, {
-          headers,
-        });
-  
-        // Set the count and list separately
-        setFollowersCount(responseFollowers.data.total);
-        setFollowersList(responseFollowers.data.subscribers);
+        const response = await axios.get<UserData>(
+          `${API_URL}api/user/profile/${userId}`,
+          { headers }
+        );
+        setUserData(response.data);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
         Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
-      console.error('Error fetching followers:', error);
-      Alert.alert('Error fetching followers', 'An error occurred while fetching followers.');
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
-    // console.log(followersCount);
-    // console.log(followersList);
   };
 
   const handleBackButtonClick = () => {
@@ -113,7 +124,7 @@ const Profile = () => {
   useEffect(() => {
     updateCollections();
     fetchUserArtworks();
-    fetchFollowers();
+    fetchUserData();
   }, []);
 
   const updateCollections = async () => {
@@ -180,7 +191,7 @@ const Profile = () => {
       
       <View style={styles.textBlocks}>
       <View style={styles.textBlock}>
-        <Text style={styles.value}>{Math.max(followersCount, 0)}</Text>
+      <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
         <Text style={styles.title}>followers</Text>
       </View>
 
