@@ -38,40 +38,21 @@ const HomeScreen = () => {
     if (!context?.token) {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
-
+  
     console.log('IN ARTICLES');
     get(
-      "/api/article/latest?limit=1&page=1",
+      "/api/article/latest?limit=5&page=0",
       context?.token,
       (response) => {
-        setArticles((prevArticles) => {
-          console.log("Articles STATE:", prevArticles);
-          return response?.data;
-        });
+        console.log("API Response for Articles:", response);
+        setArticles(response?.data || []);
+      },
+      (error) => {
+        console.error("Error fetching articles:", error);
+        ToastAndroid.show("Error fetching articles", ToastAndroid.SHORT);
       }
     );
   };
-
-  const renderArticles = () => {
-    if (articles.length === 0) {
-      return (
-        <View style={styles.emptyView}>
-          {/* Add your empty state content */}
-        </View>
-      );
-    }
-  
-    return articles.map((article: ArticleType) => (
-      <View key={article.id} style={styles.articleContainer}>
-        <Text style={styles.articleTitle}>{article.title}</Text>
-        {/* <Image source={{ uri: article.mainImage }} style={styles.articleImage} />
-        <Text style={styles.articleDescription}>{article.content}</Text>
-        <Text style={styles.articleAuthor}>Author: {article.author}</Text> */}
-        {/* Add other information you want to display */}
-      </View>
-    ));
-  };
-  
 
   const getArtists = () => {
     if (!context?.token) {
@@ -91,7 +72,6 @@ const HomeScreen = () => {
     console.log("Articles state updated:", articles);
   }, [articles]);
 
-  // When isRefreshing is changed
   useEffect(() => {
     if (!isRefreshing) {
       return;
@@ -101,12 +81,9 @@ const HomeScreen = () => {
     setIsRefreshing(false);
   }, [isRefreshing]);
 
-  // run at startup
   useEffect(() => {
     getArtists();
     getArticles();
-
-    // ignore nested virtualized lists warning until I can find a solution
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
@@ -125,22 +102,6 @@ const HomeScreen = () => {
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
         </View>
-        {/* <View>
-          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
-            Actualités
-          </Title>
-          <FlatList
-            data={articles}  // Use the articles state here
-            renderItem={({ item }) => <NewsCard news={item} />}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={styles.flatList}
-            showsHorizontalScrollIndicator={true}
-            pagingEnabled
-            horizontal
-            scrollEnabled
-          />
-
-        </View> */}
         <View>
           <Title
             size={24}
@@ -198,61 +159,25 @@ const HomeScreen = () => {
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
             Actualités
           </Title>
-          {renderArticles()}
-          {/* <FlatList
-            data={articles}
-            contentContainerStyle={styles.flatList}
-            renderItem={(e: ListRenderItemInfo<ArticleType>) => (
-              <ArticleCard onPress={handleToArticle} item={e.item} path="article" />
-            )}
-            keyExtractor={(item: ArticleType) => item.id.toString()}
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            horizontal
-            scrollEnabled
-          /> */}
-        </View>
 
-      {/* <View>
-          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
-            Actualités
-          </Title>
-          <FlatList
-            data={articles}
-            contentContainerStyle={styles.flatList}
-            renderItem={(e: ListRenderItemInfo<ArticleType>) => ArticleCard(e.item)}
-            keyExtractor={(item: NewsType) => item.id.toString()}
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            horizontal
-            scrollEnabled
-          />
-        </View> */}
-          {/* <FlatList
+          {articles.length === 0 ? (
+            <View style={styles.emptyView} />
+          ) : (
+            <FlatList
               data={articles}
-              style={{ marginHorizontal: 8 }}
-              keyExtractor={(item: ArticleType) => item.id.toString()}
-              showsHorizontalScrollIndicator={false}
-              renderItem={(e: ListRenderItemInfo<ArticleType>) => (
-                <ArtistCard
-                  onPress={handleArticle}
-                  item={e.item}
-                  path="article"
-                />
-              )}
+              keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
               horizontal
-              nestedScrollEnabled
-              ListFooterComponent={() => (
-                <TouchableOpacity style={styles.moreArrowView}>
-                  <Image
-                    source={require('../assets/icons/arrow.png')}
-                    style={styles.moreArrowImage}
-                  />
-                </TouchableOpacity>
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <View key={item.id} style={styles.articleContainer}>
+                  <Text style={styles.articleTitle}>{item.title}</Text>
+                  <Image source={{ uri: item.mainImage }} style={styles.articleImage} />
+                  <Text style={styles.articleDescription}>{item.content}</Text>
+                </View>
               )}
-            /> */}
-
-        {/* Oeuvres */}
+            />
+          )}
+        </View>
         <View>
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Pour vous</Title>
 
@@ -287,7 +212,6 @@ const HomeScreen = () => {
               />
             </ScrollView>
           ) }
-        {/* Clickable card */}
         </View>
       </ScrollView>
     </SafeAreaView>
