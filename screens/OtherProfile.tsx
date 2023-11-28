@@ -8,29 +8,37 @@ import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import env from '../env';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const OtherProfile = () => {
   const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
   const [isFollowing, setIsFollowing] = useState(false);
-  const { API_URL } = env;
-
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
   // };
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+
+
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
+
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
+
+
   const handleContactButtonClick = () => {
     //TODO : rediriger dynamiquement vers la bonne page
     navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
   };
+
+
   const handleFollowButtonClick = async () => {
     //TODO : rendre dynamique
     try {
@@ -56,6 +64,8 @@ const OtherProfile = () => {
     }
     checkIsFollowing();
   };
+
+
   const checkIsFollowing = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
@@ -84,6 +94,8 @@ const OtherProfile = () => {
       Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
     }
   };
+
+
   interface Artwork {
     _id: string;
     userId: string;
@@ -99,7 +111,8 @@ const OtherProfile = () => {
     comments: any[]; // You might want to define a type for comments as well
     __v: number;
   }
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+
+
   const fetchUserArtworks = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
@@ -126,13 +139,18 @@ const OtherProfile = () => {
       Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
   };
+
+
   useEffect(() => {
     fetchUserArtworks();
     checkIsFollowing();
   }, []);
+
+
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
+
 
   return (
     <ScrollView nestedScrollEnabled>
@@ -259,6 +277,7 @@ const OtherProfile = () => {
   );
 }
 
+
 const styles = StyleSheet.create({
   banner: {
     backgroundColor: 'lightblue',
@@ -378,5 +397,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
+
 
 export default OtherProfile;
