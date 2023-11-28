@@ -1,18 +1,15 @@
-//* Standard imports
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, Text, TouchableOpacity, Alert, View } from 'react-native';
 import CartComponent from '../components/inbox/CartComponent';
 
-//* Local imports
-import CommandsComponent from '../components/inbox/CommandsComponent';
-import ConversationsComponent from '../components/inbox/ConversationsComponent';
+// Local imports
 import FollowersTabs from '../components/followers/FollowsTabs';
 import Title from '../components/Title';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
-import FollowersComponent from '../components/followers/FollowersComponent';  // Importez le composant FollowersComponent
-import FollowedComponent from '../components/followers/FollowedComponent';  // Importez le composant FollowersComponent
+import FollowersComponent from '../components/followers/FollowersComponent';
+import FollowedComponent from '../components/followers/FollowedComponent';
 
 const FollowerList = ({ navigation }: any) => {
   const [selectedTab, setSelectedTab] = useState<string>('followers');

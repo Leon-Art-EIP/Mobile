@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
-import colors from '../constants/colors';
-import bannerImage from '../assets/images/banner.jpg'
-import profilePicture from '../assets/images/user.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import EditButtonImage from '../assets/images/edit_logo.png'
-import SettingsButtonImage from '../assets/images/settings_logo.png'
-import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+// Local imports
+import SettingsButtonImage from '../assets/images/settings_logo.png'
+import EditButtonImage from '../assets/images/edit_logo.png'
+import BackArrow from '../assets/images/back_arrow.png'
+import profilePicture from '../assets/images/user.png'
+import bannerImage from '../assets/images/banner.jpg'
+import Button from '../components/Button';
+import colors from '../constants/colors';
 import env from '../env';
 
 const Profile = () => {
   const { API_URL } = env;
   const navigation = useNavigation();
+
   const [activeTab, setActiveTab] = useState('Artwork'); 
   const [userCollections, setUserCollections] = useState([]);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
@@ -22,7 +24,20 @@ const Profile = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
 
   const handleToFollowerList = () => {
+    // TODO : rendre dynamique
     navigation.navigate('follower_list');
+  };
+
+  const handleBackButtonClick = () => {
+    navigation.goBack();
+  };
+
+  const handleEditButtonClick = () => {
+    navigation.navigate('editprofile');
+  };
+
+  const handleSettingsButtonClick = () => {
+    navigation.navigate('settings');
   };
 
   // TODO : remplacer pars cette version quand SingleArt est ready
@@ -32,6 +47,7 @@ const Profile = () => {
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
+
   interface Artwork {
     _id: string;
     userId: string;
@@ -47,17 +63,18 @@ const Profile = () => {
     comments: any[];
     __v: number;
   }
+
   interface UserData {
     _id: string;
     username: string;
     is_artist: boolean;
     availability: string;
     subscription: string;
-    collections: any[]; // Replace with the actual type
-    subscriptions: any[]; // Replace with the actual type
-    subscribers: any[]; // Replace with the actual type
+    collections: any[];
+    subscriptions: any[];
+    subscribers: any[];
     subscribersCount: number;
-    likedPublications: any[]; // Replace with the actual type
+    likedPublications: any[];
     canPostArticles: boolean;
     __v: number;
     bannerPicture: string;
@@ -112,16 +129,6 @@ const Profile = () => {
       console.error('Error fetching user data:', error);
       Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
-  };
-
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
-  const handleEditButtonClick = () => {
-    navigation.navigate('editprofile');
-  };
-  const handleSettingsButtonClick = () => {
-    navigation.navigate('settings');
   };
 
   useFocusEffect(

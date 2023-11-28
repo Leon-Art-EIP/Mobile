@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
-import colors from '../constants/colors';
-import bannerImage from '../assets/images/banner.jpg'
-import profilePicture from '../assets/images/user.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+// Local imports
+import BackArrow from '../assets/images/back_arrow.png'
+import profilePicture from '../assets/images/user.png'
+import bannerImage from '../assets/images/banner.jpg'
+import Button from '../components/Button';
+import colors from '../constants/colors';
 import env from '../env';
 
 const OtherProfile = () => {
-  const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
   const [isFollowing, setIsFollowing] = useState(false);
   const { API_URL } = env;
@@ -28,13 +28,16 @@ const OtherProfile = () => {
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
+
   const handleContactButtonClick = () => {
     //TODO : rediriger dynamiquement vers la bonne page
     navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
   };
+
   const handleFollowButtonClick = async () => {
     //TODO : rendre dynamique
     try {
@@ -61,6 +64,7 @@ const OtherProfile = () => {
     checkIsFollowing();
     fetchUserData();
   };
+
   const checkIsFollowing = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
@@ -89,6 +93,7 @@ const OtherProfile = () => {
       Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
     }
   };
+
   interface Artwork {
     _id: string;
     userId: string;
@@ -100,8 +105,8 @@ const OtherProfile = () => {
     isForSale: boolean;
     price: number;
     location: string;
-    likes: any[]; // You might want to define a type for likes as well
-    comments: any[]; // You might want to define a type for comments as well
+    likes: any[];
+    comments: any[];
     __v: number;
   }
 
@@ -111,11 +116,11 @@ const OtherProfile = () => {
     is_artist: boolean;
     availability: string;
     subscription: string;
-    collections: any[]; // Replace with the actual type
-    subscriptions: any[]; // Replace with the actual type
-    subscribers: any[]; // Replace with the actual type
+    collections: any[];
+    subscriptions: any[];
+    subscribers: any[];
     subscribersCount: number;
-    likedPublications: any[]; // Replace with the actual type
+    likedPublications: any[];
     canPostArticles: boolean;
     __v: number;
     bannerPicture: string;
@@ -177,6 +182,7 @@ const OtherProfile = () => {
     checkIsFollowing();
     fetchUserData();
   }, []);
+
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
@@ -258,11 +264,11 @@ const OtherProfile = () => {
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
-          secondary={activeTab !== 'Artwork'} // Utilisez secondary si ce n'est pas le bouton actif
-          tertiary={activeTab === 'Artwork'} // Utilisez tertiary si c'est le bouton actif
+          secondary={activeTab !== 'Artwork'}
+          tertiary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Artwork')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Artwork')}
           />
         <Button
           value="Collection"
@@ -270,7 +276,7 @@ const OtherProfile = () => {
           tertiary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collection')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Collection')}
           />
         <Button
           value="A propos"
@@ -278,7 +284,7 @@ const OtherProfile = () => {
           tertiary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('A propos')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('A propos')}
           />
       </View>
       {/* Ensembles de cadres carrés */}
