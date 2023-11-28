@@ -35,11 +35,14 @@ const Profile = () => {
     isForSale: boolean;
     price: number;
     location: string;
-    likes: any[]; // You might want to define a type for likes as well
-    comments: any[]; // You might want to define a type for comments as well
+    likes: any[];
+    comments: any[];
     __v: number;
   }
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followersList, setFollowersList] = useState([]);
+
   const fetchUserArtworks = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
@@ -66,6 +69,33 @@ const Profile = () => {
     }
   };
   
+  const fetchFollowers = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      const userId = await AsyncStorage.getItem('id');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const responseFollowers = await axios.get(`${API_URL}api/follow/${userId}/followers`, {
+          headers,
+        });
+  
+        // Set the count and list separately
+        setFollowersCount(responseFollowers.data.total);
+        setFollowersList(responseFollowers.data.subscribers);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching followers:', error);
+      Alert.alert('Error fetching followers', 'An error occurred while fetching followers.');
+    }
+    // console.log(followersCount);
+    // console.log(followersList);
+  };
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
@@ -77,16 +107,13 @@ const Profile = () => {
   };
 
   useFocusEffect(
-    React.useCallback(() => {
-      
-      
-    }, [navigation])
+    React.useCallback(() => {}, [navigation])
   );
-
 
   useEffect(() => {
     updateCollections();
     fetchUserArtworks();
+    fetchFollowers();
   }, []);
 
   const updateCollections = async () => {
@@ -109,6 +136,7 @@ const Profile = () => {
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
   }
+
   return (
     <ScrollView nestedScrollEnabled>
     <View>
@@ -117,7 +145,7 @@ const Profile = () => {
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
         >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+        <Image source={BackArrow} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleEditButtonClick()}
@@ -151,14 +179,11 @@ const Profile = () => {
       </View>
       
       <View style={styles.textBlocks}>
-        
-        <View style={styles.textBlock}>
-          
-          <Text style={styles.value}>1.3k</Text>
-          <Text style={styles.title}>followers</Text>
-        </View>
+      <View style={styles.textBlock}>
+        <Text style={styles.value}>{Math.max(followersCount, 0)}</Text>
+        <Text style={styles.title}>followers</Text>
+      </View>
 
-        
         <View style={styles.centerTextBlock}>
           
           <Text style={styles.centerTitle}>Linus T</Text>

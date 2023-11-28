@@ -16,7 +16,10 @@ const OtherProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const { API_URL } = env;
 
-  const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followersList, setFollowersList] = useState([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [activeTab, setActiveTab] = useState('Artwork');
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
@@ -55,6 +58,7 @@ const OtherProfile = () => {
       Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
     }
     checkIsFollowing();
+    fetchUserData();
   };
   const checkIsFollowing = async () => {
     try {
@@ -99,7 +103,25 @@ const OtherProfile = () => {
     comments: any[]; // You might want to define a type for comments as well
     __v: number;
   }
+
+  interface UserData {
+    _id: string;
+    username: string;
+    is_artist: boolean;
+    availability: string;
+    subscription: string;
+    collections: any[]; // Replace with the actual type
+    subscriptions: any[]; // Replace with the actual type
+    subscribers: any[]; // Replace with the actual type
+    subscribersCount: number;
+    likedPublications: any[]; // Replace with the actual type
+    canPostArticles: boolean;
+    __v: number;
+    bannerPicture: string;
+    profilePicture: string;
+  }
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+
   const fetchUserArtworks = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
@@ -126,9 +148,36 @@ const OtherProfile = () => {
       Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
   };
+
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      const userId = "652bc1fb1753a08d6c7d3f5d"; // TODO: Replace with dynamic user ID
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const response = await axios.get<UserData>(
+          `${API_URL}api/user/profile/${userId}`,
+          { headers }
+        );
+
+        // Set user data
+        setUserData(response.data);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
+  };
+
   useEffect(() => {
     fetchUserArtworks();
     checkIsFollowing();
+    fetchUserData();
   }, []);
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
@@ -165,10 +214,9 @@ const OtherProfile = () => {
       <View style={styles.textBlocks}>
         {/* Bloc de texte follower */}
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.value}>1.3k</Text>
-          <Text style={styles.title}>followers</Text>
-        </View>
+        <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
+        <Text style={styles.title}>followers</Text>
+      </View>
 
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>

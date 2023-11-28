@@ -31,8 +31,9 @@ const Login = ({ navigation }: any) => {
           const idFromDB = response.data.user.id;
   
           // Temps d'expiration du token : 1h
-          // const expirationTime = Date.now() + 60 * 60 * 1000;
           const expirationTime = Date.now() + 60 * 60 * 1000;
+          // Temps d'expiration du token : 10 secondes (pour la démonstration)
+          // const expirationTime = Date.now() + 60 * 60 * 1000;
   
           try {
             // Enregistrez le token et l'heure d'expiration dans AsyncStorage
@@ -40,7 +41,8 @@ const Login = ({ navigation }: any) => {
             await AsyncStorage.setItem('id', idFromDB);
             await AsyncStorage.setItem('expirationTime', expirationTime.toString());
             context?.setToken(tokenFromDB);
-  
+            
+            console.log(tokenFromDB);
             return navigation.navigate('main');
           } catch (error) {
             console.error('Erreur lors de la sauvegarde du token:', error);

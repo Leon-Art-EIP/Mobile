@@ -84,6 +84,7 @@ const HomeScreen = () => {
 
     // ignore nested virtualized lists warning until I can find a solution
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+    
   }, []);
 
 
