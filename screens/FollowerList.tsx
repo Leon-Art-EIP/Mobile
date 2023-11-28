@@ -12,7 +12,7 @@ import Title from '../components/Title';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import FollowersComponent from '../components/followers/FollowersComponent';  // Importez le composant FollowersComponent
-// import FollowingsComponent from '../components/inbox/FollowingsComponent';  // Importez le composant FollowingsComponent
+import FollowedComponent from '../components/followers/FollowedComponent';  // Importez le composant FollowersComponent
 
 const FollowerList = ({ navigation }: any) => {
   const [selectedTab, setSelectedTab] = useState<string>('followers');
@@ -32,7 +32,7 @@ const FollowerList = ({ navigation }: any) => {
             <FollowersComponent navigation={navigation} />
           );
           case ('followed'): return (
-            <CommandsComponent />
+            <FollowedComponent navigation={navigation} />
           );
         }
       })() }
