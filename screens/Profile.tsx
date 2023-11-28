@@ -18,6 +18,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('Artwork'); 
   const [userCollections, setUserCollections] = useState([]);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
@@ -74,6 +75,7 @@ const Profile = () => {
           },
         });
         setUserArtworks(responseArtworks.data);
+        setUserArtworksCount(responseArtworks.data.length);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -204,8 +206,7 @@ const Profile = () => {
         </View>
         
         <View style={styles.textBlock}>
-          
-          <Text style={styles.value}>64</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>

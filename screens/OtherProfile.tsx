@@ -17,6 +17,7 @@ const OtherProfile = () => {
   const { API_URL } = env;
 
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
 
@@ -124,20 +125,20 @@ const OtherProfile = () => {
   const fetchUserArtworks = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
+      const userId = "652bc1fb1753a08d6c7d3f5d"; // TODO: Replace with dynamic user ID
       if (token) {
         const headers = {
           Authorization: `Bearer ${token}`,
         };
-        // TODO: Replace the hardcoded user ID with a dynamic value
-        const userId = "652bc1fb1753a08d6c7d3f5d";
-        const response = await axios.get<Artwork[]>(`${API_URL}api/art-publication/user/${userId}`, {
+        const responseArtworks = await axios.get<Artwork[]>(`${API_URL}api/art-publication/user/${userId}`, {
           headers,
           params: {
             page: 1,
             limit: 30,
           },
         });
-        setUserArtworks(response.data);
+        setUserArtworks(responseArtworks.data);
+        setUserArtworksCount(responseArtworks.data.length);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -225,8 +226,7 @@ const OtherProfile = () => {
 
         {/* Bloc de texte posts */}
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.value}>64</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
