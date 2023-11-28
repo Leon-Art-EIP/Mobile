@@ -4,9 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import env from '../env';
-import jwt from 'jsonwebtoken';
-
-
 import Button from '../components/Button';
 import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
@@ -35,28 +32,20 @@ const Login = ({ navigation }: any) => {
           const tokenFromDB = response.data.token;
           const idFromDB = response.data.user.id;
   
-          // Mettez à jour l'expiration du token pour 1 heure (60 minutes * 60 secondes)
-          const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60;
+          // Mettez à jour l'heure d'expiration pour 1 heure (en millisecondes)
+          const expirationTime = Date.now() + 60 * 60 * 1000;
   
           try {
-            // Décodez le token actuel pour obtenir ses informations
-            const decodedToken = jwt.decode(tokenFromDB);
-  
-            // Mettez à jour l'expiration du token existant
-            decodedToken.exp = expirationTime;
-  
-            // Signez le token mis à jour (il conserve la même valeur, seule l'heure d'expiration est mise à jour)
-            const updatedToken = jwt.sign(decodedToken, 'votre-clé-secrète');
-  
-            // Enregistrez le token mis à jour
-            await AsyncStorage.setItem('jwt', updatedToken);
+            // Enregistrez le token et l'heure d'expiration dans AsyncStorage
+            await AsyncStorage.setItem('jwt', tokenFromDB);
             await AsyncStorage.setItem('id', idFromDB);
-            context?.setToken(updatedToken);
+            await AsyncStorage.setItem('expirationTime', expirationTime.toString());
+            context?.setToken(tokenFromDB);
   
             return navigation.navigate('main');
           } catch (error) {
-            console.error('Erreur lors de la mise à jour du token:', error);
-            Alert.alert('Échec de la connexion', 'Erreur lors de la mise à jour du token');
+            console.error('Erreur lors de la sauvegarde du token:', error);
+            Alert.alert('Échec de la connexion', 'Erreur lors de la sauvegarde du token');
           }
         } else {
           console.error('Format de réponse invalide: ', response);
@@ -64,7 +53,7 @@ const Login = ({ navigation }: any) => {
         }
       })
       .catch(error => {
-        // Gérez l'erreur
+        // Gérer l'erreur
       });
   };
 

@@ -19,6 +19,7 @@
     "@react-navigation/native-stack": "^6.9.12",
     "axios": "^1.5.1",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "npm": "^9.7.2",
