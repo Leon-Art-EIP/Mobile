@@ -19,19 +19,6 @@ const NewsCard = ({news}) => (
   </Card>
 );
 
-// const NewsCard = (news: NewsType) => (
-//   <Card style={styles.newsCard} id={news.id}>
-//     <Image
-//       key={news.id}
-//       source={{ uri: news.imgUrl }}
-//       style={styles.newsCardImage}
-//       />
-//     <View style={styles.newsCardTitleView}>
-//       <Text style={styles.newsCardTitle}>{ news.title }</Text>
-//     </View>
-//   </Card>
-// );
-
 const styles = StyleSheet.create({
   newsCard: {
     width: Dimensions.get('window').width - 40,
