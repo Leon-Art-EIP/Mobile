@@ -21,7 +21,9 @@ const ArtistCard = ({
     onPress={onPress}
   >
     <Card style={styles.container}>
-      <Image style={styles.image} />
+      { item?.profilePicture && (
+        <Image style={styles.image} source={{ uri: item.profilePicture }} />
+      ) }
       <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{ item.username }</Title>
     </Card>
   </TouchableOpacity>

@@ -19,6 +19,7 @@ type ArtistType = {
   subscriptions: string[];
   subscribersCount: number;
   likedPublications: string[];
+  profilePicture: string | undefined;
 };
 
 const const_news: NewsType[] = [
