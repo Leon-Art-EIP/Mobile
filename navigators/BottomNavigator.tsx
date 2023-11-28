@@ -14,7 +14,6 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const BottomNavigator = () => {
   const Tab = createBottomTabNavigator();
-  const options = { headerShown: false };
 
   return (
     <Tab.Navigator

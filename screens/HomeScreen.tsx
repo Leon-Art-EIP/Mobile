@@ -23,11 +23,8 @@ import { useNavigation } from '@react-navigation/native';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
 const HomeScreen = () => {
   const context = useContext(MainContext);
-  const latestArtist = 0;
   const navigation = useNavigation();
   const [news, setNews] = useState<NewsType[]>([]);
   const [artists, setArtists] = useState<ArtistType[]>([]);
