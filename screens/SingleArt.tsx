@@ -33,6 +33,7 @@ const SingleArt = () => {
   }, []);
 
   const handleArtistButtonClick = async () => {
+    // TODO : rendre dynamique
     navigation.navigate('other_profile');
 
   }

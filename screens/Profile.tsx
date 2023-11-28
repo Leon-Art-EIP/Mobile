@@ -19,7 +19,55 @@ const Profile = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Artwork');
   const [userCollections, setUserCollections] = useState([]);
-
+  // TODO : remplacer pars cette version quand SingleArt est ready
+  // const handleArtworkClick = (pageName, artworkId) => {
+  //   navigation.navigate(pageName, artworkId);
+  // };
+  const handleArtworkClick = (pageName) => {
+    navigation.navigate(pageName);
+  };
+  interface Artwork {
+    _id: string;
+    userId: string;
+    image: string;
+    artType: string;
+    name: string;
+    description: string;
+    dimension: string;
+    isForSale: boolean;
+    price: number;
+    location: string;
+    likes: any[]; // You might want to define a type for likes as well
+    comments: any[]; // You might want to define a type for comments as well
+    __v: number;
+  }
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const fetchUserArtworks = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      const userId = await AsyncStorage.getItem('id');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const responseArtworks = await axios.get<Artwork[]>(`${API_URL}api/art-publication/user/${userId}`, {
+          headers,
+          params: {
+            page: 1,
+            limit: 30,
+          },
+        });
+        setUserArtworks(responseArtworks.data);
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    }
+  };
+  
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
@@ -38,6 +86,7 @@ const Profile = () => {
   );
   useEffect(() => {
     updateCollections();
+    fetchUserArtworks();
   }, []);
   const updateCollections = async () => {
     const token = await AsyncStorage.getItem('jwt');
@@ -54,7 +103,6 @@ const Profile = () => {
         });
         const userCollections = collectionsResponse.data;
         setUserCollections(userCollections);
-        console.log(userCollections);
       }
       else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -155,24 +203,42 @@ const Profile = () => {
       </View>
 
       {activeTab === 'Artwork' &&
-        Array.from({ length: 7 }, (_, rowIndex) => (
-          <View key={rowIndex} style={styles.rowContainer}>
-            {Array.from({ length: 3 }, (_, colIndex) => (
-              <View key={colIndex} style={styles.squareFrameArtwork} />
-            ))}
-          </View>
-        ))
+        <View style={styles.squareContainer}>
+          {userArtworks.map((artwork, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+            onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
+          >
+            <Image
+              source={{ uri: `${API_URL}api/${artwork.image}` }}
+              style={{ flex: 1, borderRadius: 10 }}
+              resizeMode="cover"
+              onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
+            />
+          </TouchableOpacity>
+          ))}
+        </View>
       }
 
       {activeTab === 'Collection' && userCollections.length > 0 && (
-        <View>
+        <View style={styles.squareContainer}>
           {userCollections.map(collection => (
             <View key={collection._id}>
               <Text style={styles.collectionName}>{collection.name}</Text>
-              {collection.artPublications.map(artworkId => (
-                <Text key={artworkId} style={styles.artworkName}>
-                  {artworkId}
-                </Text>
+              {collection.artPublications.map((artwork, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+                  onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
+                >
+                  <Image
+                    source={{ uri: `${API_URL}api/${artwork.image}` }}
+                    style={{ flex: 1, borderRadius: 10 }}
+                    resizeMode="cover"
+                    onError={(error) => console.log(`Error loading image for artwork ${artwork._id}:`, error.nativeEvent)}
+                  />
+                </TouchableOpacity>
               ))}
             </View>
           ))}
@@ -288,6 +354,19 @@ const styles = StyleSheet.create({
     height: 115,
     backgroundColor: 'lightgray',
     borderRadius: 10,
+  },
+  squareFrame: {
+    width: 115,
+    height: 115,
+    backgroundColor: 'lightgray',
+    borderRadius: 10,
+    margin: 5,
+  },  
+  squareContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    marginHorizontal: 10,
   },
   squareFrameCollection: {
     width: 174,

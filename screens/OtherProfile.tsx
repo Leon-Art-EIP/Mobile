@@ -17,7 +17,11 @@ const OtherProfile = () => {
   const { API_URL } = env;
 
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
-  const handleSquareClick = (pageName) => {
+  // TODO : remplacer pars cette version quand SingleArt est ready
+  // const handleArtworkClick = (pageName, artworkId) => {
+  //   navigation.navigate(pageName, artworkId);
+  // };
+  const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
   const handleBackButtonClick = () => {
@@ -80,8 +84,50 @@ const OtherProfile = () => {
       Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
     }
   };
-
+  interface Artwork {
+    _id: string;
+    userId: string;
+    image: string;
+    artType: string;
+    name: string;
+    description: string;
+    dimension: string;
+    isForSale: boolean;
+    price: number;
+    location: string;
+    likes: any[]; // You might want to define a type for likes as well
+    comments: any[]; // You might want to define a type for comments as well
+    __v: number;
+  }
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const fetchUserArtworks = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        // TODO: Replace the hardcoded user ID with a dynamic value
+        const userId = "652bc1fb1753a08d6c7d3f5d";
+        const response = await axios.get<Artwork[]>(`${API_URL}api/art-publication/user/${userId}`, {
+          headers,
+          params: {
+            page: 1,
+            limit: 30,
+          },
+        });
+        setUserArtworks(response.data);
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    }
+  };
   useEffect(() => {
+    fetchUserArtworks();
     checkIsFollowing();
   }, []);
   useFocusEffect(
@@ -191,17 +237,22 @@ const OtherProfile = () => {
       </View>
       {/* Ensembles de cadres carrés */}
       {activeTab === 'Artwork' &&
-        Array.from({ length: 7 }, (_, rowIndex) => (
-          <View key={rowIndex} style={styles.rowContainer}>
-            {Array.from({ length: 3 }, (_, colIndex) => (
-              <TouchableOpacity
-                key={colIndex}
-                style={styles.squareFrame}
-                onPress={() => handleSquareClick('singleArt')}
-              />
-            ))}
-          </View>
-        ))
+      <View style={styles.squareContainer}>
+        {userArtworks.map((artwork, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+          onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
+        >
+          <Image
+            source={{ uri: `${API_URL}api/${artwork.image}` }}
+            style={{ flex: 1, borderRadius: 10 }}
+            resizeMode="cover"
+            onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
+          />
+        </TouchableOpacity>
+        ))}
+        </View>
       }
     </View>
     </ScrollView>
@@ -312,6 +363,13 @@ const styles = StyleSheet.create({
     height: 115,
     backgroundColor: 'lightgray',
     borderRadius: 10,
+    margin: 5,
+  },  
+  squareContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    marginHorizontal: 10,
   },
   backButton: {
     position: 'absolute',
