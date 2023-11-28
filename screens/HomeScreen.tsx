@@ -103,6 +103,41 @@ const HomeScreen = () => {
           <Title>'Art</Title>
         </View>
         <View>
+
+        {/* Actualités */}
+
+          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+            Actualités
+          </Title>
+          {articles.length === 0 ? (
+            <View style={styles.emptyView}>
+              <Text>
+                No articles available...
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+            data={articles}
+            contentContainerStyle={styles.flatList}
+            renderItem={(e: ListRenderItemInfo<ArticleType>) => (
+              <ArticleCard
+                onPress={handleToArticle}
+                item={e.item}
+                path="article"
+              />
+            )}
+            keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
+            showsHorizontalScrollIndicator={false}
+            pagingEnabled
+            horizontal
+            scrollEnabled
+          />
+          )}
+        </View>
+
+        {/* Artistes */}
+
+        <View>
           <Title
             size={24}
             style={{ margin: 32, marginBottom: 4 }}
@@ -152,32 +187,11 @@ const HomeScreen = () => {
                 </TouchableOpacity>
               )}
             />
-
           ) }
         </View>
-        <View>
-          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
-            Actualités
-          </Title>
 
-          {articles.length === 0 ? (
-            <View style={styles.emptyView} />
-          ) : (
-            <FlatList
-              data={articles}
-              keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <View key={item.id} style={styles.articleContainer}>
-                  <Text style={styles.articleTitle}>{item.title}</Text>
-                  <Image source={{ uri: item.mainImage }} style={styles.articleImage} />
-                  <Text style={styles.articleDescription}>{item.content}</Text>
-                </View>
-              )}
-            />
-          )}
-        </View>
+        {/* Pour Vous */}
+
         <View>
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Pour vous</Title>
 
