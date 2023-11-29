@@ -1,19 +1,15 @@
 //* Standard imports
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native'
 
 //* Local imports
 import colors from '../../constants/colors';
+import { get } from '../../constants/fetch';
+import { MainContext } from '../../context/MainContext';
 import Title from '../Title';
 
-/*
- * There is a problem that prevents the app to get
- * values from the .env file, so Imma just go with
- * a constant value until it's fixed
- */
-const API_URL = process.env.REACT_APP_API_URL;
 
 type ConversationType = {
   "_id": string,
@@ -26,22 +22,25 @@ type ConversationType = {
 
 const ConversationsComponent = () => {
   const navigation = useNavigation();
+  const context = useContext(MainContext);
   const [conversations, setConversations] = useState<ConversationType[]>([]);
+
 
   // get conversations through back end
   const getConversations = () => {
-    axios.get(API_URL + "/api/conversations", {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then((response: any) => setConversations([
-      ...(response.data?.conversations as ConversationType[])
-    ]))
-    .catch((err) => console.error({ ...err }));
+    get(
+      "/api/chats/" + context?.userId,
+      context?.token,
+      (response: any) => setConversations([
+        ...(response.data?.conversations as ConversationType[])
+      ]),
+      (err: any) => console.error("Conversation get error: ", { ...err })
+    );
   }
 
+
   useEffect(getConversations, []);
+
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>

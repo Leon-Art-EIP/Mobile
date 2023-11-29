@@ -27,10 +27,13 @@ const Login = ({ navigation }: any) => {
   const onLogin = async (response: any) => {
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
+      console.log(response.data);
+      console.log(response.data.user.id);
 
       try {
         await AsyncStorage.setItem('jwt', tokenFromDB);
         context?.setToken(tokenFromDB);
+        context?.setUserId(response.data.user.id);
         navigation.navigate('main');
       } catch (error) {
         console.error('Error storing token:', error);

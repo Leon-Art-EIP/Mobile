@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import colors from '../constants/colors';
 import bannerImage from '../assets/images/banner.jpg'
@@ -8,6 +8,8 @@ import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MainContext } from '../context/MainContext';
+import { get } from '../constants/fetch';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -15,8 +17,11 @@ const OtherProfile = ({ route }: any) => {
   const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
   const id = route?.params?.id;     // this is the received user_id you have to fetch
+  const context = useContext(MainContext)
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
+
+
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
@@ -36,7 +41,7 @@ const OtherProfile = ({ route }: any) => {
 
   const handleContactButtonClick = () => {
     //TODO : rediriger dynamiquement vers la bonne page
-    navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
+    navigation?.navigate('single_conversation', { id: id, name: 'Marine Weber' });
   };
 
 
@@ -71,24 +76,19 @@ const OtherProfile = ({ route }: any) => {
     try {
       const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-
-        const response = await axios.get(`${API_URL}api/follow/following`, {
-          headers,
-          params: {
-            limit: 10,
-          },
-        });
-        const responseData = response.data;
-        const subscriptions = responseData.subscriptions;
-
-        const isUserFollowed = subscriptions.some((subscription: { _id: string; }) => subscription._id === "652bc1fb1753a08d6c7d3f5d");
-        setIsFollowing(isUserFollowed);
+        get(
+          "/api/follow/following",
+          token,
+          (response: any) => setIsFollowing(
+            response.data?.subscriptions.some(
+              (subscription: { _id: string }) => subscription._id === id
+            )
+          ),
+          (error: any) => console.error({ ...error })
+        );
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Erreur', 'Veuillez vous reconnecter');
       }
     } catch (error) {
       console.error('Erreur lors de la vérification du suivi :', error);
@@ -116,24 +116,18 @@ const OtherProfile = ({ route }: any) => {
 
   const fetchUserArtworks = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
+      const token = context?.token;
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        // TODO: Replace the hardcoded user ID with a dynamic value
-        const userId = "652bc1fb1753a08d6c7d3f5d";
-        const response = await axios.get<Artwork[]>(`${API_URL}api/art-publication/user/${userId}`, {
-          headers,
-          params: {
-            page: 1,
-            limit: 30,
-          },
-        });
-        setUserArtworks(response.data);
+        const userId = id
+        get(
+          `/api/art-publication/user/${userId}`,
+          token,
+          (response: any) => setUserArtworks(response.data),
+          (error: any) => console.error({ ...error })
+        )
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert("Erreur", "Veuillez vous reconnecter");
       }
     } catch (error) {
       console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
@@ -192,7 +186,7 @@ const OtherProfile = ({ route }: any) => {
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
           {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.centerTitle}>Marine Weber</Text>
+          <Text style={styles.centerTitle}>{ "Saucisse (pas..." }</Text>
           <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
         </View>
 
