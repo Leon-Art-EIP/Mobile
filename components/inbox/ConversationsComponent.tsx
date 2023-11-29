@@ -1,20 +1,15 @@
 //* Standard imports
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native'
 
 //* Local imports
 import colors from '../../constants/colors';
-import { CONVERSATIONS } from '../../constants/conversations';
+import { get } from '../../constants/fetch';
+import { MainContext } from '../../context/MainContext';
 import Title from '../Title';
 
-/*
- * There is a problem that prevents the app to get
- * values from the .env file, so Imma just go with
- * a constant value until it's fixed
- */
-const API_URL = "http://10.0.2.2:5000/";
 
 type ConversationType = {
   "_id": string,
@@ -27,26 +22,29 @@ type ConversationType = {
 
 const ConversationsComponent = () => {
   const navigation = useNavigation();
+  const context = useContext(MainContext);
   const [conversations, setConversations] = useState<ConversationType[]>([]);
+
 
   // get conversations through back end
   const getConversations = () => {
-    axios.get(API_URL + "api/conversations", {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then((response: any) => setConversations([
-      ...(response.data?.conversations as ConversationType[])
-    ]))
-    .catch((err) => console.error({ ...err }));
+    get(
+      "/api/chats/" + context?.userId,
+      context?.token,
+      (response: any) => setConversations([
+        ...(response.data?.conversations as ConversationType[])
+      ]),
+      (err: any) => console.error("Conversation get error: ", { ...err })
+    );
   }
+
 
   useEffect(getConversations, []);
 
+
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-      { conversations.map((conversation: ConversationType) => (
+      { conversations.length > 0 ? conversations.map((conversation: ConversationType) => (
         <TouchableOpacity
           key={conversation.id.toString()}
           style={styles.conversationView}
@@ -80,7 +78,15 @@ const ConversationsComponent = () => {
           </View>
           <View style={styles.lineView} />
         </TouchableOpacity>
-      )) }
+      )) : (
+        <View style={{ alignSelf: 'center', flex: 1, alignItems: 'center' }}>
+          <Image
+            source={require('../../assets/icons/box.png')}
+            style={styles.emptyImg}
+          />
+          <Text style={{ marginBottom: 'auto' }}>Looks empty right there !</Text>
+        </View>
+      ) }
     </ScrollView>
   )
 }
@@ -113,6 +119,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginTop: 'auto',
     marginBottom: 'auto',
+  },
+  emptyImg: {
+    height: 100,
+    width: 100,
+    marginTop: 'auto',
+    marginBottom: 12
   }
 });
 

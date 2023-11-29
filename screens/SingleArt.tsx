@@ -9,7 +9,6 @@ import TagButton from '../components/TagButton';
 import Toggle from '../assets/images/toggle.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import env from '../env';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
 
@@ -31,6 +30,7 @@ const SingleArt = () => {
   }, []);
 
   const handleArtistButtonClick = async () => {
+    // TODO : rendre dynamique
     navigation.navigate('other_profile');
 
   }

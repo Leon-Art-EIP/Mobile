@@ -12,6 +12,7 @@ type ArticleType = {
 };
 
 type ArtistType = {
+  _id: string;
   username: string;
   email: string;
   is_artist: boolean;
@@ -26,6 +27,7 @@ type ArtistType = {
   subscriptions: string[];
   subscribersCount: number;
   likedPublications: string[];
+  profilePicture: string | undefined;
 };
 
 const const_news: NewsType[] = [

@@ -11,17 +11,24 @@ interface ArtistCardProps {
   path: string;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
+
 const ArtistCard = ({
   onPress = () => {},
   item,
-  path,
 }: ArtistCardProps) => (
   <TouchableOpacity
     accessibilityRole="button"
     onPress={onPress}
   >
     <Card style={styles.container}>
-      <Image style={styles.image} />
+      { item?.profilePicture && (
+        <Image
+          style={styles.image}
+          source={{ uri: API_URL + "/api" + item.profilePicture }}
+        />
+      ) }
     </Card>
     <Title size={16} style={styles.title}>
       {item.username}
@@ -33,7 +40,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.artistPlHolder,
     margin: 0,
-    marginBottom: 40,
+    marginBottom: 60,
+    textAlign: 'center',
     width: 120,
     height: 120,
     position: 'relative',
@@ -51,7 +59,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     left: '50%',
-    transform: [{ translateX: -30 }],
+    transform: [{ translateX: -50 }],
     color: colors.darkGreyBg,
   },
 });

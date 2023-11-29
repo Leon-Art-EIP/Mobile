@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import colors from '../constants/colors';
 import bannerImage from '../assets/images/banner.jpg'
@@ -8,25 +8,43 @@ import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import env from '../env';
+import { MainContext } from '../context/MainContext';
+import { get } from '../constants/fetch';
 
-const OtherProfile = () => {
+const API_URL = process.env.REACT_APP_API_URL;
+
+const OtherProfile = ({ route }: any) => {
   const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
   const navigation = useNavigation();
+  const id = route?.params?.id;     // this is the received user_id you have to fetch
+  const context = useContext(MainContext)
   const [isFollowing, setIsFollowing] = useState(false);
-  const { API_URL } = env;
-
   const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
-  const handleSquareClick = (pageName) => {
+
+
+  // TODO : remplacer pars cette version quand SingleArt est ready
+  // const handleArtworkClick = (pageName, artworkId) => {
+  //   navigation.navigate(pageName, artworkId);
+  // };
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+
+
+  const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
+
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
+
+
   const handleContactButtonClick = () => {
     //TODO : rediriger dynamiquement vers la bonne page
-    navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
+    navigation?.navigate('single_conversation', { id: id, name: 'Marine Weber' });
   };
+
+
   const handleFollowButtonClick = async () => {
     //TODO : rendre dynamique
     try {
@@ -52,28 +70,25 @@ const OtherProfile = () => {
     }
     checkIsFollowing();
   };
+
+
   const checkIsFollowing = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-  
-        const response = await axios.get(`${API_URL}api/follow/following`, {
-          headers,
-          params: {
-            limit: 10,
-          },
-        });
-        const responseData = response.data;
-        const subscriptions = responseData.subscriptions;
-
-        const isUserFollowed = subscriptions.some((subscription: { _id: string; }) => subscription._id === "652bc1fb1753a08d6c7d3f5d");
-        setIsFollowing(isUserFollowed);
+        get(
+          "/api/follow/following",
+          token,
+          (response: any) => setIsFollowing(
+            response.data?.subscriptions.some(
+              (subscription: { _id: string }) => subscription._id === id
+            )
+          ),
+          (error: any) => console.error({ ...error })
+        );
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Erreur', 'Veuillez vous reconnecter');
       }
     } catch (error) {
       console.error('Erreur lors de la vérification du suivi :', error);
@@ -81,12 +96,56 @@ const OtherProfile = () => {
     }
   };
 
+
+  interface Artwork {
+    _id: string;
+    userId: string;
+    image: string;
+    artType: string;
+    name: string;
+    description: string;
+    dimension: string;
+    isForSale: boolean;
+    price: number;
+    location: string;
+    likes: any[]; // You might want to define a type for likes as well
+    comments: any[]; // You might want to define a type for comments as well
+    __v: number;
+  }
+
+
+  const fetchUserArtworks = async () => {
+    try {
+      const token = context?.token;
+      if (token) {
+        const userId = id
+        get(
+          `/api/art-publication/user/${userId}`,
+          token,
+          (response: any) => setUserArtworks(response.data),
+          (error: any) => console.error({ ...error })
+        )
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert("Erreur", "Veuillez vous reconnecter");
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    }
+  };
+
+
   useEffect(() => {
+    fetchUserArtworks();
     checkIsFollowing();
   }, []);
+
+
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
+
 
   return (
     <ScrollView nestedScrollEnabled>
@@ -127,7 +186,7 @@ const OtherProfile = () => {
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
           {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.centerTitle}>Marine Weber</Text>
+          <Text style={styles.centerTitle}>{ "Saucisse (pas..." }</Text>
           <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
         </View>
 
@@ -191,22 +250,28 @@ const OtherProfile = () => {
       </View>
       {/* Ensembles de cadres carrés */}
       {activeTab === 'Artwork' &&
-        Array.from({ length: 7 }, (_, rowIndex) => (
-          <View key={rowIndex} style={styles.rowContainer}>
-            {Array.from({ length: 3 }, (_, colIndex) => (
-              <TouchableOpacity
-                key={colIndex}
-                style={styles.squareFrame}
-                onPress={() => handleSquareClick('singleArt')}
-              />
-            ))}
-          </View>
-        ))
+      <View style={styles.squareContainer}>
+        {userArtworks.map((artwork, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+          onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
+        >
+          <Image
+            source={{ uri: `${API_URL}api/${artwork.image}` }}
+            style={{ flex: 1, borderRadius: 10 }}
+            resizeMode="cover"
+            onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
+          />
+        </TouchableOpacity>
+        ))}
+        </View>
       }
     </View>
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   banner: {
@@ -312,6 +377,13 @@ const styles = StyleSheet.create({
     height: 115,
     backgroundColor: 'lightgray',
     borderRadius: 10,
+    margin: 5,
+  },
+  squareContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    marginHorizontal: 10,
   },
   backButton: {
     position: 'absolute',
@@ -320,5 +392,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
+
 
 export default OtherProfile;
