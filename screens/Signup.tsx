@@ -89,7 +89,7 @@ const Signup = ({ navigation }: any) => {
       />
 
       <Input
-        placeholder="Password"
+        placeholder="Mot de passe"
         onTextChanged={setPassword}
         style={styles.input}
       />

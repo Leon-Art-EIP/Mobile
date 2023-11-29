@@ -12,7 +12,6 @@ const addPublication = ({ navigation }: any) => {
     const [name, setName] = useState('');
     const [artType, setType] = useState('');
     const [description, setDescription] = useState('');
-    const [dimension, setDimension] = useState('');
     const [isForSale, setSale] = useState('');
     const [price, setPrice] = useState('');
     const [location, setLocation] = useState('');
@@ -24,7 +23,6 @@ const addPublication = ({ navigation }: any) => {
         name,
         artType,
         description,
-        dimension,
         isForSale,
         price,
         location
@@ -56,12 +54,10 @@ const addPublication = ({ navigation }: any) => {
   };
 
   const selectImage = () => {
-    // Add Image
   };
 
   const previous = () => {
-    // Please try the following code :
-    navigation.navigate('main');
+    navigation.navigate('homemain');      
   }
 
 return (

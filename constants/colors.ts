@@ -25,6 +25,10 @@ const colors = {
   pressedTag: '#FF7F74',
   tagText: '#FFF',
 
+  articlePlHolder: '#a6c8ff',
+  artistPlHolder: '#FF7F74',
+  forYouPlHolder: '#ededed',
+
   // inbox
   offerFg: '#6C0F7B',
   offerBg: '#FFE0E0',
