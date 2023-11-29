@@ -19,9 +19,9 @@ You can also precise many arguments:
 
 | Prop | Type | Example | Required | Default |
 |-|-|-|-|-|
-| name | string | <MaterialIcons name="home" /> | Yes | "None" |
-| size | number | <MaterialIcons size={24} /> | No | 12 |
-| color | string | <MaterialIcons color='#fff' /> | No | *Inherited* |
+| name | string | `<MaterialIcons name="home" />` | Yes | "None" |
+| size | number | `<MaterialIcons size={24} />` | No | 12 |
+| color | string | `<MaterialIcons color='#fff' />` | No | *Inherited* |
 
 And also all the `Text` props. See [the react-native documentation](https://reactnative.dev/docs/text.html).
 
