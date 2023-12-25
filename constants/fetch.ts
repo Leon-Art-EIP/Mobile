@@ -1,7 +1,5 @@
 import axios from "axios";
 
-/* const BACKEND: string = "http://localhost:5000"; */
-/* const BACKEND: string = "http://10.0.2.2:5000"; */
 const BACKEND: string | undefined = process.env.REACT_APP_API_URL;
 
 const get = (
