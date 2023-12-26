@@ -26,7 +26,7 @@ const InboxScreen = ({ navigation }: any) => {
       {(() => {
         switch (selectedTab) {
           case ('conversations'): return (
-            <ConversationsComponent navigation={navigation} />
+            <ConversationsComponent />
           );
           case ('commands'): return (
             <CommandsComponent />
