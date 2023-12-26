@@ -12,13 +12,17 @@ import Title from '../Title';
 
 
 type ConversationType = {
-  "_id": string,
-  "id": number,
-  "lastMessage": string,
-  "profileName": string,
-  "profilePicture": string,
-  "unreadMessages": boolean
+  "_id": string;
+  "lastMessage": string;
+  "unreadMessages": boolean;
+  "UserOneId": string;
+  "UserOneName": string;
+  "UserOnePicture": string;
+  "UserTwoId": string;
+  "UserTwoName": string;
+  "UserTwoPicture": string;
 };
+
 
 const ConversationsComponent = () => {
   const navigation = useNavigation();
@@ -31,10 +35,10 @@ const ConversationsComponent = () => {
     get(
       "/api/chats/" + context?.userId,
       context?.token,
-      (response: any) => setConversations([
-        ...(response.data?.conversations as ConversationType[])
+      (res: any) => setConversations([
+        ...(res.data['chats'] as ConversationType[])
       ]),
-      (err: any) => console.error("Conversation get error: ", { ...err })
+      (err: any) => console.error("Conversation get error: ", err)
     );
   }
 
@@ -46,13 +50,18 @@ const ConversationsComponent = () => {
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
       { conversations.length > 0 ? conversations.map((conversation: ConversationType) => (
         <TouchableOpacity
-          key={conversation.id.toString()}
+          key={conversation['_id'].toString()}
           style={styles.conversationView}
           onPress={() => navigation?.navigate(
             'single_conversation',
             {
-              id: conversation.id,
-              name: conversation.profileName
+              name: conversation['UserTwoName'],
+              // ids: conversation ID, your ID, the correspondant ID
+              ids: [
+                conversation['_id'],
+                conversation['UserOneId'],
+                conversation['UserTwoId']
+              ]
             }
           )}
         >
@@ -69,7 +78,7 @@ const ConversationsComponent = () => {
               style={styles.conversationPicture}
             />
             <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-              <Title size={16}>{ conversation.profileName }</Title>
+              <Title size={16}>{ conversation['UserTwoName'] }</Title>
               <Text numberOfLines={1} style={{
                 fontWeight: conversation.unreadMessages ? 'bold' : 'normal',
                 flexShrink: 1

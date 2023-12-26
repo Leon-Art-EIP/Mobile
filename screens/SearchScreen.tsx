@@ -1,9 +1,9 @@
-import React from 'react'
+import React from 'react';
 import { Text } from 'react-native'
 
 const SearchScreen = () => {
   return (
-    <Text>Search</Text>
+    <Text>Search screen</Text>
   );
 }
 

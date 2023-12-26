@@ -1,6 +1,6 @@
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -16,11 +16,23 @@ import TextBubble from '../components/inbox/TextBubble';
 import Input from '../components/Input';
 import colors from '../constants/colors';
 import { MESSAGES, MessageType } from '../constants/conversations';
+import { post } from '../constants/fetch';
+import { MainContext } from '../context/MainContext';
 
 
 type ConversationParams = {
+  /*
+   * name: name of the correspondant
+   */
   name: string;
-  id: number;
+
+  /*
+   * ids:
+   * [0]: conversation ID
+   * [1]: user ID
+   * [2]: correspondant ID
+   */
+  ids: number[];
 } | undefined;
 
 type MessageType = {
@@ -33,19 +45,14 @@ type MessageType = {
   "sender": number
 };
 
-/*
- * There is a problem that prevents the app to get
- * values from the .env file, so Imma just go with
- * a constant value until it's fixed
- */
-const API_URL = "http://10.0.2.2:5001/";
-
 
 const Conversation = ({ navigation }: any) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const route: any = useRoute();
-  const params = route.params;
+  const params = route.params as ConversationParams;
+  const context = useContext(MainContext);
+
 
   const sendMessage = () => {
     // use newMessage to send the message via the backend
@@ -54,14 +61,15 @@ const Conversation = ({ navigation }: any) => {
 
 
   const getConversation = () => {
-    axios.post(
-      API_URL + "api/conversations/messages",
-      { body: { convId: params?.id } },
-      { headers: { 'Content-Type': 'application/json' }}
-    )
-    .then((response) => setMessages(response.data?.messages))
-    .catch((err) => console.error(err));
+    post(
+      "/api/conversations/messages",
+      { convId: params?.ids[0] },
+      context?.token,
+      (res: any) => console.log(res),
+      (err: any) => console.warn({...err})
+    );
   }
+
 
   useEffect(() => {
     getConversation();
