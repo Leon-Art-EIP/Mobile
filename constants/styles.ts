@@ -1,5 +1,6 @@
 import Recat from 'react';
 import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
+import colors from './colors';
 
 /*
   * This file offers many pre-written styles you can import directly
@@ -15,6 +16,8 @@ const flex1: StyleProp<any> = { flex: 1 };
 // margins
 const mlAuto: StyleProp<any> = { marginLeft: 'auto' };
 const mrAuto: StyleProp<any> = { marginRight: 'auto' };
+const mtAuto: StyleProp<any> = { marginTop: 'auto' };
+const mbAuto: StyleProp<any> = { marginBottom: 'auto' };
 const noVMargin: StyleProp<any> = { marginVertical: 0 };
 const noHMargin: StyleProp<any> = { marginHorizontal: 0 };
 const noMargin: StyleProp<any> = { margin: 0 };
@@ -48,12 +51,19 @@ const pr8: StyleProp<any> = { paddingRight: 8 };
 const fwBold: StyleProp<TextStyle> = { fontWeight: 'bold' };
 const fwNormal: StyleProp<TextStyle> = { fontWeight: 'normal' };
 
+// background color
+const bgColor: StyleProp<any> = { backgroundColor: colors.bg };
+const bgRed: StyleProp<any> = { backgroundColor: '#f00' };
+const bgGrey: StyleProp<any> = { backgroundColor: colors.disabledBg };
+
 export {
   flexRow,
   displayFlex,
   flex1,
   mlAuto,
   mrAuto,
+  mtAuto,
+  mbAuto,
   noVMargin,
   noMargin,
   noHMargin,
@@ -81,5 +91,8 @@ export {
   mr4,
   mr8,
   fwBold,
-  fwNormal
+  fwNormal,
+  bgColor,
+  bgRed,
+  bgGrey
 };

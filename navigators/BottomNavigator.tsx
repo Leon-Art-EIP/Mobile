@@ -7,10 +7,9 @@ import ProfileNavigator from './ProfileNavigator';
 import AddNavigator from './AddNavigator'
 
 import colors from '../constants/colors';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import SearchNavigator from './CartNavigator';
+import SearchNavigator from './SearchNavigator';
 
 
 const BottomNavigator = () => {
