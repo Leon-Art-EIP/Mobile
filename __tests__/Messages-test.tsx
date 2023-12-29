@@ -20,15 +20,15 @@ import MessageNavigator from '../navigators/MessageNavigator';
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
 it('navigates to conversation', () => {
-  const { getByText } = render(
-    <NavigationContainer>
-      <MessageNavigator />
-    </NavigationContainer>
+  const { getByText, getByTestId } = render(
+    <App noLogin />
   );
+
+  fireEvent.press(getByTestId('MessagesNavBtn'));
 
 
   /* fireEvent.press(getByText('messages')); */
-  fireEvent.press(getByText('Marine Weber'));
+  fireEvent.press(getByText('Cedric'));
 
   const question = getByText('Bonjour, je serais intéressé par cette oeuvre, mais je recherche une ambiance plus chaude. Serait-ce possible ? Merci !');
   const answer = getByText('Yes of course !');

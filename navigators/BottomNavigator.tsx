@@ -30,7 +30,12 @@ const BottomNavigator = () => {
       <Tab.Screen name="Home" component={HomeNavigator} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialIcons name="home-filled" size={size} color={color} />
+          <MaterialIcons
+            name="home-filled"
+            size={size}
+            color={color}
+            testID="HomeNavBtn"
+          />
         )
       }} />
 
@@ -38,7 +43,12 @@ const BottomNavigator = () => {
       <Tab.Screen name="Search" component={SearchNavigator} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialIcons name="search" size={size} color={color} />
+          <MaterialIcons
+            name="search"
+            size={size}
+            color={color}
+            testID="SearchNavBtn"
+          />
         )
       }} />
 
@@ -46,7 +56,12 @@ const BottomNavigator = () => {
       <Tab.Screen name="Add" component={AddNavigator} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialIcons name="add-circle-outline" size={size} color={color} />
+          <MaterialIcons
+            name="add-circle-outline"
+            size={size}
+            color={color}
+            testID="AddNavBtn"
+          />
         )
       }} />
 
@@ -54,7 +69,12 @@ const BottomNavigator = () => {
       <Tab.Screen name="Messages" component={MessageNavigator} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialIcons name="chat" size={size} color={color} />
+          <MaterialIcons
+            name="chat"
+            size={size}
+            color={color}
+            testID="MessagesNavBtn"
+          />
         )
       }} />
 
@@ -62,7 +82,12 @@ const BottomNavigator = () => {
       <Tab.Screen name="Profile" component={ProfileNavigator} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <FontAwesome name="user-circle" size={size} color={color} />
+          <FontAwesome
+            name="user-circle"
+            size={size}
+            color={color}
+            testID="ProfileNavBtn"
+          />
         )
       }} />
 

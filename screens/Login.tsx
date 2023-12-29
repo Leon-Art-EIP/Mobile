@@ -22,6 +22,7 @@ const Login = ({ navigation }: any) => {
 
 
   const onLogin = async (response: any) => {
+    console.log({ ...response });
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
       console.log(response.data);
@@ -45,26 +46,9 @@ const Login = ({ navigation }: any) => {
 
 
   const onLoginError = async (error: any) =>{
-    console.log("response: ", { ...error._response });
-    console.log("status: ", error?.response);
+    console.log("onLoginError response: ", { ...error });
+    /* console.log("status: ", error?.response); */
 
-    /* if (error.response) { */
-    /*   console.error('Server responded with an error:', { ...error.response.data }); */
-    /*   if (error.response.status === 422) { */
-    /*     console.error('Validation error. Please check your input data.'); */
-    /*     Alert.alert('Signup Failed', 'Validation error. Please check your input data.'); */
-    /*   } else { */
-    /*     console.error('Other server error:', { ...error.response.status }); */
-    /*     Alert.alert('Signup Failed', 'Other server error'); */
-    /*   } */
-    /* } else if (error.request) { */
-    /*   console.error('Request was made but no response was received:', { ...error.request }); */
-    /*   Alert.alert('Signup Failed', 'Request was made but no response was received'); */
-    /* } else { */
-    /*   console.error('Error setting up the request:', { ...error.message }); */
-    /*   Alert.alert('Signup Failed', 'Error setting up the request'); */
-    /* } */
-    /* console.error('Error config:', { ...error.config }); */
     setIsLoading(false);
   }
 

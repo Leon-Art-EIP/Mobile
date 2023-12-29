@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';
@@ -7,6 +7,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow } from '../constants/styles';
 import Entypo from 'react-native-vector-icons/Entypo';
+import { MainContext } from '../context/MainContext';
+import { get } from '../constants/fetch';
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
@@ -15,6 +17,7 @@ const SearchScreen = ({ navigation }: any) => {
   const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [priceValues, setPriceValues] = useState<string>("0-1000");
+  const context = useContext(MainContext);
 
 
   const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
@@ -36,8 +39,15 @@ const SearchScreen = ({ navigation }: any) => {
   }
 
 
-  const callSearchApi = () => {
-    let args1: string = `searchTerm=${search}&artType=${selectedSubFilters[0]}`;
+  // Transform an array of subCategories into a single string, separated by ','
+  const filtersToString = () => selectedSubFilters.reduce(
+    (prev: string, curr: string) => prev + ',' + curr
+  );
+
+
+  // Puts the arguments in the api URL and navigates to the page results
+  const getSearchApi = () => {
+    let args1: string = `searchTerm=${search}&artType=${filtersToString()}`;
     let args2: string = `&priceRange=${priceValues}`;
     let args3: string = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
     let url: string = args1 + args2 + args3;
@@ -83,21 +93,19 @@ const SearchScreen = ({ navigation }: any) => {
 
 
   useEffect(() => {
-    /* get( */
-    /*   "/api/explorer/art-types", */
-    /*   context?.token, */
-    /*   (res: any) => console.log(res), */
-    /*   (err: any) => console.error({ ...err }) */
-    /* ); */
+    // Get art filters from back-end
+    get(
+      "/api/explorer/art-types",
+      context?.token,
+      (res: any) => setFilters(res?.data),
+      (err: any) => ToastAndroid.show("Error getting art types", ToastAndroid.SHORT)
+    );
   }, []);
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar
-        backgroundColor={colors.bg}
-        barStyle="dark-content"
-      />
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
 
       {/* Search input */}
       <View style={styles.searchView}>
@@ -111,7 +119,7 @@ const SearchScreen = ({ navigation }: any) => {
           size={24}
           color={colors.text}
           style={{ ...mtAuto, ...mbAuto, marginHorizontal: 18 }}
-          onPress={callSearchApi}
+          onPress={getSearchApi}
         />
       </View>
 
@@ -165,15 +173,15 @@ const SearchScreen = ({ navigation }: any) => {
 
             {/* Subfilter list */}
             <View style={styles.subFilterList}>
-              { selectedFilters.includes(filter.category) && filter.types.map((subFilter: any) => (
+              { selectedFilters.includes(filter.category) && filter.types.map((subFilter: string) => (
                 <TouchableOpacity
-                  key={subFilter?.type.toString()}
+                  key={subFilter}
                   style={styles.subFilterTouchableOpacity}
-                  onPress={() => selectOrDeselect(subFilter?.type, true)}
+                  onPress={() => selectOrDeselect(subFilter, true)}
                 >
                   <Text
-                    style={{ color: selectedSubFilters.includes(subFilter?.type) ? colors.primary :  'normal' }}
-                  >{ subFilter?.type }</Text>
+                    style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary :  'normal' }}
+                  >{ subFilter }</Text>
                 </TouchableOpacity>
               )) }
             </View>

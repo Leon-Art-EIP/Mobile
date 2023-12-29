@@ -1,9 +1,6 @@
 export interface ArtTypeFilter {
   category: string;
-  types: {
-    type: string;
-    selected: boolean;
-  }[];
+  types: string[];
   collapsed: boolean;
 }
 
