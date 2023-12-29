@@ -13,6 +13,7 @@ const colors = {
   secondary: '#F5F5F5',
   tertiary: '#2D142C',
 
+  title: '#2C2C2C',
   text: '#D6D6D6',
   primaryText: '#FFFF',
   secondaryText: '#000',

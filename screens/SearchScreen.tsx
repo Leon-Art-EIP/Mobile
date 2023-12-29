@@ -5,10 +5,11 @@ import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';
 import colors from '../constants/colors';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow } from '../constants/styles';
+import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh8, mt8, bgRed, mh4, mb8 } from '../constants/styles';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
+import Button from '../components/Button';
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
@@ -40,14 +41,20 @@ const SearchScreen = ({ navigation }: any) => {
 
 
   // Transform an array of subCategories into a single string, separated by ','
-  const filtersToString = () => selectedSubFilters.reduce(
-    (prev: string, curr: string) => prev + ',' + curr
-  );
+  const filtersToString = () => {
+    if (selectedSubFilters.length === 0) {
+      return "";
+    }
+    let filterString: string = selectedSubFilters.reduce(
+      (prev: string, curr: string) => prev + ',' + curr
+    );
+    return `&artType=${filterString}`
+  }
 
 
   // Puts the arguments in the api URL and navigates to the page results
   const getSearchApi = () => {
-    let args1: string = `searchTerm=${search}&artType=${filtersToString()}`;
+    let args1: string = `searchTerm=${search}${filtersToString()}`;
     let args2: string = `&priceRange=${priceValues}`;
     let args3: string = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
     let url: string = args1 + args2 + args3;
@@ -85,6 +92,14 @@ const SearchScreen = ({ navigation }: any) => {
     let min: string = priceValues.substring(0, priceValues.indexOf('-'));
     let max: string = priceValues.substring(priceValues.indexOf('-') + 1, priceValues.length);
     return [parseInt(min), parseInt(max)];
+  }
+
+
+  const clearFilters = () => {
+    setPriceValues("0-1000");
+    /* setSelectedFilters([]); */
+    setSelectedSubFilters([]);
+    ToastAndroid.show("Les filtres ont été réinitialisés", ToastAndroid.SHORT);
   }
 
 
@@ -129,6 +144,8 @@ const SearchScreen = ({ navigation }: any) => {
         <MultiSlider
           values={getPriceValues()}
           max={1000}
+          selectedStyle={{ backgroundColor: colors.primary }}
+          markerStyle={{ backgroundColor: colors.primary }}
           onValuesChange={setPriceValuesFromSlider}
           sliderLength={Dimensions.get('window').width - 192}
           containerStyle={{ ...mlAuto, ...mrAuto }}
@@ -159,16 +176,16 @@ const SearchScreen = ({ navigation }: any) => {
 
         {/* Filter list */}
         { isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
-          <View key={filter.category.toString()}>
+          <View
+            key={filter.category.toString()}
+            style={{ marginBottom: 24 }}
+          >
             {/* Filter item */}
             <TouchableOpacity
               style={styles.filterTouchableOpacity}
               onPress={() => selectOrDeselect(filter.category)}
             >
-              <Text style={[
-                styles.filterText,
-                { color: selectedFilters.includes(filter.category) ? colors.black : 'normal' }
-              ]}>{ filter.category }</Text>
+              <Text style={styles.filterText}>{ filter.category }</Text>
             </TouchableOpacity>
 
             {/* Subfilter list */}
@@ -188,6 +205,13 @@ const SearchScreen = ({ navigation }: any) => {
           </View>
         )) }
       </ScrollView>
+
+      {/* Clear filters */}
+      <Button
+        style={[mh4, mtAuto]}
+        onPress={clearFilters}
+        value="Clear filters"
+      />
     </SafeAreaView>
   );
 }
@@ -220,7 +244,8 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     backgroundColor: colors.disabledBg,
     borderRadius: 20,
-    paddingVertical: 12
+    paddingVertical: 12,
+    marginBottom: 8
   },
   filterTouchableOpacity: {
     padding: 11,
