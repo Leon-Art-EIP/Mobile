@@ -1,7 +1,7 @@
+import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 // Local imports
 import BackArrow from '../assets/images/back_arrow.png'
@@ -13,6 +13,8 @@ import env from '../env';
 
 const OtherProfile = () => {
   const navigation = useNavigation();
+  const id = route?.params?.id;     // this is the received user_id you have to fetch
+  const context = useContext(MainContext)
   const [isFollowing, setIsFollowing] = useState(false);
   const { API_URL } = env;
 
@@ -25,6 +27,9 @@ const OtherProfile = () => {
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
   // };
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+
+
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
@@ -35,7 +40,7 @@ const OtherProfile = () => {
 
   const handleContactButtonClick = () => {
     //TODO : rediriger dynamiquement vers la bonne page
-    navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
+    navigation?.navigate('single_conversation', { id: id, name: 'Marine Weber' });
   };
 
   const handleFollowButtonClick = async () => {
@@ -69,24 +74,19 @@ const OtherProfile = () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-  
-        const response = await axios.get(`${API_URL}api/follow/following`, {
-          headers,
-          params: {
-            limit: 10,
-          },
-        });
-        const responseData = response.data;
-        const subscriptions = responseData.subscriptions;
-
-        const isUserFollowed = subscriptions.some((subscription: { _id: string; }) => subscription._id === "652bc1fb1753a08d6c7d3f5d");
-        setIsFollowing(isUserFollowed);
+        get(
+          "/api/follow/following",
+          token,
+          (response: any) => setIsFollowing(
+            response.data?.subscriptions.some(
+              (subscription: { _id: string }) => subscription._id === id
+            )
+          ),
+          (error: any) => console.error({ ...error })
+        );
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Erreur', 'Veuillez vous reconnecter');
       }
     } catch (error) {
       console.error('Erreur lors de la vérification du suivi :', error);
@@ -110,43 +110,20 @@ const OtherProfile = () => {
     __v: number;
   }
 
-  interface UserData {
-    _id: string;
-    username: string;
-    is_artist: boolean;
-    availability: string;
-    subscription: string;
-    collections: any[];
-    subscriptions: any[];
-    subscribers: any[];
-    subscribersCount: number;
-    likedPublications: any[];
-    canPostArticles: boolean;
-    __v: number;
-    bannerPicture: string;
-    profilePicture: string;
-  }
-
   const fetchUserArtworks = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
-      const userId = "652bc1fb1753a08d6c7d3f5d"; // TODO: Replace with dynamic user ID
+      const token = context?.token;
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const responseArtworks = await axios.get<Artwork[]>(`${API_URL}api/art-publication/user/${userId}`, {
-          headers,
-          params: {
-            page: 1,
-            limit: 30,
-          },
-        });
-        setUserArtworks(responseArtworks.data);
-        setUserArtworksCount(responseArtworks.data.length);
+        const userId = id
+        get(
+          `/api/art-publication/user/${userId}`,
+          token,
+          (response: any) => setUserArtworks(response.data),
+          (error: any) => console.error({ ...error })
+        )
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert("Erreur", "Veuillez vous reconnecter");
       }
     } catch (error) {
       console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
@@ -186,6 +163,7 @@ const OtherProfile = () => {
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
+
 
   return (
     <ScrollView nestedScrollEnabled>
@@ -311,6 +289,7 @@ const OtherProfile = () => {
   );
 }
 
+
 const styles = StyleSheet.create({
   banner: {
     backgroundColor: 'lightblue',
@@ -417,7 +396,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
     borderRadius: 10,
     margin: 5,
-  },  
+  },
   squareContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -431,5 +410,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
+
 
 export default OtherProfile;

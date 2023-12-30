@@ -1,9 +1,9 @@
 import React from 'react';
-import { TouchableOpacity, Image, StyleSheet } from 'react-native'
+import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import colors from '../constants/colors';
-import { ArtistType } from "../constants/homeValues";
-import Card from "./Card";
-import Title from "./Title";
+import { ArtistType } from '../constants/homeValues';
+import Card from './Card';
+import Title from './Title';
 
 interface ArtistCardProps {
   onPress?: () => void;
@@ -11,37 +11,57 @@ interface ArtistCardProps {
   path: string;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
+
 const ArtistCard = ({
   onPress = () => {},
   item,
-  path,
 }: ArtistCardProps) => (
   <TouchableOpacity
     accessibilityRole="button"
     onPress={onPress}
   >
     <Card style={styles.container}>
-      <Image style={styles.image} />
-      <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{ item.username }</Title>
+      { item?.profilePicture && (
+        <Image
+          style={styles.image}
+          source={{ uri: API_URL + "/api" + item.profilePicture }}
+        />
+      ) }
     </Card>
+    <Title size={16} style={styles.title}>
+      {item.username}
+    </Title>
   </TouchableOpacity>
-)
+);
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.sampleBg,
+    backgroundColor: colors.artistPlHolder,
     margin: 0,
+    marginBottom: 60,
+    textAlign: 'center',
     width: 120,
-    height: 150,
-    position: "relative"
+    height: 120,
+    position: 'relative',
+    borderRadius: 70,
   },
   image: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     width: 120,
-    height: 120
-  }
+    height: 120,
+    borderRadius: 70,
+  },
+  title: {
+    position: 'absolute',
+    bottom: 10,
+    left: '50%',
+    transform: [{ translateX: -50 }],
+    color: colors.darkGreyBg,
+  },
 });
 
 export default ArtistCard;

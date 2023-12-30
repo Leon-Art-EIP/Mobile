@@ -1,10 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
-import CartScreen from '../screens/CartScreen';
+import SearchScreen from '../screens/SearchScreen';
 
 
-const CartNavigator = () => {
+const SearchNavigator = () => {
   const Stack = createNativeStackNavigator();
 
   // disables headers for this navigator
@@ -12,10 +12,10 @@ const CartNavigator = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="cartmain" component={CartScreen} options={options} />
+      <Stack.Screen name="searchmain" component={SearchScreen} options={options} />
     </Stack.Navigator>
   );
 }
 
-export default CartNavigator;
+export default SearchNavigator;
 

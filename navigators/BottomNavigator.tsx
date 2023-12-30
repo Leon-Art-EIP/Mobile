@@ -3,21 +3,18 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeNavigator from './HomeNavigator';
 import MessageNavigator from './MessageNavigator';
-import CartNavigator from './CartNavigator';
 import ProfileNavigator from './ProfileNavigator';
 import AddNavigator from './AddNavigator'
 
-import HomeSVG from '../assets/SVGComponents/Home';
-import { Image, Text, ToastAndroid, View } from 'react-native';
 import colors from '../constants/colors';
-import Icon from "react-native-vector-icons/Octicons";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import SearchNavigator from './CartNavigator';
+
 
 const BottomNavigator = () => {
   const Tab = createBottomTabNavigator();
-  const options = { headerShown: false };
 
   return (
     <Tab.Navigator
@@ -38,11 +35,11 @@ const BottomNavigator = () => {
         )
       }} />
 
-      {/* Inbox tab */}
-      <Tab.Screen name="Messages" component={MessageNavigator} options={{
+      {/* Search tab */}
+      <Tab.Screen name="Search" component={SearchNavigator} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialIcons name="chat" size={size} color={color} />
+          <MaterialIcons name="search" size={size} color={color} />
         )
       }} />
 
@@ -54,11 +51,11 @@ const BottomNavigator = () => {
         )
       }} />
 
-      {/* Cart tab */}
-      <Tab.Screen name="Cart" component={CartNavigator} options={{
+      {/* Inbox tab */}
+      <Tab.Screen name="Messages" component={MessageNavigator} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="cart" size={size} color={color} />
+          <MaterialIcons name="chat" size={size} color={color} />
         )
       }} />
 

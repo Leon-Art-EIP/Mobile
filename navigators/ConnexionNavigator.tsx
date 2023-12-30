@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import { MainContext } from '../context/MainContext';
 
 // Navigators
-import MainNavigator from './MainNavigator';
 import ProfilingQuizzNavigator from './ProfilingQuizzNavigator';
 
 //Screens
@@ -11,6 +10,7 @@ import Login from '../screens/Login';
 import Signup from '../screens/Signup';
 import GoogleLogin from '../screens/GoogleLogin';
 import ForgotPassword from '../screens/ForgotPassword';
+import BottomNavigator from './BottomNavigator';
 
 const ConnexionNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -20,7 +20,7 @@ const ConnexionNavigator = () => {
   if (context?.token) {
     return (
       <Stack.Navigator>
-        <Stack.Screen name="main" component={MainNavigator} options={options} />
+        <Stack.Screen name="main" component={BottomNavigator} options={options} />
       </Stack.Navigator>
     );
   } else {

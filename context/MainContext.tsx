@@ -13,6 +13,8 @@ import React, { createContext, useState } from 'react';
 type MainContextType = {
   token: string | undefined;
   setToken: (e: string | undefined) => void;
+  userId: string | undefined;
+  setUserId: (e: string | undefined) => void;
   // Add your new type value here
 };
 
@@ -24,13 +26,16 @@ const MainContextProvider = ({
   children = <></>
 }) => {
   const [token, setToken] = useState<string | undefined>(undefined);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   // Add your new value with a useState variable
 
   return (
     <MainContext.Provider
       value={{
-        token: token,
-        setToken: setToken
+        token,
+        setToken,
+        userId,
+        setUserId
         // add your value and your setValue here
       }}
     >

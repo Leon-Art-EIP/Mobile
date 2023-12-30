@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { get, post} from '../constants/fetch';
-import env from '../env';
 import axios from 'axios';
 
 import colors from '../constants/colors';
@@ -11,10 +8,11 @@ import Title from '../components/Title';
 import TagButton from '../components/TagButton';
 import Button from '../components/Button';
 
-import ProfilingArtist from './ProfilingQuizzArtist1';
+
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+
 
 const ProfilingQuizz = ({ navigation }: any) => {
-  const { API_URL } = env;
   const [objective, setPurpose] = useState<string | null>(null);
 
   const retrieveToken = async () => {
@@ -33,24 +31,24 @@ const ProfilingQuizz = ({ navigation }: any) => {
     const token = await retrieveToken();
     console.log('TOKEN:', token);
     console.log('User Purpose', objective);
-  
+
     if (objective === null) {
       console.log('No parameter found');
       return;
     }
-  
+
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
-  
+
     const requestData = { objective };
-  
+
     try {
-      const response = await axios.post(`${API_URL}api/quizz/submit`, requestData, { headers });
-  
+      const response = await axios.post(`${API_URL}/api/quizz/submit`, requestData, { headers });
+
       console.log('Response:', response.data);
-  
+
       if (response.status === 200) {
         console.log('Entered');
         navigation.navigate('profilingAmateur');
@@ -64,7 +62,7 @@ const ProfilingQuizz = ({ navigation }: any) => {
 
   useEffect(() => {
     console.log('OBJECTIF', objective);
-  }, [objective]); 
+  }, [objective]);
 
   const getPurpose = (value: string) => {
     console.log('value before', objective);

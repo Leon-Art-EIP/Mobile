@@ -4,7 +4,15 @@ type NewsType = {
   imgUrl: string;
 }
 
+type ArticleType = {
+  id: number;
+  title: string;
+  mainImage: string;
+  content: string;
+};
+
 type ArtistType = {
+  _id: string;
   username: string;
   email: string;
   is_artist: boolean;
@@ -19,6 +27,7 @@ type ArtistType = {
   subscriptions: string[];
   subscribersCount: number;
   likedPublications: string[];
+  profilePicture: string | undefined;
 };
 
 const const_news: NewsType[] = [
@@ -57,7 +66,7 @@ const const_artists: NewsType[] = [
   }
 ];
 
-export type { NewsType, ArtistType };
+export type { NewsType, ArtistType, ArticleType };
 export {
   const_news,
   const_artists
