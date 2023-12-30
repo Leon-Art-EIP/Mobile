@@ -12,9 +12,8 @@ import Title from "../components/Title";
 import ArtistCard from "../components/ArtistCard";
 import ArticleCard from '../components/ArticleCard';
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }: any) => {
   const context = useContext(MainContext);
-  const navigation = useNavigation();
   const [artists, setArtists] = useState<ArtistType[]>([]);
   const [articles, setArticles] = useState<ArticleType[]>([]);
   const [forYou, setForYou] = useState<string[]>(Array(100).fill(0));
@@ -29,6 +28,9 @@ const HomeScreen = () => {
     navigation.navigate('article', { article });
   };
   
+  const goToArticle = () => {
+    navigation.navigate('singleart');
+  };
 
   const getArticles = () => {
     if (!context?.token) {
@@ -181,36 +183,36 @@ const HomeScreen = () => {
           <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Pour vous</Title>
 
           { forYou.length === 0 ? (
-
             <View style={styles.emptyView}>
               <Image
                 style={{ height: 50, width: 50 }}
                 source={require('../assets/icons/box.png')}
-              />
+                />
               <Title
                 size={18}
                 style={{ color: colors.disabledFg }}
-              >Couldn't get art you could like !</Title>
+                >Couldn't get art you could like !</Title>
               <Text style={{
                 fontWeight: '500',
                 color: colors.disabledFg
               }}>Try to refresh page</Text>
             </View>
-
           ) : (
             <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, marginHorizontal: 10 }}>
               <FlatList
                 data={forYou}
                 contentContainerStyle={{ width: '100%' }}
                 renderItem={(e: ListRenderItemInfo<string>) => (
+                  <TouchableOpacity onPress={goToArticle}>
                   <View style={{ 
                     flex: 1,
                     backgroundColor: colors.forYouPlHolder,
                     borderRadius: 7,
                     margin: 5,
                     height: 120,
-                    width: 100 }}>
+                    width: 120 }}>
                   </View>
+                  </TouchableOpacity>
                 )}
                 scrollEnabled={false}
                 numColumns={3}

@@ -3,12 +3,12 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import colors from '../../constants/colors';
 import { flexRow, fwBold, ml8, mt4 } from '../../constants/styles';
 import { get } from '../../constants/fetch';
-import { MainContext } from '../../context/MainContext'; // Adjust the import path as necessary
+import { MainContext } from '../../context/MainContext';
 
 const CommandsComponent = () => {
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
-  const context = useContext(MainContext); // Using context to access the token
+  const context = useContext(MainContext);
 
   useEffect(() => {
     if (context?.token) {
@@ -16,7 +16,7 @@ const CommandsComponent = () => {
         `/api/order/latest-buy-orders?limit=10&page=1`,
         context.token,
         (response) => {
-          console.log("🚨 Fetched Orders", response.data);
+          console.log("🎁 Fetched Orders", response.data);
           setOrders(response?.data || []);
         },
         (error) => {
@@ -53,7 +53,6 @@ const CommandsComponent = () => {
           <View style={styles.textContainer}>
             <Text style={fwBold}>{order._id}</Text>
             <Text>{order.orderPrice} €</Text>
-            {/* Add more details as needed */}
           </View>
         </View>
         </TouchableOpacity>
