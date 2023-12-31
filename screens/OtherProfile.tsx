@@ -9,14 +9,14 @@ import profilePicture from '../assets/images/user.png'
 import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
-import env from '../env';
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+
 
 const OtherProfile = () => {
   const navigation = useNavigation();
   const id = route?.params?.id;     // this is the received user_id you have to fetch
   const context = useContext(MainContext)
   const [isFollowing, setIsFollowing] = useState(false);
-  const { API_URL } = env;
 
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
@@ -27,9 +27,6 @@ const OtherProfile = () => {
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
   // };
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
-
-
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
