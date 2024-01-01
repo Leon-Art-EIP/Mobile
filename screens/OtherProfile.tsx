@@ -25,6 +25,7 @@ const OtherProfile = ({ route }: any) => {
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
+  const token = context?.token;
 
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
@@ -39,40 +40,37 @@ const OtherProfile = ({ route }: any) => {
   };
 
   const handleContactButtonClick = () => {
-    //TODO : rediriger dynamiquement vers la bonne page
     navigation?.navigate('single_conversation', { id: id, name: userData.username });
   };
 
   const handleFollowButtonClick = async () => {
-    //TODO : rendre dynamique
+    // TODO: rendre dynamique
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const response = await axios.post(`${API_URL}api/follow/652bc1fb1753a08d6c7d3f5d`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const url = `/api/follow/${id}`;
+        const response = await post(url, undefined, token, (response) => {
+          // Traitement réussi ici
+        }, (error) => {
+          // Gestion des erreurs ici
+          console.error('Erreur de follow :', error);
+          Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
         });
-      }
-      else {
+      } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du token JWT :', error);
+      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
-    catch (error) {
-      console.error('Erreur de follow :', error);
-      Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-    }
+  
     checkIsFollowing();
     fetchUserData();
   };
+  
 
   const checkIsFollowing = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
         get(
           "/api/follow/following",
@@ -132,7 +130,6 @@ const OtherProfile = ({ route }: any) => {
 
   const fetchUserData = async () => {
     try {
-      const token = context?.token;
       if (token) {
         const url = `/api/user/profile/${id}`;
         const callback = (response) => {
