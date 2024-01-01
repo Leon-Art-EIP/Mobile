@@ -41,7 +41,7 @@ const post = (
     console.warn("Empty body for post request");
   }
   if (!token) {
-    console.warn("Token is empty");
+    // console.warn("Token is empty");
   }
   if (!BACKEND) {
     return console.warn('Backend url is empty');
