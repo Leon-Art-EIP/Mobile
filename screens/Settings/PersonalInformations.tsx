@@ -1,14 +1,18 @@
-import React from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import React, { useState, useEffect, useContext } from 'react';
 
 // Local imports
 import Title from '../../components/Title';
 import colors from '../../constants/colors';
 import BackArrow from '../../assets/images/back_arrow_black.png'
+import { MainContext } from '../../context/MainContext';
 
 const PersonalInformations = () => {
   const navigation = useNavigation();
+  const context = useContext(MainContext);
+  const userEmail = context?.userEmail;
+  const accountType = context?.isArtist ? "Artiste" : "Amateur";
 
   const handleBackButtonClick = () => {
     navigation.goBack();
@@ -24,6 +28,17 @@ const PersonalInformations = () => {
           <Image source={BackArrow} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
       <Title style={styles.mainTitle}>Informations personnelles</Title>
+            {/* Bloc 1 - Email */}
+      <View style={styles.infoBlock}>
+        <Title style={styles.infoTitle}>Adresse email</Title>
+        <Text style={styles.infoValue}>{userEmail}</Text>
+      </View>
+
+      {/* Bloc 2 - Account type */}
+      <View style={styles.infoBlock}>
+        <Title style={styles.infoTitle}>Type de compte</Title>
+        <Text style={styles.infoValue}>{accountType}</Text>
+      </View>
     </SafeAreaView>
   );
 }
@@ -53,6 +68,18 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 1,
     color: colors.tertiary,
+  },
+  infoBlock: {
+    marginLeft: 12,
+    marginBottom: 24,
+  },
+  infoTitle: {
+    fontSize: 18,
+    color: colors.black,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: 'grey',
   },
 });
 

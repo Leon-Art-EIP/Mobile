@@ -29,7 +29,9 @@ const Login = ({ navigation }: any) => {
       try {
         await AsyncStorage.setItem('jwt', tokenFromDB);
         context?.setToken(tokenFromDB);
+        context?.setUserEmail(response.data.user.email);
         context?.setUserId(response.data.user.id);
+        context?.setisArtist(response.data.user.is_artist);
         navigation.navigate('main');
       } catch (error) {
         console.error('Error storing token:', error);

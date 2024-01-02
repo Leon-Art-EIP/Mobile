@@ -27,7 +27,6 @@ const Profile = () => {
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
-  let userDataFetched = false;
 
   const handleToFollowerList = () => {
     // TODO : rendre dynamique
