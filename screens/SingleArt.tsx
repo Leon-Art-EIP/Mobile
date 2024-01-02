@@ -11,18 +11,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
-const nextPage = () => {
-};
 
-const selectTag = () => {
-};
+const SingleArt = ({ navigation, route }: any) => {
+ 
+  const nextPage = () => {
+    navigation.navigate('stripe');
+  };
+  
+  const selectTag = () => {
+  };
 
-
-const SingleArt = () => {
-  const { API_URL } = env;
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const navigation = useNavigation();
   useEffect(() => {
     checkIsLiked();
     checkIsSaved();
