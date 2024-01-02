@@ -161,6 +161,7 @@ android {
       proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
     }
   }
+  namespace 'com.mobile'
 
   // applicationVariants are e.g. debug, release
   applicationVariants.all { variant ->
@@ -180,6 +181,9 @@ android {
 }
 
 dependencies {
+  // Stripe Android SDK
+  implementation 'com.stripe:stripe-android:20.36.0'
+
   implementation fileTree(dir: "libs", include: ["*.jar"])
 
   //noinspection GradleDynamicVersion

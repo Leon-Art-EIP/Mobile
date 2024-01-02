@@ -63,7 +63,7 @@ const SingleOrder = () => {
           style={styles.sellerImage}
         />
         <Text style={[mh8]}>{ formatName('Seller name') }</Text>
-      </View>
+      </TouchableOpacity>
 
       <View style={[mtAuto, flexRow]}>
         <Button
