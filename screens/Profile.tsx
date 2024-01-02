@@ -191,8 +191,8 @@ const Profile = () => {
         <TouchableOpacity
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
-        >
-        <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+          >
+          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleEditButtonClick()}
