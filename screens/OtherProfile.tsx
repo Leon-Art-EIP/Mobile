@@ -18,7 +18,7 @@ const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
   const id = route?.params?.id;    // this is the received user_id you have to fetch
-  const context = useContext(MainContext)
+  const context = useContext(MainContext);
   const [isFollowing, setIsFollowing] = useState(false);
 
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
@@ -40,7 +40,8 @@ const OtherProfile = ({ route }: any) => {
   };
 
   const handleContactButtonClick = () => {
-    navigation?.navigate('single_conversation', { id: id, name: userData.username });
+    // navigation?.navigate('single_conversation', { id: id, name: userData?.username });
+    navigation.navigate('single_conversation', { id: id, name: userData?.username });
   };
 
   const handleFollowButtonClick = async () => {
@@ -163,9 +164,9 @@ const OtherProfile = ({ route }: any) => {
   
 
   useEffect(() => {
+    fetchUserData();
     fetchUserArtworks();
     checkIsFollowing();
-    fetchUserData();
   }, []);
 
   useFocusEffect(
