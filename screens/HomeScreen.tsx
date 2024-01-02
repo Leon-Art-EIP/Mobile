@@ -72,7 +72,7 @@ const HomeScreen = ({ navigation }: any) => {
       "/api/artists/latest?limit=5&page=0",
       context?.token,
       (response: any) => {
-        console.log(response?.data?.artists[0]);
+        // console.log(response?.data?.artists[0]);
         setArtists(response?.data?.artists);
       }
     )

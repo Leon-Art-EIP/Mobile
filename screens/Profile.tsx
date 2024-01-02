@@ -1,7 +1,7 @@
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 // Local imports
 import SettingsButtonImage from '../assets/images/settings_logo.png'
@@ -11,6 +11,8 @@ import profilePicture from '../assets/images/user.png'
 import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
+import { MainContext } from '../context/MainContext';
+import { get, post } from '../constants/fetch';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -22,6 +24,10 @@ const Profile = () => {
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const context = useContext(MainContext);
+  const token = context?.token;
+  const userID = context?.userId;
+  let userDataFetched = false;
 
   const handleToFollowerList = () => {
     // TODO : rendre dynamique
@@ -83,21 +89,27 @@ const Profile = () => {
 
   const fetchUserArtworks = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
-      const userId = await AsyncStorage.getItem('id');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
+        const url = `/api/art-publication/user/${userID}`;
+        const callback = (response) => {
+          setUserArtworks(response.data);
+          setUserArtworksCount(response.data.length);
         };
-        const responseArtworks = await axios.get<Artwork[]>(`${API_URL}api/art-publication/user/${userId}`, {
-          headers,
-          params: {
-            page: 1,
-            limit: 30,
-          },
-        });
-        setUserArtworks(responseArtworks.data);
-        setUserArtworksCount(responseArtworks.data.length);
+        const onErrorCallback = (error) => {
+          console.error('Error fetching user artworks:', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
+        };
+        get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -109,18 +121,29 @@ const Profile = () => {
   };
 
   const fetchUserData = async () => {
-    try {
-      const token = await AsyncStorage.getItem('jwt');
-      const userId = await AsyncStorage.getItem('id');
+        try {
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
+        const url = `/api/user/profile/${userID}`;
+        const callback = (response) => {
+          setUserData(response.data);
+          fetchUserArtworks();
         };
-        const response = await axios.get<UserData>(
-          `${API_URL}api/user/profile/${userId}`,
-          { headers }
-        );
-        setUserData(response.data);
+        const onErrorCallback = (error) => {
+          console.error('Error fetching user data:', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+        };
+
+        get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
         Alert.alert('Token JWT not found. Make sure the user is logged in.');
@@ -137,7 +160,6 @@ const Profile = () => {
 
   useEffect(() => {
     updateCollections();
-    fetchUserArtworks();
     fetchUserData();
   }, []);
 

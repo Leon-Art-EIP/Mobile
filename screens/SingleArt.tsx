@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
+
 const SingleArt = ({ navigation, route }: any) => {
  
   const nextPage = () => {
@@ -19,6 +20,7 @@ const SingleArt = ({ navigation, route }: any) => {
   
   const selectTag = () => {
   };
+
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   useEffect(() => {

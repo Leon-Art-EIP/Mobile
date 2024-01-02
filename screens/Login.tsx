@@ -3,12 +3,14 @@ import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimen
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+
 import Button from '../components/Button';
 import Title from '../components/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { post } from '../constants/fetch';
+
 
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState<string>('');
@@ -18,12 +20,11 @@ const Login = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const context = useContext(MainContext);
 
-
   const onLogin = async (response: any) => {
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
-      console.log(response.data);
-      console.log(response.data.user.id);
+      // console.log(response.data);
+      // console.log(response.data.user.id);
 
       try {
         await AsyncStorage.setItem('jwt', tokenFromDB);
@@ -46,23 +47,23 @@ const Login = ({ navigation }: any) => {
     console.log("response: ", { ...error._response });
     console.log("status: ", error?.response);
 
-    /* if (error.response) { */
-    /*   console.error('Server responded with an error:', { ...error.response.data }); */
-    /*   if (error.response.status === 422) { */
-    /*     console.error('Validation error. Please check your input data.'); */
-    /*     Alert.alert('Signup Failed', 'Validation error. Please check your input data.'); */
-    /*   } else { */
-    /*     console.error('Other server error:', { ...error.response.status }); */
-    /*     Alert.alert('Signup Failed', 'Other server error'); */
-    /*   } */
-    /* } else if (error.request) { */
-    /*   console.error('Request was made but no response was received:', { ...error.request }); */
-    /*   Alert.alert('Signup Failed', 'Request was made but no response was received'); */
-    /* } else { */
-    /*   console.error('Error setting up the request:', { ...error.message }); */
-    /*   Alert.alert('Signup Failed', 'Error setting up the request'); */
-    /* } */
-    /* console.error('Error config:', { ...error.config }); */
+    if (error.response) {
+      console.error('Server responded with an error:', { ...error.response.data });
+      if (error.response.status === 422) {
+        console.error('Validation error. Please check your input data.');
+        Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+      } else {
+        console.error('Other server error:', { ...error.response.status });
+        Alert.alert('Signup Failed', 'Other server error');
+      }
+    } else if (error.request) {
+      console.error('Request was made but no response was received:', { ...error.request });
+      Alert.alert('Signup Failed', 'Request was made but no response was received');
+    } else {
+      console.error('Error setting up the request:', { ...error.message });
+      Alert.alert('Signup Failed', 'Error setting up the request');
+    }
+    console.error('Error config:', { ...error.config });
     setIsLoading(false);
   }
 

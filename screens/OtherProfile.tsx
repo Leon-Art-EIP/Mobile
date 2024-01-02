@@ -9,19 +9,23 @@ import profilePicture from '../assets/images/user.png'
 import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
+import { MainContext } from '../context/MainContext';
+import { get, post } from '../constants/fetch';
+
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 
-const OtherProfile = () => {
+const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
-  const id = route?.params?.id;     // this is the received user_id you have to fetch
-  const context = useContext(MainContext)
+  const id = route?.params?.id;    // this is the received user_id you have to fetch
+  const context = useContext(MainContext);
   const [isFollowing, setIsFollowing] = useState(false);
 
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
+  const token = context?.token;
 
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
@@ -36,40 +40,38 @@ const OtherProfile = () => {
   };
 
   const handleContactButtonClick = () => {
-    //TODO : rediriger dynamiquement vers la bonne page
-    navigation?.navigate('single_conversation', { id: id, name: 'Marine Weber' });
+    // navigation?.navigate('single_conversation', { id: id, name: userData?.username });
+    navigation.navigate('single_conversation', { id: id, name: userData?.username });
   };
 
   const handleFollowButtonClick = async () => {
-    //TODO : rendre dynamique
+    // TODO: rendre dynamique
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const response = await axios.post(`${API_URL}api/follow/652bc1fb1753a08d6c7d3f5d`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const url = `/api/follow/${id}`;
+        const response = await post(url, undefined, token, (response) => {
+          // Traitement réussi ici
+        }, (error) => {
+          // Gestion des erreurs ici
+          console.error('Erreur de follow :', error);
+          Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
         });
-      }
-      else {
+      } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du token JWT :', error);
+      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
-    catch (error) {
-      console.error('Erreur de follow :', error);
-      Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-    }
+  
     checkIsFollowing();
     fetchUserData();
   };
+  
 
   const checkIsFollowing = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
         get(
           "/api/follow/following",
@@ -111,9 +113,8 @@ const OtherProfile = () => {
     try {
       const token = context?.token;
       if (token) {
-        const userId = id
         get(
-          `/api/art-publication/user/${userId}`,
+          `/api/art-publication/user/${id}`,
           token,
           (response: any) => setUserArtworks(response.data),
           (error: any) => console.error({ ...error })
@@ -130,17 +131,27 @@ const OtherProfile = () => {
 
   const fetchUserData = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
-      const userId = "652bc1fb1753a08d6c7d3f5d"; // TODO: Replace with dynamic user ID
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
+        const url = `/api/user/profile/${id}`;
+        const callback = (response) => {
+          setUserData(response.data);
         };
-        const response = await axios.get<UserData>(
-          `${API_URL}api/user/profile/${userId}`,
-          { headers }
-        );
-        setUserData(response.data);
+        const onErrorCallback = (error) => {
+          console.error('Error fetching user data:', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+        };
+
+        get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
         Alert.alert('Token JWT not found. Make sure the user is logged in.');
@@ -150,11 +161,12 @@ const OtherProfile = () => {
       Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
+  
 
   useEffect(() => {
+    fetchUserData();
     fetchUserArtworks();
     checkIsFollowing();
-    fetchUserData();
   }, []);
 
   useFocusEffect(
