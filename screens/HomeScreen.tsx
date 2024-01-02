@@ -1,5 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ToastAndroid, LogBox, ScrollView, StyleSheet, View, StatusBar, Image, Text, RefreshControl, FlatList, ListRenderItemInfo, TouchableOpacity } from 'react-native';
+import {
+  TouchableOpacity,
+  FlatList,
+  ListRenderItemInfo,
+  ScrollView,
+  StyleSheet,
+  View,
+  LogBox,
+  StatusBar,
+  Image,
+  ToastAndroid,
+  Text,
+  RefreshControl,
+  Alert
+} from 'react-native'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { useNavigation } from '@react-navigation/native';
@@ -80,6 +94,7 @@ const HomeScreen = ({ navigation }: any) => {
     getArtists();
     getArticles();
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+    
   }, []);
 
 

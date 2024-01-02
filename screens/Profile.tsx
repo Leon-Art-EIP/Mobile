@@ -1,24 +1,45 @@
-import React, { useState, useEffect } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
-import colors from '../constants/colors';
-import bannerImage from '../assets/images/banner.jpg'
-import profilePicture from '../assets/images/user.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import EditButtonImage from '../assets/images/edit_logo.png'
-import SettingsButtonImage from '../assets/images/settings_logo.png'
-import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+// Local imports
+import SettingsButtonImage from '../assets/images/settings_logo.png'
+import EditButtonImage from '../assets/images/edit_logo.png'
+import BackArrow from '../assets/images/back_arrow.png'
+import profilePicture from '../assets/images/user.png'
+import bannerImage from '../assets/images/banner.jpg'
+import Button from '../components/Button';
+import colors from '../constants/colors';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 
 const Profile = () => {
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('Artwork');
+  const [activeTab, setActiveTab] = useState('Artwork'); 
   const [userCollections, setUserCollections] = useState([]);
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  const handleToFollowerList = () => {
+    // TODO : rendre dynamique
+    navigation.navigate('follower_list');
+  };
+
+  const handleBackButtonClick = () => {
+    navigation.goBack();
+  };
+
+  const handleEditButtonClick = () => {
+    navigation.navigate('editprofile');
+  };
+
+  const handleSettingsButtonClick = () => {
+    navigation.navigate('settings');
+  };
+
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
@@ -26,6 +47,7 @@ const Profile = () => {
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
+
   interface Artwork {
     _id: string;
     userId: string;
@@ -37,11 +59,28 @@ const Profile = () => {
     isForSale: boolean;
     price: number;
     location: string;
-    likes: any[]; // You might want to define a type for likes as well
-    comments: any[]; // You might want to define a type for comments as well
+    likes: any[];
+    comments: any[];
     __v: number;
   }
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+
+  interface UserData {
+    _id: string;
+    username: string;
+    is_artist: boolean;
+    availability: string;
+    subscription: string;
+    collections: any[];
+    subscriptions: any[];
+    subscribers: any[];
+    subscribersCount: number;
+    likedPublications: any[];
+    canPostArticles: boolean;
+    __v: number;
+    bannerPicture: string;
+    profilePicture: string;
+  }
+
   const fetchUserArtworks = async () => {
     try {
       const token = await AsyncStorage.getItem('jwt');
@@ -58,6 +97,7 @@ const Profile = () => {
           },
         });
         setUserArtworks(responseArtworks.data);
+        setUserArtworksCount(responseArtworks.data.length);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -67,36 +107,48 @@ const Profile = () => {
       Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
   };
-  
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
-  const handleEditButtonClick = () => {
-    navigation.navigate('editprofile');
-  };
-  const handleSettingsButtonClick = () => {
-    navigation.navigate('settings');
+
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      const userId = await AsyncStorage.getItem('id');
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const response = await axios.get<UserData>(
+          `${API_URL}api/user/profile/${userId}`,
+          { headers }
+        );
+        setUserData(response.data);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
   };
 
   useFocusEffect(
-    React.useCallback(() => {
-
-
-    }, [navigation])
+    React.useCallback(() => {}, [navigation])
   );
+
   useEffect(() => {
     updateCollections();
     fetchUserArtworks();
+    fetchUserData();
   }, []);
+
   const updateCollections = async () => {
     const token = await AsyncStorage.getItem('jwt');
       if (token) {
         const headers = {
           Authorization: `Bearer ${token}`,
         };
-
-        // Effectuez l'appel API pour obtenir les collections de l'utilisateur connecté
-        const collectionsResponse = await axios.get(`${API_URL}/api/collection/my-collections`, {
+  
+        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -109,6 +161,7 @@ const Profile = () => {
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
   }
+
   return (
     <ScrollView nestedScrollEnabled>
     <View>
@@ -117,7 +170,7 @@ const Profile = () => {
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
         >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+        <Image source={BackArrow} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleEditButtonClick()}
@@ -152,23 +205,27 @@ const Profile = () => {
 
       <View style={styles.textBlocks}>
 
+        {/* Bloc de texte followers */}
         <View style={styles.textBlock}>
+          <TouchableOpacity onPress={handleToFollowerList}>
+            <View style={styles.centeredText}>
+              <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
+              <Text style={styles.title}>followers</Text>
+            </View>
 
-          <Text style={styles.value}>1.3k</Text>
-          <Text style={styles.title}>followers</Text>
+          </TouchableOpacity>
         </View>
 
-
+        {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
-
-          <Text style={styles.centerTitle}>Linus T</Text>
-          <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
+          {userData && userData.availability !== "unavailable" && (
+            <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+            )}
         </View>
-
-
+        
         <View style={styles.textBlock}>
-
-          <Text style={styles.value}>64</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
@@ -250,7 +307,11 @@ const Profile = () => {
 }
 
 const styles = StyleSheet.create({
-  banner: {
+  centeredText: {
+    justifyContent: 'center',
+    alignItems: 'center', // Ajoutez cette ligne
+  },
+  banner: { 
     backgroundColor: 'lightblue',
     height: 180,
     width: '100%',
@@ -302,9 +363,10 @@ const styles = StyleSheet.create({
   centerTextBlock: {
     flex: 1,
     alignItems: 'center',
+    marginBottom: 10,
   },
   centerTitle: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     color: colors.tertiary,
     textAlign: 'center',

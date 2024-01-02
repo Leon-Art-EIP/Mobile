@@ -1,49 +1,44 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
-import colors from '../constants/colors';
-import bannerImage from '../assets/images/banner.jpg'
-import profilePicture from '../assets/images/user.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import Button from '../components/Button';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MainContext } from '../context/MainContext';
-import { get } from '../constants/fetch';
+import axios from 'axios';
+// Local imports
+import BackArrow from '../assets/images/back_arrow.png'
+import profilePicture from '../assets/images/user.png'
+import bannerImage from '../assets/images/banner.jpg'
+import Button from '../components/Button';
+import colors from '../constants/colors';
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-const API_URL = process.env.REACT_APP_API_URL;
 
-const OtherProfile = ({ route }: any) => {
-  const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
+const OtherProfile = () => {
   const navigation = useNavigation();
   const id = route?.params?.id;     // this is the received user_id you have to fetch
   const context = useContext(MainContext)
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
 
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [activeTab, setActiveTab] = useState('Artwork');
 
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
   // };
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
-
-
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
-
 
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
 
-
   const handleContactButtonClick = () => {
     //TODO : rediriger dynamiquement vers la bonne page
     navigation?.navigate('single_conversation', { id: id, name: 'Marine Weber' });
   };
-
 
   const handleFollowButtonClick = async () => {
     //TODO : rendre dynamique
@@ -69,8 +64,8 @@ const OtherProfile = ({ route }: any) => {
       Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
     }
     checkIsFollowing();
+    fetchUserData();
   };
-
 
   const checkIsFollowing = async () => {
     try {
@@ -96,7 +91,6 @@ const OtherProfile = ({ route }: any) => {
     }
   };
 
-
   interface Artwork {
     _id: string;
     userId: string;
@@ -108,11 +102,10 @@ const OtherProfile = ({ route }: any) => {
     isForSale: boolean;
     price: number;
     location: string;
-    likes: any[]; // You might want to define a type for likes as well
-    comments: any[]; // You might want to define a type for comments as well
+    likes: any[];
+    comments: any[];
     __v: number;
   }
-
 
   const fetchUserArtworks = async () => {
     try {
@@ -135,12 +128,34 @@ const OtherProfile = ({ route }: any) => {
     }
   };
 
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      const userId = "652bc1fb1753a08d6c7d3f5d"; // TODO: Replace with dynamic user ID
+      if (token) {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const response = await axios.get<UserData>(
+          `${API_URL}api/user/profile/${userId}`,
+          { headers }
+        );
+        setUserData(response.data);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
+  };
 
   useEffect(() => {
     fetchUserArtworks();
     checkIsFollowing();
+    fetchUserData();
   }, []);
-
 
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
@@ -178,22 +193,21 @@ const OtherProfile = ({ route }: any) => {
       <View style={styles.textBlocks}>
         {/* Bloc de texte follower */}
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.value}>1.3k</Text>
+          <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
           <Text style={styles.title}>followers</Text>
         </View>
 
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.centerTitle}>{ "Saucisse (pas..." }</Text>
-          <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
+          {userData && userData.availability !== "unavailable" && (
+            <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          )}
         </View>
 
         {/* Bloc de texte posts */}
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.value}>64</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
@@ -225,11 +239,11 @@ const OtherProfile = ({ route }: any) => {
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
-          secondary={activeTab !== 'Artwork'} // Utilisez secondary si ce n'est pas le bouton actif
-          tertiary={activeTab === 'Artwork'} // Utilisez tertiary si c'est le bouton actif
+          secondary={activeTab !== 'Artwork'}
+          tertiary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Artwork')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Artwork')}
           />
         <Button
           value="Collection"
@@ -237,7 +251,7 @@ const OtherProfile = ({ route }: any) => {
           tertiary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collection')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Collection')}
           />
         <Button
           value="A propos"
@@ -245,7 +259,7 @@ const OtherProfile = ({ route }: any) => {
           tertiary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('A propos')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('A propos')}
           />
       </View>
       {/* Ensembles de cadres carrés */}
@@ -325,17 +339,18 @@ const styles = StyleSheet.create({
   centerTextBlock: {
     flex: 1,
     alignItems: 'center',
+    marginBottom: 10,
   },
   centerTitle: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     color: colors.tertiary,
     textAlign: 'center',
   },
   centerSubtitle: {
     fontSize: 12,
-    color: 'rgba(112, 0, 255, 1)', // TODO : mettre une valeur provenant de colors
-  },
+    color: 'rgba(112, 0, 255, 1)',
+  },  
   contactAndFollow: {
     justifyContent: 'center',
     alignItems: 'center',
