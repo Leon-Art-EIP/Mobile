@@ -7,6 +7,13 @@ import Settings from '../screens/Settings/Settings';
 import GeneralConditions from '../screens/Settings/GeneralConditions';
 import PasswordAndSecurity from '../screens/Settings/PasswordAndSecurity';
 import PersonalInformations from '../screens/Settings/PersonalInformations';
+import ProfilingQuizz from '../screens/ProfilingQuizz';
+import ProfilingArtist1 from '../screens/ProfilingQuizzArtist1'
+import ProfilingArtist2 from '../screens/ProfilingQuizzArtist2'
+import ProfilingAmateur1 from '../screens/ProfilingQuizzAmateur1'
+import ProfilingAmateur2 from '../screens/ProfilingQuizzAmateur2'
+import ProfilingLast from '../screens/ProfilingQuizzFinal';
+import BottomNavigator from './BottomNavigator';
 
 const ProfileNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -22,6 +29,12 @@ const ProfileNavigator = () => {
       <Stack.Screen name="personal_informations" component={PersonalInformations} options={options} />
       <Stack.Screen name="password_and_security" component={PasswordAndSecurity} options={options} />
       <Stack.Screen name="general_conditions" component={GeneralConditions} options={options} />
+      <Stack.Screen name="profiling" component={ProfilingQuizz} options={options}/>
+      <Stack.Screen name="profilingArtist" component={ProfilingArtist1} options={options}/>
+      <Stack.Screen name="profilingArtist2" component={ProfilingArtist2} options={options}/>
+      <Stack.Screen name="profilingAmateur" component={ProfilingAmateur1} options={options}/>
+      <Stack.Screen name="profilingAmateur2" component={ProfilingAmateur2} options={options}/>
+      <Stack.Screen name="profilingLast" component={ProfilingLast} options={options}/>
     </Stack.Navigator>
   );
 }
