@@ -1,4 +1,4 @@
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -46,11 +46,12 @@ type MessageType = {
 };
 
 
-const Conversation = ({ navigation }: any) => {
+const Conversation = () => {
+  const navigation = useNavigation();
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const route: any = useRoute();
-  const params = route.params as ConversationParams;
+  const params = route?.params as ConversationParams;
   const context = useContext(MainContext);
 
 
