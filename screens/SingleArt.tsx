@@ -29,6 +29,7 @@ const SingleArt = ({ route }: any) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [userCollections, setUserCollections] = useState<Collection | null>(null);
 
   const id = route?.params?.id;    // this is the received user_id you have to fetch
   const userId = route?.params?.userId;    // this is the received user_id you have to fetch
@@ -69,34 +70,44 @@ const SingleArt = ({ route }: any) => {
   };
 
   const handleSavedButtonClick = async () => {
-    //TODO : rendre dynamique
+    // Affiche la pop-up pour choisir la collection
+    console.log(id);
+    Alert.alert(
+      'Enregistrer dans ...', '',
+      userCollections.map((collection) => ({
+        text: collection.name,
+        onPress: () => addToCollection(collection._id),
+      })),
+      { cancelable: true }
+    );
+  };
+  
+  const addToCollection = async (collectionId) => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
+        const url = `/api/collection`;
+        const body = {
+          artPublicationId: id,
+          collectionName: collectionId,
+          isPublic: true
         };
-        const requestBody = {
-          artPublicationId: "65377fcbbfacccdbe11c44ce",
-          collectionName: "Oeuvres likées",
-          isPublic: true,
-        };  
-        const response = await axios.post(`${API_URL}api/collection`, requestBody, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
-      else {
+        const callback = (response) => {
+          console.log('Saved to collection successfully');
+          setIsSaved(true);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error while saving to collection:', error);
+          Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+        };
+        post(url, body, token, callback, onErrorCallback);
+      } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du token JWT :', error);
+      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
-    catch (error) {
-      console.error('Erreur d\'enregistrement :', error);
-      Alert.alert('Erreur d\'enregistrement', 'Une erreur s\'est produite.');
-    }
-    checkIsSaved();
   };
 
   const checkIsLiked = async () => {
@@ -131,21 +142,22 @@ const SingleArt = ({ route }: any) => {
       if (token) {
         const url = `/api/collection/my-collections`;
         const callback = (response) => {
-          const userCollections = response.data;
-
-          for (const collection of userCollections) {
-            const collectionId = collection._id;
-            try {
-              const collectionCallBack = (collectionResponse) => {
-                const collection = collectionResponse.data;
-                if (collection.some((publication) => publication._id === id)) {
-                  setIsSaved(true);
-                  return;
+          setUserCollections(response.data);
+          if (response.data) {
+            for (const collection of response.data) {
+              const collectionId = collection._id;
+              try {
+                const collectionCallBack = (collectionResponse) => {
+                  const collection = collectionResponse.data;
+                  if (collection.some((publication) => publication._id === id)) {
+                    setIsSaved(true);
+                    return;
+                  }
                 }
+                get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
+              } catch (error) {
+                console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
               }
-              get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
-            } catch (error) {
-              console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
             }
           }
           setIsSaved(false);

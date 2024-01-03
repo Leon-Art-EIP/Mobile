@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
@@ -7,9 +7,11 @@ import Title from '../../components/Title';
 import colors from '../../constants/colors';
 import Button from '../../components/Button';
 import BackArrow from '../../assets/images/back_arrow_black.png'
+import { MainContext } from '../../context/MainContext';
 
 const Settings = () => {
   const navigation = useNavigation();
+  const context = useContext(MainContext);
 
   const handleBackButtonClick = () => {
     navigation.goBack();
@@ -26,6 +28,11 @@ const Settings = () => {
   
   const handleGeneralConditionsClick = () => {
     navigation.navigate('general_conditions');
+  };
+
+  const handleDisconnectClick = () => {
+    navigation.navigate('login');
+    context?.setToken("");
   };
 
   return (
@@ -61,6 +68,12 @@ const Settings = () => {
           onPress={() => handleGeneralConditionsClick()}
           />
       </View>
+      <Button
+          value="Se déconnecter"
+          style={styles.disconnectButton}
+          textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+          onPress={() => handleDisconnectClick()}
+          />
     </SafeAreaView>
   );
 }
@@ -89,6 +102,14 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 1,
     color: colors.tertiary,
+  },
+  disconnectButton: {
+    width: '60%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    height: 40,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignSelf: 'center', // Centre le bouton horizontalement
+    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
   },
 });
 
