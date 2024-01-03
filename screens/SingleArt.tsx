@@ -14,34 +14,28 @@ import { get, post } from '../constants/fetch';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-
-const SingleArt = ({ navigation, route }: any) => {
- 
-  const nextPage = () => {
-    navigation.navigate('stripe');
-  };
+const SingleArt = ({ navigation, route }: any) => { 
   
-  const selectTag = () => {
-  };
-
-
-const SingleArt = ({ route }: any) => {
   const context = useContext(MainContext);
   const token = context?.token;
-  const navigation = useNavigation();
   
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [userCollections, setUserCollections] = useState<Collection | null>(null);
-
   const id = route?.params?.id;    // this is the received user_id you have to fetch
   const userId = route?.params?.userId;    // this is the received user_id you have to fetch
+
+  const nextPage = () => {
+    navigation.navigate('stripe');
+  };
+
+  const selectTag = () => {
+  };
 
   const handleArtistButtonClick = async () => {
     // TODO : rendre dynamique
     navigation.navigate('other_profile');
-
   }
 
   const previous = async () => {
@@ -80,13 +74,13 @@ const SingleArt = ({ route }: any) => {
       'Enregistrer dans ...', '',
       userCollections.map((collection) => ({
         text: collection.name,
-        onPress: () => addToCollection(collection._id),
+        onPress: () => addToCollection(collection._id, collection.name),
       })),
       { cancelable: true }
     );
   };
   
-  const addToCollection = async (collectionId) => {
+  const addToCollection = async (collectionId, collectionName) => {
     try {
       if (token) {
         const url = `/api/collection`;
@@ -97,6 +91,7 @@ const SingleArt = ({ route }: any) => {
         };
         const callback = (response) => {
           console.log('Saved to collection successfully');
+          Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
           setIsSaved(true);
         };
         const onErrorCallback = (error) => {
