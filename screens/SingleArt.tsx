@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, StyleSheet, Text, Image } from 'react-native';
 // import Icon from 'react-native-vector-icons/MaterialIcons';
-import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
@@ -10,6 +9,10 @@ import Toggle from '../assets/images/toggle.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import { MainContext } from '../context/MainContext';
+import { get, post } from '../constants/fetch';
+
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const nextPage = () => {
 };
@@ -18,15 +21,17 @@ const selectTag = () => {
 };
 
 
-const SingleArt = () => {
-  const { API_URL } = env;
+const SingleArt = ({ route }: any) => {
+  const context = useContext(MainContext);
+  const token = context?.token;
+  const navigation = useNavigation();
+  
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const navigation = useNavigation();
-  useEffect(() => {
-    checkIsLiked();
-    checkIsSaved();
-  }, []);
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  const id = route?.params?.id;    // this is the received user_id you have to fetch
+  const userId = route?.params?.userId;    // this is the received user_id you have to fetch
 
   const handleArtistButtonClick = async () => {
     // TODO : rendre dynamique
@@ -62,6 +67,7 @@ const SingleArt = () => {
     }
     checkIsLiked();
   };
+
   const handleSavedButtonClick = async () => {
     //TODO : rendre dynamique
     try {
@@ -92,70 +98,75 @@ const SingleArt = () => {
     }
     checkIsSaved();
   };
+
   const checkIsLiked = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
+        const url = `/api/art-publication/users-who-liked/${id}`;
+        const callback = (response) => {
+          const responseData = response.data;
+          const usersWhoLiked = responseData.users;
+          const currentUserUsername = "VivantGarrigues";
+          const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
+
+          setIsLiked(isArtLiked);
         };
-  
-        const response = await axios.get(`${API_URL}api/art-publication/users-who-liked/65377fcbbfacccdbe11c44ce`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const responseData = response.data;
-        const usersWhoLiked = responseData.users;
-        const currentUserUsername = "VivantGarrigues";
-        const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
-  
-        setIsLiked(isArtLiked);
+        const onErrorCallback = (error) => {
+          console.error('Error fetching like:', error);
+          Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+        };
+        get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification du suivi :', error);
-      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
   };
+
   const checkIsSaved = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const userCollections = collectionsResponse.data;
-        const oeuvresLikeesCollection = userCollections.find(collection => collection.name === "Oeuvres likées");
-  
-        if (oeuvresLikeesCollection) {
-          const oeuvresLikeesCollectionId = oeuvresLikeesCollection._id;
-          const oeuvresLikeesDetailsResponse = await axios.get(`${API_URL}api/collection/${oeuvresLikeesCollectionId}/publications`, {
-            headers,
-          });
-          const oeuvresLikeesPublications = oeuvresLikeesDetailsResponse.data;
-          const isArtSaved = oeuvresLikeesPublications.some(publication => publication._id === "65377fcbbfacccdbe11c44ce");
-          setIsSaved(isArtSaved);
-        } else {
+        const url = `/api/collection/my-collections`;
+        const callback = (response) => {
+          const userCollections = response.data;
+
+          for (const collection of userCollections) {
+            const collectionId = collection._id;
+            try {
+              const collectionCallBack = (collectionResponse) => {
+                const collection = collectionResponse.data;
+                if (collection.some((publication) => publication._id === id)) {
+                  setIsSaved(true);
+                  return;
+                }
+              }
+              get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
+            } catch (error) {
+              console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
+            }
+          }
           setIsSaved(false);
-        }
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error fetching collection:', error);
+        };
+        get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification du suivi :', error);
-      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
     }
-    console.log(isSaved);
   };
+
+  useEffect(() => {
+    checkIsLiked();
+    checkIsSaved();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.logo}>

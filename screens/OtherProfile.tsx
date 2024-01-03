@@ -19,20 +19,21 @@ const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
   const id = route?.params?.id;    // this is the received user_id you have to fetch
   const context = useContext(MainContext);
+  const token = context?.token;
+  
   const [isFollowing, setIsFollowing] = useState(false);
-
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
-  const token = context?.token;
 
   // TODO : remplacer pars cette version quand SingleArt est ready
   // const handleArtworkClick = (pageName, artworkId) => {
   //   navigation.navigate(pageName, artworkId);
   // };
-  const handleArtworkClick = (pageName) => {
-    navigation.navigate(pageName);
+  const handleArtworkClick = (id: string, userId: string) => {
+    navigation.navigate('singleart', { id: id, userId: userId });
+
   };
 
   const handleBackButtonClick = () => {
@@ -281,7 +282,7 @@ const OtherProfile = ({ route }: any) => {
         <TouchableOpacity
           key={index}
           style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-          onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
+          onPress={() => handleArtworkClick(artwork._id, userData.user_id)}
         >
           <Image
             source={{ uri: `${API_URL}api/${artwork.image}` }}
