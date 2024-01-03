@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   mainTitle: {
-    marginTop: 50,
+    marginTop: 70,
     marginHorizontal: 12,
     marginVertical: 32,
     fontSize: 25

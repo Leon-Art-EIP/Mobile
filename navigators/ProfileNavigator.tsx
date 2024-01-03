@@ -13,7 +13,6 @@ import ProfilingArtist2 from '../screens/ProfilingQuizzArtist2'
 import ProfilingAmateur1 from '../screens/ProfilingQuizzAmateur1'
 import ProfilingAmateur2 from '../screens/ProfilingQuizzAmateur2'
 import ProfilingLast from '../screens/ProfilingQuizzFinal';
-import BottomNavigator from './BottomNavigator';
 
 const ProfileNavigator = () => {
   const Stack = createNativeStackNavigator();

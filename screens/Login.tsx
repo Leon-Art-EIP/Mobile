@@ -23,6 +23,7 @@ const Login = ({ navigation }: any) => {
   const onLogin = async (response: any) => {
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
+      console.log("Token : " + tokenFromDB);
       // console.log(response.data);
       // console.log(response.data.user.id);
 
