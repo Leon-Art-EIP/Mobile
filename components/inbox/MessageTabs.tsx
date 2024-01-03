@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import colors from '../../constants/colors';
+import { get } from '../../constants/fetch';
+import { MainContext } from '../../context/MainContext';
 
 type TabType = {
   id: string;
@@ -22,13 +24,12 @@ const TABS: TabType[] = [
   }
 ];
 
-const MessageTabs = ({
-  active = 'conversations',
-  setActive = (e: string) => {}
-}: any) => {
+const MessageTabs = ({ active = 'conversations', setActive = (e: string) => {} }: any) => {
+  const context = useContext(MainContext);
+
   return (
     <View style={styles.container}>
-      { TABS.map((tab: TabType) => (
+      {TABS.map((tab: TabType) => (
         <TouchableOpacity
           key={tab.id}
           style={[
@@ -37,28 +38,27 @@ const MessageTabs = ({
           ]}
           onPress={() => setActive(tab.id)}
         >
-          <Text
-            style={{ color: active === tab.id ? colors.white : colors.darkGreyFg }}
-          >{ tab.name }</Text>
+          <Text style={{ color: active === tab.id ? colors.white : colors.darkGreyFg }}>
+            {tab.name}
+          </Text>
         </TouchableOpacity>
-      )) }
+      ))}
+
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    display: 'flex',
-    marginBottom: 12
+    justifyContent: 'space-around',
+    padding: 10,
   },
   bubble: {
-    borderRadius: 50,
-    flex: 1,
-    marginHorizontal: 5,
-    paddingVertical: 8,
-    alignItems: 'center'
-  }
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
 });
 
 export default MessageTabs;

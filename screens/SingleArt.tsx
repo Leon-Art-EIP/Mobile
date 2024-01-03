@@ -14,11 +14,15 @@ import { get, post } from '../constants/fetch';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-const nextPage = () => {
-};
 
-const selectTag = () => {
-};
+const SingleArt = ({ navigation, route }: any) => {
+ 
+  const nextPage = () => {
+    navigation.navigate('stripe');
+  };
+  
+  const selectTag = () => {
+  };
 
 
 const SingleArt = ({ route }: any) => {
