@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet, StyleProp, TextStyle } from 'react-native';
+import colors from '../constants/colors';
 
 interface TitleProps {
   children?: string;
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Manrope-Bold',
     fontSize: 42,
-    color: '#2C2C2C'
+    color: colors.title
   },
   bold: {
     fontWeight: 'bold'
