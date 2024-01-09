@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Alert, View, StyleSheet, Text, Image } from 'react-native';
+import { Alert, View, StyleSheet, Text, Image, TouchableOpacity, TextInput, FlatList } from 'react-native';
 // import Icon from 'react-native-vector-icons/MaterialIcons';
 import colors from '../constants/colors';
 import Title from '../components/Title';
@@ -11,6 +11,7 @@ import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
+import Modal from 'react-native-modal';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -18,13 +19,15 @@ const SingleArt = ({ navigation, route }: any) => {
   
   const context = useContext(MainContext);
   const token = context?.token;
+  const id = route?.params?.id;
+  const userId = route?.params?.userId;
   
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [userCollections, setUserCollections] = useState<Collection | null>(null);
-  const id = route?.params?.id;    // this is the received user_id you have to fetch
-  const userId = route?.params?.userId;    // this is the received user_id you have to fetch
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState('');
 
   const nextPage = () => {
     navigation.navigate('stripe');
@@ -68,25 +71,36 @@ const SingleArt = ({ navigation, route }: any) => {
   };
 
   const handleSavedButtonClick = async () => {
-    // Affiche la pop-up pour choisir la collection
-    console.log(id);
-    Alert.alert(
-      'Enregistrer dans ...', '',
-      userCollections.map((collection) => ({
-        text: collection.name,
-        onPress: () => addToCollection(collection._id, collection.name),
-      })),
-      { cancelable: true }
-    );
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setNewCollectionName('');
+  };
+
+  const createNewCollection = (collectionName: string) => {
+    // Vérifie si le TextInput n'est pas vide
+    if (newCollectionName.trim() !== '') {
+      // Implémente la logique pour créer une nouvelle collection ici
+      // Vous pouvez utiliser newCollectionName pour obtenir le nom entré
+      console.log('Création d\'une nouvelle collection:', newCollectionName);
+
+      // Enregistre l'œuvre dans la nouvelle collection
+      // addToCollection(newCollectionName);
+
+      // Ferme la modal après la création de la collection et l'ajout de l'œuvre
+      closeModal();
+    }
   };
   
-  const addToCollection = async (collectionId, collectionName) => {
+  const addToCollection = async (collectionName: string) => {
     try {
       if (token) {
         const url = `/api/collection`;
         const body = {
           artPublicationId: id,
-          collectionName: collectionId,
+          collectionName: collectionName,
           isPublic: true
         };
         const callback = (response) => {
@@ -107,6 +121,7 @@ const SingleArt = ({ navigation, route }: any) => {
       console.error('Erreur lors de la récupération du token JWT :', error);
       Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
+    closeModal();
   };
 
   const checkIsLiked = async () => {
@@ -244,6 +259,42 @@ const SingleArt = ({ navigation, route }: any) => {
           onPress={previous}
         />
       </View>
+      {/* Modal personnalisée pour créer une nouvelle collection ou ajouter à une collection existante */}
+      <Modal isVisible={isModalVisible} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Enregistrer dans...</Text>
+
+          {/* Liste des collections existantes de l'utilisateur */}
+          <FlatList
+            data={userCollections}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.collectionButton}
+                onPress={() => addToCollection(item.name)}
+              >
+                <Text style={styles.collectionButtonText}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+
+          {/* TextInput pour le nom de la nouvelle collection */}
+          <TextInput
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onChangeText={(text) => setNewCollectionName(text)}
+          />
+          {/* Bouton pour créer une nouvelle collection */}
+          <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
+            <Text style={styles.createButtonText}>Créer</Text>
+          </TouchableOpacity>
+
+          {/* Bouton pour annuler */}
+          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
+            <Text style={styles.cancelButtonText}>Annuler</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -297,7 +348,60 @@ const styles = StyleSheet.create({
     vector: {
         width: 25,
         height: 31,
-    }
+    },
+    modal: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 20,
+      borderRadius: 10,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    collectionButton: {
+      padding: 10,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: '#ccc',
+      marginBottom: 10,
+      alignItems: 'center',
+    },
+    collectionButtonText: {
+      color: '#3498db',
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 5,
+      padding: 8,
+      marginBottom: 10,
+    },
+    createButton: {
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: '#3498db',
+      alignItems: 'center',
+    },
+    createButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    cancelButton: {
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: '#ccc',
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    cancelButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
 });
 
 

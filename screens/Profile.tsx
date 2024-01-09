@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useContext } from 'react';
@@ -38,7 +38,7 @@ const Profile = () => {
   };
 
   const handleEditButtonClick = () => {
-    navigation.navigate('editprofile');
+    navigation.navigate('edit_profile');
   };
 
   const handleSettingsButtonClick = () => {
@@ -303,24 +303,29 @@ const Profile = () => {
           {userCollections.map(collection => (
             <View key={collection._id}>
               <Text style={styles.collectionName}>{collection.name}</Text>
-              {collection.artPublications.map((artwork, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-                  onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
-                >
-                  <Image
-                    source={{ uri: `${API_URL}api/${artwork.image}` }}
-                    style={{ flex: 1, borderRadius: 10 }}
-                    resizeMode="cover"
-                    onError={(error) => console.log(`Error loading image for artwork ${artwork._id}:`, error.nativeEvent)}
-                  />
-                </TouchableOpacity>
-              ))}
+              <FlatList
+                data={collection.artPublications}
+                numColumns={3}
+                keyExtractor={(artwork, index) => index.toString()}
+                renderItem={({ item: artwork }) => (
+                  <TouchableOpacity
+                    style={styles.squareFrame}
+                    onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
+                  >
+                    <Image
+                      source={{ uri: `${API_URL}api/${artwork.image}` }}
+                      style={{ flex: 1, borderRadius: 10 }}
+                      resizeMode="cover"
+                      onError={(error) => console.log(`Error loading image for artwork ${artwork._id}:`, error.nativeEvent)}
+                    />
+                  </TouchableOpacity>
+                )}
+              />
             </View>
           ))}
         </View>
       )}
+
     </View>
     </ScrollView>
   );
@@ -477,9 +482,9 @@ const styles = StyleSheet.create({
   collectionName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
-    backgroundColor: colors.tertiary,
-    padding: 10,
+    color: colors.tertiary,
+    // backgroundColor: colors.tertiary,
+    padding: 8,
     marginBottom: 10,
     borderRadius: 40,
     marginLeft: 10,

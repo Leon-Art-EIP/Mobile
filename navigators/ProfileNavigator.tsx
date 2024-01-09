@@ -13,6 +13,7 @@ import ProfilingArtist2 from '../screens/ProfilingQuizzArtist2'
 import ProfilingAmateur1 from '../screens/ProfilingQuizzAmateur1'
 import ProfilingAmateur2 from '../screens/ProfilingQuizzAmateur2'
 import ProfilingLast from '../screens/ProfilingQuizzFinal';
+import EditProfile from '../screens/EditProfile';
 
 const ProfileNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -25,6 +26,7 @@ const ProfileNavigator = () => {
       <Stack.Screen name="profile" component={Profile} options={options} />
       <Stack.Screen name="follower_list" component={FollowerList} options={options} />
       <Stack.Screen name="settings" component={Settings} options={options} />
+      <Stack.Screen name="edit_profile" component={EditProfile} options={options} />
       <Stack.Screen name="personal_informations" component={PersonalInformations} options={options} />
       <Stack.Screen name="password_and_security" component={PasswordAndSecurity} options={options} />
       <Stack.Screen name="general_conditions" component={GeneralConditions} options={options} />
