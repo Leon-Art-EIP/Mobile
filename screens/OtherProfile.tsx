@@ -46,7 +46,6 @@ const OtherProfile = ({ route }: any) => {
   };
 
   const handleFollowButtonClick = async () => {
-    // TODO: rendre dynamique
     try {
       if (token) {
         const url = `/api/follow/${id}`;

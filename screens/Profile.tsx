@@ -158,28 +158,27 @@ const Profile = () => {
   );
 
   useEffect(() => {
-    updateCollections();
     fetchUserData();
+    updateCollections();
   }, []);
 
   const updateCollections = async () => {
-    const token = await AsyncStorage.getItem('jwt');
-      if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-  
-        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const userCollections = collectionsResponse.data;
-        setUserCollections(userCollections);
-      }
-      else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      try {
+        const token = context?.token;
+        if (token) {
+          get(
+            `/api/collection/my-collections`,
+            token,
+            (response: any) => setUserCollections(response.data),
+            (error: any) => console.error({ ...error })
+          )
+        } else {
+          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+          Alert.alert("Erreur", "Veuillez vous reconnecter");
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des collections de l\'utilisateur :', error);
+        Alert.alert('Erreur de récupération des collections', 'Une erreur s\'est produite.');
       }
   }
 
