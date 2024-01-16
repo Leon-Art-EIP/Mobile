@@ -8,6 +8,7 @@ import { MainContext } from '../../context/MainContext';
 const CommandsComponent = () => {
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
+  const [publicationNames, setPublicationNames] = useState({});
   const context = useContext(MainContext);
 
   useEffect(() => {
@@ -18,6 +19,18 @@ const CommandsComponent = () => {
         (response) => {
           console.log("🎁 Fetched Orders", response.data);
           setOrders(response?.data || []);
+          response?.data.forEach(order => {
+            get(
+              `/api/art-publication/${order.artPublicationId}`,
+              context.token,
+              (publicationResponse) => {
+                setPublicationNames(prev => ({ ...prev, [order.artPublicationId]: publicationResponse.data.name }));
+              },
+              (error) => {
+                console.error('Error fetching publication:', error);
+              }
+            );
+          });
         },
         (error) => {
           console.error('Error fetching orders:', error);
@@ -51,7 +64,8 @@ const CommandsComponent = () => {
             testID="command-img"
           />
           <View style={styles.textContainer}>
-            <Text style={fwBold}>{order._id}</Text>
+            {/* <Text style={fwBold}>{order._id}</Text> */}
+            <Text style={fwBold}>{publicationNames[order.artPublicationId] || 'Loading...'}</Text>
             <Text>{order.orderPrice} €</Text>
           </View>
         </View>
