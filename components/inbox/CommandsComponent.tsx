@@ -64,8 +64,8 @@ const CommandsComponent = () => {
             testID="command-img"
           />
           <View style={styles.textContainer}>
-            {/* <Text style={fwBold}>{order._id}</Text> */}
             <Text style={fwBold}>{publicationNames[order.artPublicationId] || 'Loading...'}</Text>
+            <Text style={styles.fwId}>{order._id}</Text>
             <Text>{order.orderPrice} €</Text>
           </View>
         </View>
@@ -117,6 +117,9 @@ const styles = StyleSheet.create({
   textContainer: {
     ...ml8,
     ...mt4,
+  },
+  fwId: {
+    color: colors.black,
   },
 });
 

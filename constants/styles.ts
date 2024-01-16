@@ -68,7 +68,7 @@ const pv8: StyleProp<any> = { paddingVertical: 8 };
 const pv24: StyleProp<any> = { paddingVertical: 24 };
 
 // text
-const fwBold: StyleProp<TextStyle> = { fontWeight: 'bold' };
+const fwBold: StyleProp<TextStyle> = { fontWeight: 'bold', color: colors.black };
 const fwNormal: StyleProp<TextStyle> = { fontWeight: 'normal' };
 
 // background color
