@@ -16,7 +16,7 @@ import TextBubble from '../components/inbox/TextBubble';
 import Input from '../components/Input';
 import colors from '../constants/colors';
 import { MESSAGES, MessageType } from '../constants/conversations';
-import { post } from '../constants/fetch';
+import { get, post } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 
 
@@ -36,13 +36,15 @@ type ConversationParams = {
 } | undefined;
 
 type MessageType = {
-  "_id": string,
-  "content": string,
-  "contentType": string,
-  "dateTime": string,
-  "id": number,
-  "read": boolean,
-  "sender": number
+  UserOneId: string;
+  UserOneName: string;
+  UserOnePicture: string;
+  UserTwoId: string;
+  UserTwoName: string;
+  UserTwoPicture: string;
+  _id: string;
+  lastMessage: string;
+  unreadMessages: boolean;
 };
 
 
@@ -62,11 +64,11 @@ const Conversation = () => {
 
 
   const getConversation = () => {
-    post(
-      "/api/conversations/messages",
-      { convId: params?.ids[0] },
+    get(
+      `/api/conversations/messages/${params?.ids[0]}`,
       context?.token,
-      (res: any) => console.log(res),
+      /* (res: any) => setMessages(res?.data?.chats), */
+      (res: any) => console.log(res?.data),
       (err: any) => console.warn({...err})
     );
   }

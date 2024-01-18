@@ -33,14 +33,17 @@ const ConversationsComponent = () => {
   // get conversations through back end
   const getConversations = () => {
     get(
-      "/api/chats/" + context?.userId,
+      `/api/conversations/${context?.userId}`,
       context?.token,
       (res: any) => setConversations([
         ...(res.data['chats'] as ConversationType[])
       ]),
-      (err: any) => console.error("Conversation get error: ", err)
+      (err: any) => console.error("Couldn't get conversations: ", err)
     );
   }
+
+
+  useEffect(() => console.log("conversations: ", conversations), [conversations]);
 
 
   useEffect(getConversations, []);
@@ -55,7 +58,7 @@ const ConversationsComponent = () => {
           onPress={() => navigation?.navigate(
             'single_conversation',
             {
-              name: conversation['UserTwoName'],
+              name: conversation['UserOneName'],
               // ids: conversation ID, your ID, the correspondant ID
               ids: [
                 conversation['_id'],
@@ -78,7 +81,7 @@ const ConversationsComponent = () => {
               style={styles.conversationPicture}
             />
             <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-              <Title size={16}>{ conversation['UserTwoName'] }</Title>
+              <Title size={16}>{ conversation['UserOneName'] }</Title>
               <Text numberOfLines={1} style={{
                 fontWeight: conversation.unreadMessages ? 'bold' : 'normal',
                 flexShrink: 1
