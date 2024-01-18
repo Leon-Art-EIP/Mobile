@@ -42,7 +42,9 @@ const SingleOrder = () => {
 
 
   useEffect(() => {
+    console.log("ID: ", params.id);
     get(
+      /* `/api/order/buy/${params.id}`, */
       "/api/order/latest-buy-orders",
       context?.token,
       (res: any) => console.log(res?.data),
@@ -104,7 +106,7 @@ const SingleOrder = () => {
         <Button
           value='Message'
           /* Fill with conversation object when back-end is available */
-          /* onPress={() => navigation.navigate('single_conversation', { object })} */
+          onPress={() => navigation.navigate('single_conversation', { object })}
           style={[flex1, noHMargin, ml4]}
         />
       </View>
