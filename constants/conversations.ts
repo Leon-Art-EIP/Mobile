@@ -6,18 +6,18 @@ type ConversationType = {
   lastMessage: string;
 };
 
-type MessageType = {
-  senderId: number;
-  status: 'sent' | 'received';
-  bodyType: 'text' | 'image' | 'offer'; // either 'text', 'image', or 'offer'
-  datetime: number;
 
-  /* offer: number = offered price
-   * image: string = image url
-   * text : string = message content
-  */
-  body: string | number; // number if offer : offered price ; string if image
+type MessageType = {
+  _id: string;
+  id: string;
+  senderId: string;
+  contentType: string;
+  content: string;
+  dateTime: string;
+  read: boolean;
+  __v: number;
 };
+
 
 const CONVERSATIONS: ConversationType[] = [
   {

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import colors from '../../constants/colors';
 import { MessageType } from '../../constants/conversations';
 import { flex1, flexRow, fwBold, mlAuto, mrAuto, noVMargin } from '../../constants/styles';
+import { MainContext } from '../../context/MainContext';
 import { dateToHour } from '../../helpers/DateHelper';
 import Button from '../Button';
 
@@ -11,37 +12,30 @@ type TextBubbleType = {
   message: MessageType;
 };
 
-type MessageType = {
-  "_id": string,
-  "content": string,
-  "contentType": string,
-  "dateTime": string,
-  "id": number,
-  "read": boolean,
-  "sender": number
-};
 
 const TextBubble = ({
   message
 }: TextBubbleType) => {
   const [isHourDisplayed, setIsHourDisplayed] = useState<boolean>(false);
+  const context = useContext(MainContext);
+
 
   switch (message.contentType) {
-    case ('text'): return (
+    case ('string'): return (
       <TouchableOpacity
         onPress={() => setIsHourDisplayed(current => !current)}
         activeOpacity={1}
       >
         <View style={[
           styles.bubbleView,
-          message.read ? styles.bubbleLeftView : styles.bubbleRightView
+          message.senderId === context?.userId ? styles.bubbleRightView : styles.bubbleLeftView
         ]}>
           <Text style={
-            message.read ? styles.bubbleLeftText : styles.bubbleRighText
+            message.senderId === context?.userId ? styles.bubbleRightText : styles.bubbleLeftText
           }>{ message.content }</Text>
         </View>
         { isHourDisplayed && (
-          <Text style={message.read ? mrAuto : mlAuto}>
+          <Text style={message.senderId !== context?.userId ? mrAuto : mlAuto}>
             { dateToHour(message.dateTime) }
           </Text>
         ) }
@@ -123,7 +117,7 @@ const styles = StyleSheet.create({
   bubbleLeftText: {
     color: colors.bubbleFgReceived
   },
-  bubbleRighText: {
+  bubbleRightText: {
     color: colors.bubbleFgSent
   },
   offerText: {
