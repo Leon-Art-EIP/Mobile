@@ -43,9 +43,6 @@ const ConversationsComponent = () => {
   }
 
 
-  useEffect(() => console.log("conversations: ", conversations), [conversations]);
-
-
   useEffect(getConversations, []);
 
 
@@ -58,7 +55,7 @@ const ConversationsComponent = () => {
           onPress={() => navigation?.navigate(
             'single_conversation',
             {
-              name: conversation['UserOneName'],
+              name: conversation?.UserOneId === context?.userId ? conversation['UserTwoName'] : conversation['UserOneName'],
               // ids: conversation ID, your ID, the correspondant ID
               ids: [
                 conversation['_id'],
@@ -81,7 +78,9 @@ const ConversationsComponent = () => {
               style={styles.conversationPicture}
             />
             <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-              <Title size={16}>{ conversation['UserOneName'] }</Title>
+              <Title size={16}>{
+                context?.userId === conversation['UserTwoId'] ? conversation['UserOneName'] : conversation['UserTwoName']
+              }</Title>
               <Text numberOfLines={1} style={{
                 fontWeight: conversation.unreadMessages ? 'bold' : 'normal',
                 flexShrink: 1
