@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
 import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView } from 'react-native';
+import React, { useContext, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 import { post } from '../constants/fetch';
@@ -9,27 +9,29 @@ import Button from '../components/Button';
 import { MainContext } from '../context/MainContext';
 
 const AddPublication = ({ navigation }: any) => {
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [name, setName] = useState('');
-    const [artType, setType] = useState('');
-    const [description, setDescription] = useState('');
-    const [isForSale, setSale] = useState('');
-    const [price, setPrice] = useState('');
-    const [location, setLocation] = useState('');
-    const [dimension, setDimension] = useState('');
-    const context = useContext(MainContext);
-
-    const publish = () => {
-      const requestData = {
-        image: selectedImage,
-        name,
-        artType: artType !== '' ? artType : 'empty',
-        description: description !== '' ? description : 'empty',
-        dimension: dimension !== '' ? dimension : 'empty',
-        isForSale: isForSale === 'true',
-        price: price !== '' ? price : 0,
-        location: location !== '' ? location : 'empty'
-      };
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [name, setName] = useState('');
+  const [artType, setType] = useState('');
+  const [description, setDescription] = useState('');
+  const [isForSale, setSale] = useState('');
+  const [price, setPrice] = useState('');
+  const [location, setLocation] = useState('');
+  const [dimension, setDimension] = useState('');
+  const context = useContext(MainContext);
+  
+  const publish = () => {
+    const parsedPrice = parseFloat(price);
+    const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
+    const requestData = {
+      image: selectedImage,
+      name,
+      artType: artType !== '' ? artType : 'empty',
+      description: description !== '' ? description : 'empty',
+      dimension: dimension !== '' ? dimension : 'empty',
+      isForSale: isForSale === 'true',
+      price: isPriceValid ? parsedPrice : 0,
+      location: location !== '' ? location : 'empty'
+    };
 
       post(
         '/api/art-publication',
@@ -54,25 +56,25 @@ const AddPublication = ({ navigation }: any) => {
     };
   
   const selectImage = async () => {
-  try {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-    };
+    try {
+      const options = {
+        mediaType: 'photo',
+        quality: 1,
+      };
 
-    const response = await launchImageLibrary(options);
+      const response = await launchImageLibrary(options);
 
-    if (response.didCancel) {
-      console.log('User cancelled image picker');
-    } else if (response.error) {
-      console.log('ImagePicker Error: ', response.error);
-    } else {
-      const source = { uri: response.assets[0].uri };
-      setSelectedImage(source.uri);
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const source = { uri: response.assets[0].uri };
+        setSelectedImage(source.uri);
+      }
+    } catch (error) {
+      console.error('An error occurred while picking the image:', error);
     }
-  } catch (error) {
-    console.error('An error occurred while picking the image:', error);
-  }
   };
 
   const handleName = (value: string) => {
