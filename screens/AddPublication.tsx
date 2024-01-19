@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
@@ -7,37 +8,72 @@ import Title from '../components/Title';
 import Button from '../components/Button';
 import { MainContext } from '../context/MainContext';
 
-const addPublication = ({ navigation }: any) => {
-    const [image, setImage] = useState('');
+const AddPublication = ({ navigation }: any) => {
+    const [selectedImage, setSelectedImage] = useState(null);
     const [name, setName] = useState('');
     const [artType, setType] = useState('');
     const [description, setDescription] = useState('');
     const [isForSale, setSale] = useState('');
     const [price, setPrice] = useState('');
     const [location, setLocation] = useState('');
+    const [dimension, setDimension] = useState('');
     const context = useContext(MainContext);
 
     const publish = () => {
       const requestData = {
-        image,
+        image: selectedImage,
         name,
-        artType,
-        description,
-        isForSale,
-        price,
-        location
+        artType: artType !== '' ? artType : 'empty',
+        description: description !== '' ? description : 'empty',
+        dimension: dimension !== '' ? dimension : 'empty',
+        isForSale: isForSale === 'true',
+        price: price !== '' ? price : 0,
+        location: location !== '' ? location : 'empty'
       };
 
       post(
-          '/api/art-publication',
-          { requestData },
-          context?.token,
-          () => navigation.navigate('main'),
-          () => {
-      console.log('requestData', requestData)
-          }
-        )
+        '/api/art-publication',
+        { requestData },
+        context?.token,
+        () => navigation.navigate('main'),
+        (error) => {
+          console.error('Error publishing:', error);
+        }
+      );
+      console.log(requestData),
+      
+      post(
+        '/api/art-publication',
+        { requestData },
+        context?.token,
+        () => navigation.navigate('main'),
+        (error) => {
+          console.error('Error publishing:', error);
+        }
+      );
     };
+  
+  const selectImage = async () => {
+  try {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    const response = await launchImageLibrary(options);
+
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.error) {
+      console.log('ImagePicker Error: ', response.error);
+    } else {
+      const source = { uri: response.assets[0].uri };
+      setSelectedImage(source.uri);
+    }
+  } catch (error) {
+    console.error('An error occurred while picking the image:', error);
+  }
+  };
 
   const handleName = (value: string) => {
     setName(value);
@@ -53,15 +89,12 @@ const addPublication = ({ navigation }: any) => {
     setType(value);
   };
 
-  const selectImage = () => {
-  };
-
   const previous = () => {
     navigation.navigate('homemain');      
   }
 
 return (
-  <View style={styles.container}>
+  <ScrollView style={styles.container}>
     <View style={styles.logo}>
       <Title style={{ color: colors.primary }}>Leon</Title>
       <Title>'Art</Title>
@@ -70,11 +103,14 @@ return (
       <Text style={styles.artTitle}>Add Publication</Text>
     </View>
     <Button
-        style={{ backgroundColor: colors.secondary }}
-        textStyle={{ color: colors.black }}
-        value="+"
-        onPress={selectImage}
-        />
+      style={{ backgroundColor: colors.secondary }}
+      textStyle={{ color: colors.black }}
+      value="+"
+      onPress={selectImage}
+    />
+    {selectedImage && (
+      <Image source={{ uri: selectedImage }} style={styles.img} />
+    )}
     <View>
     <TextInput
         placeholder="Titre"
@@ -103,13 +139,13 @@ return (
         onPress={publish}
         />
       <Button
-        style={{ backgroundColor: colors.secondary }}
+        style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
         textStyle={{ color: colors.black }}
         value="Annuler"
         onPress={previous}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -171,4 +207,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default addPublication;
+export default AddPublication;
