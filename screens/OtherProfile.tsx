@@ -17,7 +17,7 @@ const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
-  const id = route?.params?.id;    // this is the received user_id you have to fetch
+  const id = route?.params?.id;
   const context = useContext(MainContext);
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -27,10 +27,6 @@ const OtherProfile = ({ route }: any) => {
   const [activeTab, setActiveTab] = useState('Artwork');
   const token = context?.token;
 
-  // TODO : remplacer pars cette version quand SingleArt est ready
-  // const handleArtworkClick = (pageName, artworkId) => {
-  //   navigation.navigate(pageName, artworkId);
-  // };
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
@@ -45,14 +41,11 @@ const OtherProfile = ({ route }: any) => {
   };
 
   const handleFollowButtonClick = async () => {
-    // TODO: rendre dynamique
     try {
       if (token) {
         const url = `/api/follow/${id}`;
         const response = await post(url, undefined, token, (response) => {
-          // Traitement réussi ici
         }, (error) => {
-          // Gestion des erreurs ici
           console.error('Erreur de follow :', error);
           Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
         });
@@ -89,7 +82,6 @@ const OtherProfile = ({ route }: any) => {
       }
     } catch (error) {
       console.error('Erreur lors de la vérification du suivi :', error);
-      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
     }
   };
 

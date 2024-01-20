@@ -114,18 +114,18 @@ return (
       <Image source={{ uri: selectedImage }} style={styles.img} />
     )}
     <View>
-    <TextInput
+      <TextInput
         placeholder="Titre"
         onChangeText={handleName}
         style={styles.textInput}
-        />
+      />
       <TextInput
         placeholder="Description"
         onChangeText={handleDescription}
         style={styles.textInput}
         />
       <TextInput
-        placeholder="Prix"
+        placeholder="Prix (€)"
         onChangeText={handlePrice}
         style={styles.textInput}
         />
@@ -154,57 +154,64 @@ return (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-        padding: 16,
-        backgroundColor: colors.white,
+      padding: 16,
+      backgroundColor: colors.white,
     },
     logo: {
-        flexDirection: 'row',
-        height: 100,
-        paddingLeft: 20,
-        padding: 20,
-        borderRadius: 5,
+      flexDirection: 'row',
+      height: 100,
+      paddingLeft: 20,
+      padding: 20,
+      borderRadius: 5,
     },
     img: {
-        margin: 13,
-        height: 300,
-        borderRadius: 4.5,
-        backgroundColor: colors.placeholder,
+      margin: 13,
+      height: 300,
+      borderRadius: 4.5,
+      backgroundColor: colors.placeholder,
     },
     artTitle: {
-        textAlign: 'center',
-        marginBottom: 0,
-        fontSize: 30,
-        color: '#000',
+      marginTop: 25,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 0,
+      fontSize: 30,
+      color: '#000',
     },
     artText: {
-        fontSize: 55,
-        color: '#000',
+      fontSize: 55,
+      color: '#000',
     },
     Tags: {
-        justifyContent: 'space-between',
-        margin: 50,
-        flex: 1,
+      justifyContent: 'space-between',
+      margin: 50,
+      flex: 1,
     },
     TagButton: {
-        backgroundColor: '#F4F4F4',
+      backgroundColor: '#F4F4F4',
 
     },
     TagButtonText: {
-        color: '#000',
+      color: '#000',
     },
     favorite: {
-    margin: 10,
+      margin: 10,
     },
     vector: {
-        width: 25,
-        height: 31,
+      width: 25,
+      height: 31,
     },
     textInput: {
-      marginLeft: 15,
-      marginRight: 15,
+      fontSize: 15,
+      marginLeft: 20,
+      marginRight: 20,
       backgroundColor: colors.secondary,
-      borderRadius: 7,
+      borderRadius: 10,
       marginBottom: 20,
+      paddingLeft: 20,
+      overlayColor: colors.black,
     },
 });
 

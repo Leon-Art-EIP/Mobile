@@ -30,6 +30,7 @@ const colors = {
   articlePlHolder: '#a6c8ff',
   artistPlHolder: '#FF7F74',
   forYouPlHolder: '#ededed',
+  publicationPlHolder: '#FFCF70',
 
   // inbox
   offerFg: '#6C0F7B',

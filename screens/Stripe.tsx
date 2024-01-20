@@ -11,7 +11,6 @@ import Title from '../components/Title';
 import Button from '../components/Button';
 
 const Stripe = ({ navigation, route }) => {
-  // const { article } = route.params;
   const [article, setArticle] = useState([]);
   const [order, setOrder] = useState([]);
   const context = useContext(MainContext);
@@ -28,9 +27,9 @@ const Stripe = ({ navigation, route }) => {
           console.log("🖼️ Fetched Article", response.data);
           setArticle(response?.data || []);
         },
-        // (error) => {
-        //   console.error('Error fetching article:', error);
-        // }
+        (error) => {
+          console.error('Error fetching article:', error);
+        }
       );
     }
   }, [context?.token]);
@@ -93,9 +92,9 @@ const Stripe = ({ navigation, route }) => {
               console.error('Erreur lors de la présentation de la feuille de paiement:', error);
             });
         },
-        // (error) => {
-        //   console.error('Erreur lors de la création de la commande:', error);
-        // }
+        (error) => {
+          console.error('Erreur lors de la création de la commande:', error);
+        }
       );
     }
   };
@@ -109,6 +108,7 @@ const Stripe = ({ navigation, route }) => {
         <Title style={{ marginLeft: 50, marginTop: 20 }}>Stripe Payment</Title>
         <Image
         style={{ marginLeft: 130, marginTop: 150, height: 120, width: 120 }}
+        // source={require('../art_database/FSH-1702138198927-desktoppushlook.webp')}>
         source={require('../assets/stripe.jpeg')}>
         </Image>
         <Button
