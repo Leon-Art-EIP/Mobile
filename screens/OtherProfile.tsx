@@ -64,11 +64,11 @@ const OtherProfile = ({ route }: any) => {
       console.error('Erreur lors de la récupération du token JWT :', error);
       Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
-  
+
     checkIsFollowing();
     fetchUserData();
   };
-  
+
 
   const checkIsFollowing = async () => {
     try {
@@ -161,7 +161,7 @@ const OtherProfile = ({ route }: any) => {
       Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
-  
+
 
   useEffect(() => {
     fetchUserData();
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   centerSubtitle: {
     fontSize: 12,
     color: 'rgba(112, 0, 255, 1)',
-  },  
+  },
   contactAndFollow: {
     justifyContent: 'center',
     alignItems: 'center',

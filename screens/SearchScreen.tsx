@@ -210,12 +210,22 @@ const SearchScreen = ({ navigation }: any) => {
         )) }
       </ScrollView>
 
-      {/* Clear filters */}
-      <Button
-        style={[mh4, mtAuto]}
-        onPress={clearFilters}
-        value="Clear filters"
-      />
+      <View style={[flexRow, mtAuto]}>
+        {/* Clear filters */}
+        <Button
+          style={[mh4, flex1]}
+          onPress={clearFilters}
+          value="Clear filters"
+          secondary
+        />
+
+        {/* Search button */}
+        <Button
+          style={[mh4, flex1]}
+          onPress={getSearchApi}
+          value="Search"
+        />
+      </View>
     </SafeAreaView>
   );
 }

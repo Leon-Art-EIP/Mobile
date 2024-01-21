@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../../constants/colors';
-import { flexRow, fwBold, ml8, mt4 } from '../../constants/styles';
+import { bgGrey, flexRow, fwBold, ml8, mt4 } from '../../constants/styles';
 import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
+import { getImageUrl } from '../../helpers/ImageHelper';
+import { useNavigation } from '@react-navigation/native';
+
 
 const CommandsComponent = () => {
+  const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
   const context = useContext(MainContext);
+
 
   useEffect(() => {
     if (context?.token) {
@@ -37,47 +42,58 @@ const CommandsComponent = () => {
     }
   }, [context?.token]);
 
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>
         Orders
       </Text>
+
       {orders.map((order, index) => (
-        <TouchableOpacity>
+        <TouchableOpacity
+          key={order.orderId}
+          onPress={() => navigation.navigate('single_order', { id: order.orderId, buy: true })}
+        >
         <View key={order._id || index} style={styles.orderItem}>
           <Image
             style={styles.image}
-            source={require('../../assets/images/user.png')}
+            source={{ uri: getImageUrl(order.artPublicationImage) }}
             testID="command-img"
           />
           <View style={styles.textContainer}>
-            <Text style={fwBold}>{order._id}</Text>
+            <Text style={fwBold}>{order.artPublicationName}</Text>
             <Text>{order.orderPrice} €</Text>
           </View>
         </View>
         </TouchableOpacity>
       ))}
+
       <Text style={styles.title}>
         Sales
       </Text>
+
       {sales.map((sales, index) => (
-        <TouchableOpacity>
-        <View key={sales._id || index} style={styles.orderItem}>
-          <Image
-            style={styles.image}
-            source={require('../../assets/images/user.png')}
-            testID="command-img"
-          />
-          <View style={styles.textContainer}>
-            <Text style={fwBold}>{sales._id}</Text>
-            <Text>{sales.orderPrice} €</Text>
+        <TouchableOpacity
+          key={sales._id}
+          onPress={() => navigation.navigate('single_order', { id: sales.orderId, buy: false })}
+        >
+          <View key={sales._id || index} style={styles.orderItem}>
+            <Image
+              style={styles.image}
+              source={{ uri: getImageUrl(sales.artPublicationImage) }}
+              testID="command-img"
+            />
+            <View style={styles.textContainer}>
+              <Text style={fwBold}>{sales._id}</Text>
+              <Text>{sales.orderPrice} €</Text>
+            </View>
           </View>
-        </View>
         </TouchableOpacity>
       ))}
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -87,7 +103,7 @@ const styles = StyleSheet.create({
   },
   orderItem: {
     ...flexRow,
-    marginVertical: 10,
+    marginVertical: 10
   },
   title: {
     color: colors.black,
@@ -97,6 +113,8 @@ const styles = StyleSheet.create({
 
   },
   image: {
+    borderRadius: 50,
+    ...bgGrey,
     width: 50,
     height: 50,
   },
@@ -105,5 +123,6 @@ const styles = StyleSheet.create({
     ...mt4,
   },
 });
+
 
 export default CommandsComponent;
