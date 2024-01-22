@@ -144,21 +144,21 @@ const HomeScreen = ({ navigation }: any) => {
             Actualités
           </Title>
           {articles.length === 0 ? (
-        <View style={styles.emptyView}>
-        <Image
-          style={{ height: 50, width: 50 }}
-          source={require('../assets/icons/box.png')}
-        />
-        <Title
-          size={18}
-          style={{ color: colors.disabledFg }}
-        >Looks quite empty here !</Title>
-        <Text style={{
-          fontWeight: '500',
-          color: colors.disabledFg
-        }}>Try to refresh the page</Text>
-      </View>
-          ) : (
+            <View style={styles.emptyView}>
+            <Image
+              style={{ height: 50, width: 50 }}
+              source={require('../assets/icons/box.png')}
+            />
+            <Title
+              size={18}
+              style={{ color: colors.disabledFg }}
+            >Looks quite empty here !</Title>
+            <Text style={{
+              fontWeight: '500',
+              color: colors.disabledFg
+            }}>Try to refresh the page</Text>
+          </View>
+              ) : (
             <FlatList
             data={articles}
             contentContainerStyle={styles.flatList}
@@ -187,9 +187,7 @@ const HomeScreen = ({ navigation }: any) => {
           >
             Artistes
           </Title>
-
           { artists.length === 0 ? (
-
             <View style={styles.emptyView}>
               <Image
                 style={{ height: 50, width: 50 }}
@@ -204,56 +202,55 @@ const HomeScreen = ({ navigation }: any) => {
                 color: colors.disabledFg
               }}>Try to refresh the page</Text>
             </View>
-
-          ) : (
-
+            ) : (
             <FlatList
               data={artists}
-              style={{ marginHorizontal: 8 }}
+              contentContainerStyle={styles.flatList}
               keyExtractor={(item: ArtistType) => item.email.toString()}
               showsHorizontalScrollIndicator={false}
+              horizontal
+              nestedScrollEnabled
               renderItem={(e: ListRenderItemInfo<ArtistType>) => (
                 <ArtistCard
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
                   path="other_profile"
+                  // style={{ marginRight: 8 }}
                 />
               )}
-              horizontal
-              nestedScrollEnabled
             />
           ) }
         </View>
 
         {/* Pour Vous */}
 
-  <View>
-    <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
-      Publications
-    </Title>
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.publicationsContainer}>
-        {publications.map((publication, index) => (
-          <TouchableOpacity key={publication._id} onPress={() => towardsPost(publication._id)}>
-            <View style={styles.publicationItem}>
-              <Image
-                style={styles.publicationImage}
-                source={{ uri: publication.image }}
-                // defaultSource={require('../android/android_asset/elegant_echo.png')}
-                onError={() => console.log("Image loading error")}
-              />
-              <Text style={styles.publicationTitle}>{publication.name}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </ScrollView>
-  </View>
+    <View>
+      <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+        Publications
+      </Title>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.publicationsContainer}>
+          {publications.map((publication, index) => (
+            <TouchableOpacity key={publication._id} onPress={() => towardsPost(publication._id)}>
+              <View style={styles.publicationItem}>
+                <Image
+                  style={styles.publicationImage}
+                  source={{ uri: publication.image }}
+                  // defaultSource={require('../android/android_asset/elegant_echo.png')}
+                  onError={() => console.log("Image loading error")}
+                />
+                <Text style={styles.publicationTitle}>{publication.name}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  </ScrollView>
+  </SafeAreaView>
+  );
+}
 
-</ScrollView>
-</SafeAreaView>
-);
-    }
 const styles = StyleSheet.create({
 container: {
   backgroundColor: colors.bg,
@@ -266,7 +263,8 @@ titleView: {
   marginTop: 32
 },
 flatList: {
-  margin: 'auto'
+  // margin: 'auto'
+  paddingLeft: 3, // Add some padding on the left
 },
 emptyView: {
   alignSelf: 'center',

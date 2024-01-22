@@ -38,9 +38,10 @@ const ArticleCard = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.articlePlHolder,
+    marginRight: 5,
     margin: 0,
     width: 230,
-    height: 130,
+    height: 145,
     position: "relative",
     borderRadius: 15,
   },
