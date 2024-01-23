@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Alert, View, StyleSheet, Text, Image, Dimensions } from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView } from 'react-native';
 import { post, get } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
@@ -37,6 +36,13 @@ const SingleArt = ({ navigation, route }: any) => {
   const previous = async () => {
     navigation.navigate('homemain');
   }
+
+  const showAlert = (message) => {
+    Alert.alert(
+      "Art Publication",
+      message,
+    );
+  };
   
   const getPublications = () => {
     get(
@@ -53,32 +59,34 @@ const SingleArt = ({ navigation, route }: any) => {
       console.log('LOG');
     };
     
+    const savePublication = () => {};
+
     const likePublication = async () => {
       try {
-        const newLikeStatus = !isLiked;
-        setIsLiked(newLikeStatus); // Update local state
-  
-        // Send request to backend
+        const updatedLikeStatus = !isLiked;
+        
         const response = await axios.post(`/api/art-publication/like/${id}`, {
-          isLiked: newLikeStatus
+          isLiked: updatedLikeStatus
         }, {
           headers: {
-            Authorization: `Bearer ${context?.token}`, // Replace with your auth token
+            Authorization: `Bearer ${context?.token}`,
           },
         });
-  
+    
         if (response.status === 200) {
-          // Handle successful response
+          setIsLiked(response.data.isLiked); // Assuming the server returns the new like status
           console.log("Like status updated successfully");
+          showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
         } else {
-          // Handle non-successful responses
           console.error("Failed to update like status");
+          showAlert('Failed to update like status');
         }
       } catch (error) {
-        console.error("Error in handleLikeButtonClick:", error);
-        setIsLiked(!newLikeStatus); // Revert state on error
+        console.error("Error in liking publication:", error);
+        console.error(error.response || error)
       }
     };
+    
 
     const nextPage = () => {
       navigation.navigate('stripe');
@@ -88,6 +96,7 @@ const SingleArt = ({ navigation, route }: any) => {
     };
 
     return (
+      <ScrollView>
       <View style={styles.container}>
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
@@ -105,7 +114,8 @@ const SingleArt = ({ navigation, route }: any) => {
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
         <TagButton
-          onPress={handleArtistButtonClick}/>
+          onPress={handleArtistButtonClick}
+        />
         <Text style={{ marginLeft: 90, fontSize: 10 }}/>
         <Button
           value={isSaved ? "Saved" : "Save"}
@@ -119,22 +129,15 @@ const SingleArt = ({ navigation, route }: any) => {
             justifyContent: 'center',
           }}
           textStyle={{fontSize: 14, textAlign: 'center', color: colors.black}}
-          // onPress={() => handleSavedButtonClick()}
-          />
+          onPress={() => savePublication()}
+        />
         <Button
-          value={isLiked ? "Liké" : "Like"}
-          secondary= {isLiked ? true : false}
-          style={{
-            width: 70,
-            height: 38,
-            borderRadius: 30,
-            marginLeft: 0,
-            justifyContent: 'center',
-            backgroundColor: colors.artistPlHolder,
-          }}
-          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
-          // onPress={() => handleLikeButtonClick()}
-          />
+          value={isLiked ? "Liked" : "Like"}
+          secondary={isLiked ? true : false}
+          style={styles.button}
+          textStyle={{fontSize: 14, textAlign: 'center'}}
+          onPress={likePublication}
+        />
       </View>
       <View>
       <Text style={{ marginLeft: 20, fontSize: 20 }}>
@@ -145,19 +148,21 @@ const SingleArt = ({ navigation, route }: any) => {
       </Text>
       </View>
       <View style={{ marginTop: 20, marginBottom: 30 }}>
+      
 
         <Button
           value="Acheter"
           onPress={nextPage}
-        />
+          />
         <Button
           style={{ backgroundColor: colors.secondary }}
           textStyle={{ color: colors.black }}
           value="Retour"
           onPress={previous}
-        />
+          />
       </View>
     </View>
+    </ScrollView>
   );
 };
 
@@ -215,6 +220,15 @@ const styles = StyleSheet.create({
     vector: {
         width: 25,
         height: 31,
+    },
+    button:
+    { 
+      width: 70,
+      height: 38,
+      borderRadius: 30,
+      marginLeft: 0,
+      justifyContent: 'center',
+      backgroundColor: colors.black
     }
 });
 

@@ -37,6 +37,10 @@ const colors = {
   whitesmoke:'#f2f0f0',
   oldrose: '#bd7a75',
 
+  //buttons
+  cancel: '#E68275',
+  confirm: '#6DC592',
+
   // inbox
   offerFg: '#6C0F7B',
   offerBg: '#FFE0E0',

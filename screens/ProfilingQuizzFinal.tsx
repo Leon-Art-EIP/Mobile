@@ -17,7 +17,7 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
   const next = () => {
     if (discoveryMethod == null)
       return;
-    // Alert.alert('Your preferences have been saved !');
+    Alert.alert('Your preferences have been saved !');
     postQuizDatas();
     navigation.navigate('profiling');
     navigation.navigate('homemain');
@@ -37,52 +37,40 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
 
     const requestData = {
       objective: quizDatas.objective || 'sell',
-      artInterestType: Array.isArray(quizDatas.artInterestType) && quizDatas.artInterestType.length > 0 ? quizDatas.artInterestType : ['default_artInterestType'],
-      artSellingType: Array.isArray(quizDatas.artSellingType) && quizDatas.artSellingType.length > 0 ? quizDatas.artSellingType : ['default_artSellingType'],
-      location: quizDatas.location || '',
-      customCommands: quizDatas.customCommands || 'yes',
+      artInterestType: Array.isArray(quizDatas.artInterestType) && quizDatas.artInterestType.length > 0 ? quizDatas.artInterestType : ['Painting, Sculpture'],
+      artSellingType: Array.isArray(quizDatas.artSellingType) && quizDatas.artSellingType.length > 0 ? quizDatas.artSellingType : ['Painting'],
+      location: quizDatas.location || 'New York, USA',
+      customCommands: quizDatas.customCommands || 'Yes',
       budget: quizDatas.budget || '0-100',
-      discoveryMethod: quizDatas.discoveryMethod || 'default_discoveryMethod'
+      discoveryMethod: quizDatas.discoveryMethod || 'Google Search'
     };
-    // requestData = Object.entries(quizDatas).reduce((acc, [key, value]) => {
-    //   acc[key] = value ?? '';  // If value is null or undefined, set it to an empty string
-    //   return acc;
-    // }, {});
-
     console.log('🥸 RequestDatas beforePost: ', requestData);
-    
-    // const headers = {
-    //   'Content-Type': 'application/json',
-    //   'Authorization': `Bearer ${context?.token}` // or however your token is passed
-    // };
-
     const token = context?.token || '';
 
-    post('/api/quizz/submit', requestData, token,
-    // context?.token,
-    (response) => {
-      console.log('Quiz successfully posted', response);
-      navigation.navigate('main');
-    },
+    post('/api/quizz/submit',
+    requestData,
+    context?.token,
+    () => navigation.navigate('main'),
     (error) => {
       console.error('Error publishing quiz data:', error);
+      if (error.response && error.response.data && error.response.data.errors) {
+        error.response.data.errors.forEach(err => {
+          console.error(`Validation error - ${err.param}: ${err.msg}`);
+        });
+      }
     }
-  );
-    // post(
-    //   '/api/quizz/submit',
-    //   { requestData },
-    //   context?.token,
-    //   () => navigation.navigate('main'),
-    //   (error) => {
-    //     console.error('Error publishing quizdatas:', error);
-    //   }
-    // );
+    );
+    console.log('Quiz successfully posted');
     console.log('😇 RequestDatas afterPost: ', requestData);
     console.log(requestData)
   };
 
   const previous = () => {
-    navigation.navigate('profilingArtist2', {objective, artSellingType});
+    if (objective === 'sell')
+      navigation.navigate('profilingArtist2', {objective, artSellingType});
+    else if (objective === 'discover')
+      navigation.navigate('profilingAmateur2', {objective, artSellingType});
+
   };
 
   useEffect(() => {
@@ -109,8 +97,8 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       <Text style={styles.question}>3/3 - Comment avez-vous découvert Leon'Art ?</Text>
       <View style={styles.Tags}>
         <TouchableOpacity
-          style={getButtonStyle("Réseaux sociaux")}
-          onPress={() => selectTag("Réseaux sociaux")}>
+          style={getButtonStyle("social networks")}
+          onPress={() => selectTag("social networks")}>
           <Text style={[styles.buttonText, discoveryMethod === "Réseaux sociaux" && { color: 'white' }]}>
             Réseaux sociaux
           </Text>

@@ -33,27 +33,32 @@ const AddPublication = ({ navigation }: any) => {
       location: location !== '' ? location : 'empty'
     };
 
-      post(
-        '/api/art-publication',
-        { requestData },
-        context?.token,
-        () => navigation.navigate('main'),
-        (error) => {
-          console.error('Error publishing:', error);
+    post(
+      '/api/art-publication',
+      requestData,
+      context?.token,
+      () => navigation.navigate('main'),
+      (error) => {
+        console.error('Error publishing:', error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          error.response.data.errors.forEach(err => {
+            console.error(`Validation error - ${err.param}: ${err.msg}`);
+          });
         }
-      );
-      console.log(requestData),
+      }
+    );
+    console.log(requestData)
       
-      post(
-        '/api/art-publication',
-        { requestData },
-        context?.token,
-        () => navigation.navigate('main'),
-        (error) => {
-          console.error('Error publishing:', error);
-        }
-      );
-    };
+    // post(
+    //   '/api/art-publication',
+    //   { requestData },
+    //   context?.token,
+    //   () => navigation.navigate('main'),
+    //   (error) => {
+    //     console.error('Error publishing:', error);
+    //   }
+    // );
+  };
   
   const selectImage = async () => {
     try {
@@ -105,7 +110,7 @@ return (
       <Text style={styles.artTitle}>Add Publication</Text>
     </View>
     <Button
-      style={{ backgroundColor: colors.secondary }}
+      style={{ backgroundColor: colors.platinium }}
       textStyle={{ color: colors.black }}
       value="+"
       onPress={selectImage}

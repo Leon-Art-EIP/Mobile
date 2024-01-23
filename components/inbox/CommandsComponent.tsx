@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../../constants/colors';
 import { flexRow, fwBold, ml8, mt4 } from '../../constants/styles';
-import { get } from '../../constants/fetch';
+import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 
 const CommandsComponent = () => {
@@ -10,6 +10,45 @@ const CommandsComponent = () => {
   const [sales, setSales] = useState([]);
   const [publicationNames, setPublicationNames] = useState({});
   const context = useContext(MainContext);
+
+  const cancelOrder = (orderId) => {
+    console.log('Cancel order:', orderId);
+    if (context?.token) {
+      post(
+        `/api/order/cancel/${orderId}`, 
+        context.token,
+        (response) => {
+          console.log("Order cancelled successfully", response.data);
+          setOrders(orders.filter(order => order._id !== orderId));
+        },
+        (error) => {
+          console.error('Error cancelling order:', error);
+        }
+      );
+    } else {
+      console.error('Error: No authentication token found');
+    }
+  };
+
+  const confirmOrder = (orderId) => {
+    console.log('Cancel order:', orderId);
+    if (context?.token) {
+      console.log('token',token);
+      post(
+        `/api/order/cancel/${orderId}`, 
+        context.token,
+        (response) => {
+          console.log("Order cancelled successfully", response.data);
+          setOrders(orders.filter(order => order._id !== orderId));
+        },
+        (error) => {
+          console.error('Error cancelling order:', error);
+        }
+      );
+    } else {
+      console.error('Error: No authentication token found');
+    }
+  };
 
   useEffect(() => {
     if (context?.token) {
@@ -38,7 +77,7 @@ const CommandsComponent = () => {
       );
       get(
         `/api/order/latest-sell-orders?limit=10&page=1`,
-        context.token,
+        context?.token,
         (response) => {
           console.log("🎉 Fetched Sales", response.data);
           setSales(response?.data || []);
@@ -57,34 +96,32 @@ const CommandsComponent = () => {
       </Text>
       {orders.map((order, index) => (
         <TouchableOpacity>
-        <View key={order._id || index} style={styles.orderItem}>
+      <View key={order._id || index} style={styles.orderItem}>
           <Image
             style={styles.image}
             source={require('../../assets/images/user.png')}
             testID="command-img"
           />
-          <View style={styles.textContainer}>
-            <Text style={fwBold}>{publicationNames[order.artPublicationId] || 'Loading...'}</Text>
-            <Text style={styles.fwId}>{order._id}</Text>
-            <Text>{order.orderPrice} €</Text>
-          </View>
-        </View>
-        </TouchableOpacity>
-      ))}
-      <Text style={styles.title}>
-        Sales
-      </Text>
-      {sales.map((sales, index) => (
-        <TouchableOpacity>
-        <View key={sales._id || index} style={styles.orderItem}>
-          <Image
-            style={styles.image}
-            source={require('../../assets/images/user.png')}
-            testID="command-img"
-          />
-          <View style={styles.textContainer}>
-            <Text style={fwBold}>{sales._id}</Text>
-            <Text>{sales.orderPrice} €</Text>
+          <View style={styles.orderDetailsContainer}>
+            <View style={styles.textContainer}>
+              <Text style={fwBold}>{publicationNames[order.artPublicationId] || 'Loading...'}</Text>
+              <Text style={styles.fwId}>{order._id}</Text>
+              <Text>{order.orderPrice} €</Text>
+            </View>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity 
+                style={styles.cancel}
+                onPress={() => cancelOrder(order._id)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.confirm}
+                onPress={() => confirmOrder(order._id)}
+              >
+                <Text style={styles.buttonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         </TouchableOpacity>
@@ -96,30 +133,43 @@ const CommandsComponent = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    marginLeft: 20,
+    padding: 10,
     backgroundColor: colors.white,
   },
   orderItem: {
     ...flexRow,
-    marginVertical: 10,
+    marginVertical: 8,
+    alignItems: 'center',
+    paddingRight: 10,
   },
-  title: {
-    color: colors.black,
-    fontSize: 25,
-    marginBottom: 13,
-    marginTop: 13,
-
-  },
-  image: {
-    width: 50,
-    height: 50,
+  orderDetailsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginLeft: 8,
   },
   textContainer: {
-    ...ml8,
-    ...mt4,
+    padding: 3,
+    maxWidth: '60%',
   },
-  fwId: {
-    color: colors.black,
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  cancel: {
+    padding: 10,
+    marginRight: 5,
+    backgroundColor: colors.cancel,
+    borderRadius: 20,
+  },
+  confirm: {
+    padding: 10,
+    backgroundColor: colors.confirm,
+    borderRadius: 20,
+  },
+  buttonText: {
+    color: 'white',
   },
 });
 
