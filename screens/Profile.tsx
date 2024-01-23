@@ -16,7 +16,6 @@ import { get, post } from '../constants/fetch';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-
 const Profile = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Artwork'); 
@@ -51,6 +50,10 @@ const Profile = () => {
   // };
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
+  };
+
+  const handleCollectionClick = (collction) => {
+    navigation.navigate('collection', { collection: collction});
   };
 
   interface Artwork {
@@ -185,6 +188,7 @@ const Profile = () => {
   return (
     <ScrollView nestedScrollEnabled>
     <View>
+      {/* Buttons : Back, Edit profile and Settings */}
       <View style={{ flexDirection: 'row', marginRight: 20 }}>
         <TouchableOpacity
           onPress={() => handleBackButtonClick()}
@@ -205,7 +209,7 @@ const Profile = () => {
           <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
         </TouchableOpacity>
       </View>
-
+      {/* Banner */}
       <View style={styles.banner}>
         <Image
           source={bannerImage}
@@ -213,7 +217,7 @@ const Profile = () => {
           resizeMode="cover"
         />
       </View>
-
+      {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
@@ -222,9 +226,8 @@ const Profile = () => {
           />
         </View>
       </View>
-
+      {/* Text blocks : followers, name and posts*/}
       <View style={styles.textBlocks}>
-
         {/* Bloc de texte followers */}
         <View style={styles.textBlock}>
           <TouchableOpacity onPress={handleToFollowerList}>
@@ -249,9 +252,9 @@ const Profile = () => {
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
-
+      {/* Decorative line */}
       <View style={styles.decorativeLine} />
-
+      {/* Tab selections button : Artwork, Collections and About */}
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
@@ -262,12 +265,12 @@ const Profile = () => {
           onPress={() => setActiveTab('Artwork')}
           />
         <Button
-          value="Collection"
-          secondary={activeTab !== 'Collection'}
-          tertiary={activeTab === 'Collection'}
+          value="Collections"
+          secondary={activeTab !== 'Collections'}
+          tertiary={activeTab === 'Collections'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collection')}
+          onPress={() => setActiveTab('Collections')}
           />
         <Button
           value="A propos"
@@ -278,7 +281,7 @@ const Profile = () => {
           onPress={() => setActiveTab('A propos')}
           />
       </View>
-
+      {/* Artwork tab */}
       {activeTab === 'Artwork' &&
         <View style={styles.squareContainer}>
           {userArtworks.map((artwork, index) => (
@@ -297,34 +300,36 @@ const Profile = () => {
           ))}
         </View>
       }
-
-      {activeTab === 'Collection' && userCollections.length > 0 && (
+      {/* Collections tab */}
+      {activeTab === 'Collections' && userCollections.length > 0 && (
         <View style={styles.squareContainer}>
-          {userCollections.map(collection => (
-            <View key={collection._id}>
-              <Text style={styles.collectionName}>{collection.name}</Text>
-              <FlatList
-                data={collection.artPublications}
-                numColumns={3}
-                keyExtractor={(artwork, index) => index.toString()}
-                renderItem={({ item: artwork }) => (
-                  <TouchableOpacity
-                    style={styles.squareFrame}
-                    onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
-                  >
-                    <Image
-                      source={{ uri: `${API_URL}api/${artwork.image}` }}
-                      style={{ flex: 1, borderRadius: 10 }}
-                      resizeMode="cover"
-                      onError={(error) => console.log(`Error loading image for artwork ${artwork._id}:`, error.nativeEvent)}
-                    />
-                  </TouchableOpacity>
-                )}
+          {userCollections.map((collection, index) => (
+            <TouchableOpacity
+              key={collection._id}
+              style={[
+                styles.squareFrame,
+                {
+                  width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
+                  marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
+                  marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
+                  marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
+                },
+              ]}
+              onPress={() => handleCollectionClick(collection)}
+            >
+              <Image
+                source={{ uri: `${API_URL}api/${collection.artPublications[0].image}` }} // Utilise la première œuvre de la collection
+                style={{ flex: 1, borderRadius: 10 }}
+                resizeMode="cover"
+                onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
               />
-            </View>
+              <Text style={styles.collectionName}>{collection.name}</Text>
+            </TouchableOpacity>
           ))}
         </View>
       )}
+
+
 
     </View>
     </ScrollView>
@@ -436,12 +441,6 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
   },
-  squareFrameArtwork: {
-    width: 115,
-    height: 115,
-    backgroundColor: 'lightgray',
-    borderRadius: 10,
-  },
   squareFrame: {
     width: 115,
     height: 115,
@@ -454,12 +453,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
     marginHorizontal: 10,
-  },
-  squareFrameCollection: {
-    width: 174,
-    height: 115,
-    backgroundColor: colors.tertiary,
-    borderRadius: 10,
   },
   backButton: {
     position: 'absolute',
@@ -485,10 +478,10 @@ const styles = StyleSheet.create({
     color: colors.tertiary,
     // backgroundColor: colors.tertiary,
     padding: 8,
-    marginBottom: 10,
+    marginBottom: 5,
     borderRadius: 40,
     marginLeft: 10,
-    marginRight: 30,
+    marginRight: 10,
   },
   artworkName: {
     fontSize: 16,
