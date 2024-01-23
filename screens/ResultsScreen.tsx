@@ -108,6 +108,7 @@ const ResultsScreen = ({ navigation }: any) => {
       {/* Data */}
       <View style={styles.postsFlatlist}>
         { posts.length === 0 ? (
+
           <View style={[jcCenter, aiCenter, flex1]}>
             <Image
               source={require('../assets/icons/box.png')}
@@ -115,21 +116,26 @@ const ResultsScreen = ({ navigation }: any) => {
             />
             <Text>Il n'y a pas de postes qui correspondent à la recherche !</Text>
           </View>
+
         ) : (
+
           <FlatList
             data={posts}
             numColumns={3}
             renderItem={(e) => (
               <TouchableOpacity
                 onPress={() => navigateToPreview(e.item)}
+                style={styles.singleArt}
               >
                 <Image
-                  style={{ backgroundColor: colors.disabledBg, height: 100 }}
+                  style={{ backgroundColor: colors.disabledBg, height: 100, borderRadius: 12 }}
                   source={{ uri: e.item.image }}
                 />
+                <Text>{ e.item?.name }</Text>
               </TouchableOpacity>
             )}
           />
+
         ) }
       </View>
     </SafeAreaView>
@@ -158,6 +164,13 @@ const styles = StyleSheet.create({
     ...bgGrey,
     borderRadius: 20,
     flex: 1
+  },
+  singleArt: {
+    backgroundColor: "#ddd",
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    margin: 4,
+    borderRadius: 17
   }
 });
 

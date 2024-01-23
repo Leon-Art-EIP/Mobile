@@ -1,6 +1,6 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -16,7 +16,7 @@ import TextBubble from '../components/inbox/TextBubble';
 import Input from '../components/Input';
 import colors from '../constants/colors';
 import { MESSAGES, MessageType } from '../constants/conversations';
-import { post } from '../constants/fetch';
+import { get, post } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 
 
@@ -35,16 +35,6 @@ type ConversationParams = {
   ids: number[];
 } | undefined;
 
-type MessageType = {
-  "_id": string,
-  "content": string,
-  "contentType": string,
-  "dateTime": string,
-  "id": number,
-  "read": boolean,
-  "sender": number
-};
-
 
 const Conversation = () => {
   const navigation = useNavigation();
@@ -53,20 +43,36 @@ const Conversation = () => {
   const route: any = useRoute();
   const params = route?.params as ConversationParams;
   const context = useContext(MainContext);
+  let inputRef: any = null;
 
 
   const sendMessage = () => {
+    const body = {
+      convId: params?.ids[0],
+      userId: context?.userId,
+      contentType: 'string',
+      content: newMessage
+    };
+
     // use newMessage to send the message via the backend
-    return undefined;
+    post(
+      `/api/conversations/messages/new`,
+      body,
+      context?.token,
+      (res) => console.log(res),
+      (err) => console.warn({ ...err })
+    );
+    getConversation();
+    setNewMessage('');
+    return
   }
 
 
   const getConversation = () => {
-    post(
-      "/api/conversations/messages",
-      { convId: params?.ids[0] },
+    get(
+      `/api/conversations/messages/${params?.ids[0]}`,
       context?.token,
-      (res: any) => console.log(res),
+      (res: any) => setMessages(res?.data?.messages),
       (err: any) => console.warn({...err})
     );
   }
@@ -112,7 +118,7 @@ const Conversation = () => {
       <ScrollView style={styles.conversationContainer}>
         {/* <Button value='Charger plus de messages' /> */}
         { messages && messages.map((msg: MessageType) => (
-          <TextBubble message={msg} key={msg.body + Math.random().toString()} />
+          <TextBubble message={msg} key={msg.content + Math.random().toString()} />
         )) }
       </ScrollView>
 
@@ -121,18 +127,19 @@ const Conversation = () => {
         <View style={styles.messageView}>
 
           {/* Micro */}
-          <TouchableOpacity style={styles.micView}>
-            <Image
-              style={styles.micImage}
-              source={require('../assets/icons/Microphone.png')}
-            />
-          </TouchableOpacity>
+          {/* <TouchableOpacity style={styles.micView}> */
+          /*   <Image */
+          /*     style={styles.micImage} */
+          /*     source={require('../assets/icons/Microphone.png')} */
+          /*   /> */
+          /* </TouchableOpacity> */}
 
           {/* Input message */}
           <Input
             style={styles.messageInput}
             placeholder="Message ..."
             onTextChanged={(newMsg: string) => setNewMessage(newMsg)}
+            value={newMessage}
           />
 
           {/* Send button */}
@@ -233,6 +240,7 @@ const styles = StyleSheet.create({
     shadowColor: colors.transparent,
     borderRadius: 0,
     placeholderColor: '#B1B1B1',
+    flex: 1,
     marginLeft: 0
   },
   micView: {

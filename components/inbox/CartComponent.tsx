@@ -4,6 +4,10 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import colors from '../../constants/colors';
 import { flexRow, fwBold, ml4, ml8, mt4, mt8 } from '../../constants/styles';
 
+
+const HARD_ID: string = "65945d3ccd2277f546356014";
+
+
 const CartComponent = () => {
   const navigation = useNavigation();
 
@@ -12,7 +16,7 @@ const CartComponent = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity
         style={[flexRow, mt8, ml4]}
-        onPress={() => navigation.navigate('single_order', { id: 0 })}
+        onPress={() => navigation.navigate('single_order', { id: HARD_ID })}
       >
         <Image
           style={{ width: 50, height: 50, borderRadius: 5 }}

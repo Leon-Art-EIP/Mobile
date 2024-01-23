@@ -35,8 +35,12 @@ const SearchScreen = ({ navigation }: any) => {
       newFilterArray = [ ...array, filterName ];
     }
 
-    return isSubFilter ? setSelectedSubFilters([ ...newFilterArray ]) :
-      setSelectedFilters([ ...newFilterArray ]);
+    if (isSubFilter) {
+      setSelectedSubFilters([ ...newFilterArray ]);
+      // not the best thing but this only way I found to trigger rerender
+      return setSelectedFilters((curr) => [ ...curr ]);
+    }
+    return setSelectedFilters([ ...newFilterArray ]);
   }
 
 
@@ -113,7 +117,7 @@ const SearchScreen = ({ navigation }: any) => {
       "/api/explorer/art-types",
       context?.token,
       (res: any) => setFilters(res?.data),
-      (err: any) => ToastAndroid.show("Error getting art types", ToastAndroid.SHORT)
+      () => ToastAndroid.show("Error getting art types", ToastAndroid.SHORT)
     );
   }, []);
 
@@ -197,7 +201,7 @@ const SearchScreen = ({ navigation }: any) => {
                   onPress={() => selectOrDeselect(subFilter, true)}
                 >
                   <Text
-                    style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary :  'normal' }}
+                    style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary :  colors.black }}
                   >{ subFilter }</Text>
                 </TouchableOpacity>
               )) }
@@ -258,7 +262,7 @@ const styles = StyleSheet.create({
     padding: 11
   },
   subFilterList: {
-    backgroundColor: '#ddd',
+    backgroundColor: '#e1E1E1',
     marginHorizontal: 12,
     borderRadius: 12
   }
