@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
-import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg';
-import { Image } from 'react-native-svg';
 
 const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
   const { objective } = route.params;
@@ -57,22 +54,17 @@ const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
         <TagButton
           value="Peinture"
           style={styles.TagButton}
-          onPress={() => selectTag('peinture')}
-        //   selected={artInterestType.includes('peinture')}
+          onPress={() => selectTag('Peinture')}
         />
         <TagButton
           value="Calligraphie"
           style={styles.TagButton}
           onPress={selectTag}
-        //   onPress={() => selectTag('calligraphie')}
-        //   selected={artInterestType.includes('calligraphie')}
         />
         <TagButton
           value="Photographie"
           style={styles.TagButton}
           onPress={selectTag}
-        //   onPress={() => selectTag('photographie')}
-        //   selected={artInterestType.includes('photographie')}
         />
         <TagButton 
           value="Mode"
@@ -120,14 +112,13 @@ const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
           onPress={selectTag}
           />
       </ScrollView>
-      <View style={{ flexDirection: 'row', marginTop: 5, }}>
+      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}>
           <TagButton 
               style={ styles.toggle }
               value="Oui"
-            //   onPress={getArtInterest}
           />
           <Text style={{paddingRight: 20}}>
-          Localiser ma position et optimise mon référencement sur l’application
+          Localiser ma position et optimiser mon référencement sur l’application
           </Text>
       </View>
       <Button value="Suivant" onPress={next} />

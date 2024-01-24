@@ -4,8 +4,6 @@ import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
-import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg';
 import { MainContext } from '../context/MainContext';
 
 
@@ -36,16 +34,14 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
     };
 
     const requestData = {
-      objective: quizDatas.objective || 'sell',
-      artInterestType: Array.isArray(quizDatas.artInterestType) && quizDatas.artInterestType.length > 0 ? quizDatas.artInterestType : ['Painting, Sculpture'],
-      artSellingType: Array.isArray(quizDatas.artSellingType) && quizDatas.artSellingType.length > 0 ? quizDatas.artSellingType : ['Painting'],
-      location: quizDatas.location || 'New York, USA',
-      customCommands: quizDatas.customCommands || 'Yes',
-      budget: quizDatas.budget || '0-100',
-      discoveryMethod: quizDatas.discoveryMethod || 'Google Search'
+      objective,
+      artInterestType: Array.isArray(quizDatas.artInterestType) && quizDatas.artInterestType.length > 0 ? quizDatas.artInterestType : [''],
+      artSellingType: Array.isArray(quizDatas.artSellingType) && quizDatas.artSellingType.length > 0 ? quizDatas.artSellingType : [''],
+      location: quizDatas.location || '',
+      customCommands: quizDatas.customCommands || 'No',
+      budget: quizDatas.budget || '',
+      discoveryMethod,
     };
-    console.log('🥸 RequestDatas beforePost: ', requestData);
-    const token = context?.token || '';
 
     post('/api/quizz/submit',
     requestData,
@@ -60,8 +56,8 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       }
     }
     );
-    console.log('Quiz successfully posted');
-    console.log('😇 RequestDatas afterPost: ', requestData);
+    console.log('😇 RequestDatas: ', requestData);
+    console.log('Quiz successfully posted !');
     console.log(requestData)
   };
 
@@ -75,6 +71,7 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
 
   useEffect(() => {
     console.log('selectedTag:', discoveryMethod);
+    console.log('customcommands:', customCommands);
     },
   ); 
 
@@ -97,8 +94,8 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       <Text style={styles.question}>3/3 - Comment avez-vous découvert Leon'Art ?</Text>
       <View style={styles.Tags}>
         <TouchableOpacity
-          style={getButtonStyle("social networks")}
-          onPress={() => selectTag("social networks")}>
+          style={getButtonStyle("Réseaux sociaux")}
+          onPress={() => selectTag("Réseaux sociaux")}>
           <Text style={[styles.buttonText, discoveryMethod === "Réseaux sociaux" && { color: 'white' }]}>
             Réseaux sociaux
           </Text>

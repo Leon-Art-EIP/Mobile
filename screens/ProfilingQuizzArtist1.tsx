@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
-import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg';
-import { Image } from 'react-native-svg';
 
 const ProfilingQuizzArtist = ({ route, navigation } : any) => {
   const { objective } = route.params;
   const [artSellingType, setArtSelling] = useState([]);
-  const [artInterestType, setArtInterest] = useState([]);
 
   const selectTag = (value) => {
     setArtSelling((currentArtSellingType) => {
       console.log
       if (currentArtSellingType.includes(value)) {
-        console.log('🟠CuurentArtSelligntype1;', currentArtSellingType);
-        console.log('🟣Value;', value);
         return currentArtSellingType.filter((tag) => tag !== value);
-      } else {
-        console.log('🟣CuurentArtSelligntype;', currentArtSellingType);
-        console.log('🟠Value;', value);
+      }
+      else {
         return [...currentArtSellingType, value];
       }
     });
-    console.log('☘️ CuurentArtSelligntype2;', artSellingType);
+    console.log('🟣 ArtSelling Datas;', artSellingType);
   };
 
   const next = () => {
@@ -57,22 +50,17 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
         <TagButton
           value="Peinture"
           style={styles.TagButton}
-          onPress={() => selectTag('peinture')}
-        //   selected={artSellingType.includes('peinture')}
+          onPress={selectTag}
         />
         <TagButton
           value="Calligraphie"
           style={styles.TagButton}
           onPress={selectTag}
-        //   onPress={() => selectTag('calligraphie')}
-        //   selected={artSellingType.includes('calligraphie')}
         />
         <TagButton
           value="Photographie"
           style={styles.TagButton}
           onPress={selectTag}
-        //   onPress={() => selectTag('photographie')}
-        //   selected={artSellingType.includes('photographie')}
         />
         <TagButton 
           value="Mode"
@@ -120,14 +108,13 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
           onPress={selectTag}
           />
       </ScrollView>
-      <View style={{ flexDirection: 'row', marginTop: 5, }}>
+      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}>
           <TagButton 
               style={ styles.toggle }
               value="Oui"
-            //   onPress={getArtInterest}
           />
           <Text style={{paddingRight: 20}}>
-          Localiser ma position et optimise mon référencement sur l’application
+          Localiser ma position et optimiser mon référencement sur l’application
           </Text>
       </View>
       <Button value="Suivant" onPress={next} />

@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { post } from '../constants/fetch';
+
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
-import TagButton from '../components/TagButton';
 
 const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
   const { objective, artSellingType } = route.params;
   const [customCommands, setCustomCommands] = useState<string | null>(null);
-  const budget = '';
-  const location = '';
 
   console.log('received datas', objective, artSellingType);
 
@@ -20,7 +17,7 @@ const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
     navigation.navigate('profilingLast', {
       objective,
       artSellingType,
-      
+      customCommands,
     });
   };
 
@@ -55,23 +52,23 @@ const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
       <View style={styles.Tags}>
       <View style={styles.Tags}>
         <TouchableOpacity
-          style={getButtonStyle('yes')}
-          onPress={() => selectTag('yes')}>
-          <Text style={[styles.buttonText, customCommands === 'yes' && { color: 'white' }]}>
+          style={getButtonStyle('Yes')}
+          onPress={() => selectTag('Yes')}>
+          <Text style={[styles.buttonText, customCommands === 'Yes' && { color: 'white' }]}>
             Oui
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={getButtonStyle('no')}
-          onPress={() => selectTag('no')}>
-          <Text style={[styles.buttonText, customCommands === 'no' && { color: 'white' }]}>
+          style={getButtonStyle('No')}
+          onPress={() => selectTag('No')}>
+          <Text style={[styles.buttonText, customCommands === 'No' && { color: 'white' }]}>
             Non
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={getButtonStyle('maybe')}
-          onPress={() => selectTag('maybe')}>
-          <Text style={[styles.buttonText, customCommands === 'maybe' && { color: 'white' }]}>
+          style={getButtonStyle('Maybe')}
+          onPress={() => selectTag('Maybe')}>
+          <Text style={[styles.buttonText, customCommands === 'Maybe' && { color: 'white' }]}>
             Peut-être plus tard
           </Text>
         </TouchableOpacity>

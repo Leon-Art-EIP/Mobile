@@ -1,21 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { MainContext } from '../context/MainContext';
 
 import colors from '../constants/colors';
 import Title from '../components/Title';
-import TagButton from '../components/TagButton';
 import Button from '../components/Button';
-
-import ProfilingQuizzArtist from './ProfilingQuizzArtist1';
-import ProfilingQuizzAmateur from './ProfilingQuizzAmateur1';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 
-const ProfilingQuizz = ({ route, navigation }): any => {
+const ProfilingQuizz = ({ navigation }): any => {
   const [objective, setObjective] = useState('');
   
   const handleUserChoice = (choice) => {
@@ -39,10 +32,6 @@ const ProfilingQuizz = ({ route, navigation }): any => {
       console.log('🤩 choice :', objective);
       navigation.navigate('profilingAmateur', { objective: 'discover' });
     } 
-    //   else if (objective === 'both') {
-    //   console.log('🤩 choice :', objective);
-    //   navigation.navigate('SomeOtherScreen', , { objective: 'objective' });
-    // }
   };
 
   const getButtonStyle = (choice) => (
@@ -76,14 +65,6 @@ const ProfilingQuizz = ({ route, navigation }): any => {
             Découvrir des œuvres d’art
           </Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity
-          style={getButtonStyle("both")}
-          onPress={() => handleUserChoice("both")}
-        >
-          <Text style={[styles.buttonText, objective === "both" && { color: 'white' }]}>
-            Les deux
-          </Text>
-        </TouchableOpacity> */}
       </View>
       <Button
         style={{ borderRadius: 12 }}
@@ -102,7 +83,7 @@ const ProfilingQuizz = ({ route, navigation }): any => {
 const styles = StyleSheet.create({
   TagButton: {
     padding: 10,
-    margin: 5,
+    margin: 20,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -145,7 +126,8 @@ const styles = StyleSheet.create({
   },
   Tags: {
     justifyContent: 'space-between',
-    margin: 50,
+    margin: 40,
+    marginBottom: 70,
     flex: 1,
   },
 });
