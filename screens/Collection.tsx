@@ -8,6 +8,7 @@ import colors from '../constants/colors';
 import BackArrow from '../assets/images/back_arrow_black.png'
 import { MainContext } from '../context/MainContext';
 import Button from '../components/Button';
+import DeleteButtonImage from '../assets/icons/delete.png'
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -21,19 +22,34 @@ const Collection = ({ navigation, route }: any) => {
     navigation.goBack();
   };
 
-  const handleArtworkClick = (artworkId: string) => {
-    // Logique à implémenter pour gérer le clic sur une œuvre d'art de la collection
+  const handleDeleteButtonClick = () => {
+    navigation.goBack();
+  };
+
+  const handleArtworkClick = (id: string, userId: string) => {
+    navigation.navigate('singleart', { id: id, userId: userId });
   };
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
       <StatusBar backgroundColor={colors.white} />
-      <TouchableOpacity
-        onPress={() => handleBackButtonClick()}
-        style={styles.backButton}
-      >
-        <Image source={BackArrow} style={{ width: 24, height: 24 }} />
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', marginRight: 20 }}>
+        {/* Back button */}
+        <TouchableOpacity
+          onPress={() => handleBackButtonClick()}
+          style={styles.backButton}
+        >
+          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+        </TouchableOpacity>
+        {/* Delete button */}
+        <TouchableOpacity
+          onPress={() => handleDeleteButtonClick()}
+          style={styles.deleteButton}
+        >
+          <Image source={DeleteButtonImage} style={{ width: 28, height: 30 }} />
+        </TouchableOpacity>
+      </View>
+
 
       <Title style={styles.mainTitle}>{collectionName}</Title>
 
@@ -42,7 +58,7 @@ const Collection = ({ navigation, route }: any) => {
           <TouchableOpacity
             key={index}
             style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-            onPress={() => handleArtworkClick(artwork._id)}
+            onPress={() => handleArtworkClick(artwork._id, "")}
           >
             <Image
               source={{ uri: `${API_URL}api/${artwork.image}` }}
@@ -56,9 +72,6 @@ const Collection = ({ navigation, route }: any) => {
     </SafeAreaView>
   );
 }
-
-export default Collection;
-
 
 const styles = StyleSheet.create({
   container: {
@@ -90,6 +103,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
     marginHorizontal: 10,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 0,
+    zIndex: 1,
   },
 });
 

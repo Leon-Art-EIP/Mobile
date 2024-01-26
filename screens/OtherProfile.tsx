@@ -27,13 +27,8 @@ const OtherProfile = ({ route }: any) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
 
-  // TODO : remplacer pars cette version quand SingleArt est ready
-  // const handleArtworkClick = (pageName, artworkId) => {
-  //   navigation.navigate(pageName, artworkId);
-  // };
   const handleArtworkClick = (id: string, userId: string) => {
     navigation.navigate('singleart', { id: id, userId: userId });
-
   };
 
   const handleBackButtonClick = () => {
