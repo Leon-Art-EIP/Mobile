@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Modal, Pressable, Alert } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 
@@ -8,22 +8,59 @@ import colors from '../constants/colors';
 import BackArrow from '../assets/images/back_arrow_black.png'
 import { MainContext } from '../context/MainContext';
 import Button from '../components/Button';
-import DeleteButtonImage from '../assets/icons/delete.png'
+import DeleteButtonImage from '../assets/icons/delete_red.png'
+import { get, post, del } from '../constants/fetch';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const Collection = ({ navigation, route }: any) => {
   const context = useContext(MainContext);
+  const token = context?.token;
   const collection = route?.params?.collection;
   const collectionName = collection.name;
-  const artworks = collection.artPublications; // Assurez-vous que la structure de données est correcte ici
+  const collectionId = collection._id;
+  const artworks = collection.artPublications;
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
 
   const handleDeleteButtonClick = () => {
-    navigation.goBack();
+    setDeleteModalVisible(true);
+  };
+
+  const handleDeleteConfirmed = () => {
+    try {
+      if (token) {
+        const url = `/api/collection/${collectionId}`;
+        const body = {
+          collectionId: collectionId,
+        };
+        const callback = (response) => {
+          console.log('Collection : \"' + collectionName + '\" deleted.');
+          navigation.goBack();
+          Alert.alert('Collection supprimée', 'collectionName');
+        };
+        const onErrorCallback = (error) => {
+          console.error('Une erreur s\'est produite lors de la supprésion de la collection.:', error);
+          Alert.alert('Erreur', 'Une erreur s\'est produite lors de la supprésion de la collection.');
+        };
+        del(url, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du token JWT :', error);
+      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+    }
+    // Ferme la modal après la suppression
+    setDeleteModalVisible(false);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalVisible(false);
   };
 
   const handleArtworkClick = (id: string, userId: string) => {
@@ -69,6 +106,36 @@ const Collection = ({ navigation, route }: any) => {
           </TouchableOpacity>
         ))}
       </View>
+
+      {/* Modal pour la confirmation de suppression */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={deleteModalVisible}
+        onRequestClose={() => {
+          setDeleteModalVisible(!deleteModalVisible);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Êtes-vous sûr de vouloir supprimer cette collection ?</Text>
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.modalCancelButton]}
+                onPress={() => handleCancelDelete()}
+              >
+                <Text style={{ color: 'white' }}>Annuler</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modalButton, styles.modalDeleteButton]}
+                onPress={() => handleDeleteConfirmed()}
+              >
+                <Text style={{ color: 'white' }}>Supprimer</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -109,6 +176,36 @@ const styles = StyleSheet.create({
     top: 10,
     right: 0,
     zIndex: 1,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  // Delete collection modal
+  modalButtons: {
+    flexDirection: 'row',
+    marginTop: 20,
+  },
+  modalButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  modalCancelButton: {
+    backgroundColor: 'gray',
+  },
+  modalDeleteButton: {
+    backgroundColor: 'red',
   },
 });
 

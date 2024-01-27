@@ -16,7 +16,6 @@ import Modal from 'react-native-modal';
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const SingleArt = ({ navigation, route }: any) => { 
-  
   const context = useContext(MainContext);
   const token = context?.token;
   const id = route?.params?.id;
