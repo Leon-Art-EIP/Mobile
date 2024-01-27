@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useContext } from 'react';
@@ -9,13 +9,13 @@ import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import profilePicture from '../assets/images/user.png'
 import bannerImage from '../assets/images/banner.jpg'
+import emptyCollectionImage from '../assets/icons/hamburger.png'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
-
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -27,7 +27,6 @@ const Profile = () => {
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
-  let userDataFetched = false;
 
   const handleToFollowerList = () => {
     // TODO : rendre dynamique
@@ -39,7 +38,7 @@ const Profile = () => {
   };
 
   const handleEditButtonClick = () => {
-    navigation.navigate('editprofile');
+    navigation.navigate('edit_profile');
   };
 
   const handleSettingsButtonClick = () => {
@@ -52,6 +51,10 @@ const Profile = () => {
   // };
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
+  };
+
+  const handleCollectionClick = (collction) => {
+    navigation.navigate('collection', { collection: collction});
   };
 
   interface Artwork {
@@ -159,40 +162,40 @@ const Profile = () => {
   );
 
   useEffect(() => {
-    updateCollections();
     fetchUserData();
+    updateCollections();
   }, []);
 
   const updateCollections = async () => {
-    const token = await AsyncStorage.getItem('jwt');
-      if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-  
-        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const userCollections = collectionsResponse.data;
-        setUserCollections(userCollections);
-      }
-      else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      try {
+        const token = context?.token;
+        if (token) {
+          get(
+            `/api/collection/my-collections`,
+            token,
+            (response: any) => setUserCollections(response.data),
+            (error: any) => console.error({ ...error })
+          )
+        } else {
+          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+          Alert.alert("Erreur", "Veuillez vous reconnecter");
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des collections de l\'utilisateur :', error);
+        Alert.alert('Erreur de récupération des collections', 'Une erreur s\'est produite.');
       }
   }
 
   return (
     <ScrollView nestedScrollEnabled>
     <View>
+      {/* Buttons : Back, Edit profile and Settings */}
       <View style={{ flexDirection: 'row', marginRight: 20 }}>
         <TouchableOpacity
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
-        >
-        <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+          >
+          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleEditButtonClick()}
@@ -207,7 +210,7 @@ const Profile = () => {
           <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
         </TouchableOpacity>
       </View>
-
+      {/* Banner */}
       <View style={styles.banner}>
         <Image
           source={bannerImage}
@@ -215,7 +218,7 @@ const Profile = () => {
           resizeMode="cover"
         />
       </View>
-
+      {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
@@ -224,9 +227,8 @@ const Profile = () => {
           />
         </View>
       </View>
-
+      {/* Text blocks : followers, name and posts*/}
       <View style={styles.textBlocks}>
-
         {/* Bloc de texte followers */}
         <View style={styles.textBlock}>
           <TouchableOpacity onPress={handleToFollowerList}>
@@ -251,9 +253,9 @@ const Profile = () => {
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
-
+      {/* Decorative line */}
       <View style={styles.decorativeLine} />
-
+      {/* Tab selections button : Artwork, Collections and About */}
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
@@ -264,12 +266,12 @@ const Profile = () => {
           onPress={() => setActiveTab('Artwork')}
           />
         <Button
-          value="Collection"
-          secondary={activeTab !== 'Collection'}
-          tertiary={activeTab === 'Collection'}
+          value="Collections"
+          secondary={activeTab !== 'Collections'}
+          tertiary={activeTab === 'Collections'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collection')}
+          onPress={() => setActiveTab('Collections')}
           />
         <Button
           value="A propos"
@@ -280,7 +282,7 @@ const Profile = () => {
           onPress={() => setActiveTab('A propos')}
           />
       </View>
-
+      {/* Artwork tab */}
       {activeTab === 'Artwork' &&
         <View style={styles.squareContainer}>
           {userArtworks.map((artwork, index) => (
@@ -299,30 +301,41 @@ const Profile = () => {
           ))}
         </View>
       }
-
-      {activeTab === 'Collection' && userCollections.length > 0 && (
+      {/* Collections tab */}
+      {activeTab === 'Collections' && userCollections.length > 0 && (
         <View style={styles.squareContainer}>
-          {userCollections.map(collection => (
-            <View key={collection._id}>
+          {userCollections.map((collection, index) => (
+            <TouchableOpacity
+              key={collection._id}
+              style={[
+                styles.squareFrame,
+                {
+                  width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
+                  marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
+                  marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
+                  marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
+                },
+              ]}
+              onPress={() => handleCollectionClick(collection)}
+            >
+              <Image
+                source={
+                  collection.artPublications.length > 0
+                    ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
+                    : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
+                }
+                style={{ flex: 1, borderRadius: 10 }}
+                resizeMode="cover"
+                onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
+              />
               <Text style={styles.collectionName}>{collection.name}</Text>
-              {collection.artPublications.map((artwork, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-                  onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
-                >
-                  <Image
-                    source={{ uri: `${API_URL}api/${artwork.image}` }}
-                    style={{ flex: 1, borderRadius: 10 }}
-                    resizeMode="cover"
-                    onError={(error) => console.log(`Error loading image for artwork ${artwork._id}:`, error.nativeEvent)}
-                  />
-                </TouchableOpacity>
-              ))}
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       )}
+
+
+
     </View>
     </ScrollView>
   );
@@ -433,12 +446,6 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
   },
-  squareFrameArtwork: {
-    width: 115,
-    height: 115,
-    backgroundColor: 'lightgray',
-    borderRadius: 10,
-  },
   squareFrame: {
     width: 115,
     height: 115,
@@ -451,12 +458,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
     marginHorizontal: 10,
-  },
-  squareFrameCollection: {
-    width: 174,
-    height: 115,
-    backgroundColor: colors.tertiary,
-    borderRadius: 10,
   },
   backButton: {
     position: 'absolute',
@@ -479,13 +480,13 @@ const styles = StyleSheet.create({
   collectionName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
-    backgroundColor: colors.tertiary,
-    padding: 10,
-    marginBottom: 10,
+    color: colors.tertiary,
+    // backgroundColor: colors.tertiary,
+    padding: 8,
+    marginBottom: 5,
     borderRadius: 40,
     marginLeft: 10,
-    marginRight: 30,
+    marginRight: 10,
   },
   artworkName: {
     fontSize: 16,

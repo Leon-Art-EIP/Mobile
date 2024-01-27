@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Alert, View, StyleSheet, Text, Image } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { Alert, View, StyleSheet, Text, Image, TouchableOpacity, TextInput, FlatList } from 'react-native';
 // import Icon from 'react-native-vector-icons/MaterialIcons';
-import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
@@ -10,28 +9,35 @@ import Toggle from '../assets/images/toggle.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import { MainContext } from '../context/MainContext';
+import { get, post } from '../constants/fetch';
+import Modal from 'react-native-modal';
 
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-const SingleArt = ({ navigation, route }: any) => {
- 
+const SingleArt = ({ navigation, route }: any) => { 
+  const context = useContext(MainContext);
+  const token = context?.token;
+  const id = route?.params?.id;
+  const userId = route?.params?.userId;
+  
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userCollections, setUserCollections] = useState<Collection | null>(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState('');
+
   const nextPage = () => {
     navigation.navigate('stripe');
   };
-  
+
   const selectTag = () => {
   };
-
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  useEffect(() => {
-    checkIsLiked();
-    checkIsSaved();
-  }, []);
 
   const handleArtistButtonClick = async () => {
     // TODO : rendre dynamique
     navigation.navigate('other_profile');
-
   }
 
   const previous = async () => {
@@ -62,100 +68,115 @@ const SingleArt = ({ navigation, route }: any) => {
     }
     checkIsLiked();
   };
+
   const handleSavedButtonClick = async () => {
-    //TODO : rendre dynamique
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setNewCollectionName('');
+  };
+  
+  const addToCollection = async (collectionName: string) => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
+        const url = `/api/collection`;
+        const body = {
+          artPublicationId: id,
+          collectionName: collectionName,
+          isPublic: true
         };
-        const requestBody = {
-          artPublicationId: "65377fcbbfacccdbe11c44ce",
-          collectionName: "Oeuvres likées",
-          isPublic: true,
-        };  
-        const response = await axios.post(`${API_URL}api/collection`, requestBody, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
-      else {
+        const callback = (response) => {
+          console.log('Saved to collection successfully');
+          Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
+          setIsSaved(true);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error while saving to collection:', error);
+          Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+        };
+        post(url, body, token, callback, onErrorCallback);
+      } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du token JWT :', error);
+      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
-    catch (error) {
-      console.error('Erreur d\'enregistrement :', error);
-      Alert.alert('Erreur d\'enregistrement', 'Une erreur s\'est produite.');
-    }
-    checkIsSaved();
+    closeModal();
   };
+
   const checkIsLiked = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
+        const url = `/api/art-publication/users-who-liked/${id}`;
+        const callback = (response) => {
+          const responseData = response.data;
+          const usersWhoLiked = responseData.users;
+          const currentUserUsername = "VivantGarrigues";
+          const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
+
+          setIsLiked(isArtLiked);
         };
-  
-        const response = await axios.get(`${API_URL}api/art-publication/users-who-liked/65377fcbbfacccdbe11c44ce`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const responseData = response.data;
-        const usersWhoLiked = responseData.users;
-        const currentUserUsername = "VivantGarrigues";
-        const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
-  
-        setIsLiked(isArtLiked);
+        const onErrorCallback = (error) => {
+          console.error('Error fetching like:', error);
+          Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+        };
+        get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification du suivi :', error);
-      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
   };
+
   const checkIsSaved = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwt');
       if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const collectionsResponse = await axios.get(`${API_URL}api/collection/my-collections`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const userCollections = collectionsResponse.data;
-        const oeuvresLikeesCollection = userCollections.find(collection => collection.name === "Oeuvres likées");
-  
-        if (oeuvresLikeesCollection) {
-          const oeuvresLikeesCollectionId = oeuvresLikeesCollection._id;
-          const oeuvresLikeesDetailsResponse = await axios.get(`${API_URL}api/collection/${oeuvresLikeesCollectionId}/publications`, {
-            headers,
-          });
-          const oeuvresLikeesPublications = oeuvresLikeesDetailsResponse.data;
-          const isArtSaved = oeuvresLikeesPublications.some(publication => publication._id === "65377fcbbfacccdbe11c44ce");
-          setIsSaved(isArtSaved);
-        } else {
+        const url = `/api/collection/my-collections`;
+        const callback = (response) => {
+          setUserCollections(response.data);
+          if (response.data) {
+            for (const collection of response.data) {
+              const collectionId = collection._id;
+              try {
+                const collectionCallBack = (collectionResponse) => {
+                  const collection = collectionResponse.data;
+                  if (collection.some((publication) => publication._id === id)) {
+                    setIsSaved(true);
+                    return;
+                  }
+                }
+                get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
+              } catch (error) {
+                console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
+              }
+            }
+          }
           setIsSaved(false);
-        }
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error fetching collection:', error);
+        };
+        get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification du suivi :', error);
-      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
     }
-    console.log(isSaved);
   };
+
+  useEffect(() => {
+    checkIsLiked();
+    checkIsSaved();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
@@ -222,6 +243,42 @@ const SingleArt = ({ navigation, route }: any) => {
           onPress={previous}
         />
       </View>
+      {/* Modal personnalisée pour créer une nouvelle collection ou ajouter à une collection existante */}
+      <Modal isVisible={isModalVisible} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Enregistrer dans...</Text>
+
+          {/* Liste des collections existantes de l'utilisateur */}
+          <FlatList
+            data={userCollections}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.collectionButton}
+                onPress={() => addToCollection(item.name)}
+              >
+                <Text style={styles.collectionButtonText}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+
+          {/* TextInput pour le nom de la nouvelle collection */}
+          <TextInput
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onChangeText={(text) => setNewCollectionName(text)}
+          />
+          {/* Bouton pour créer une nouvelle collection */}
+          <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
+            <Text style={styles.createButtonText}>Créer</Text>
+          </TouchableOpacity>
+
+          {/* Bouton pour annuler */}
+          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
+            <Text style={styles.cancelButtonText}>Annuler</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -275,7 +332,60 @@ const styles = StyleSheet.create({
     vector: {
         width: 25,
         height: 31,
-    }
+    },
+    modal: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 20,
+      borderRadius: 10,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    collectionButton: {
+      padding: 10,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: '#ccc',
+      marginBottom: 10,
+      alignItems: 'center',
+    },
+    collectionButtonText: {
+      color: '#3498db',
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 5,
+      padding: 8,
+      marginBottom: 10,
+    },
+    createButton: {
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: '#3498db',
+      alignItems: 'center',
+    },
+    createButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    cancelButton: {
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: '#ccc',
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    cancelButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
 });
 
 

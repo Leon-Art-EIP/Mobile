@@ -35,7 +35,6 @@ const FollowedComponent = () => {
     subscription: string;
     collections: any[]; // Replace with the actual type
     subscriptions: any[]; // Replace with the actual type
-    subscriptions: any[]; // Replace with the actual type
     subscriptionsCount: number;
     likedPublications: any[]; // Replace with the actual type
     canPostArticles: boolean;
