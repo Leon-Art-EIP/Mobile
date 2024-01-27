@@ -7,7 +7,7 @@ import Card from '../components/Card';
 import Title from '../components/Title';
 import colors from '../constants/colors';
 import { get, post } from '../constants/fetch';
-import { aiCenter, displayFlex, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv8, noHMargin, noMargin } from '../constants/styles';
+import { aiCenter, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv8, noHMargin, noMargin } from '../constants/styles';
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { formatName } from '../helpers/NamesHelper';
@@ -44,8 +44,6 @@ const SingleOrder = () => {
   const route = useRoute();
   const params = route.params as SingleOrderProps;
   const [order, setOrder] = useState<OrderType | undefined>(undefined);
-  const [displayModal, setDisplayModal] = useState<boolean>(true);
-  const [rating, setRating] = useState<number | undefined>(undefined);
 
 
   const setOrderAsSent = () => {
@@ -67,7 +65,6 @@ const SingleOrder = () => {
   }
 
 
-  // When the art is received by the buyer
   const validateOrder = () => {
     post(
       `/api/order/confirm-delivery-rate`,
@@ -162,8 +159,7 @@ const SingleOrder = () => {
           />
 
           <Button
-            disabled={order?.orderState === 'pending'}
-            value={order?.orderState === "pending" ? "Marquer comme envoyée" : "Envoyée"}
+            value='Marquer comme envoyée'
             onPress={setOrderAsSent}
             style={[flex1, noHMargin, mr4]}
           />
@@ -171,19 +167,12 @@ const SingleOrder = () => {
       )}
 
         <Button
-          value="J'ai reçu l'oeuvre"
-          onPress={() => setDisplayModal(true)}
+          value='Validate'
+          /* Fill with conversation object when back-end is available */
+          onPress={validateOrder}
           style={[flex1, noHMargin, ml4]}
         />
       </View>
-
-      {/* Rating modal */}
-      <RatingModal
-        isDisplayed={displayModal}
-        setDisplayed={setDisplayModal}
-        setRating={setRating}
-      />
-
     </SafeAreaView>
   );
 }

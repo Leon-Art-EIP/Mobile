@@ -127,21 +127,21 @@ const HomeScreen = ({ navigation }: any) => {
             </View>
           ) : (
             <FlatList
-            data={articles}
-            contentContainerStyle={styles.flatList}
-            renderItem={(e: ListRenderItemInfo<ArticleType>) => (
-              <ArticleCard
-                onPress={() => handleToArticle(e.item)}
-                item={e.item}
-                path="article"
-              />
-            )}
-            keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            horizontal
-            scrollEnabled
-          />
+              data={articles}
+              contentContainerStyle={styles.flatList}
+              renderItem={(e: ListRenderItemInfo<ArticleType>) => (
+                <ArticleCard
+                  onPress={() => handleToArticle(e.item)}
+                  item={e.item}
+                  path="article"
+                />
+              )}
+              keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              horizontal
+              scrollEnabled
+            />
           )}
         </View>
 

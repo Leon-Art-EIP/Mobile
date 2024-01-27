@@ -1,6 +1,6 @@
 import io, { Socket } from 'socket.io-client';
 
-let storedUrl: string = process.env?.REACT_APP_API_URL ?? "http://back-dev.leonart-dev.ovh";
+let storedUrl: string = process.env?.REACT_APP_API_URL ?? "https://back-dev.leonart-dev.ovh";
 let socket: Socket | undefined = undefined;
 let isVerbose: boolean = false;
 
@@ -10,7 +10,8 @@ const start = (
   url: string = storedUrl,
   verbose: boolean = false
 ) => {
-  socket = io(url);
+  console.log(url, verbose);
+  socket = io(url, {transports: ['websocket']});
   isVerbose = verbose;
   storedUrl = url;
 
@@ -29,10 +30,11 @@ const emit = (
     return console.warn("[SOCKET] key or body is undefined");
   }
 
-  socket?.emit(key, body);
   if (isVerbose) {
-    console.log("[SOCKET] emitted for key ", key);
+    console.log("[SOCKET] socket with key '", key, "' emitted");
   }
+
+  return socket?.emit(key, body);
 }
 
 
@@ -57,6 +59,10 @@ const on = (
     return console.warn("[SOCKET] cannot on() as key is empty");
   }
 
+  if (isVerbose) {
+    console.log("[SOCKET] socket with key '", key, "' was turned on");
+  }
+
   return socket?.on(key, callback);
 }
 
@@ -65,6 +71,10 @@ const on = (
 const off = (key: string) => {
   if (!key) {
     return console.warn("[SOCKET] cannot off() as key is empty");
+  }
+
+  if (isVerbose) {
+    console.log("[SOCKET] socket with key '", key, "' was turned off");
   }
 
   return socket?.off(key);

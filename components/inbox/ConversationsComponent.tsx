@@ -9,7 +9,7 @@ import colors from '../../constants/colors';
 import { MessageType } from '../../constants/conversations';
 import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
-import SockHelper from '../../helpers/socket';
+import SockHelper from '../../helpers/SocketHelper';
 import Title from '../Title';
 
 
@@ -49,12 +49,12 @@ const ConversationsComponent = () => {
     // get conversations
     getConversations();
 
-    // socket gestion
-    if (!SockHelper.isStarted()) {
-      SockHelper.start();
-      SockHelper.on('msg-recieve', (msg: MessageType) => console.log({ ...msg }))
-    }
-
+    /* // socket gestion */
+    /* if (!SockHelper.isStarted()) { */
+    /*   SockHelper.start(); */
+    /*   SockHelper.on('msg-recieve', (msg: MessageType) => console.log({ ...msg })) */
+    /* } */
+    /**/
     //TODO implementing Sockets
   }, []);
 

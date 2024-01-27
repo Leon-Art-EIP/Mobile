@@ -37,12 +37,6 @@ const post = (
 ) => {
   let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
 
-  if (!body) {
-    // console.warn("Empty body for post request");
-  }
-  if (!token) {
-    // console.warn("Token is empty");
-  }
   if (!BACKEND) {
     return console.warn('Backend url is empty');
   }
