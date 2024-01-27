@@ -9,6 +9,7 @@ import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import profilePicture from '../assets/images/user.png'
 import bannerImage from '../assets/images/banner.jpg'
+import emptyCollectionImage from '../assets/icons/hamburger.png'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
@@ -318,7 +319,11 @@ const Profile = () => {
               onPress={() => handleCollectionClick(collection)}
             >
               <Image
-                source={{ uri: `${API_URL}api/${collection.artPublications[0].image}` }} // Utilise la première œuvre de la collection
+                source={
+                  collection.artPublications.length > 0
+                    ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
+                    : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
+                }
                 style={{ flex: 1, borderRadius: 10 }}
                 resizeMode="cover"
                 onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}

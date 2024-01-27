@@ -77,21 +77,6 @@ const SingleArt = ({ navigation, route }: any) => {
     setModalVisible(false);
     setNewCollectionName('');
   };
-
-  const createNewCollection = (collectionName: string) => {
-    // Vérifie si le TextInput n'est pas vide
-    if (newCollectionName.trim() !== '') {
-      // Implémente la logique pour créer une nouvelle collection ici
-      // Vous pouvez utiliser newCollectionName pour obtenir le nom entré
-      console.log('Création d\'une nouvelle collection:', newCollectionName);
-
-      // Enregistre l'œuvre dans la nouvelle collection
-      // addToCollection(newCollectionName);
-
-      // Ferme la modal après la création de la collection et l'ajout de l'œuvre
-      closeModal();
-    }
-  };
   
   const addToCollection = async (collectionName: string) => {
     try {
