@@ -44,13 +44,19 @@ const OtherProfile = ({ route }: any) => {
     try {
       if (token) {
         const url = `/api/follow/${id}`;
-        const response = await post(url, undefined, token, (response) => {
-          // Traitement réussi ici
-        }, (error) => {
-          // Gestion des erreurs ici
+        console.log("azerafazef " + url);
+
+        const body = undefined;
+        const callback = (response) => {
+          console.log('Nouvel utilisateur suivi : ' + response);
+          checkIsFollowing();
+          setIsFollowing(!isFollowing);
+        };
+        const onErrorCallback = (error) => {
           console.error('Erreur de follow :', error);
           Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-        });
+        };
+        post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -59,8 +65,8 @@ const OtherProfile = ({ route }: any) => {
       console.error('Erreur lors de la récupération du token JWT :', error);
       Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
-  
-    checkIsFollowing();
+    
+    // checkIsFollowing();
     fetchUserData();
   };
   
