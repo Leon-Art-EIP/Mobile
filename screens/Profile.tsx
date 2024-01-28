@@ -88,6 +88,7 @@ const Profile = () => {
     __v: number;
     bannerPicture: string;
     profilePicture: string;
+    biography: string;
   }
 
   const fetchUserArtworks = async () => {
@@ -333,9 +334,13 @@ const Profile = () => {
           ))}
         </View>
       )}
-
-
-
+      {activeTab === 'A propos' && (
+        <View style={styles.biographyContainer}>
+          <Text style={[styles.biography, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}>
+            {userData?.biography}
+          </Text>
+        </View>
+      )}
     </View>
     </ScrollView>
   );
@@ -492,6 +497,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     marginLeft: 20,
+  },
+  biographyContainer: {
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 5,
+  },
+  biography: {
+    fontSize: 18,
+    color: colors.black,
   },
 });
 
