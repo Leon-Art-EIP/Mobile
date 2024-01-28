@@ -169,7 +169,7 @@ const SearchScreen = ({ navigation }: any) => {
             styles.filterText,
             fwBold,
             flex1,
-            { fontSize: 20 }
+            { fontSize: 17 }
           ]}>Types</Text>
           <Entypo
             name={isArtTypeDisplayed ? "chevron-thin-up" : "chevron-thin-down"}
@@ -182,7 +182,7 @@ const SearchScreen = ({ navigation }: any) => {
         { isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
           <View
             key={filter.category.toString()}
-            style={{ marginBottom: 24 }}
+            style={{ marginTop: 15 }}
           >
             {/* Filter item */}
             <TouchableOpacity
@@ -242,7 +242,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     shadowColor: colors.transparent,
     marginHorizontal: 12,
-    marginVertical: 12
+    marginVertical: 12,
+    fontSize: 16,
   },
   filterScrollView: {
     flexGrow: 0,
@@ -252,8 +253,8 @@ const styles = StyleSheet.create({
     marginBottom: 8
   },
   filterTouchableOpacity: {
-    padding: 11,
-    paddingHorizontal: 32
+    padding: 5,
+    paddingHorizontal: 23,
   },
   filterText: {
     fontSize: 18

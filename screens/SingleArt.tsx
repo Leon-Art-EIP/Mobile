@@ -8,13 +8,16 @@ import TagButton from '../components/TagButton';
 import Toggle from '../assets/images/toggle.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MainContext } from '../context/MainContext';
+import { useStripe } from '@stripe/stripe-react-native';
+import { Linking } from 'react-native';
+import { getImageUrl } from '../helpers/ImageHelper';
 
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
-const SingleArt = ({ navigation, route }: any) => {
+const SingleArt = ({ navigation, route } : any) => {
 
   const context = useContext(MainContext);
   const [isLiked, setIsLiked] = useState(false);
@@ -22,12 +25,57 @@ const SingleArt = ({ navigation, route }: any) => {
   const [publication, setPublication] = useState(false);
   const { id } = route.params;
 
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [loading, setLoading] = useState(false);
+
     useEffect(() => {
     getPublications();
   }, [id]);
 
-  
-  
+  const fetchPaymentSheetParams = () => {
+    console.log('In fetchPaymentSheetParams, sending id:', id);
+
+    const requestData = {
+      artPublicationId: id,
+    };
+
+  console.log('In fetchedpayebrlgvweblrfvbweijvbofvbe');
+  post(
+    '/api/order/create',
+    requestData,
+    context?.token,
+    (response) => {
+      console.log('Payment Sheet Params:', response);
+
+      if (response && response.data && response.data.url) {
+        const paymentUrl = response.data.url;
+        Linking.openURL(paymentUrl)
+          .catch(err => {
+            console.error('Failed to open URL:', err);
+            Alert.alert('Error', 'Failed to open the payment page.');
+          });
+      } else {
+        console.error('No URL found in the response');
+        Alert.alert('Error', 'Payment URL not found.');
+      }
+    },
+  (error) => {
+    console.error('Error fetching payment sheet parameters:', error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      error.response.data.errors.forEach(err => {
+        console.error(`API error - ${err.param}: ${err.msg}`);
+      });
+    }
+  }
+);
+
+console.log('Request to /api/order/create sent with payload:', requestData);
+};
+
+  const openPaymentSheet = async () => {
+    fetchPaymentSheetParams();
+  };
+
   const handleArtistButtonClick = async () => {
     navigation.navigate('other_profile');
     
@@ -74,7 +122,7 @@ const SingleArt = ({ navigation, route }: any) => {
         });
     
         if (response.status === 200) {
-          setIsLiked(response.data.isLiked); // Assuming the server returns the new like status
+          setIsLiked(response.data.isLiked);
           console.log("Like status updated successfully");
           showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
         } else {
@@ -87,10 +135,6 @@ const SingleArt = ({ navigation, route }: any) => {
       }
     };
     
-
-    const nextPage = () => {
-      navigation.navigate('stripe');
-    };
     
     const selectTag = () => {
     };
@@ -108,8 +152,8 @@ const SingleArt = ({ navigation, route }: any) => {
       <View>
         <Image 
           style={styles.img}
-          source={require('../android/android_asset/mystic_odyssey.png')}
-          // source={{ uri: publication.image }}
+          source={{ uri: getImageUrl(publication.image) }}
+          onError={() => console.log("Image loading error")}
         />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
@@ -152,7 +196,7 @@ const SingleArt = ({ navigation, route }: any) => {
 
         <Button
           value="Acheter"
-          onPress={nextPage}
+          onPress={openPaymentSheet}
           />
         <Button
           style={{ backgroundColor: colors.secondary }}
@@ -180,15 +224,17 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     img: {
-      width: screenWidth - 30 - (2 * 16),
+      alignSelf: 'center',
       resizeMode: 'contain',
       marginLeft: 15,
       marginRight: 15,
       marginTop: 20,
-      height: 300,
+      height: 330,
+      width: 330,
       borderRadius: 5,
     },
     artTitle: {
+      alignSelf: 'center',
       marginTop: 15,
       textAlign: 'center',
       fontWeight: 'bold',

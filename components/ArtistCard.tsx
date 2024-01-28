@@ -4,6 +4,7 @@ import colors from '../constants/colors';
 import { ArtistType } from '../constants/homeValues';
 import Card from './Card';
 import Title from './Title';
+import { getImageUrl } from '../helpers/ImageHelper';
 
 interface ArtistCardProps {
   onPress?: () => void;
@@ -26,7 +27,7 @@ const ArtistCard = ({
       { item?.profilePicture && (
         <Image
           style={styles.image}
-          source={{ uri: API_URL + "/api" + item.profilePicture }}
+          source={{ uri: getImageUrl(item?.profilePicture) }}
         />
       ) }
     </Card>

@@ -8,8 +8,9 @@ import Button from '../components/Button';
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 
-const ProfilingQuizz = ({ navigation }): any => {
-  const [objective, setObjective] = useState('');
+const ProfilingQuizz = ({ route, navigation }): any => {
+  const { objective } = route.params || { objective: 'defaultObjective' };
+
   
   const handleUserChoice = (choice) => {
     console.log('🤩 Choice :', choice);

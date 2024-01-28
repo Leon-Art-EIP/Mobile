@@ -2,13 +2,14 @@ import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView } from 'rea
 import React, { useContext, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 
+import { getImageUrl } from '../helpers/ImageHelper';
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import { MainContext } from '../context/MainContext';
 
-const AddPublication = ({ navigation }: any) => {
+const AddPublication = ({ navigation } : any) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [name, setName] = useState('');
   const [artType, setType] = useState('');
@@ -20,6 +21,8 @@ const AddPublication = ({ navigation }: any) => {
   const context = useContext(MainContext);
   
   const publish = () => {
+    
+    console.log('SELEXC', selectedImage);
     const parsedPrice = parseFloat(price);
     const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
     const requestData = {
@@ -32,7 +35,7 @@ const AddPublication = ({ navigation }: any) => {
       price: isPriceValid ? parsedPrice : 0,
       location: location !== '' ? location : 'empty'
     };
-
+    
     post(
       '/api/art-publication',
       requestData,
@@ -48,16 +51,6 @@ const AddPublication = ({ navigation }: any) => {
       }
     );
     console.log(requestData)
-      
-    // post(
-    //   '/api/art-publication',
-    //   { requestData },
-    //   context?.token,
-    //   () => navigation.navigate('main'),
-    //   (error) => {
-    //     console.error('Error publishing:', error);
-    //   }
-    // );
   };
   
   const selectImage = async () => {
@@ -118,28 +111,32 @@ return (
     {selectedImage && (
       <Image source={{ uri: selectedImage }} style={styles.img} />
     )}
-    <View>
-      <TextInput
-        placeholder="Titre"
-        onChangeText={handleName}
-        style={styles.textInput}
-      />
-      <TextInput
-        placeholder="Description"
-        onChangeText={handleDescription}
-        style={styles.textInput}
+      <View>
+        <TextInput
+          placeholder="Titre"
+          onChangeText={handleName}
+          value={name}
+          style={styles.textInput}
         />
-      <TextInput
-        placeholder="Prix (€)"
-        onChangeText={handlePrice}
-        style={styles.textInput}
+        <TextInput
+          placeholder="Description"
+          onChangeText={handleDescription}
+          value={description}
+          style={styles.textInput}
         />
-      <TextInput
-      placeholder="Genre"
-      onChangeText={handleType}
-      style={styles.textInput}
-      />
-    </View>
+        <TextInput
+          placeholder="Prix (€)"
+          onChangeText={handlePrice}
+          value={price}
+          style={styles.textInput}
+        />
+        <TextInput
+          placeholder="Genre"
+          onChangeText={handleType}
+          value={artType}
+          style={styles.textInput}
+        />
+      </View>
     <View style={{ marginTop: 20 }}>
       <Button
         value="Ajouter"

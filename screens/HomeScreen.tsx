@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { useNavigation } from '@react-navigation/native';
+import { getImageUrl } from '../helpers/ImageHelper';
 
 import colors from "../constants/colors";
 import { ArtistType, ArticleType } from "../constants/homeValues";
@@ -235,11 +236,10 @@ const HomeScreen = ({ navigation }: any) => {
               <View style={styles.publicationItem}>
                 <Image
                   style={styles.publicationImage}
-                  source={{ uri: publication.image }}
-                  // defaultSource={require('../android/android_asset/elegant_echo.png')}
+                  source={{ uri: getImageUrl(publication.image) }}
                   onError={() => console.log("Image loading error")}
                 />
-                <Text style={styles.publicationTitle}>{publication.name}</Text>
+                {/* <Text style={styles.publicationTitle}>{publication.name}</Text> */}
               </View>
             </TouchableOpacity>
           ))}
@@ -263,8 +263,7 @@ titleView: {
   marginTop: 32
 },
 flatList: {
-  // margin: 'auto'
-  paddingLeft: 3, // Add some padding on the left
+  paddingLeft: 3,
 },
 emptyView: {
   alignSelf: 'center',
@@ -316,14 +315,13 @@ publicationItem: {
   height: 120,
   width: 120,
   margin: 5,
-  padding: 20,
   backgroundColor: colors.publicationPlHolder,
   borderRadius: 7,
 },
 publicationImage: {
-  height: 50,
-  marginBottom: 8,
-  borderRadius: 10,
+  height: 120,
+  width: 120,
+  borderRadius: 7,
 },
 publicationTitle: {
   color: colors.black,
