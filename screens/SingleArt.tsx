@@ -1,197 +1,171 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Alert, View, StyleSheet, Text, Image, TouchableOpacity, TextInput, FlatList } from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialIcons';
+import React, { useContext, useState, useEffect } from 'react';
+import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView } from 'react-native';
+import { post, get } from '../constants/fetch';
+
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import TagButton from '../components/TagButton';
 import Toggle from '../assets/images/toggle.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MainContext } from '../context/MainContext';
+import { useStripe } from '@stripe/stripe-react-native';
+import { Linking } from 'react-native';
+import { getImageUrl } from '../helpers/ImageHelper';
+
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import Modal from 'react-native-modal';
 
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+const screenWidth = Dimensions.get('window').width;
 
-const SingleArt = ({ navigation, route }: any) => { 
+const SingleArt = ({ navigation, route } : any) => {
+
   const context = useContext(MainContext);
-  const token = context?.token;
-  const id = route?.params?.id;
-  const userId = route?.params?.userId;
-  
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [userCollections, setUserCollections] = useState<Collection | null>(null);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [newCollectionName, setNewCollectionName] = useState('');
+  const [publication, setPublication] = useState(false);
+  const { id } = route.params;
 
-  const nextPage = () => {
-    navigation.navigate('stripe');
-  };
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [loading, setLoading] = useState(false);
 
-  const selectTag = () => {
+    useEffect(() => {
+    getPublications();
+  }, [id]);
+
+  const fetchPaymentSheetParams = () => {
+    console.log('In fetchPaymentSheetParams, sending id:', id);
+
+    const requestData = {
+      artPublicationId: id,
+    };
+
+  console.log('In fetchedpayebrlgvweblrfvbweijvbofvbe');
+  post(
+    '/api/order/create',
+    requestData,
+    context?.token,
+    (response) => {
+      console.log('Payment Sheet Params:', response);
+
+      if (response && response.data && response.data.url) {
+        const paymentUrl = response.data.url;
+        Linking.openURL(paymentUrl)
+          .catch(err => {
+            console.error('Failed to open URL:', err);
+            Alert.alert('Error', 'Failed to open the payment page.');
+          });
+      } else {
+        console.error('No URL found in the response');
+        Alert.alert('Error', 'Payment URL not found.');
+      }
+    },
+  (error) => {
+    console.error('Error fetching payment sheet parameters:', error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      error.response.data.errors.forEach(err => {
+        console.error(`API error - ${err.param}: ${err.msg}`);
+      });
+    }
+  }
+);
+
+console.log('Request to /api/order/create sent with payload:', requestData);
+};
+
+  const openPaymentSheet = async () => {
+    fetchPaymentSheetParams();
   };
 
   const handleArtistButtonClick = async () => {
-    // TODO : rendre dynamique
     navigation.navigate('other_profile');
+    
   }
-
+  
   const previous = async () => {
     navigation.navigate('homemain');
   }
 
-  const handleLikeButtonClick = async () => {
-    try {
-      const token = await AsyncStorage.getItem('jwt');
-      if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const response = await axios.post(`${API_URL}api/art-publication/like/65377fcbbfacccdbe11c44ce`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
-      else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    }
-    catch (error) {
-      console.error('Erreur de follow :', error);
-      Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-    }
-    checkIsLiked();
-  };
 
-  const handleSavedButtonClick = async () => {
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    setNewCollectionName('');
+  const showAlert = (message) => {
+    Alert.alert(
+      "Art Publication",
+      message,
+    );
   };
   
-  const addToCollection = async (collectionName: string) => {
-    try {
-      if (token) {
-        const url = `/api/collection`;
-        const body = {
-          artPublicationId: id,
-          collectionName: collectionName,
-          isPublic: true
-        };
-        const callback = (response) => {
-          console.log('Saved to collection successfully');
-          Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
-          setIsSaved(true);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error while saving to collection:', error);
-          Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
-        };
-        post(url, body, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+  const getPublications = () => {
+    get(
+      `/api/art-publication/${id}`,
+      context?.token,
+      (response) => {
+        console.log('🎨 Publications:', response.data)
+        setPublication(response?.data || []);
+      },
+      (error) => {
+        console.error("Error fetching publications:", error);
       }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du token JWT :', error);
-      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
-    }
-    closeModal();
-  };
+      );
+      console.log('LOG');
+    };
+    
+    const savePublication = () => {};
 
-  const checkIsLiked = async () => {
-    try {
-      if (token) {
-        const url = `/api/art-publication/users-who-liked/${id}`;
-        const callback = (response) => {
-          const responseData = response.data;
-          const usersWhoLiked = responseData.users;
-          const currentUserUsername = "VivantGarrigues";
-          const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
-
-          setIsLiked(isArtLiked);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching like:', error);
-          Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+    const likePublication = async () => {
+      try {
+        const updatedLikeStatus = !isLiked;
+        
+        const response = await axios.post(`/api/art-publication/like/${id}`, {
+          isLiked: updatedLikeStatus
+        }, {
+          headers: {
+            Authorization: `Bearer ${context?.token}`,
+          },
+        });
+    
+        if (response.status === 200) {
+          setIsLiked(response.data.isLiked);
+          console.log("Like status updated successfully");
+          showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
+        } else {
+          console.error("Failed to update like status");
+          showAlert('Failed to update like status');
+        }
+      } catch (error) {
+        console.error("Error in liking publication:", error);
+        console.error(error.response || error)
       }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
-    }
-  };
+    };
+    
+    
+    const selectTag = () => {
+    };
 
-  const checkIsSaved = async () => {
-    try {
-      if (token) {
-        const url = `/api/collection/my-collections`;
-        const callback = (response) => {
-          setUserCollections(response.data);
-          if (response.data) {
-            for (const collection of response.data) {
-              const collectionId = collection._id;
-              try {
-                const collectionCallBack = (collectionResponse) => {
-                  const collection = collectionResponse.data;
-                  if (collection.some((publication) => publication._id === id)) {
-                    setIsSaved(true);
-                    return;
-                  }
-                }
-                get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
-              } catch (error) {
-                console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
-              }
-            }
-          }
-          setIsSaved(false);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching collection:', error);
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-    }
-  };
+    return (
+      <ScrollView>
+      <View style={styles.container}>
 
-  useEffect(() => {
-    checkIsLiked();
-    checkIsSaved();
-  }, []);
-
-  return (
-    <View style={styles.container}>
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <Text style={styles.artTitle}>Les voix du Néant</Text>
+      <View style={{ flexDirection: 'row'}}>
+        <Text style={styles.artTitle}>{publication.name}</Text>
       </View>
       <View>
-        <Image style={styles.img} />
+        <Image 
+          style={styles.img}
+          source={{ uri: getImageUrl(publication.image) }}
+          onError={() => console.log("Image loading error")}
+        />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
         <TagButton
-          onPress={handleArtistButtonClick}/>
+          onPress={handleArtistButtonClick}
+        />
         <Text style={{ marginLeft: 90, fontSize: 10 }}/>
         <Button
           value={isSaved ? "Saved" : "Save"}
@@ -205,43 +179,37 @@ const SingleArt = ({ navigation, route }: any) => {
             justifyContent: 'center',
           }}
           textStyle={{fontSize: 14, textAlign: 'center', color: colors.black}}
-          onPress={() => handleSavedButtonClick()}
-          />
+          onPress={() => savePublication()}
+        />
         <Button
-          value={isLiked ? "Liké" : "Like"}
-          secondary= {isLiked ? true : false}
-          style={{
-            width: 70,
-            height: 38,
-            borderRadius: 30,
-            marginLeft: 0,
-            justifyContent: 'center',
-            backgroundColor: colors.artistPlHolder,
-          }}
-          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
-          onPress={() => handleLikeButtonClick()}
-          />
+          value={isLiked ? "Liked" : "Like"}
+          secondary={isLiked ? true : false}
+          style={styles.button}
+          textStyle={{fontSize: 14, textAlign: 'center'}}
+          onPress={likePublication}
+        />
       </View>
       <View>
       <Text style={{ marginLeft: 20, fontSize: 20 }}>
-          200€
-        </Text>
+        {publication.price} €
+       </Text>
       <Text style={{ marginLeft: 20, fontSize: 15 }}>
-        Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum
+        {publication.description}
       </Text>
       </View>
       <View style={{ marginTop: 20, marginBottom: 30 }}>
+      
 
         <Button
           value="Acheter"
-          onPress={nextPage}
-        />
+          onPress={openPaymentSheet}
+          />
         <Button
           style={{ backgroundColor: colors.secondary }}
           textStyle={{ color: colors.black }}
           value="Retour"
           onPress={previous}
-        />
+          />
       </View>
       {/* Modal personnalisée pour créer une nouvelle collection ou ajouter à une collection existante */}
       <Modal isVisible={isModalVisible} style={styles.modal}>
@@ -280,6 +248,7 @@ const SingleArt = ({ navigation, route }: any) => {
         </View>
       </Modal>
     </View>
+    </ScrollView>
   );
 };
 
@@ -297,18 +266,25 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     img: {
-        margin: 13,
-        height: 300,
-        borderRadius: 15,
-        backgroundColor: colors.articlePlHolder,
+      alignSelf: 'center',
+      resizeMode: 'contain',
+      marginLeft: 15,
+      marginRight: 15,
+      marginTop: 20,
+      height: 330,
+      width: 330,
+      borderRadius: 5,
     },
     artTitle: {
-        textAlign: 'center',
-        marginBottom: 0,
-        marginTop: 0,
-        marginLeft: 75,
-        fontSize: 25,
-        color: '#000',
+      alignSelf: 'center',
+      marginTop: 15,
+      textAlign: 'center',
+      fontWeight: 'bold',
+      fontSize: 25,
+      color: '#000',
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     artText: {
         fontSize: 55,
@@ -333,59 +309,15 @@ const styles = StyleSheet.create({
         width: 25,
         height: 31,
     },
-    modal: {
+    button:
+    { 
+      width: 70,
+      height: 38,
+      borderRadius: 30,
+      marginLeft: 0,
       justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalContent: {
-      backgroundColor: 'white',
-      padding: 20,
-      borderRadius: 10,
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
-    collectionButton: {
-      padding: 10,
-      borderRadius: 5,
-      borderWidth: 1,
-      borderColor: '#ccc',
-      marginBottom: 10,
-      alignItems: 'center',
-    },
-    collectionButtonText: {
-      color: '#3498db',
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: '#ccc',
-      borderRadius: 5,
-      padding: 8,
-      marginBottom: 10,
-    },
-    createButton: {
-      padding: 10,
-      borderRadius: 5,
-      backgroundColor: '#3498db',
-      alignItems: 'center',
-    },
-    createButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    cancelButton: {
-      padding: 10,
-      borderRadius: 5,
-      backgroundColor: '#ccc',
-      alignItems: 'center',
-      marginTop: 10,
-    },
-    cancelButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
+      backgroundColor: colors.black
+    }
 });
 
 

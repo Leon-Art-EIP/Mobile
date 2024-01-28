@@ -17,7 +17,7 @@ const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
-  const id = route?.params?.id;    // this is the received user_id you have to fetch
+  const id = route?.params?.id;
   const context = useContext(MainContext);
   const token = context?.token;
   
@@ -27,8 +27,9 @@ const OtherProfile = ({ route }: any) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
 
-  const handleArtworkClick = (id: string, userId: string) => {
-    navigation.navigate('singleart', { id: id, userId: userId });
+  const handleArtworkClick = (pageName) => {
+    navigation.navigate(pageName);
+
   };
 
   const handleBackButtonClick = () => {
@@ -44,15 +45,9 @@ const OtherProfile = ({ route }: any) => {
     try {
       if (token) {
         const url = `/api/follow/${id}`;
-        console.log("azerafazef " + url);
 
-        const body = undefined;
-        const callback = (response) => {
-          console.log('Nouvel utilisateur suivi : ' + response);
-          checkIsFollowing();
-          setIsFollowing(!isFollowing);
-        };
-        const onErrorCallback = (error) => {
+        const response = await post(url, undefined, token, (response) => {
+        }, (error) => {
           console.error('Erreur de follow :', error);
           Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
         };
@@ -90,7 +85,6 @@ const OtherProfile = ({ route }: any) => {
       }
     } catch (error) {
       console.error('Erreur lors de la vérification du suivi :', error);
-      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
     }
   };
 
