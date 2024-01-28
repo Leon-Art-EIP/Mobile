@@ -12,7 +12,8 @@ import { MainContext } from '../context/MainContext';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Linking } from 'react-native';
 import { getImageUrl } from '../helpers/ImageHelper';
-
+import ArtistCard from '../components/ArtistCard';
+import { ArtistType } from '../constants/homeValues';
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import { MainContext } from '../context/MainContext';
@@ -24,17 +25,53 @@ const screenWidth = Dimensions.get('window').width;
 const SingleArt = ({ navigation, route } : any) => {
 
   const context = useContext(MainContext);
+  const [artist, setArtist] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState(false);
+  const [author, setAuthor] = useState(false);
+  const [artists, setArtists] = useState<ArtistType[]>([]);
   const { id } = route.params;
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     getPublications();
   }, [id]);
+  
+  useEffect(() => {
+    if (publication && publication.userId) {
+      fetchArtistDetails();
+    }
+  }, [publication]);
+
+  const fetchArtistDetails = async () => {
+    try {
+      const response = await get(`/api/user/profile/${publication.userId}`, context?.token);
+      setArtist(response.data);
+    } catch (error) {
+      console.error("Error fetching artist details:", error);
+    }
+  };
+
+  const handleToArtistProfile = (artist: ArtistType) => {
+    console.log('artist id: ', artist._id);
+    navigation.navigate('other_profile', { id: artist._id });
+  };
+
+  const getAuthorName = (userId) => {
+    get(
+      `/api/user/profile/${userId}`,
+      context?.token,
+      (response) => {
+        setAuthor(response.data);
+      },
+      (error) => {
+        console.error("Error fetching Artist Name:", error);
+      }
+    );
+  };
 
   const fetchPaymentSheetParams = () => {
     console.log('In fetchPaymentSheetParams, sending id:', id);
@@ -104,12 +141,12 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       (response) => {
         console.log('🎨 Publications:', response.data)
         setPublication(response?.data || []);
+        getAuthorName(response?.data.userId);
       },
       (error) => {
         console.error("Error fetching publications:", error);
       }
       );
-      console.log('LOG');
     };
     
     const savePublication = () => {};
@@ -162,35 +199,36 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           onError={() => console.log("Image loading error")}
         />
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
-        <TagButton
-          onPress={handleArtistButtonClick}
-        />
-        <Text style={{ marginLeft: 90, fontSize: 10 }}/>
+      <View style={styles.rowContainer}>
+        {author && (
+          <ArtistCard
+            showTitle={false}
+            onPress={() => handleToArtistProfile(author)}
+            item={author}
+            path="other_profile"
+            style={styles.artistCardStyle}
+          />
+        )}
+        <Text style={styles.userIdText}>
+          {author ? author.username : 'Loading...'}
+        </Text>
         <Button
           value={isSaved ? "Saved" : "Save"}
-          secondary= {isSaved ? true : false}
-          style={{
-            backgroundColor: colors.secondary,
-            width: 75,
-            height: 38,
-            borderRadius: 30,
-            marginLeft: 55,
-            justifyContent: 'center',
-          }}
-          textStyle={{fontSize: 14, textAlign: 'center', color: colors.black}}
+          secondary={isSaved ? true : false}
+          style={[styles.actionButton, { backgroundColor: colors.secondary }]}
+          textStyle={{ fontSize: 14, textAlign: 'center', color: colors.black }}
           onPress={() => savePublication()}
         />
         <Button
           value={isLiked ? "Liked" : "Like"}
           secondary={isLiked ? true : false}
-          style={styles.button}
-          textStyle={{fontSize: 14, textAlign: 'center'}}
+          style={[styles.actionButton, { backgroundColor: colors.black }]}
+          textStyle={{ fontSize: 14, textAlign: 'center', color: 'white' }}
           onPress={likePublication}
         />
       </View>
-      <View>
-      <Text style={{ marginLeft: 20, fontSize: 20 }}>
+      <View style={{ marginLeft: 20 }}>
+      <Text style={{ marginLeft: 20, fontSize: 23, color: 'black' }}>
         {publication.price} €
        </Text>
       <Text style={{ marginLeft: 20, fontSize: 15 }}>
@@ -198,8 +236,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       </Text>
       </View>
       <View style={{ marginTop: 20, marginBottom: 30 }}>
-      
-
         <Button
           value="Acheter"
           onPress={openPaymentSheet}
@@ -255,7 +291,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        padding: 10,
         backgroundColor: colors.white,
     },
     logo: {
@@ -264,6 +300,11 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         padding: 20,
         borderRadius: 5,
+    },
+    artistCardStyle: {
+      borderRadius: 30,
+      container: { width: 45, height: 45, borderRadius: 30, marginTop: 0, color: 'white'},
+      image: { width: 45, height: 45, borderRadius: 30, marginTop: 25 },
     },
     img: {
       alignSelf: 'center',
@@ -286,6 +327,52 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
+    rowContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 10,
+      justifyContent: 'space-between',
+    },
+    actionButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 15,
+      borderRadius: 30,
+      justifyContent: 'center',
+      marginLeft: 'auto',
+    },
+    primaryButton: {
+      backgroundColor: colors.primary,
+    },
+    secondaryButton: {
+      backgroundColor: colors.secondary,
+    },
+    buttonText: {
+      fontSize: 14,
+      color: colors.black,
+    },
+    buttonText: {
+      fontSize: 14,
+      textAlign: 'center',
+      color: colors.black,
+    },
+    userIdText: {
+      marginLeft: 6,
+      fontSize: 15,
+      flex: 1,
+      color: 'black',
+    },
+    saveButton: {
+      backgroundColor: colors.secondary,
+      width: 75,
+      height: 38,
+      borderRadius: 30,
+      justifyContent: 'center',
+      flex: 1,
+    },
+    likeButton: {
+      color: 'white',
+      flex: 1,
+    },
     artText: {
         fontSize: 55,
         color: '#000',
@@ -297,7 +384,6 @@ const styles = StyleSheet.create({
     },
     TagButton: {
         backgroundColor: '#F4F4F4',
-        
     },
     TagButtonText: {
         color: '#000',
