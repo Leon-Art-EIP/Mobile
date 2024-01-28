@@ -4,6 +4,7 @@ import OtherProfile from '../screens/OtherProfile';
 import ResultsScreen from '../screens/ResultsScreen';
 
 import SearchScreen from '../screens/SearchScreen';
+import SingleArt from '../screens/SingleArt';
 
 const SearchNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -16,6 +17,7 @@ const SearchNavigator = () => {
       <Stack.Screen name="searchmain" component={SearchScreen} options={options} />
       <Stack.Screen name="results" component={ResultsScreen} options={options} />
       <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
+      <Stack.Screen name="single_art" component={SingleArt} options={options} />
     </Stack.Navigator>
   );
 }

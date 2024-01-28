@@ -7,7 +7,7 @@ import colors from '../constants/colors';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { acCenter, aiCenter, asCenter, bgGrey, bgRed, br20, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph24, ph8, pv24, pv4, pv8 } from '../constants/styles';
+import { aiCenter, bgGrey, br20, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import { getImageUrl } from '../helpers/ImageHelper';
 
@@ -43,15 +43,12 @@ const ResultsScreen = () => {
 
 
   const navigateToPreview = (post: ArtPublicationType) => {
-    // Redirect to the singleArt page
-    return console.log("You clicked on the post with ID ", post.id);
+    navigation.navigate('single_art', { id: post?._id });
   }
 
 
   const navigateToProfile = (user: UserType) => {
-    // Redirect to the singleProfile page
     navigation.navigate('other_profile', { id: user._id })
-    return console.log("You clicked on the profile with ID ", user._id);
   }
 
 
@@ -128,15 +125,21 @@ const ResultsScreen = () => {
 
           <FlatList
             data={posts}
-            numColumns={3}
+            numColumns={2}
             renderItem={(e) => (
               <TouchableOpacity
                 onPress={() => navigateToPreview(e.item)}
                 style={styles.singleArt}
               >
                 <Image
-                  style={{ backgroundColor: colors.disabledBg, height: 100, borderRadius: 12 }}
-                  source={{ uri: e.item.image }}
+                  style={{
+                    backgroundColor: colors.disabledBg,
+                    height: 150,
+                    width: 150,
+                    aspectRatio: 1,
+                    borderRadius: 12
+                  }}
+                  source={{ uri: getImageUrl(e.item.image) }}
                 />
                 <Text>{ e.item?.name }</Text>
               </TouchableOpacity>

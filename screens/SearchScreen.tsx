@@ -130,7 +130,7 @@ const SearchScreen = ({ navigation }: any) => {
       <View style={styles.searchView}>
         <TextInput
           onChangeText={setSearch}
-          placeholder="Search..."
+          placeholder="Recherche..."
           style={styles.searchBar}
         />
         <FontAwesome
@@ -215,7 +215,7 @@ const SearchScreen = ({ navigation }: any) => {
         <Button
           style={[mh4, flex1]}
           onPress={clearFilters}
-          value="Clear filters"
+          value="Effacer"
           secondary
         />
 
@@ -223,7 +223,7 @@ const SearchScreen = ({ navigation }: any) => {
         <Button
           style={[mh4, flex1]}
           onPress={getSearchApi}
-          value="Search"
+          value="Rechercher"
         />
       </View>
     </SafeAreaView>
