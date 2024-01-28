@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import OtherProfile from '../screens/OtherProfile';
 import Conversation from "../screens/Conversation";
+import SingleArt from '../screens/SingleArt';
 
 const OtherProfileNavigator = () => {
   const Stack = createNativeStackNavigator();

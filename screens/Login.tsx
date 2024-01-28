@@ -24,13 +24,16 @@ const Login = ({ navigation }: any) => {
     console.log({ ...response });
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
+      console.log("Token : " + tokenFromDB);
       // console.log(response.data);
       // console.log(response.data.user.id);
 
       try {
         await AsyncStorage.setItem('jwt', tokenFromDB);
         context?.setToken(tokenFromDB);
+        context?.setUserEmail(response.data.user.email);
         context?.setUserId(response.data.user.id);
+        context?.setisArtist(response.data.user.is_artist);
         navigation.navigate('main');
       } catch (error) {
         console.error('Error storing token:', error);

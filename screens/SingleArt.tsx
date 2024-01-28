@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView } from 'react-native';
 import { post, get } from '../constants/fetch';
+
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
@@ -14,6 +15,9 @@ import { getImageUrl } from '../helpers/ImageHelper';
 
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import { MainContext } from '../context/MainContext';
+import { get, post } from '../constants/fetch';
+import Modal from 'react-native-modal';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -85,6 +89,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
     navigation.navigate('homemain');
   }
 
+
   const showAlert = (message) => {
     Alert.alert(
       "Art Publication",
@@ -142,6 +147,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
     return (
       <ScrollView>
       <View style={styles.container}>
+
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
@@ -205,6 +211,42 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           onPress={previous}
           />
       </View>
+      {/* Modal personnalisée pour créer une nouvelle collection ou ajouter à une collection existante */}
+      <Modal isVisible={isModalVisible} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Enregistrer dans...</Text>
+
+          {/* Liste des collections existantes de l'utilisateur */}
+          <FlatList
+            data={userCollections}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.collectionButton}
+                onPress={() => addToCollection(item.name)}
+              >
+                <Text style={styles.collectionButtonText}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+
+          {/* TextInput pour le nom de la nouvelle collection */}
+          <TextInput
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onChangeText={(text) => setNewCollectionName(text)}
+          />
+          {/* Bouton pour créer une nouvelle collection */}
+          <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
+            <Text style={styles.createButtonText}>Créer</Text>
+          </TouchableOpacity>
+
+          {/* Bouton pour annuler */}
+          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
+            <Text style={styles.cancelButtonText}>Annuler</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
     </ScrollView>
   );

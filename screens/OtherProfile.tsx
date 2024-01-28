@@ -19,16 +19,17 @@ const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
   const id = route?.params?.id;
   const context = useContext(MainContext);
+  const token = context?.token;
+  
   const [isFollowing, setIsFollowing] = useState(false);
-
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
-  const token = context?.token;
 
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
+
   };
 
   const handleBackButtonClick = () => {
@@ -44,11 +45,13 @@ const OtherProfile = ({ route }: any) => {
     try {
       if (token) {
         const url = `/api/follow/${id}`;
+
         const response = await post(url, undefined, token, (response) => {
         }, (error) => {
           console.error('Erreur de follow :', error);
           Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-        });
+        };
+        post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -57,8 +60,8 @@ const OtherProfile = ({ route }: any) => {
       console.error('Erreur lors de la récupération du token JWT :', error);
       Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
-  
-    checkIsFollowing();
+    
+    // checkIsFollowing();
     fetchUserData();
   };
   
@@ -273,7 +276,7 @@ const OtherProfile = ({ route }: any) => {
         <TouchableOpacity
           key={index}
           style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-          onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
+          onPress={() => handleArtworkClick(artwork._id, userData.user_id)}
         >
           <Image
             source={{ uri: `${API_URL}api/${artwork.image}` }}
