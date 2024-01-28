@@ -10,7 +10,8 @@ import {
   ScrollView,
   StatusBar,
   FlatList,
-  ListRenderItem
+  ListRenderItem,
+  TextInput
 } from 'react-native';
 import { Socket } from 'socket.io-client';
 import TextBubble from '../components/inbox/TextBubble';
@@ -92,18 +93,12 @@ const Conversation = () => {
   }
 
 
-  const onSocketReceived = useCallback((msg: MessageType) => {
-    let new_messages: MessageType[] = [ ...messages, msg ];
-    setMessages([ ...new_messages ]);
-  }, [messages]);
-
-
   useEffect(() => {
     getConversation();
 
     SockHelper.start(process.env.REACT_APP_API_URL, true);
     SockHelper.emit('add-user', context?.userId);
-    SockHelper.on('msg-recieve', onSocketReceived);
+    SockHelper.on('msg-recieve', getConversation);
   }, []);
 
 
@@ -142,7 +137,10 @@ const Conversation = () => {
       <ScrollView
         contentContainerStyle={styles.conversationContainer}
         ref={scrollView}
-        onContentSizeChange={(_, height) => scrollView.current?.scrollTo({ y: height, animated: true })}
+        onContentSizeChange={(_, height) => {
+          console.log(height, messages.map((msg) => msg.content));
+          scrollView.current?.scrollTo({ y: height, animated: true })
+        }}
       >
         { messages && messages.map((msg: MessageType) => (
             <TextBubble message={msg} key={msg._id} />
@@ -153,19 +151,11 @@ const Conversation = () => {
       <View style={styles.messageContainer}>
         <View style={styles.messageView}>
 
-          {/* Micro */}
-          {/* <TouchableOpacity style={styles.micView}> */
-          /*   <Image */
-          /*     style={styles.micImage} */
-          /*     source={require('../assets/icons/Microphone.png')} */
-          /*   /> */
-          /* </TouchableOpacity> */}
-
           {/* Input message */}
-          <Input
+          <TextInput
             style={styles.messageInput}
             placeholder="Message ..."
-            onTextChanged={(newMsg: string) => setNewMessage(newMsg)}
+            onChangeText={(newMsg: string) => setNewMessage(newMsg)}
             value={newMessage}
           />
 

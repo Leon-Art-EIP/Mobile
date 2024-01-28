@@ -49,9 +49,9 @@ const CommandsComponent = () => {
         Orders
       </Text>
 
-      {orders.map((order, index) => (
+      { orders.map((order, index) => (
         <TouchableOpacity
-          key={order.orderId}
+          key={order.orderId + Math.random().toString()}
           onPress={() => navigation.navigate('single_order', { id: order.orderId, buy: true })}
         >
         <View key={order._id || index} style={styles.orderItem}>
@@ -66,13 +66,13 @@ const CommandsComponent = () => {
           </View>
         </View>
         </TouchableOpacity>
-      ))}
+      )) }
 
       <Text style={styles.title}>
         Sales
       </Text>
 
-      {sales.map((sales, index) => (
+      { sales.map((sales, index) => (
         <TouchableOpacity
           key={sales._id}
           onPress={() => navigation.navigate('single_order', { id: sales.orderId, buy: false })}
@@ -84,12 +84,12 @@ const CommandsComponent = () => {
               testID="command-img"
             />
             <View style={styles.textContainer}>
-              <Text style={fwBold}>{sales._id}</Text>
+              <Text style={fwBold}>{sales.artPublicationName}</Text>
               <Text>{sales.orderPrice} €</Text>
             </View>
           </View>
         </TouchableOpacity>
-      ))}
+      )) }
     </ScrollView>
   );
 };

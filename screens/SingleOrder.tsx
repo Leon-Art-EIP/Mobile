@@ -1,17 +1,19 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, Image, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid } from 'react-native';
+import { StatusBar, StyleSheet, Image, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Title from '../components/Title';
 import colors from '../constants/colors';
-import { get, post } from '../constants/fetch';
-import { aiCenter, displayFlex, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv8, noHMargin, noMargin } from '../constants/styles';
+import { get, post, put } from '../constants/fetch';
+import { acCenter, aiCenter, asCenter, displayFlex, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv4, mv8, noHMargin, noMargin } from '../constants/styles';
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { formatName } from '../helpers/NamesHelper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import RatingModal from '../components/RatingModal';
 
 
 type OrderType = {
@@ -22,9 +24,12 @@ type OrderType = {
   createdAt: string;
   orderId: string;
   orderPrice: number;
-  orderState: string;
+  paymentStatus: 'pending' | 'paid' | 'refunded';
+  orderState: 'pending' | 'paid' | 'cancelled' | 'shipping' | 'completed';
   sellerId: string;
   sellerName: string;
+  buyerId: string;
+  buyerName: string;
   updatedAt: string;
 };
 
@@ -44,16 +49,32 @@ const SingleOrder = () => {
   const route = useRoute();
   const params = route.params as SingleOrderProps;
   const [order, setOrder] = useState<OrderType | undefined>(undefined);
-  const [displayModal, setDisplayModal] = useState<boolean>(true);
+  const [displayModal, setDisplayModal] = useState<boolean>(false);
   const [rating, setRating] = useState<number | undefined>(undefined);
 
 
   const setOrderAsSent = () => {
-    return
+    return post(
+      `/api/order/confirm-shipping`,
+      { orderId: params.id },
+      context?.token,
+      () => ToastAndroid.show("Commande marquée comme envoyée !", ToastAndroid.SHORT),
+      (err) => {
+        Alert.alert("Erreur", "Nous n'avons pas pu marquer la commande comme 'envoyée'. Veuillez réessayer plus tard.");
+        console.error({ ...err });
+      }
+    );
   }
 
 
   const cancelOrder = () => {
+    if (order?.orderState === 'shipping') {
+      return ToastAndroid.show(
+        "Vous ne pouvez pas annuler la commande si l'oeuvre est déjà envoyée",
+        ToastAndroid.LONG
+      );
+    }
+
     post(
       `/api/order/cancel/${params?.id}`,
       {},
@@ -71,11 +92,38 @@ const SingleOrder = () => {
   const validateOrder = () => {
     post(
       `/api/order/confirm-delivery-rate`,
-      { rating: 5, orderId: order?.orderId },
+      { rating: rating, orderId: order?.orderId },
       context?.token,
       (res) => {
         ToastAndroid.show("Order validated", ToastAndroid.SHORT);
         return navigation.goBack();
+      },
+      (err) => console.warn(err)
+    );
+  }
+
+
+  const navigateToConversation = () => {
+    let convBody = {
+      UserOneId: context?.userId,
+      UserTwoId: params.buy ? order?.sellerId : order?.buyerId
+    };
+
+    put(
+      `/api/conversations/create`,
+      convBody,
+      context?.token,
+      (res) => {
+        if (res?.data?.convId) {
+          navigation.navigate('single_conversation', {
+            name: params?.buy ? order?.sellerName : order?.buyerName,
+            ids: [
+              res?.data?.convId,
+              context?.userId,
+              params?.buy ? order?.sellerId : order?.buyerId
+            ]
+          });
+        }
       },
       (err) => console.warn(err)
     );
@@ -109,6 +157,18 @@ const SingleOrder = () => {
           />
         </TouchableOpacity>
         <Title style={mv8}>Commande</Title>
+
+        <TouchableOpacity
+          onPress={navigateToConversation}
+          style={{ marginLeft: 'auto' }}
+        >
+          <MaterialCommunityIcons
+            name="message-reply-text-outline"
+            onPress={navigateToConversation}
+            size={32}
+            color={colors.primary}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Art picture */}
@@ -131,14 +191,13 @@ const SingleOrder = () => {
         <TouchableOpacity
           style={[flexRow, aiCenter]}
           /* navigate to user profile */
-          onPress={() => navigation.navigate('single_profile', { id: order?.sellerId })}
+          onPress={() => navigation.navigate('single_profile', {
+            id: params?.buy ? order?.sellerId : order?.buyerId
+          })}
         >
-          <Image
-            /* artist profile picture */
-            /* source={{ uri:  }} */
-            style={styles.sellerImage}
-          />
-          <Text style={[mh8]}>{ formatName(order?.sellerName, 30) }</Text>
+          <Text>{
+            'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
+          }</Text>
         </TouchableOpacity>
       </Card>
 
@@ -148,33 +207,65 @@ const SingleOrder = () => {
         </ScrollView>
       </Card>
 
+
+      { !params?.buy ? (
+        <Card style={{
+          marginHorizontal: 0,
+          backgroundColor: colors.offerBg,
+          marginVertical: 0
+        }}>
+          <Text style={{ color: colors.offerFg }}>{
+            order?.orderState === 'shipping' ?
+            "L'oeuvre a été envoyée ! Veuillez patienter que l'acheteur la recoive !" :
+            "L'oeuvre est prête ? Appuyez sur \"Envoyer l'oeuvre\" après l'avoir envoyée à votre acheteur !"
+          }</Text>
+        </Card>
+      ) : (
+        <Card style={{ marginHorizontal: 0, backgroundColor: colors.offerBg }}>
+          <Text style={{ color: colors.offerFg }}>Notez votre transaction avant de l'achever !</Text>
+          <View style={[flexRow, asCenter, mv4]}>
+            { [1, 2, 3, 4, 5].map((item: number) => (
+              <AntDesign
+                onPress={() => setRating(item)}
+                name={rating && rating >= item ? 'star' : 'staro'}
+                color={rating && rating >= item ? colors.primary : colors.offerFg}
+                size={32}
+              />
+            )) }
+          </View>
+        </Card>
+      ) }
+
+
       {/* Back and goToMessage buttons */}
       <View style={[mtAuto, flexRow]}>
 
-      {/* Cancel only for seller */}
-      { order?.sellerId === context?.userId && (
-        <>
-          <Button
-            value='Cancel'
-            onPress={cancelOrder}
-            style={[flex1, noHMargin, mr4]}
-            secondary
-          />
+        {/* If seller */}
+        { !params.buy ? (
+          <>
+            <Button
+              value='Cancel'
+              onPress={cancelOrder}
+              style={[flex1, noHMargin, mr4]}
+              secondary
+            />
 
+            <Button
+              disabled={order?.orderState === 'shipping'}
+              value={order?.orderState !== 'shipping' ? "Envoyer l'oeuvre" : "Envoyée"}
+              onPress={setOrderAsSent}
+              style={[flex1, noHMargin, mr4]}
+            />
+          </>
+        ) : (
           <Button
-            disabled={order?.orderState === 'pending'}
-            value={order?.orderState === "pending" ? "Marquer comme envoyée" : "Envoyée"}
-            onPress={setOrderAsSent}
-            style={[flex1, noHMargin, mr4]}
+            value="J'ai reçu l'oeuvre"
+            disabled={!rating}
+            onPress={validateOrder}
+            style={[flex1, noHMargin, ml4]}
           />
-        </>
-      )}
+        ) }
 
-        <Button
-          value="J'ai reçu l'oeuvre"
-          onPress={() => setDisplayModal(true)}
-          style={[flex1, noHMargin, ml4]}
-        />
       </View>
 
       {/* Rating modal */}
