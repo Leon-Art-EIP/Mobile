@@ -91,7 +91,7 @@ const TextBubble = ({
 const styles = StyleSheet.create({
   bubbleView: {
     maxWidth: '70%',
-    borderRadius: 50,
+    borderRadius: 30,
     marginVertical: 2,
     paddingVertical: 12,
     paddingHorizontal: 18,
