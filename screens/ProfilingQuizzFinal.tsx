@@ -1,43 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react';
+import { View, StyleSheet, Text, Alert, TouchableOpacity } from 'react-native'
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
-import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg';
+import { MainContext } from '../context/MainContext';
 
-const ProfilingQuizzFinal = ({ navigation }: any) => {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+const ProfilingQuizzFinal = ({ route, navigation }: any) => {
+  const { objective, artInterestType, artSellingType,  location, customCommands, budget } = route.params;
+  const [discoveryMethod, setSelectedTag] = useState<string | null>(null);
+  const context = useContext(MainContext);
 
   const next = () => {
-    if (selectedTag === null) {
-        console.log('selectedTag is empty');
-        return;
+    if (discoveryMethod == null)
+      return;
+    Alert.alert('Your preferences have been saved !');
+    postQuizDatas();
+    navigation.navigate('mainNav');
+    
+  };
+  
+  const postQuizDatas = () => {
+    const quizDatas = {
+      artInterestType,
+      artSellingType,
+      budget,
+      customCommands,
+      discoveryMethod,
+      location,
+      objective,
+    };
+
+    const requestData = {
+      objective,
+      artInterestType: Array.isArray(quizDatas.artInterestType) && quizDatas.artInterestType.length > 0 ? quizDatas.artInterestType : [''],
+      artSellingType: Array.isArray(quizDatas.artSellingType) && quizDatas.artSellingType.length > 0 ? quizDatas.artSellingType : [''],
+      location: quizDatas.location || '',
+      customCommands: quizDatas.customCommands || 'No',
+      budget: quizDatas.budget || '',
+      discoveryMethod,
+    };
+
+    post('/api/quizz/submit',
+    requestData,
+    context?.token,
+    () => navigation.navigate('main'),
+    (error) => {
+      console.error('Error publishing quiz data:', error);
+      if (error.response && error.response.data && error.response.data.errors) {
+        error.response.data.errors.forEach(err => {
+          console.error(`Validation error - ${err.param}: ${err.msg}`);
+        });
       }
-      post(
-        '/api/quizz/submit/',
-        { selectedTag },
-        () => navigation.navigate(),
-        () => {
-        console.log('selectedTag', selectedTag)
-          navigation.navigate('mainNav');
-        }
-      )
+    }
+    );
+    console.log('😇 RequestDatas: ', requestData);
+    console.log('Quiz successfully posted !');
+    console.log(requestData)
+  };
+
+  const previous = () => {
+    if (objective === 'sell')
+      navigation.navigate('profilingArtist2', {objective, artSellingType});
+    else if (objective === 'discover')
+      navigation.navigate('profilingAmateur2', {objective, artSellingType});
+
   };
 
   useEffect(() => {
-    console.log('selectedTag:', selectedTag);
+    console.log('selectedTag:', discoveryMethod);
+    console.log('customcommands:', customCommands);
     },
   ); 
 
   const selectTag = (tag: string) => {
-    console.log('Tag:', selectedTag);
-    if (selectedTag != tag)
-        setSelectedTag(tag);
-    else
-    setSelectedTag(null);
+    setSelectedTag(discoveryMethod === tag ? null : tag);
   };
+
+  const getButtonStyle = (choice) => (
+    discoveryMethod === choice ? 
+      { ...styles.TagButton, backgroundColor: colors.primary } : 
+      styles.TagButton
+  );
 
   return (
     <View style={styles.container}>
@@ -47,36 +92,47 @@ const ProfilingQuizzFinal = ({ navigation }: any) => {
       </View>
       <Text style={styles.question}>3/3 - Comment avez-vous découvert Leon'Art ?</Text>
       <View style={styles.Tags}>
-        <TagButton
-          style={styles.TagButton}
-          value="Réseaux sociaux"
-          onPress={() => selectTag("Réseaux sociaux")}
-          selected={selectedTag === "Réseaux sociaux"}
-        />
-        <TagButton
-          style={styles.TagButton}
-          value="Salon Professionnel"
-          onPress={() => selectTag("Salon Professionnel")}
-          selected={selectedTag === "Salon Professionnel"}
-        />
-        <TagButton
-          style={styles.TagButton}
-          textStyle={styles.TagButton}
-          value="Bouche à oreilles"
-          onPress={() => selectTag("Bouche à oreilles")}
-          selected={selectedTag === "Bouche à oreilles"}
-        />
-        <TagButton
-          style={styles.TagButton}
-          textStyle={styles.TagButton}
-          value="Autre"
-          onPress={() => selectTag("Autre")}
-          selected={selectedTag === "Autre"}
-        />
+        <TouchableOpacity
+          style={getButtonStyle("Réseaux sociaux")}
+          onPress={() => selectTag("Réseaux sociaux")}>
+          <Text style={[styles.buttonText, discoveryMethod === "Réseaux sociaux" && { color: 'white' }]}>
+            Réseaux sociaux
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={getButtonStyle("Salon Professionnel")}
+          onPress={() => selectTag("Salon Professionnel")}>
+          <Text style={[styles.buttonText, discoveryMethod === "Salon Professionnel" && { color: 'white' }]}>
+            Salon Professionnel
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={getButtonStyle("Bouche à oreilles")}
+          onPress={() => selectTag("Bouche à oreilles")}>
+          <Text style={[styles.buttonText, discoveryMethod === "Bouche à oreilles" && { color: 'white' }]}>
+            Bouche à oreilles
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={getButtonStyle("Autre")}
+          onPress={() => selectTag("Autre")}>
+          <Text style={[styles.buttonText, discoveryMethod === "Autre" && { color: 'white' }]}>
+            Autre
+          </Text>
+        </TouchableOpacity>
       </View>
       <Button
         value="Terminé"
         onPress={next}
+      />
+      <Button
+        style={{ backgroundColor: colors.secondary }}
+        textStyle={{ color: colors.black }}
+        value="Retour"
+        onPress={previous}
       />
     </View>
   );
@@ -109,13 +165,23 @@ const styles = StyleSheet.create({
   },
   Tags: {
     justifyContent: 'space-between',
-    alignItems: 'center',
-    margin: 15,
-    padding: 20,
+    margin: 23,
     flex: 1,
+    alignItems: 'center',
+    flexDirection: 'column',
   },
   TagButton: {
-    margin: 15,
+    padding: 13,
+    margin: 5,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.whitesmoke,
+  },
+  buttonText: {
+    color: 'black',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

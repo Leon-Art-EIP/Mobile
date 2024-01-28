@@ -27,7 +27,7 @@ const ArtistCard = ({
       { item?.profilePicture && (
         <Image
           style={styles.image}
-          source={{ uri: getImageUrl(item.profilePicture) }}
+          source={{ uri: getImageUrl(item?.profilePicture) }}
         />
       ) }
     </Card>
@@ -40,7 +40,7 @@ const ArtistCard = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.artistPlHolder,
-    margin: 0,
+    marginRight: 5,
     marginBottom: 60,
     textAlign: 'center',
     width: 120,
@@ -57,6 +57,8 @@ const styles = StyleSheet.create({
     borderRadius: 70,
   },
   title: {
+    marginRight: 5,
+    marginLeft: 25,
     position: 'absolute',
     bottom: 10,
     left: '50%',

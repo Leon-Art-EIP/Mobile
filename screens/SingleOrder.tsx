@@ -153,20 +153,24 @@ const SingleOrder = () => {
             name="left"
             color={colors.black}
             onPress={() => navigation.goBack()}
-            size={32}
+            size={24}
           />
         </TouchableOpacity>
         <Title style={mv8}>Commande</Title>
 
         <TouchableOpacity
           onPress={navigateToConversation}
-          style={{ marginLeft: 'auto' }}
+          style={{
+            marginLeft: 'auto',
+            backgroundColor: colors.offerBg,
+            borderRadius: 50,
+            padding: 12
+          }}
         >
           <MaterialCommunityIcons
             name="message-reply-text-outline"
-            onPress={navigateToConversation}
-            size={32}
-            color={colors.primary}
+            size={24}
+            color={colors.offerFg}
           />
         </TouchableOpacity>
       </View>
@@ -220,7 +224,7 @@ const SingleOrder = () => {
             "L'oeuvre est prête ? Appuyez sur \"Envoyer l'oeuvre\" après l'avoir envoyée à votre acheteur !"
           }</Text>
         </Card>
-      ) : (
+      ) : order?.orderState !== 'completed' ? (
         <Card style={{ marginHorizontal: 0, backgroundColor: colors.offerBg }}>
           <Text style={{ color: colors.offerFg }}>Notez votre transaction avant de l'achever !</Text>
           <View style={[flexRow, asCenter, mv4]}>
@@ -234,7 +238,7 @@ const SingleOrder = () => {
             )) }
           </View>
         </Card>
-      ) }
+      ) : (<></>) }
 
 
       {/* Back and goToMessage buttons */}
@@ -259,8 +263,8 @@ const SingleOrder = () => {
           </>
         ) : (
           <Button
-            value="J'ai reçu l'oeuvre"
-            disabled={!rating}
+            value={order?.orderState === 'completed' ? "Oeuvre reçue" : "J'ai reçu l'oeuvre"}
+            disabled={order?.orderState === 'completed' || !rating}
             onPress={validateOrder}
             style={[flex1, noHMargin, ml4]}
           />

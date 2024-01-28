@@ -137,10 +137,7 @@ const Conversation = () => {
       <ScrollView
         contentContainerStyle={styles.conversationContainer}
         ref={scrollView}
-        onContentSizeChange={(_, height) => {
-          console.log(height, messages.map((msg) => msg.content));
-          scrollView.current?.scrollTo({ y: height, animated: true })
-        }}
+        onContentSizeChange={(_, height) => scrollView.current?.scrollTo({ y: height, animated: true })}
       >
         { messages && messages.map((msg: MessageType) => (
             <TextBubble message={msg} key={msg._id} />
@@ -254,6 +251,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   messageInput: {
+    paddingHorizontal: 12,
     backgroundColor: colors.transparent,
     shadowColor: colors.transparent,
     borderRadius: 0,

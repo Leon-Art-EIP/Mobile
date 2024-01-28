@@ -10,20 +10,21 @@ const App = ({ noLogin = false }) => {
   const options = { headerShown: false };
 
   return (
-    
-    
-    <MainContextProvider >
-      <NavigationContainer independent>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="connexion"
-            component={ConnexionNavigator}
-            initialParams={{ noLogin }}
-            options={options}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </MainContextProvider>
+    <StripeProvider
+      publishableKey='pk_test_51ORdmCAInJ0GXaTlLAFRQipFiF7YcUMunXEYmVdiLARSZraedy1pslBOL5iDqXTVKssWfUb9sXyuAW8uSOqY2IAH00u4hR1NlU'>
+      <MainContextProvider >
+        <NavigationContainer independent>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="connexion"
+              component={ConnexionNavigator}
+              initialParams={{ noLogin }}
+              options={options}
+              />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </MainContextProvider>
+    </StripeProvider>
   );
 };
 
