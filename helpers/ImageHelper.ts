@@ -6,7 +6,6 @@ const getImageUrl = (urlFromBack: string | undefined) => {
     return undefined;
   }
 
-  console.log('URL:', urlFromBack);
   const back_end = process.env.REACT_APP_API_URL;
   return (back_end + '/api/' + urlFromBack).toString();
 }

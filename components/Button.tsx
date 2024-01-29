@@ -28,6 +28,7 @@ const Button = ({
     disabled={disabled}
     style={[
       styles.primaryContainerStyle,
+      disabled && styles.primaryContainerDisabledStyle,
       secondary && styles.secondaryContainerStyle,
       tertiary && styles.tertiaryContainerStyle,
       style
@@ -45,6 +46,9 @@ const Button = ({
 )
 
 const styles = StyleSheet.create({
+  primaryContainerDisabledStyle: {
+    backgroundColor: '#E06D5D'
+  },
   primaryContainerStyle: {
     backgroundColor: colors.primary,
     margin: 16,

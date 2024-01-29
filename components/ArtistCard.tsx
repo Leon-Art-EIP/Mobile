@@ -2,9 +2,9 @@ import React from 'react';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import colors from '../constants/colors';
 import { ArtistType } from '../constants/homeValues';
+import { getImageUrl } from '../helpers/ImageHelper';
 import Card from './Card';
 import Title from './Title';
-import { getImageUrl } from '../helpers/ImageHelper';
 
 interface ArtistCardProps {
   onPress?: () => void;
@@ -45,7 +45,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
     marginRight: 5,
-    // marginLeft: 8,
     marginBottom: 60,
     textAlign: 'center',
     width: 120,

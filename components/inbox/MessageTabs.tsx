@@ -17,36 +17,31 @@ const TABS: TabType[] = [
   {
     id: 'commands',
     name: 'Commandes'
-  },
-  {
-    id: 'cart',
-    name: 'Panier'
   }
 ];
 
-const MessageTabs = ({ active = 'conversations', setActive = (e: string) => {} }: any) => {
-  const context = useContext(MainContext);
+const MessageTabs = ({ active = 'conversations', setActive = (e: string) => {} }: any) => (
+  <View style={styles.container}>
+    {TABS.map((tab: TabType) => (
+      <TouchableOpacity
+        key={tab.id}
+        style={[
+          styles.bubble,
+          { backgroundColor: active === tab.id ? colors.darkGreyBg : colors.disabledBg }
+        ]}
+        onPress={() => setActive(tab.id)}
+      >
+        <Text style={{
+          color: active === tab.id ? colors.white : colors.darkGreyFg,
+          textAlign: 'center'
+        }}>
+          {tab.name}
+        </Text>
+      </TouchableOpacity>
+    ))}
 
-  return (
-    <View style={styles.container}>
-      {TABS.map((tab: TabType) => (
-        <TouchableOpacity
-          key={tab.id}
-          style={[
-            styles.bubble,
-            { backgroundColor: active === tab.id ? colors.darkGreyBg : colors.disabledBg }
-          ]}
-          onPress={() => setActive(tab.id)}
-        >
-          <Text style={{ color: active === tab.id ? colors.white : colors.darkGreyFg }}>
-            {tab.name}
-          </Text>
-        </TouchableOpacity>
-      ))}
-
-    </View>
-  );
-};
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -55,8 +50,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   bubble: {
+    flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 20,
+    marginHorizontal: 4,
     borderRadius: 20,
   },
 });

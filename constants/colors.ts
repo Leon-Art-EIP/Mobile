@@ -44,10 +44,10 @@ const colors = {
   // inbox
   offerFg: '#6C0F7B',
   offerBg: '#FFE0E0',
-  bubbleFgReceived: '#fff',
-  bubbleBgReceived: '#2D142C',
-  bubbleFgSent: '#000',
-  bubbleBgSent: '#F7F7F8'
+  bubbleFgReceived: '#000',
+  bubbleBgReceived: '#F7F7F8', // '#2D142C'
+  bubbleFgSent: '#fff',
+  bubbleBgSent: '#E11C0A'
 };
 
 export default colors;

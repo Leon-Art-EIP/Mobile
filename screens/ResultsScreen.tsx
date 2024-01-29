@@ -1,4 +1,4 @@
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,8 +7,9 @@ import colors from '../constants/colors';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { acCenter, aiCenter, asCenter, bgGrey, bgRed, br20, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph24, ph8, pv24, pv4, pv8 } from '../constants/styles';
+import { aiCenter, bgGrey, br20, cBlack, cDisabled, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
+import { getImageUrl } from '../helpers/ImageHelper';
 
 
 type ArtPublicationType = {
@@ -22,7 +23,7 @@ type ArtPublicationType = {
 }
 
 type UserType = {
-  id: string,
+  _id: string,
   username: string,
   profilePicture: string
 }
@@ -32,7 +33,8 @@ type ResultsScreenProps = {
 }
 
 
-const ResultsScreen = ({ navigation }: any) => {
+const ResultsScreen = () => {
+  const navigation = useNavigation();
   const route = useRoute();
   const params = route?.params as ResultsScreenProps;
   const context = useContext(MainContext);
@@ -41,14 +43,12 @@ const ResultsScreen = ({ navigation }: any) => {
 
 
   const navigateToPreview = (post: ArtPublicationType) => {
-    // Redirect to the singleArt page
-    return console.log("You clicked on the post with ID ", post.id);
+    navigation.navigate('single_art', { id: post?._id });
   }
 
 
   const navigateToProfile = (user: UserType) => {
-    // Redirect to the singleProfile page
-    return console.log("You clicked on the profile with ID ", user.id);
+    navigation.navigate('other_profile', { id: user._id })
   }
 
 
@@ -89,17 +89,21 @@ const ResultsScreen = ({ navigation }: any) => {
             source={require('../assets/icons/box.png')}
             style={styles.emptyImg}
           />
-          <Text>Il n'y a pas d'artiste qui porte ce nom !</Text>
+          <Text style={cDisabled}>Il n'y a pas d'artiste qui porte ce nom !</Text>
         </View>
       ) : (
         <ScrollView horizontal style={[bgGrey, br20, mh8]}>
           { users.map((user: UserType) => (
             <TouchableOpacity
+              key={user._id}
               style={[aiCenter, pv24, ph8]}
               onPress={() => navigateToProfile(user)}
             >
-              <Image style={styles.userImg} source={{ uri: user.profilePicture }} />
-              <Text style={mv4}>{ formatName(user.username, 20) }</Text>
+              <Image
+                style={styles.userImg}
+                source={{ uri: getImageUrl(user.profilePicture) }}
+              />
+              <Text style={[mv4, cBlack]}>{ formatName(user.username, 20) }</Text>
             </TouchableOpacity>
           )) }
         </ScrollView>
@@ -122,18 +126,23 @@ const ResultsScreen = ({ navigation }: any) => {
           <FlatList
             data={posts}
             numColumns={3}
-            renderItem={(e) => (
+            renderItem={({ item, index }) => { console.log(index); return(
               <TouchableOpacity
-                onPress={() => navigateToPreview(e.item)}
+                onPress={() => navigateToPreview(item)}
                 style={styles.singleArt}
               >
                 <Image
-                  style={{ backgroundColor: colors.disabledBg, height: 100, borderRadius: 12 }}
-                  source={{ uri: e.item.image }}
+                  style={{
+                    backgroundColor: colors.offerBg,
+                    width: '100%',
+                    aspectRatio: 1,
+                    borderRadius: 17
+                  }}
+                  source={{ uri: getImageUrl(item.image) }}
                 />
-                <Text>{ e.item?.name }</Text>
+                {/* <Text>{ e.item?.name }</Text> */}
               </TouchableOpacity>
-            )}
+            )}}
           />
 
         ) }
@@ -167,10 +176,11 @@ const styles = StyleSheet.create({
   },
   singleArt: {
     backgroundColor: "#ddd",
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    flex: 1,
+    /* paddingVertical: 8, */
+    /* paddingHorizontal: 8, */
     margin: 4,
-    borderRadius: 17
+    borderRadius: 20
   }
 });
 

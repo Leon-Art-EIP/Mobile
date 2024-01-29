@@ -34,9 +34,8 @@ const post = (
     console.error('post failed with code ', e.response ? e.response.status : e);
   }
 ) => {
-  if (!token) {
-    console.warn('Token is empty');
-  }
+  let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
+
   if (!BACKEND) {
     return console.warn('Backend url is empty');
   }
@@ -60,6 +59,7 @@ const post = (
   .then(callback)
   .catch(onErrorCallback);
 };
+
 
 
 const del = (
@@ -87,8 +87,34 @@ const del = (
   .catch(onErrorCallback);
 }
 
+
+const put = (
+  url: string = "/",
+  body: any = undefined,
+  token: string | undefined = undefined,
+  callback: ((response: any) => void) = () => {},
+  onErrorCallback: ((error: any) => void) = (e: any) => {
+    console.error("get failed with code ", e.response.status);
+  }
+) => {
+  let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
+
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
+
+  const requestUrl = BACKEND + url;
+  console.log(requestUrl);
+
+  axios.put(requestUrl, body, token ? headers : {})
+  .then(callback)
+  .catch(onErrorCallback);
+}
+
+
 export {
   get,
   post,
   del,
+  put
 };

@@ -21,6 +21,7 @@ const TextBubble = ({
 
 
   switch (message.contentType) {
+    case ('text'): // we want it to be the same as 'string' so we just don't break/return
     case ('string'): return (
       <TouchableOpacity
         onPress={() => setIsHourDisplayed(current => !current)}
@@ -90,7 +91,7 @@ const TextBubble = ({
 const styles = StyleSheet.create({
   bubbleView: {
     maxWidth: '70%',
-    borderRadius: 12,
+    borderRadius: 30,
     marginVertical: 2,
     paddingVertical: 12,
     paddingHorizontal: 18,

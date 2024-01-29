@@ -21,7 +21,6 @@ const Login = ({ navigation }: any) => {
   const context = useContext(MainContext);
 
   const onLogin = async (response: any) => {
-    console.log({ ...response });
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
       console.log("Token : " + tokenFromDB);
@@ -48,9 +47,6 @@ const Login = ({ navigation }: any) => {
 
 
   const onLoginError = async (error: any) =>{
-    console.log("onLoginError response: ", { ...error });
-    /* console.log("status: ", error?.response); */
-
     if (error.response) {
       console.error('Server responded with an error:', { ...error.response.data });
       if (error.response.status === 422) {
@@ -119,7 +115,7 @@ const Login = ({ navigation }: any) => {
     <View style={styles.container}>
 
       {/* Use this to set the correct color on the status bar */}
-      <StatusBar backgroundColor="#F2F2F2" />
+      <StatusBar backgroundColor="#F2F2F2" barStyle='dark-content' />
 
       <SafeAreaView style={styles.safeView}>
         <View style={styles.titleView}>
@@ -133,6 +129,7 @@ const Login = ({ navigation }: any) => {
             <TextInput
               placeholder="Email"
               onChangeText={handleEmailChange}
+              placeholderTextColor={colors.disabledFg}
               style={styles.passwordInput}
             />
           </View>
@@ -142,6 +139,7 @@ const Login = ({ navigation }: any) => {
             <Image source={require('../assets/password_icon.png')} style={styles.icon} />
             <TextInput
               placeholder="Mot de passe"
+              placeholderTextColor={colors.disabledFg}
               onChangeText={handlePasswordChange}
               style={styles.passwordInput}
               secureTextEntry={!showPassword}
@@ -161,7 +159,11 @@ const Login = ({ navigation }: any) => {
 
         <TouchableOpacity onPress={handleRememberMeChange}>
           <View style={styles.checkboxContainer}>
-            <CheckBox value={rememberMe} onValueChange={handleRememberMeChange} />
+            <CheckBox
+              tintColor={{ true: colors.primary, false: colors.black }}
+              value={rememberMe}
+              onValueChange={handleRememberMeChange}
+            />
             <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
           </View>
         </TouchableOpacity>
@@ -292,8 +294,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rememberMeText: {
-    marginLeft: 8,
-    color: colors.tertiary
+    color: colors.black,
+    marginLeft: 8
   },
   orContainer: {
     flexDirection: 'row',
@@ -302,6 +304,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   orText: {
+    color: colors.black,
     fontSize: 16,
     fontWeight: 'bold',
     marginHorizontal: 8,
@@ -330,6 +333,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   passwordInput: {
+    color: colors.black,
     marginLeft: 0,
     marginRight: 0,
     flex: 1,

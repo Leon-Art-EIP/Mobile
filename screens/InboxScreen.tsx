@@ -9,7 +9,6 @@ import ConversationsComponent from '../components/inbox/ConversationsComponent';
 import MessageTabs from '../components/inbox/MessageTabs';
 import Title from '../components/Title';
 import colors from '../constants/colors';
-import SingleOrder from './SingleOrder';
 
 
 const InboxScreen = ({ navigation }: any) => {
@@ -17,7 +16,7 @@ const InboxScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
-      <StatusBar backgroundColor={colors.white} />
+      <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
       <Title style={styles.mainTitle}>Messagerie</Title>
       <MessageTabs
         active={selectedTab}
@@ -31,9 +30,6 @@ const InboxScreen = ({ navigation }: any) => {
           );
           case ('commands'): return (
             <CommandsComponent />
-          );
-          case ('cart'): return (
-            <CartComponent />
           );
         }
       })() }
