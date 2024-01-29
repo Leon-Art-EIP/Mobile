@@ -13,7 +13,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-
 const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
   const id = route?.params?.id;
@@ -28,7 +27,6 @@ const OtherProfile = ({ route }: any) => {
 
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
-
   };
 
   const handleBackButtonClick = () => {
@@ -36,30 +34,53 @@ const OtherProfile = ({ route }: any) => {
   };
 
   const handleContactButtonClick = () => {
-    // navigation?.navigate('single_conversation', { id: id, name: userData?.username });
-    navigation.navigate('single_conversation', { id: id, name: userData?.username });
+    // navigation.navigate('single_conversation', { id: id, name: userData?.username });
+    // navigation?.navigate(
+    //   'single_conversation',
+    //   {
+    //     name: conversation?.UserOneId === context?.userId ? conversation['UserTwoName'] : conversation['UserOneName'],
+    //     // ids: conversation ID, your ID, the correspondant ID
+    //     ids: [
+    //       conversation['_id'],
+    //       conversation['UserOneId'],
+    //       conversation['UserTwoId']
+    //     ]
+    //   }
+    // )
   };
 
   const handleFollowButtonClick = async () => {
     try {
       if (token) {
         const url = `/api/follow/${id}`;
-
-        const response = await post(url, undefined, token, (response) => {
-        }, (error) => {
+        const body = undefined;
+        const callback = () => {
+          setIsFollowing(!isFollowing);
+        };
+        const onErrorCallback = (error) => {
           console.error('Erreur de follow :', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
           Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-        });
+        };
+
         post(url, body, token, callback, onErrorCallback);
       } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération du token JWT :', error);
-      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
-    /* checkIsFollowing(); */
     fetchUserData();
   };
 
