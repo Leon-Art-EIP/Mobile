@@ -8,6 +8,9 @@ import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import { MainContext } from '../context/MainContext';
+import { Platform } from 'react-native';
+import RNFS from 'react-native-fs';
+
 
 const AddPublication = ({ navigation } : any) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -20,25 +23,37 @@ const AddPublication = ({ navigation } : any) => {
   const [dimension, setDimension] = useState('');
   const context = useContext(MainContext);
   
-  const publish = () => {
-    
-    console.log('SELEXC', selectedImage);
+  const publish = async () => {
     const parsedPrice = parseFloat(price);
     const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
-    const requestData = {
-      image: selectedImage,
-      name,
-      artType: artType !== '' ? artType : 'empty',
-      description: description !== '' ? description : 'empty',
-      dimension: dimension !== '' ? dimension : 'empty',
-      isForSale: isForSale === 'true',
-      price: isPriceValid ? parsedPrice : 0,
-      location: location !== '' ? location : 'empty'
-    };
-    
+  
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('artType', artType !== '' ? artType : 'empty');
+    formData.append('description', description !== '' ? description : 'empty');
+    formData.append('dimension', dimension !== '' ? dimension : 'empty');
+    formData.append('isForSale', isForSale === 'true');
+    formData.append('price', isPriceValid ? parsedPrice : 0);
+    formData.append('location', location !== '' ? location : 'empty');
+  
+    if (selectedImage) {
+      try {
+        const fileData = await RNFS.readFile(selectedImage, 'base64');
+        formData.append('image', {
+          name: 'image.jpg',
+          type: 'image/jpeg',
+          uri: Platform.OS === 'android' ? `file://${selectedImage}` : selectedImage,
+          data: fileData
+        });
+      } catch (error) {
+        console.error('Error preparing image:', error);
+        return;
+      }
+    }
+  
     post(
       '/api/art-publication',
-      requestData,
+      formData,
       context?.token,
       () => navigation.navigate('main'),
       (error) => {
@@ -50,7 +65,6 @@ const AddPublication = ({ navigation } : any) => {
         }
       }
     );
-    console.log(requestData)
   };
   
   const selectImage = async () => {
