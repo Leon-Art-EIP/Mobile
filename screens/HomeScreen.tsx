@@ -11,12 +11,10 @@ import {
   Image,
   ToastAndroid,
   Text,
-  RefreshControl,
-  Alert
+  RefreshControl
 } from 'react-native'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
-import { useNavigation } from '@react-navigation/native';
 import { getImageUrl } from '../helpers/ImageHelper';
 
 import colors from "../constants/colors";
@@ -33,8 +31,6 @@ const HomeScreen = ({ navigation }: any) => {
   const [artists, setArtists] = useState<ArtistType[]>([]);
   const [articles, setArticles] = useState<ArticleType[]>([]);
   const [publications, setPublications] = useState([]);
-  const [publicationId, setPublication] = useState([]);
-  const [forYou, setForYou] = useState<string[]>(Array(100).fill(0));
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   const handleToArtistProfile = (artist: ArtistType) => {
@@ -45,7 +41,7 @@ const HomeScreen = ({ navigation }: any) => {
   const handleToArticle = (article: ArticleType) => {
     navigation.navigate('article', { article });
   };
-  
+
   const towardsPost = (publicationId) => {
     console.log('🔵 ID:', publicationId);
     navigation.navigate('singleart', { id: publicationId });
@@ -126,7 +122,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={colors.bg} />
+      <StatusBar backgroundColor={colors.bg} barStyle='dark-content' />
       <ScrollView nestedScrollEnabled refreshControl={
         <RefreshControl
           refreshing={isRefreshing}
@@ -252,81 +248,80 @@ const HomeScreen = ({ navigation }: any) => {
 }
 
 const styles = StyleSheet.create({
-container: {
-  backgroundColor: colors.bg,
-  flex: 1
-},
-titleView: {
-  display: 'flex',
-  flexDirection: 'row',
-  marginLeft: 32,
-  marginTop: 32
-},
-flatList: {
-  paddingLeft: 3,
-},
-emptyView: {
-  alignSelf: 'center',
-  alignItems: 'center',
-  marginVertical: 12
-},
-moreArrowView: {
-  backgroundColor: colors.offerBg,
-  borderRadius: 50,
-  padding: 4,
-  marginTop: 'auto',
-  marginBottom: 'auto',
-  marginHorizontal: 12
-},
-moreArrowImage: {
-  transform: [{rotate: '-90deg'}],
-  width: 24,
-  height: 24
-},
-articleContainer: {
-  marginHorizontal: 8,
-  marginBottom: 16,
-},
-articleTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  marginBottom: 8,
-},
-articleImage: {
-  width: '100%',
-  height: 200,
-  borderRadius: 8,
-  marginBottom: 8,
-},
-articleDescription: {
-  fontSize: 16,
-  marginBottom: 8,
-},
-articleAuthor: {
-  fontSize: 14,
-  color: colors.disabledFg,
-},
-publicationsContainer: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  paddingHorizontal: 10,
-},
-publicationItem: {
-  height: 120,
-  width: 120,
-  margin: 5,
-  backgroundColor: colors.publicationPlHolder,
-  borderRadius: 7,
-},
-publicationImage: {
-  height: 120,
-  width: 120,
-  borderRadius: 7,
-},
-publicationTitle: {
-  color: colors.black,
-  
-},
+  container: {
+    backgroundColor: colors.bg,
+    flex: 1
+  },
+  titleView: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginLeft: 32,
+    marginTop: 32
+  },
+  flatList: {
+    paddingLeft: 3,
+  },
+  emptyView: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    marginVertical: 12
+  },
+  moreArrowView: {
+    backgroundColor: colors.offerBg,
+    borderRadius: 50,
+    padding: 4,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginHorizontal: 12
+  },
+  moreArrowImage: {
+    transform: [{rotate: '-90deg'}],
+    width: 24,
+    height: 24
+  },
+  articleContainer: {
+    marginHorizontal: 8,
+    marginBottom: 16,
+  },
+  articleTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  articleImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  articleDescription: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  articleAuthor: {
+    fontSize: 14,
+    color: colors.disabledFg,
+  },
+  publicationsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
+  },
+  publicationItem: {
+    height: 120,
+    width: 120,
+    margin: 5,
+    backgroundColor: colors.disabledBg,
+    borderRadius: 7,
+  },
+  publicationImage: {
+    height: 120,
+    width: 120,
+    borderRadius: 7,
+  },
+  publicationTitle: {
+    color: colors.black,
+  },
 });
 
 

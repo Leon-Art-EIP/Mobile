@@ -7,7 +7,7 @@ import colors from '../constants/colors';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { aiCenter, bgGrey, br20, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
+import { aiCenter, bgGrey, br20, cBlack, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import { getImageUrl } from '../helpers/ImageHelper';
 
@@ -103,7 +103,7 @@ const ResultsScreen = () => {
                 style={styles.userImg}
                 source={{ uri: getImageUrl(user.profilePicture) }}
               />
-              <Text style={mv4}>{ formatName(user.username, 20) }</Text>
+              <Text style={[mv4, cBlack]}>{ formatName(user.username, 20) }</Text>
             </TouchableOpacity>
           )) }
         </ScrollView>
@@ -125,25 +125,25 @@ const ResultsScreen = () => {
 
           <FlatList
             data={posts}
-            numColumns={2}
-            renderItem={(e) => (
+            numColumns={3}
+            renderItem={({ item, index }) => { console.log(index); return(
               <TouchableOpacity
-                onPress={() => navigateToPreview(e.item)}
+                onPress={() => navigateToPreview(item)}
                 style={styles.singleArt}
               >
                 <Image
                   style={{
-                    backgroundColor: colors.disabledBg,
-                    height: 150,
-                    width: 150,
+                    backgroundColor: colors.offerBg,
+                    width: '100%',
                     aspectRatio: 1,
-                    borderRadius: 12
+                    borderRadius: 17
                   }}
-                  source={{ uri: getImageUrl(e.item.image) }}
+                  defaultSource={require('../assets/icons/box.png')}
+                  source={{ uri: getImageUrl(item.image) }}
                 />
-                <Text>{ e.item?.name }</Text>
+                {/* <Text>{ e.item?.name }</Text> */}
               </TouchableOpacity>
-            )}
+            )}}
           />
 
         ) }
@@ -177,10 +177,11 @@ const styles = StyleSheet.create({
   },
   singleArt: {
     backgroundColor: "#ddd",
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    flex: 1,
+    /* paddingVertical: 8, */
+    /* paddingHorizontal: 8, */
     margin: 4,
-    borderRadius: 17
+    borderRadius: 20
   }
 });
 

@@ -76,6 +76,13 @@ const bgColor: StyleProp<any> = { backgroundColor: colors.bg };
 const bgRed: StyleProp<any> = { backgroundColor: '#f00' };
 const bgGrey: StyleProp<any> = { backgroundColor: colors.disabledBg };
 
+// color
+const cBlack: StyleProp<any> = { color: colors.black };
+const cPrimary: StyleProp<any> = { color: colors.primary };
+const cWhite: StyleProp<any> = { color: colors.white };
+const cText: StyleProp<any> = { color: colors.text };
+const cDisabled: StyleProp<any> = { color: colors.disabledFg };
+
 // border radius
 const br5: StyleProp<any> = { borderRadius: 5 };
 const br7: StyleProp<any> = { borderRadius: 7 };
@@ -98,5 +105,6 @@ export {
   mv4, mv8, mv24, mh4, mh8, mh24,
   fwBold, fwNormal,
   bgColor, bgRed, bgGrey,
-  br5, br7, br12, br20, br50
+  br5, br7, br12, br20, br50,
+  cBlack, cWhite, cPrimary, cDisabled, cText
 };

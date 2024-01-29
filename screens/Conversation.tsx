@@ -104,7 +104,7 @@ const Conversation = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={colors.black} />
+      <StatusBar backgroundColor={colors.black} barStyle='light-content' />
 
       {/* Title view */}
       <View style={styles.titleView}>

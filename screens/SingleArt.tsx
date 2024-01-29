@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     img: {
+      backgroundColor: colors.disabledBg,
       alignSelf: 'center',
       resizeMode: 'contain',
       marginLeft: 15,

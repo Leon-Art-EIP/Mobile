@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-// Local imports
-import BackArrow from '../assets/images/back_arrow.png'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import profilePicture from '../assets/images/user.png'
 import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
+import { getImageUrl } from '../helpers/ImageHelper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -20,7 +19,7 @@ const OtherProfile = ({ route }: any) => {
   const id = route?.params?.id;
   const context = useContext(MainContext);
   const token = context?.token;
-  
+
   const [isFollowing, setIsFollowing] = useState(false);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
@@ -169,19 +168,25 @@ const OtherProfile = ({ route }: any) => {
 
 
   return (
+    <SafeAreaView style={styles.container}>
     <ScrollView nestedScrollEnabled>
-    <View>
+      <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
       {/* Bouton de retour en haut à gauche */}
       <TouchableOpacity
         onPress={() => handleBackButtonClick()}
         style={styles.backButton}
       >
-        <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
+        <AntDesign
+          name="left"
+          color={colors.white}
+          onPress={() => navigation.goBack()}
+          size={24}
+        />
       </TouchableOpacity>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage}
+          source={{ uri: getImageUrl(userData?.bannerImage) }}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -190,8 +195,9 @@ const OtherProfile = ({ route }: any) => {
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
-            source={profilePicture}
+            source={{ uri: getImageUrl(userData?.profilePicture) }}
             style={styles.profilePicture}
+            defaultSource={require('../assets/icons/account.svg')}
           />
         </View>
       </View>
@@ -287,13 +293,17 @@ const OtherProfile = ({ route }: any) => {
         ))}
         </View>
       }
-    </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.white,
+    flex: 1
+  },
   banner: {
     backgroundColor: 'lightblue',
     height: 180,
@@ -321,6 +331,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'absolute',
     top: -55,
+    elevation: 2
   },
   textBlocks: {
     flexDirection: 'row',
@@ -407,6 +418,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   backButton: {
+    backgroundColor: colors.darkGreyBg,
+    padding: 12,
+    borderRadius: 50,
     position: 'absolute',
     top: 16,
     left: 16,
