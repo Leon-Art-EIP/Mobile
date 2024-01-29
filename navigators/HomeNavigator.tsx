@@ -2,6 +2,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
 import HomeScreen from '../screens/HomeScreen';
+import Article from '../screens/Article';
+import SingleArt from '../screens/SingleArt';
+import OtherProfile from '../screens/OtherProfile';
+import Stripe from '../screens/Stripe';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -12,6 +16,10 @@ const HomeNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="homemain" component={HomeScreen} options={options} />
+      <Stack.Screen name="article" component={Article} options={options} />
+      <Stack.Screen name="singleart" component={SingleArt} options={options} />
+      <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
+      <Stack.Screen name="stripe" component={Stripe} options={options} />
     </Stack.Navigator>
   );
 }

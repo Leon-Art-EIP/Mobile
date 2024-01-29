@@ -1,93 +1,100 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { get, post} from '../constants/fetch';
 
 import colors from '../constants/colors';
 import Title from '../components/Title';
-import TagButton from '../components/TagButton';
 import Button from '../components/Button';
 
-import ProfilingArtist from './ProfilingQuizzArtist1';
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-const ProfilingQuizz = ({ navigation }: any) => {
-   
-  const [objective, setPurpose] = useState<string | null>(null);
 
-const handleUserStatus = () => {
-  console.log('User Purpose', objective)
-  if (objective === null) {
-    console.log('No prarameter found');
-    return;
-  }
-    post(
-        '/api/quizz/submit/',
-        { objective },
-        () => navigation.navigate(''),
-        () => {
-    console.log('Objective', objective)
-          if (objective === 'sell') {
-            navigation.navigate('profilingArtist');
-          } else if (objective === 'both' || objective === 'discover') {
-            navigation.navigate('profilingAmateur');
-          }
-        }
-    )
-};
+const ProfilingQuizz = ({ route, navigation }): any => {
+  const { objective } = route.params || { objective: 'defaultObjective' };
 
-  useEffect(() => {
-    console.log('OBJECTIF', objective);
-  }, [objective]); 
-
-  const getPurpose = (value: string) => {
-    console.log('value before', objective);
-    if (objective === value)
-      setPurpose(null);
-    else
-      setPurpose(value);
+  
+  const handleUserChoice = (choice) => {
+    console.log('🤩 Choice :', choice);
+    setObjective(choice);
   };
 
-return (
-  <View style={styles.container}>
-    <View style={styles.logo}>
-      <Title style={{ color: colors.primary }}>Leon</Title>
-      <Title>'Art</Title>
+  const previous = () => {
+    navigation.navigate('homemain');
+  };
+
+  const handleSubmit = () => {
+    if (!objective) {
+      console.log('No objective selected');
+      return;
+    }
+    if (objective === 'sell') {
+      console.log('🤩 choice :', objective);
+      navigation.navigate('profilingArtist', { objective: 'sell' });
+    } else if (objective === 'discover') {
+      console.log('🤩 choice :', objective);
+      navigation.navigate('profilingAmateur', { objective: 'discover' });
+    } 
+  };
+
+  const getButtonStyle = (choice) => (
+    objective === choice ? 
+      { ...styles.TagButton, backgroundColor: colors.primary  } : 
+      styles.TagButton
+  );
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
+      </View>
+      <Text style={styles.homeTitle}>Bienvenue !</Text>
+      <Text style={styles.homeText}>Avec Leon'Art vous souhaitez...</Text>      
+      <View style={styles.Tags}>
+        <TouchableOpacity
+          style={getButtonStyle("sell")}
+          onPress={() => handleUserChoice("sell")}
+        >
+          <Text style={[styles.buttonText, objective === "sell" && { color: 'white' }]}>
+            Vendre mes œuvres d’art
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={getButtonStyle("discover")}
+          onPress={() => handleUserChoice("discover")}
+        >
+          <Text style={[styles.buttonText, objective === "discover" && { color: 'white' }]}>
+            Découvrir des œuvres d’art
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <Button
+        style={{ borderRadius: 12 }}
+        value="Suivant"
+        onPress={handleSubmit} />
+      <Button
+        style={{ borderRadius: 12, backgroundColor: colors.whitesmoke}}
+        textStyle={{ color: 'black' }}
+        value="Retour"
+        onPress={previous} />
     </View>
-    <Text style={styles.homeTitle}>Bienvenue !</Text>
-    <Text style={styles.homeText}>Avec Leon'Art vous souhaitez...</Text>
-
-    <View style={styles.Tags}>
-      <TagButton
-        style={styles.TagButton}
-        value="Découvrir des œuvres d’art"
-        onPress={() => getPurpose("discover")}
-        selected={objective === "discover"}
-        testID="discover-button"
-      />
-      <TagButton
-        style={styles.TagButton}
-        textStyle={styles.TagButton}
-        value="Vendre mes œuvres d’art"
-        onPress={() => getPurpose("sell")}
-        selected={objective === "sell"}
-        testID="sell-button"
-      />
-      <TagButton
-        style={styles.TagButton}
-        value="Les deux"
-        onPress={() => getPurpose("both")}
-        selected={objective === "both"}
-        testID="both-button"
-      />
-    </View>
-
-    <Button value="Suivant" onPress={handleUserStatus} testID="suivant-button" />
-  </View>
-);
-
+  );
 };
 
+
 const styles = StyleSheet.create({
+  TagButton: {
+    padding: 10,
+    margin: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.whitesmoke,
+  },
+  buttonText: {
+    color: 'black',
+    textAlign: 'center',
+    fontSize: 16,
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -120,14 +127,9 @@ const styles = StyleSheet.create({
   },
   Tags: {
     justifyContent: 'space-between',
-    margin: 50,
+    margin: 40,
+    marginBottom: 70,
     flex: 1,
-  },
-  TagButton: {
-    backgroundColor: '#F4F4F4',
-  },
-  TagButtonText: {
-    color: '#000',
   },
 });
 

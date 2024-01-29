@@ -1,5 +1,5 @@
 //* Standard imports
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, Text } from 'react-native';
 import CartComponent from '../components/inbox/CartComponent';
 import CommandsComponent from '../components/inbox/CommandsComponent';
@@ -15,8 +15,8 @@ const InboxScreen = ({ navigation }: any) => {
   const [selectedTab, setSelectedTab] = useState<string>('conversations');
 
   return (
-    <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80 }}>
-      <StatusBar backgroundColor={colors.white} />
+    <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
+      <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
       <Title style={styles.mainTitle}>Messagerie</Title>
       <MessageTabs
         active={selectedTab}
@@ -26,13 +26,10 @@ const InboxScreen = ({ navigation }: any) => {
       {(() => {
         switch (selectedTab) {
           case ('conversations'): return (
-            <ConversationsComponent navigation={navigation} />
+            <ConversationsComponent />
           );
           case ('commands'): return (
             <CommandsComponent />
-          );
-          case ('cart'): return (
-            <CartComponent />
           );
         }
       })() }

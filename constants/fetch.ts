@@ -1,19 +1,26 @@
 import axios from "axios";
 
-// const BACKEND: string = "http://127.0.0.1:5000";
-// const BACKEND: string = "http://10.0.2.2:5000";
-const BACKEND: string = "http://localhost:5001";
+const BACKEND: string | undefined = process.env.REACT_APP_API_URL;
 
 const get = (
   url: string = "/",
+  token: string | undefined = undefined,
   callback: ((response: any) => void) = () => {},
   onErrorCallback: ((error: any) => void) = (e: any) => {
-    console.error("get failed with code ", e.response.status);
+    console.error("get failed: ", { ...e });
   }
 ) => {
-  const requestUrl = BACKEND + url;
+  if (!token) {
+    console.warn("Token is empty");
+  }
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
 
-  axios.get(requestUrl)
+  const requestUrl = BACKEND + url;
+  console.log(requestUrl);
+
+  axios.get(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token } })
   .then(callback)
   .catch(onErrorCallback);
 }
@@ -22,25 +29,80 @@ const get = (
 const post = (
   url: string = "/",
   body: any = undefined,
+  token: string | undefined = undefined,
   callback: ((response: any) => void) = () => {},
   onErrorCallback: ((error: any) => void) = (e: any) => {
     console.error("get failed with code ", e.response.status);
   }
 ) => {
-  if (!body) {
-    console.warn("[WARNING] Empty body for post request");
+  let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
+
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
   }
 
   const requestUrl = BACKEND + url;
-  console.log("calling : ", requestUrl);
+  console.log(requestUrl);
 
-  axios.post(requestUrl)
-  // .post(requestUrl, body)
+  axios.post(requestUrl, body, token ? headers : {})
   .then(callback)
   .catch(onErrorCallback);
 }
 
+
+const del = (
+  url: string = "/",
+  token: string | undefined = undefined,
+  callback: ((response: any) => void) = () => {},
+  onErrorCallback: ((error: any) => void) = (e: any) => {
+    console.error("get failed with code ", e.response.status);
+  }
+) => {
+  let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
+
+  if (!token) {
+    // console.warn("Token is empty");
+  }
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
+
+  const requestUrl = BACKEND + url;
+  console.log(requestUrl);
+
+  axios.delete(requestUrl, token ? headers : {})
+  .then(callback)
+  .catch(onErrorCallback);
+}
+
+
+const put = (
+  url: string = "/",
+  body: any = undefined,
+  token: string | undefined = undefined,
+  callback: ((response: any) => void) = () => {},
+  onErrorCallback: ((error: any) => void) = (e: any) => {
+    console.error("get failed with code ", e.response.status);
+  }
+) => {
+  let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
+
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
+
+  const requestUrl = BACKEND + url;
+  console.log(requestUrl);
+
+  axios.put(requestUrl, body, token ? headers : {})
+  .then(callback)
+  .catch(onErrorCallback);
+}
+
+
 export {
   get,
-  post
+  post,
+  del,
+  put
 };

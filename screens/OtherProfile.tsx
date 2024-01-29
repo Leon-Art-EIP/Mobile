@@ -1,126 +1,203 @@
-import React, { useState, useEffect } from 'react';
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
-import colors from '../constants/colors';
-import bannerImage from '../assets/images/banner.jpg'
-import profilePicture from '../assets/images/user.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import Button from '../components/Button';
+import React, { useState, useEffect, useContext } from 'react';
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import env from '../env';
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import profilePicture from '../assets/images/user.png'
+import bannerImage from '../assets/images/banner.jpg'
+import Button from '../components/Button';
+import colors from '../constants/colors';
+import { MainContext } from '../context/MainContext';
+import { get, post } from '../constants/fetch';
+import { getImageUrl } from '../helpers/ImageHelper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const OtherProfile = () => {
-  const [followTargetID, setfollowTargetID] = useState<string | undefined>(undefined);
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+
+
+const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
-  const [isFollowing, setIsFollowing] = useState(false);
-  const { API_URL } = env;
+  const id = route?.params?.id;
+  const context = useContext(MainContext);
+  const token = context?.token;
 
-  // Placer ici les élements de boutons
-  const [activeTab, setActiveTab] = useState('Artwork'); // État pour suivre le dernier bouton cliqué
-  // Placer ici les handles
-  const handleSquareClick = (pageName) => {
-    // Utilisez la fonction navigate pour rediriger vers la page spécifique
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [activeTab, setActiveTab] = useState('Artwork');
+
+  const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
+
   };
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
-  const handleContactButtonClick = () => {
-    //TODO : rediriger dynamiquement vers la bonne page
-    navigation?.navigate('single_conversation', { id: 0, name: 'Marine Weber' });
-  };
-  const handleFollowButtonClick = async () => {
-    //TODO : rendre dynamique
-    try {
-      const token = await AsyncStorage.getItem('jwt');
-      if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const response = await axios.post(`${API_URL}api/follow/652bc1fb1753a08d6c7d3f5d`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
-      else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    }
-    catch (error) {
-      console.error('Erreur de follow :', error);
-      Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-    }
-    checkIsFollowing();
-  };
-  const checkIsFollowing = async () => {
-    try {
-      // Récupérez le jeton JWT depuis le stockage local (AsyncStorage ou autre)
-      const token = await AsyncStorage.getItem('jwt'); // Assurez-vous que c'est le bon nom de clé
-      if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`, // Ajoutez le jeton JWT dans l'en-tête
-        };
-  
-        const response = await axios.get(`${API_URL}api/follow/following`, {
-          headers,
-          params: {
-            limit: 10,
-          },
-        });
-        const responseData = response.data;
-        const subscriptions = responseData.subscriptions;
 
-        const isUserFollowed = subscriptions.some((subscription: { _id: string; }) => subscription._id === "652bc1fb1753a08d6c7d3f5d");
-        setIsFollowing(isUserFollowed);
+  const handleContactButtonClick = () => {
+    // navigation?.navigate('single_conversation', { id: id, name: userData?.username });
+    navigation.navigate('single_conversation', { id: id, name: userData?.username });
+  };
+
+  const handleFollowButtonClick = async () => {
+    try {
+      if (token) {
+        const url = `/api/follow/${id}`;
+
+        const response = await post(url, undefined, token, (response) => {
+        }, (error) => {
+          console.error('Erreur de follow :', error);
+          Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+        });
+        post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
     } catch (error) {
+      console.error('Erreur lors de la récupération du token JWT :', error);
+      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+    }
+    /* checkIsFollowing(); */
+    fetchUserData();
+  };
+
+
+  const checkIsFollowing = async () => {
+    try {
+      if (token) {
+        get(
+          "/api/follow/following",
+          token,
+          (response: any) => setIsFollowing(
+            response.data?.subscriptions.some(
+              (subscription: { _id: string }) => subscription._id === id
+            )
+          ),
+          (error: any) => console.error({ ...error })
+        );
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Erreur', 'Veuillez vous reconnecter');
+      }
+    } catch (error) {
       console.error('Erreur lors de la vérification du suivi :', error);
-      Alert.alert('Erreur de suivi', 'Une erreur s\'est produite.');
     }
   };
 
+  interface Artwork {
+    _id: string;
+    userId: string;
+    image: string;
+    artType: string;
+    name: string;
+    description: string;
+    dimension: string;
+    isForSale: boolean;
+    price: number;
+    location: string;
+    likes: any[];
+    comments: any[];
+    __v: number;
+  }
+
+  const fetchUserArtworks = async () => {
+    try {
+      const token = context?.token;
+      if (token) {
+        get(
+          `/api/art-publication/user/${id}`,
+          token,
+          (response: any) => setUserArtworks(response.data),
+          (error: any) => console.error({ ...error })
+        )
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert("Erreur", "Veuillez vous reconnecter");
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      if (token) {
+        const url = `/api/user/profile/${id}`;
+        const callback = (response) => {
+          setUserData(response.data);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error fetching user data:', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+        };
+
+        get(url, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
+  };
+
+
   useEffect(() => {
-    // Appelez checkIsFollowing lors du chargement de la page
+    fetchUserData();
+    fetchUserArtworks();
     checkIsFollowing();
   }, []);
+
   useFocusEffect(
-    React.useCallback(() => {
-      // Vous pouvez laisser cette fonction de rappel vide car vous avez déjà déclaré handleBackButtonClick
-      // en dehors de cette fonction.
-    }, [navigation])
+    React.useCallback(() => {}, [navigation])
   );
 
+
   return (
+    <SafeAreaView style={styles.container}>
     <ScrollView nestedScrollEnabled>
-    <View>
+      <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
       {/* Bouton de retour en haut à gauche */}
       <TouchableOpacity
         onPress={() => handleBackButtonClick()}
         style={styles.backButton}
       >
-        {/* Utilisez l'image PNG importée */}
-        <Image source={BackArrow} style={{ width: 24, height: 24, tintColor: 'white' }} />
+        <AntDesign
+          name="left"
+          color={colors.white}
+          onPress={() => navigation.goBack()}
+          size={24}
+        />
       </TouchableOpacity>
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage} // Remplacez par le chemin de votre image
-          style={styles.bannerImage} // Style pour l'image
-          resizeMode="cover" // Pour remplir la bannière
+          source={{ uri: getImageUrl(userData?.bannerImage) }}
+          style={styles.bannerImage}
+          resizeMode="cover"
         />
       </View>
       {/* Photo de profile */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
-            source={profilePicture}
+            source={{ uri: getImageUrl(userData?.profilePicture) }}
             style={styles.profilePicture}
+            defaultSource={require('../assets/icons/account.svg')}
           />
         </View>
       </View>
@@ -128,22 +205,21 @@ const OtherProfile = () => {
       <View style={styles.textBlocks}>
         {/* Bloc de texte follower */}
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.value}>1.3k</Text>
+          <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
           <Text style={styles.title}>followers</Text>
         </View>
 
         {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.centerTitle}>Marine Weber</Text>
-          <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
+          {userData && userData.availability !== "unavailable" && (
+            <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+          )}
         </View>
 
         {/* Bloc de texte posts */}
         <View style={styles.textBlock}>
-          {/* TODO : remplacer par les vrais valeurs */}
-          <Text style={styles.value}>64</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
@@ -166,7 +242,6 @@ const OtherProfile = () => {
           secondary
           style={{width: 150, height: 38, borderRadius: 10,}}
           textStyle={{fontSize: 14}}
-          // onPress={() => navigation?.navigate('single_conversation', { id: conversation.id, name: conversation.username }
           onPress={() => handleContactButtonClick()}
           />
       </View>
@@ -176,11 +251,11 @@ const OtherProfile = () => {
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
-          secondary={activeTab !== 'Artwork'} // Utilisez secondary si ce n'est pas le bouton actif
-          tertiary={activeTab === 'Artwork'} // Utilisez tertiary si c'est le bouton actif
+          secondary={activeTab !== 'Artwork'}
+          tertiary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Artwork')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Artwork')}
           />
         <Button
           value="Collection"
@@ -188,7 +263,7 @@ const OtherProfile = () => {
           tertiary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collection')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('Collection')}
           />
         <Button
           value="A propos"
@@ -196,57 +271,68 @@ const OtherProfile = () => {
           tertiary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('A propos')} // Met à jour le bouton actif
+          onPress={() => setActiveTab('A propos')}
           />
       </View>
       {/* Ensembles de cadres carrés */}
       {activeTab === 'Artwork' &&
-        Array.from({ length: 7 }, (_, rowIndex) => (
-          <View key={rowIndex} style={styles.rowContainer}>
-            {Array.from({ length: 3 }, (_, colIndex) => (
-              <TouchableOpacity
-                key={colIndex}
-                style={styles.squareFrame}
-                onPress={() => handleSquareClick('singleArt')}
-              />
-            ))}
-          </View>
-        ))
+      <View style={styles.squareContainer}>
+        {userArtworks.map((artwork, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+          onPress={() => handleArtworkClick(artwork._id, userData.user_id)}
+        >
+          <Image
+            source={{ uri: `${API_URL}api/${artwork.image}` }}
+            style={{ flex: 1, borderRadius: 10 }}
+            resizeMode="cover"
+            onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
+          />
+        </TouchableOpacity>
+        ))}
+        </View>
       }
-    </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
+
 const styles = StyleSheet.create({
-  banner: { // Style de la bannière
+  container: {
+    backgroundColor: colors.white,
+    flex: 1
+  },
+  banner: {
     backgroundColor: 'lightblue',
-    height: 180, // Hauteur de la bannière (ajustez selon vos besoins)
-    width: '100%', // Largeur de la bannière
-    justifyContent: 'center', // Aligner l'image au centre verticalement
-    alignItems: 'center', // Centrer l'image horizontalement
+    height: 180,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bannerImage: {
-    width: '100%', // Pour remplir la largeur de la bannière
-    height: '100%', // Pour remplir la hauteur de la bannière
+    width: '100%',
+    height: '100%',
   },
   overlayImage: {
     flex: 1,
-    justifyContent: 'center', // Centrer l'image verticalement
-    alignItems: 'center', // Centrer horizontalement l'image
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   profilePicture: {
+    backgroundColor: colors.white,
     width: 110,
     height: 110,
   },
   circleImageContainer: {
     width: 110,
     height: 110,
-    borderRadius: 100, // La moitié de la largeur/hauteur pour créer un cercle
-    overflow: 'hidden', // Cache tout ce qui dépasse du cercle
+    borderRadius: 100,
+    overflow: 'hidden',
     position: 'absolute',
-    top: -55, // L'image est remontée de moitiée pour que son centre
-    // soit sur le bord infèrieur de la bannière.
+    top: -55,
+    elevation: 2
   },
   textBlocks: {
     flexDirection: 'row',
@@ -271,16 +357,17 @@ const styles = StyleSheet.create({
   centerTextBlock: {
     flex: 1,
     alignItems: 'center',
+    marginBottom: 10,
   },
   centerTitle: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     color: colors.tertiary,
     textAlign: 'center',
   },
   centerSubtitle: {
     fontSize: 12,
-    color: 'rgba(112, 0, 255, 1)', // TODO : mettre une valeur provenant de colors
+    color: 'rgba(112, 0, 255, 1)',
   },
   contactAndFollow: {
     justifyContent: 'center',
@@ -293,7 +380,7 @@ const styles = StyleSheet.create({
   decorativeLine: {
     height: 1,
     backgroundColor: colors.tertiary,
-    marginVertical: 10, // Espace verticalement
+    marginVertical: 10,
     marginLeft: 30,
     marginRight: 30,
   },
@@ -309,7 +396,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   marginRightForTabs: {
-    marginRight: 5, // Espacement entre chaque bouton d'onglet
+    marginRight: 5,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -319,17 +406,28 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrame: {
-    width: 115, // Largeur souhaitée du cadre carré
-    height: 115, // Hauteur souhaitée du cadre carré
-    backgroundColor: 'lightgray', // Couleur de fond du cadre
-    borderRadius: 10, // Légèrement arrondi sur les bords
+    width: 115,
+    height: 115,
+    backgroundColor: 'lightgray',
+    borderRadius: 10,
+    margin: 5,
+  },
+  squareContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    marginHorizontal: 10,
   },
   backButton: {
+    backgroundColor: colors.darkGreyBg,
+    padding: 12,
+    borderRadius: 50,
     position: 'absolute',
     top: 16,
     left: 16,
-    zIndex: 1, // Pour placer le bouton au-dessus de la bannière
+    zIndex: 1,
   },
 });
+
 
 export default OtherProfile;

@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
-import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg';
-import { Image } from 'react-native-svg';
 
-const ProfilingQuizzArtist = ({ navigation }: any) => {
-  const [artSellingType, setArtSelling] = useState<string[]>([]);
+const ProfilingQuizzArtist = ({ route, navigation } : any) => {
+  const { objective } = route.params;
+  const [artSellingType, setArtSelling] = useState([]);
 
-  const selectTag = (value: string) => {
-    if (artSellingType.includes(value)) {
-      // If yes, remove it
-      const updatedSellingType = artSellingType.filter((tag) => tag !== value);
-      setArtSelling(updatedSellingType);
-    } else {
-      // If not, add it
-      setArtSelling([...artSellingType, value]);
-    }
+  const selectTag = (value) => {
+    setArtSelling((currentArtSellingType) => {
+      console.log
+      if (currentArtSellingType.includes(value)) {
+        return currentArtSellingType.filter((tag) => tag !== value);
+      }
+      else {
+        return [...currentArtSellingType, value];
+      }
+    });
+    console.log('🟣 ArtSelling Datas;', artSellingType);
   };
 
   const next = () => {
@@ -28,19 +28,15 @@ const ProfilingQuizzArtist = ({ navigation }: any) => {
       console.log('No parameter found');
       return;
     }
-    post(
-      '/api/quizz/submit/',
-      { artSellingType },
-      () => navigation.navigate('profilingArtist2'),
-      () => {
-        console.log('Objective', artSellingType)
-        navigation.navigate('profilingArtist2');
-      }
-    );
+
+    navigation.navigate('profilingArtist2', {
+      objective: objective,
+      artSellingType: artSellingType,
+    });
   };
 
   const previous = () => {
-    navigation.navigate('profiling');
+    navigation.navigate('profiling', { objective });
   };
 
   return (
@@ -54,22 +50,17 @@ const ProfilingQuizzArtist = ({ navigation }: any) => {
         <TagButton
           value="Peinture"
           style={styles.TagButton}
-          onPress={() => selectTag('peinture')}
-        //   selected={artSellingType.includes('peinture')}
+          onPress={selectTag}
         />
         <TagButton
           value="Calligraphie"
           style={styles.TagButton}
           onPress={selectTag}
-        //   onPress={() => selectTag('calligraphie')}
-        //   selected={artSellingType.includes('calligraphie')}
         />
         <TagButton
           value="Photographie"
           style={styles.TagButton}
           onPress={selectTag}
-        //   onPress={() => selectTag('photographie')}
-        //   selected={artSellingType.includes('photographie')}
         />
         <TagButton 
           value="Mode"
@@ -117,14 +108,13 @@ const ProfilingQuizzArtist = ({ navigation }: any) => {
           onPress={selectTag}
           />
       </ScrollView>
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}>
           <TagButton 
               style={ styles.toggle }
               value="Oui"
-            //   onPress={getArtInterest}
           />
           <Text style={{paddingRight: 20}}>
-          Localiser ma position et optimise mon référencement sur l’application
+          Localiser ma position et optimiser mon référencement sur l’application
           </Text>
       </View>
       <Button value="Suivant" onPress={next} />
@@ -163,20 +153,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
-  Tags: {
-    // justifyContent: 'space-between',
-    // alignItems: 'center',
-    margin: 50,
-    // flex: 1,
-    // padding: 15,
-    // justifyContent: 'space-between',
-    // margin: 50,
+Tags: {
+  flex: 1,
+  marginHorizontal: 60,
+  marginBottom: 6,
 },
 TagButton: {
-    // marginBottom:10,
-    // alignItems: 'center',
-    // margin: 50,
-  },
+  marginHorizontal: 5,
+  marginVertical: 3,
+},
   toggle: {},
 });
 

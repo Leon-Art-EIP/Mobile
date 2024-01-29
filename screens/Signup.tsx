@@ -1,35 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Alert, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { get, post } from '../constants/fetch';
 import axios from 'axios';
-import env from '../env';
+import { MainContext } from '../context/MainContext';
 
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Title from '../components/Title';
 import colors from '../constants/colors';
 
+
+const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+
+
 const Signup = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
+  const context = useContext(MainContext);
 
   const handleSignup = () => {
-    const { API_URL } = env;
     const requestData = { username, email, password };
-  
-    axios.post(`${API_URL}api/auth/signup`, requestData)
+
+    axios.post(`${API_URL}/api/auth/signup`, requestData)
       .then(async response => {
         if (response && response.data && response.data.token) {
           const tokenFromDB = response.data.token;
           console.log('Server response', response.data);
           console.log('Token from DB:', tokenFromDB);
-  
+
           try {
             await AsyncStorage.setItem('jwt', tokenFromDB);
-            navigation.navigate('profiling');
+            navigation.navigate('profilingquizz');
           } catch (error) {
             console.error('Error storing token:', error);
             Alert.alert('Signup Failed');
@@ -59,10 +62,10 @@ const Signup = ({ navigation }: any) => {
         console.error('Error config:', error.config);
       });
   };
-  
+
 
   const handleLoginNavigation = () => {
-    navigation.navigate('signup');
+    navigation.navigate('login');
   };
 
   return (
@@ -86,7 +89,7 @@ const Signup = ({ navigation }: any) => {
       />
 
       <Input
-        placeholder="Password"
+        placeholder="Mot de passe"
         onTextChanged={setPassword}
         style={styles.input}
       />

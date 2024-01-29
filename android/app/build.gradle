@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
 
 import com.android.build.OutputFile
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -7,7 +8,7 @@ project.ext.react = [
   enableHermes: true,  // clean and rebuild if changing
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
+// apply from: "../../node_modules/react-native/react.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -66,6 +67,13 @@ android {
     versionCode 1
     versionName "1.0"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+
+    configurations.all {
+      resolutionStrategy {
+        force("androidx.emoji2:emoji2-views-helper:1.3.0")
+        force("androidx.emoji2:emoji2:1.3.0")
+      }
+    }
 
     if (isNewArchitectureEnabled()) {
       externalNativeBuild {
@@ -141,6 +149,12 @@ android {
       keyAlias 'androiddebugkey'
       keyPassword 'android'
     }
+    release {
+      storeFile file('key.keystore')
+      storePassword 'sampleKeyPassw0rd'
+      keyAlias 'key'
+      keyPassword 'sampleKeyPassw0rd'
+    }
   }
   buildTypes {
     debug {
@@ -149,11 +163,12 @@ android {
     release {
       // Caution! In production, you need to generate your own keystore file.
       // see https://reactnative.dev/docs/signed-apk-android.
-      signingConfig signingConfigs.debug
+      signingConfig signingConfigs.release
       minifyEnabled enableProguardInReleaseBuilds
       proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
     }
   }
+  namespace 'com.mobile'
 
   // applicationVariants are e.g. debug, release
   applicationVariants.all { variant ->
@@ -173,6 +188,9 @@ android {
 }
 
 dependencies {
+  // Stripe Android SDK
+  implementation 'com.stripe:stripe-android:20.36.0'
+
   implementation fileTree(dir: "libs", include: ["*.jar"])
 
   //noinspection GradleDynamicVersion

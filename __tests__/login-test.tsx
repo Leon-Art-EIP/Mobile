@@ -1,7 +1,7 @@
 import 'react-native';
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import Login from '../screens/LoginPage/LoginPage';
+import Login from '../screens/Login';
 
 
 jest.mock('@react-native-community/checkbox');

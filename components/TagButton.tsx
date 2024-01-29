@@ -3,7 +3,6 @@ import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, StyleSheet, Di
 import colors from '../constants/colors';
 
 interface ButtonProps {
-  // onPress?: (parameter: any) => void;
   onPress?: (parameter: string) => void;
   style?: StyleProp<ViewStyle>;
   value?: string;
@@ -37,7 +36,7 @@ const TagButton = ({
       disabled={disabled}
       style={[
         styles.containerStyle,
-        isPressed && { backgroundColor: colors.pressedTag },
+        isPressed && { backgroundColor: colors.primary },
       ]}
     >
       <Text 
@@ -64,6 +63,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 8,
     fontSize: 40,
+    margin: 6,
     // gap: 19,
     color: colors.black,
   },

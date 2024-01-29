@@ -7,6 +7,7 @@ interface InputProps {
   value?: string;
   onTextChanged?: (e: string) => void;
   secureTextEntry?: boolean;
+  ref?: any;
   style?: StyleProp<ViewStyle>;
   onError?: () => void;
   error?: boolean;
@@ -18,6 +19,7 @@ const Input = ({
   value = "",
   onTextChanged = (_: string) => {},
   secureTextEntry = true,
+  ref = null,
   style = {},
   onError = () => {},
   error = false,
@@ -38,6 +40,7 @@ const Input = ({
 
   return (
     <TextInput
+      ref={ref}
       editable={!disabled}
       placeholder={placeholder}
       value={textValue}
@@ -56,7 +59,6 @@ const Input = ({
 const styles = StyleSheet.create({
   container: {
     borderRadius: 50,
-    elevation: 2,
     backgroundColor: colors.bg,
     paddingHorizontal: 20,
     paddingVertical: 10,

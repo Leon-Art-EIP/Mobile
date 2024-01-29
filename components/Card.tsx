@@ -24,10 +24,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.disabledBg,
     borderRadius: 20,
-    marginHorizontal: 20,
-    marginVertical: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 13
+    marginHorizontal: 24,
+    marginVertical: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 12
   }
 });
 

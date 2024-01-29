@@ -1,39 +1,89 @@
 //* Standard imports
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native'
 
 //* Local imports
 import colors from '../../constants/colors';
-import { CONVERSATIONS } from '../../constants/conversations';
+import { MessageType } from '../../constants/conversations';
+import { get } from '../../constants/fetch';
+import { MainContext } from '../../context/MainContext';
+import SockHelper from '../../helpers/SocketHelper';
 import Title from '../Title';
 
+
 type ConversationType = {
-  id: number;
-  unread: boolean;
-  status: 'untreated' | 'waiting' | 'finished';
-  username: string;
-  lastMessage: string;
+  "_id": string;
+  "lastMessage": string;
+  "unreadMessages": boolean;
+  "UserOneId": string;
+  "UserOneName": string;
+  "UserOnePicture": string;
+  "UserTwoId": string;
+  "UserTwoName": string;
+  "UserTwoPicture": string;
 };
+
 
 const ConversationsComponent = () => {
   const navigation = useNavigation();
-  const [conversations, setConversations] = useState<ConversationType[]>(CONVERSATIONS);
+  const context = useContext(MainContext);
+  const [conversations, setConversations] = useState<ConversationType[]>([]);
+
+
+  // get conversations through back end
+  const getConversations = () => {
+    get(
+      `/api/conversations/${context?.userId}`,
+      context?.token,
+      (res: any) => setConversations([
+        ...(res.data['chats'] as ConversationType[])
+      ]),
+      (err: any) => console.error("Couldn't get conversations: ", err)
+    );
+  }
+
+
+  useEffect(() => {
+    // get conversations
+    getConversations();
+
+    /* // socket gestion */
+    /* if (!SockHelper.isStarted()) { */
+    /*   SockHelper.start(); */
+    /*   SockHelper.on('msg-recieve', (msg: MessageType) => console.log({ ...msg })) */
+    /* } */
+    /**/
+    //TODO implementing Sockets
+  }, []);
+
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-      { conversations.map((conversation: ConversationType) => (
+      { conversations.length > 0 ? conversations.map((conversation: ConversationType) => (
         <TouchableOpacity
-          key={conversation.id.toString()}
+          key={conversation['_id'].toString()}
           style={styles.conversationView}
-          onPress={() => navigation?.navigate('single_conversation', { id: conversation.id, name: conversation.username })}
+          onPress={() => navigation?.navigate(
+            'single_conversation',
+            {
+              name: conversation?.UserOneId === context?.userId ? conversation['UserTwoName'] : conversation['UserOneName'],
+              // ids: conversation ID, your ID, the correspondant ID
+              ids: [
+                conversation['_id'],
+                conversation['UserOneId'],
+                conversation['UserTwoId']
+              ]
+            }
+          )}
         >
           <View style={{ flexDirection: 'row', height: 60 }}>
 
             {/* Unread dot */}
             <View style={[
               styles.unreadDot,
-              { backgroundColor: conversation.unread ? colors.primary : colors.white }
+              { backgroundColor: conversation.unreadMessages ? colors.primary : colors.white }
             ]} />
 
             <Image
@@ -41,16 +91,26 @@ const ConversationsComponent = () => {
               style={styles.conversationPicture}
             />
             <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-              <Title size={16}>{ conversation.username }</Title>
+              <Title size={16}>{
+                context?.userId === conversation['UserTwoId'] ? conversation['UserOneName'] : conversation['UserTwoName']
+              }</Title>
               <Text numberOfLines={1} style={{
-                fontWeight: conversation.unread ? 'bold' : 'normal',
+                fontWeight: conversation.unreadMessages ? 'bold' : 'normal',
                 flexShrink: 1
               }}>{ conversation.lastMessage }</Text>
             </View>
           </View>
           <View style={styles.lineView} />
         </TouchableOpacity>
-      )) }
+      )) : (
+        <View style={{ alignSelf: 'center', flex: 1, alignItems: 'center' }}>
+          <Image
+            source={require('../../assets/icons/box.png')}
+            style={styles.emptyImg}
+          />
+          <Text style={{ marginBottom: 'auto' }}>Looks empty right there !</Text>
+        </View>
+      ) }
     </ScrollView>
   )
 }
@@ -83,6 +143,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginTop: 'auto',
     marginBottom: 'auto',
+  },
+  emptyImg: {
+    height: 100,
+    width: 100,
+    marginTop: 'auto',
+    marginBottom: 12
   }
 });
 
