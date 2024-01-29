@@ -65,12 +65,13 @@ const Conversation = () => {
     }
 
     // use newMessage to send the message via the backend
+    console.log(socketBody);
+    SockHelper.emit('send-msg', socketBody);
     post(
       `/api/conversations/messages/new`,
       body,
       context?.token,
       () => {
-        SockHelper.emit('send-msg', socketBody);
         getConversation();
         setNewMessage("");
       },
@@ -89,12 +90,17 @@ const Conversation = () => {
   }
 
 
+  const goBack = () => {
+    SockHelper.off('msg-receiver');
+    return navigation.goBack();
+  }
+
   useEffect(() => {
     getConversation();
 
     SockHelper.start(process.env.REACT_APP_API_URL, true);
     SockHelper.emit('add-user', context?.userId);
-    SockHelper.on('msg-recieve', getConversation);
+    SockHelper.on('msg-recieve', () => getConversation());
   }, []);
 
 
@@ -106,7 +112,7 @@ const Conversation = () => {
       <View style={styles.titleView}>
         <TouchableOpacity
           style={styles.arrowView}
-          onPress={() => navigation.goBack()}
+          onPress={goBack}
         >
           <Image
             style={styles.arrowImage}
