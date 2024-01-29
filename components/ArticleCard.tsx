@@ -4,16 +4,13 @@ import colors from '../constants/colors';
 import { ArticleType } from "../constants/homeValues";
 import Card from "./Card";
 import Title from "./Title";
+import { getImageUrl } from '../helpers/ImageHelper';
 
 interface ArticleCardProps {
   onPress?: (item) => void;
   item: ArticleType;
   path: "article";
 }
-
-const handleType = () => {
-    // Your implementation here
-  };
 
 const ArticleCard = ({
     
@@ -23,12 +20,12 @@ const ArticleCard = ({
 }: ArticleCardProps) => (
   <TouchableOpacity
   accessibilityRole="button"
-  onPress={() => onPress(item)} // Pass the item to the onPress handler
+  onPress={() => onPress(item)}
 >
     <Card style={styles.container}>
       <Image
         style={styles.image}
-        source={{ uri: item.mainImage }} // Add the correct image source based on your data
+        source={{ uri: getImageUrl(item?.mainImage) }}
       />
       <Title size={18} style={{ marginTop: 'auto', color: '#fff' }}>{item.title}</Title>
     </Card>
@@ -38,9 +35,10 @@ const ArticleCard = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.articlePlHolder,
+    marginRight: 5,
     margin: 0,
     width: 230,
-    height: 130,
+    height: 145,
     position: "relative",
     borderRadius: 15,
   },

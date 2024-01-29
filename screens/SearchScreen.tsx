@@ -5,7 +5,7 @@ import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';
 import colors from '../constants/colors';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh8, mt8, bgRed, mh4, mb8 } from '../constants/styles';
+import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh8, mt8, bgRed, mh4, mb8, cBlack } from '../constants/styles';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
@@ -64,7 +64,7 @@ const SearchScreen = ({ navigation }: any) => {
     let url: string = args1 + args2 + args3;
 
     if (!search) {
-      return console.warn('Empty search. Staying there...');
+      return console.warn('Empty search');
     }
     navigation.navigate('results', { url });
   }
@@ -130,13 +130,14 @@ const SearchScreen = ({ navigation }: any) => {
       <View style={styles.searchView}>
         <TextInput
           onChangeText={setSearch}
-          placeholder="Search..."
+          placeholderTextColor={colors.disabledFg}
+          placeholder="Recherche..."
           style={styles.searchBar}
         />
         <FontAwesome
           name="search"
           size={24}
-          color={colors.text}
+          color={!search ? colors.text : colors.black}
           style={{ ...mtAuto, ...mbAuto, marginHorizontal: 18 }}
           onPress={getSearchApi}
         />
@@ -144,7 +145,7 @@ const SearchScreen = ({ navigation }: any) => {
 
       {/* Search price */}
       <View style={styles.searchView}>
-        <Text style={[mlAuto, mrAuto]}>{ getPriceValues()[0] } €</Text>
+        <Text style={[mlAuto, mrAuto, cBlack]}>{ getPriceValues()[0] } €</Text>
         <MultiSlider
           values={getPriceValues()}
           max={1000}
@@ -154,7 +155,7 @@ const SearchScreen = ({ navigation }: any) => {
           sliderLength={Dimensions.get('window').width - 192}
           containerStyle={{ ...mlAuto, ...mrAuto }}
         />
-        <Text style={[ mlAuto, mrAuto ]}>{ getPriceValues()[1] } €</Text>
+        <Text style={[ mlAuto, mrAuto, cBlack ]}>{ getPriceValues()[1] } €</Text>
       </View>
 
       {/* Art types */}
@@ -169,7 +170,7 @@ const SearchScreen = ({ navigation }: any) => {
             styles.filterText,
             fwBold,
             flex1,
-            { fontSize: 20 }
+            { fontSize: 17 }
           ]}>Types</Text>
           <Entypo
             name={isArtTypeDisplayed ? "chevron-thin-up" : "chevron-thin-down"}
@@ -182,7 +183,7 @@ const SearchScreen = ({ navigation }: any) => {
         { isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
           <View
             key={filter.category.toString()}
-            style={{ marginBottom: 24 }}
+            style={{ marginTop: 15 }}
           >
             {/* Filter item */}
             <TouchableOpacity
@@ -210,12 +211,22 @@ const SearchScreen = ({ navigation }: any) => {
         )) }
       </ScrollView>
 
-      {/* Clear filters */}
-      <Button
-        style={[mh4, mtAuto]}
-        onPress={clearFilters}
-        value="Clear filters"
-      />
+      <View style={[flexRow, mtAuto]}>
+        {/* Clear filters */}
+        <Button
+          style={[mh4, flex1]}
+          onPress={clearFilters}
+          value="Effacer"
+          secondary
+        />
+
+        {/* Search button */}
+        <Button
+          style={[mh4, flex1]}
+          onPress={getSearchApi}
+          value="Rechercher"
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -242,7 +253,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     shadowColor: colors.transparent,
     marginHorizontal: 12,
-    marginVertical: 12
+    marginVertical: 12,
+    fontSize: 16,
+    color: colors.black
   },
   filterScrollView: {
     flexGrow: 0,
@@ -252,10 +265,11 @@ const styles = StyleSheet.create({
     marginBottom: 8
   },
   filterTouchableOpacity: {
-    padding: 11,
-    paddingHorizontal: 32
+    padding: 5,
+    paddingHorizontal: 23,
   },
   filterText: {
+    color: colors.black,
     fontSize: 18
   },
   subFilterTouchableOpacity: {

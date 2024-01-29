@@ -1,6 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import axios from 'axios';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,15 +8,19 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  StatusBar
+  StatusBar,
+  FlatList,
+  ListRenderItem,
+  TextInput
 } from 'react-native';
-import Button from '../components/Button';
+import { Socket } from 'socket.io-client';
 import TextBubble from '../components/inbox/TextBubble';
 import Input from '../components/Input';
 import colors from '../constants/colors';
-import { MESSAGES, MessageType } from '../constants/conversations';
+import { MessageType } from '../constants/conversations';
 import { get, post } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
+import SockHelper from '../helpers/SocketHelper';
 
 
 type ConversationParams = {
@@ -43,28 +46,40 @@ const Conversation = () => {
   const route: any = useRoute();
   const params = route?.params as ConversationParams;
   const context = useContext(MainContext);
-  let inputRef: any = null;
+  const scrollView = useRef<ScrollView>(null);
 
 
   const sendMessage = () => {
+    if (!newMessage) {
+      return
+    }
+
     const body = {
       convId: params?.ids[0],
       userId: context?.userId,
       contentType: 'string',
-      content: newMessage
+      content: newMessage.toString()
     };
+
+    const socketBody = {
+      to: params?.ids[1] === context?.userId ? params?.ids[2] : params?.ids[1],
+      from: context?.userId,
+      convId: params?.ids[0],
+      msg: newMessage.toString()
+    }
 
     // use newMessage to send the message via the backend
     post(
       `/api/conversations/messages/new`,
       body,
       context?.token,
-      (res) => console.log(res),
+      () => {
+        SockHelper.emit('send-msg', socketBody);
+        getConversation();
+        setNewMessage("");
+      },
       (err) => console.warn({ ...err })
     );
-    getConversation();
-    setNewMessage('');
-    return
   }
 
 
@@ -80,12 +95,16 @@ const Conversation = () => {
 
   useEffect(() => {
     getConversation();
+
+    SockHelper.start(process.env.REACT_APP_API_URL, true);
+    SockHelper.emit('add-user', context?.userId);
+    SockHelper.on('msg-recieve', getConversation);
   }, []);
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={colors.black} />
+      <StatusBar backgroundColor={colors.black} barStyle='light-content' />
 
       {/* Title view */}
       <View style={styles.titleView}>
@@ -115,10 +134,13 @@ const Conversation = () => {
       </View>
 
       {/* Messages */}
-      <ScrollView style={styles.conversationContainer}>
-        {/* <Button value='Charger plus de messages' /> */}
+      <ScrollView
+        contentContainerStyle={styles.conversationContainer}
+        ref={scrollView}
+        onContentSizeChange={(_, height) => scrollView.current?.scrollTo({ y: height, animated: true })}
+      >
         { messages && messages.map((msg: MessageType) => (
-          <TextBubble message={msg} key={msg.content + Math.random().toString()} />
+            <TextBubble message={msg} key={msg._id} />
         )) }
       </ScrollView>
 
@@ -126,19 +148,11 @@ const Conversation = () => {
       <View style={styles.messageContainer}>
         <View style={styles.messageView}>
 
-          {/* Micro */}
-          {/* <TouchableOpacity style={styles.micView}> */
-          /*   <Image */
-          /*     style={styles.micImage} */
-          /*     source={require('../assets/icons/Microphone.png')} */
-          /*   /> */
-          /* </TouchableOpacity> */}
-
           {/* Input message */}
-          <Input
+          <TextInput
             style={styles.messageInput}
             placeholder="Message ..."
-            onTextChanged={(newMsg: string) => setNewMessage(newMsg)}
+            onChangeText={(newMsg: string) => setNewMessage(newMsg)}
             value={newMessage}
           />
 
@@ -168,11 +182,12 @@ const styles = StyleSheet.create({
   },
   conversationContainer: {
     backgroundColor: colors.white,
-    flex: 1,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    flexGrow: 1,
     paddingVertical: 16,
     paddingHorizontal: 12,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20
+    paddingBottom: 12
   },
   titleView: {
     paddingVertical: 12,
@@ -236,6 +251,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   messageInput: {
+    paddingHorizontal: 12,
     backgroundColor: colors.transparent,
     shadowColor: colors.transparent,
     borderRadius: 0,

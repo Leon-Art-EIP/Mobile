@@ -59,7 +59,6 @@ const Input = ({
 const styles = StyleSheet.create({
   container: {
     borderRadius: 50,
-    elevation: 2,
     backgroundColor: colors.bg,
     paddingHorizontal: 20,
     paddingVertical: 10,

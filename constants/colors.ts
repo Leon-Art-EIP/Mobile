@@ -10,7 +10,7 @@ const colors = {
   white: '#FFFF',
 
   primary: '#E11C0A',
-  secondary: '#F5F5F5',
+  secondary: '#f2f0f0',
   tertiary: '#2D142C',
 
   title: '#2C2C2C',
@@ -30,14 +30,24 @@ const colors = {
   articlePlHolder: '#a6c8ff',
   artistPlHolder: '#FF7F74',
   forYouPlHolder: '#ededed',
+  publicationPlHolder: '#FFCF70',
+
+  platinium: '#E0E0E0',
+  vermilion: '#F64C3C',
+  whitesmoke:'#f2f0f0',
+  oldrose: '#bd7a75',
+
+  //buttons
+  cancel: '#E68275',
+  confirm: '#6DC592',
 
   // inbox
   offerFg: '#6C0F7B',
   offerBg: '#FFE0E0',
-  bubbleFgReceived: '#fff',
-  bubbleBgReceived: '#2D142C',
-  bubbleFgSent: '#000',
-  bubbleBgSent: '#F7F7F8'
+  bubbleFgReceived: '#000',
+  bubbleBgReceived: '#F7F7F8', // '#2D142C'
+  bubbleFgSent: '#fff',
+  bubbleBgSent: '#E11C0A'
 };
 
 export default colors;

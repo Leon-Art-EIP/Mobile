@@ -11,12 +11,11 @@ import {
   Image,
   ToastAndroid,
   Text,
-  RefreshControl,
-  Alert
+  RefreshControl
 } from 'react-native'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
-import { useNavigation } from '@react-navigation/native';
+import { getImageUrl } from '../helpers/ImageHelper';
 
 import colors from "../constants/colors";
 import { ArtistType, ArticleType } from "../constants/homeValues";
@@ -27,10 +26,11 @@ import ArtistCard from "../components/ArtistCard";
 import ArticleCard from '../components/ArticleCard';
 
 const HomeScreen = ({ navigation }: any) => {
+  console.log('HomeScreen mounted');
   const context = useContext(MainContext);
   const [artists, setArtists] = useState<ArtistType[]>([]);
   const [articles, setArticles] = useState<ArticleType[]>([]);
-  const [forYou, setForYou] = useState<string[]>(Array(100).fill(0));
+  const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   const handleToArtistProfile = (artist: ArtistType) => {
@@ -41,9 +41,10 @@ const HomeScreen = ({ navigation }: any) => {
   const handleToArticle = (article: ArticleType) => {
     navigation.navigate('article', { article });
   };
-  
-  const goToArticle = () => {
-    navigation.navigate('singleart');
+
+  const towardsPost = (publicationId) => {
+    console.log('🔵 ID:', publicationId);
+    navigation.navigate('singleart', { id: publicationId });
   };
 
   const getArticles = () => {
@@ -72,11 +73,30 @@ const HomeScreen = ({ navigation }: any) => {
       "/api/artists/latest?limit=5&page=0",
       context?.token,
       (response: any) => {
-        // console.log(response?.data?.artists[0]);
         setArtists(response?.data?.artists);
       }
     )
   }
+
+  const getPublications = () => {
+    console.log('Token:', context?.token);
+    if (!context?.token) {
+      return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
+    }
+    get(
+      "/api/art-publication/feed/latest?page=0&limit=15",
+      context?.token,
+      (response) => {
+        console.log('🎨 Publications:', response.data)
+        setPublications(response?.data || []);
+      },
+      (error) => {
+        console.error("Error fetching publications:", error);
+        ToastAndroid.show("Error fetching publications", ToastAndroid.SHORT);
+      }
+      );
+      console.log('LOG');
+  };
 
   useEffect(() => {
   }, [articles]);
@@ -87,21 +107,22 @@ const HomeScreen = ({ navigation }: any) => {
     }
     getArticles();
     getArtists();
+    getPublications();
     setIsRefreshing(false);
   }, [isRefreshing]);
 
   useEffect(() => {
     getArtists();
     getArticles();
+    getPublications();
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-    
   }, []);
 
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={colors.bg} />
+      <StatusBar backgroundColor={colors.bg} barStyle='dark-content' />
       <ScrollView nestedScrollEnabled refreshControl={
         <RefreshControl
           refreshing={isRefreshing}
@@ -121,27 +142,36 @@ const HomeScreen = ({ navigation }: any) => {
           </Title>
           {articles.length === 0 ? (
             <View style={styles.emptyView}>
-              <Text>
-                No articles available...
-              </Text>
-            </View>
-          ) : (
+            <Image
+              style={{ height: 50, width: 50 }}
+              source={require('../assets/icons/box.png')}
+            />
+            <Title
+              size={18}
+              style={{ color: colors.disabledFg }}
+            >Looks quite empty here !</Title>
+            <Text style={{
+              fontWeight: '500',
+              color: colors.disabledFg
+            }}>Try to refresh the page</Text>
+          </View>
+              ) : (
             <FlatList
-            data={articles}
-            contentContainerStyle={styles.flatList}
-            renderItem={(e: ListRenderItemInfo<ArticleType>) => (
-              <ArticleCard
-                onPress={() => handleToArticle(e.item)}
-                item={e.item}
-                path="article"
-              />
-            )}
-            keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            horizontal
-            scrollEnabled
-          />
+              data={articles}
+              contentContainerStyle={styles.flatList}
+              renderItem={(e: ListRenderItemInfo<ArticleType>) => (
+                <ArticleCard
+                  onPress={() => handleToArticle(e.item)}
+                  item={e.item}
+                  path="article"
+                />
+              )}
+              keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              horizontal
+              scrollEnabled
+            />
           )}
         </View>
 
@@ -154,9 +184,7 @@ const HomeScreen = ({ navigation }: any) => {
           >
             Artistes
           </Title>
-
           { artists.length === 0 ? (
-
             <View style={styles.emptyView}>
               <Image
                 style={{ height: 50, width: 50 }}
@@ -171,75 +199,53 @@ const HomeScreen = ({ navigation }: any) => {
                 color: colors.disabledFg
               }}>Try to refresh the page</Text>
             </View>
-
-          ) : (
-
+            ) : (
             <FlatList
               data={artists}
-              style={{ marginHorizontal: 8 }}
+              contentContainerStyle={styles.flatList}
               keyExtractor={(item: ArtistType) => item.email.toString()}
               showsHorizontalScrollIndicator={false}
+              horizontal
+              nestedScrollEnabled
               renderItem={(e: ListRenderItemInfo<ArtistType>) => (
                 <ArtistCard
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
                   path="other_profile"
+                  // style={{ marginRight: 8 }}
                 />
               )}
-              horizontal
-              nestedScrollEnabled
             />
           ) }
         </View>
 
         {/* Pour Vous */}
 
-        <View>
-          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>Pour vous</Title>
-
-          { forYou.length === 0 ? (
-            <View style={styles.emptyView}>
-              <Image
-                style={{ height: 50, width: 50 }}
-                source={require('../assets/icons/box.png')}
+    <View>
+      <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+        Publications
+      </Title>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.publicationsContainer}>
+          {publications.map((publication, index) => (
+            <TouchableOpacity key={publication._id} onPress={() => towardsPost(publication._id)}>
+              <View style={styles.publicationItem}>
+                <Image
+                  style={styles.publicationImage}
+                  source={{ uri: getImageUrl(publication.image) }}
+                  onError={() => console.log("Image loading error")}
                 />
-              <Title
-                size={18}
-                style={{ color: colors.disabledFg }}
-                >Couldn't get art you could like !</Title>
-              <Text style={{
-                fontWeight: '500',
-                color: colors.disabledFg
-              }}>Try to refresh page</Text>
-            </View>
-          ) : (
-            <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, marginHorizontal: 10 }}>
-              <FlatList
-                data={forYou}
-                contentContainerStyle={{ width: '100%' }}
-                renderItem={(e: ListRenderItemInfo<string>) => (
-                  <TouchableOpacity onPress={goToArticle}>
-                  <View style={{ 
-                    flex: 1,
-                    backgroundColor: colors.forYouPlHolder,
-                    borderRadius: 7,
-                    margin: 5,
-                    height: 120,
-                    width: 120 }}>
-                  </View>
-                  </TouchableOpacity>
-                )}
-                scrollEnabled={false}
-                numColumns={3}
-              />
-            </ScrollView>
-          ) }
+                {/* <Text style={styles.publicationTitle}>{publication.name}</Text> */}
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
+  </ScrollView>
+  </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
     marginTop: 32
   },
   flatList: {
-    margin: 'auto'
+    paddingLeft: 3,
   },
   emptyView: {
     alignSelf: 'center',
@@ -277,28 +283,44 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginBottom: 16,
   },
-  
   articleTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
   },
-  
   articleImage: {
     width: '100%',
     height: 200,
     borderRadius: 8,
     marginBottom: 8,
   },
-
   articleDescription: {
     fontSize: 16,
     marginBottom: 8,
   },
-
   articleAuthor: {
     fontSize: 14,
     color: colors.disabledFg,
+  },
+  publicationsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
+  },
+  publicationItem: {
+    height: 120,
+    width: 120,
+    margin: 5,
+    backgroundColor: colors.disabledBg,
+    borderRadius: 7,
+  },
+  publicationImage: {
+    height: 120,
+    width: 120,
+    borderRadius: 7,
+  },
+  publicationTitle: {
+    color: colors.black,
   },
 });
 
