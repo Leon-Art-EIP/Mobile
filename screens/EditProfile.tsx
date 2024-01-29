@@ -24,6 +24,7 @@ const EditProfile = () => {
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
+  const [isAvailable, setIsAvailable] = useState<string>('');
 
   interface UserData {
     _id: string;
@@ -53,10 +54,12 @@ const EditProfile = () => {
 
   const handleSaveModifications = () => {
     console.log("Modifications saved.");
-    // Save new banner
-    // Save new Profile picture
     // Save new biography
     saveBiography();
+    // Save availability
+    saveIsAvailable();
+    // Save new banner
+    // Save new Profile picture
     navigation.goBack();
   }
 
@@ -70,6 +73,44 @@ const EditProfile = () => {
         const callback = (response) => {
           setUserData(response.data);
           if (userData?.biography !== undefined) setBiography(userData.biography);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error saving modifications:', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
+        };
+
+        post(url, body, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
+  };
+
+  const saveIsAvailable = () => {
+    try {
+      if (token) {
+        const url = `/api/user/profile/availability`;
+        const body = {
+          availability: isAvailable
+        };
+        const callback = (response) => {
+          setUserData(response.data);
+          if (userData?.availability !== undefined) setIsAvailable(userData.availability);
+          console.log(isAvailable);
         };
         const onErrorCallback = (error) => {
           console.error('Error saving modifications:', error);
@@ -141,6 +182,7 @@ const EditProfile = () => {
         await fetchUserData();
         if (userData?.biography !== undefined) {
           setBiography(userData.biography);
+          setIsAvailable(userData.availability);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -205,12 +247,15 @@ const EditProfile = () => {
               value="Oui"
               style={styles.availableButton}
               textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+              onPress={() => setIsAvailable("available")}
+              secondary={isAvailable === "unavailable"}
             />
             <Button
               value="Non"
               style={styles.availableButton}
               textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-              tertiary
+              onPress={() => setIsAvailable("unavailable")}
+              secondary={isAvailable === "available"}
             />
           </View>
         </View>
