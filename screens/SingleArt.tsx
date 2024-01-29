@@ -10,59 +10,21 @@ import { MainContext } from '../context/MainContext';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Linking } from 'react-native';
 import { getImageUrl } from '../helpers/ImageHelper';
-import ArtistCard from '../components/ArtistCard';
-import { ArtistType } from '../constants/homeValues';
 import axios from 'axios';
 
 
 const SingleArt = ({ navigation, route } : any) => {
 
   const context = useContext(MainContext);
-  const [artist, setArtist] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState(false);
-  const [author, setAuthor] = useState(false);
-  const [artists, setArtists] = useState<ArtistType[]>([]);
   const { id } = route.params;
 
 
   useEffect(() => {
     getPublications();
   }, [id]);
-  
-  useEffect(() => {
-    if (publication && publication.userId) {
-      fetchArtistDetails();
-    }
-  }, [publication]);
-
-  const fetchArtistDetails = async () => {
-    try {
-      const response = await get(`/api/user/profile/${publication.userId}`, context?.token);
-      setArtist(response.data);
-    } catch (error) {
-      console.error("Error fetching artist details:", error);
-    }
-  };
-
-  const handleToArtistProfile = (artist: ArtistType) => {
-    console.log('artist id: ', artist._id);
-    navigation.navigate('other_profile', { id: artist._id });
-  };
-
-  const getAuthorName = (userId) => {
-    get(
-      `/api/user/profile/${userId}`,
-      context?.token,
-      (response) => {
-        setAuthor(response.data);
-      },
-      (error) => {
-        console.error("Error fetching Artist Name:", error);
-      }
-    );
-  };
 
 
   const fetchPaymentSheetParams = () => {
@@ -139,39 +101,34 @@ const SingleArt = ({ navigation, route } : any) => {
       (response) => {
         console.log('🎨 Publications:', response.data)
         setPublication(response?.data || []);
-        getAuthorName(response?.data.userId);
       },
       (error) => {
         console.error("Error fetching publications:", error);
       }
-      );
-    };
-    
-    const savePublication = () => {};
+    );
+  };
 
-    const likePublication = async () => {
-      try {
-        const updatedLikeStatus = !isLiked;
-        
-        const response = await axios.post(`/api/art-publication/like/${id}`, {
-          isLiked: updatedLikeStatus
-        }, {
-          headers: {
-            Authorization: `Bearer ${context?.token}`,
-          },
-        });
-    
-        if (response.status === 200) {
-          setIsLiked(response.data.isLiked);
-          console.log("Like status updated successfully");
-          showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
-        } else {
-          console.error("Failed to update like status");
-          showAlert('Failed to update like status');
-        }
-      } catch (error) {
-        console.error("Error in liking publication:", error);
-        console.error(error.response || error)
+  const savePublication = () => {};
+
+  const likePublication = async () => {
+    try {
+      const updatedLikeStatus = !isLiked;
+
+      const response = await axios.post(`/api/art-publication/like/${id}`, {
+        isLiked: updatedLikeStatus
+      }, {
+        headers: {
+          Authorization: `Bearer ${context?.token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setIsLiked(response.data.isLiked);
+        console.log("Like status updated successfully");
+        showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
+      } else {
+        console.error("Failed to update like status");
+        showAlert('Failed to update like status');
       }
     } catch (error) {
       console.error("Error in liking publication:", error);
@@ -247,6 +204,35 @@ const SingleArt = ({ navigation, route } : any) => {
         onPress={previous}
         />
       </View>
+      {/* <Modal isVisible={isModalVisible} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Enregistrer dans...</Text>
+
+          <FlatList
+            data={userCollections}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.collectionButton}
+                onPress={() => addToCollection(item.name)}
+              >
+                <Text style={styles.collectionButtonText}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onChangeText={(text) => setNewCollectionName(text)}
+          />
+          <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
+            <Text style={styles.createButtonText}>Créer</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
+            <Text style={styles.cancelButtonText}>Annuler</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal> */}
     </View>
     </ScrollView>
   );
@@ -255,7 +241,7 @@ const SingleArt = ({ navigation, route } : any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 16,
         backgroundColor: colors.white,
     },
     logo: {
@@ -264,11 +250,6 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         padding: 20,
         borderRadius: 5,
-    },
-    artistCardStyle: {
-      borderRadius: 30,
-      container: { width: 45, height: 45, borderRadius: 30, marginTop: 0, color: 'white'},
-      image: { width: 45, height: 45, borderRadius: 30, marginTop: 25 },
     },
     img: {
       backgroundColor: colors.disabledBg,
@@ -292,52 +273,6 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
-    rowContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 10,
-      justifyContent: 'space-between',
-    },
-    actionButton: {
-      paddingVertical: 10,
-      paddingHorizontal: 15,
-      borderRadius: 30,
-      justifyContent: 'center',
-      marginLeft: 'auto',
-    },
-    primaryButton: {
-      backgroundColor: colors.primary,
-    },
-    secondaryButton: {
-      backgroundColor: colors.secondary,
-    },
-    buttonText: {
-      fontSize: 14,
-      color: colors.black,
-    },
-    buttonText: {
-      fontSize: 14,
-      textAlign: 'center',
-      color: colors.black,
-    },
-    userIdText: {
-      marginLeft: 6,
-      fontSize: 15,
-      flex: 1,
-      color: 'black',
-    },
-    saveButton: {
-      backgroundColor: colors.secondary,
-      width: 75,
-      height: 38,
-      borderRadius: 30,
-      justifyContent: 'center',
-      flex: 1,
-    },
-    likeButton: {
-      color: 'white',
-      flex: 1,
-    },
     artText: {
         fontSize: 55,
         color: '#000',
@@ -348,7 +283,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     TagButton: {
-        backgroundColor: '#F4F4F4'
+        backgroundColor: '#F4F4F4',
+
     },
     TagButtonText: {
         color: '#000',

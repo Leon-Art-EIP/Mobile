@@ -212,6 +212,7 @@ const HomeScreen = ({ navigation }: any) => {
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
                   path="other_profile"
+                  // style={{ marginRight: 8 }}
                 />
               )}
             />
