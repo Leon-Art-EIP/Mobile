@@ -29,8 +29,8 @@ const EditProfile = () => {
   const [isAvailable, setIsAvailable] = useState<string>('');
   const [profilePicture, setProfilePicture] = useState<string>('');
   const [banner, setBanner] = useState<string>('');
-  const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
-  const [selectedBanner, setSelectedBanner] = useState(null);
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState<string>('');
+  const [selectedBanner, setSelectedBanner] = useState<string>('');
 
   interface UserData {
     _id: string;
@@ -64,17 +64,18 @@ const EditProfile = () => {
         mediaType: 'photo',
         quality: 1,
       };
-  
-      ImagePicker.launchImageLibrary(options, (response) => {
-        if (response.didCancel) {
-          console.log('User cancelled image picker');
-        } else if (response.error) {
-          console.log('ImagePicker Error: ', response.error);
-        } else {
-          const source = { uri: response.assets[0].uri };
+
+      const response = await launchImageLibrary(options);
+
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const source = { uri: response.assets[0].uri };
+        if (source.uri !== undefined)
           setSelectedProfilePicture(source.uri);
-        }
-      });
+      }
     } catch (error) {
       console.error('An error occurred while picking the image:', error);
     }
@@ -245,13 +246,20 @@ const EditProfile = () => {
       {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
-          {/* {profilePicture && ( */}
+          {selectedProfilePicture === '' &&
             <Image
-              source={{ uri: getImageUrl(profilePicture) }}
-              style={styles.profilePicture}
-              onError={(error) => console.error("Error loading profile picture:", error)}
+            source={{ uri: getImageUrl(profilePicture) }}
+            style={styles.profilePicture}
+            onError={(error) => console.error("Error loading profile picture:", error)}
             />
-          {/* )} */}
+          }
+          {selectedProfilePicture !== '' &&
+            <Image
+            source={{ uri: (profilePicture) }}
+            style={styles.profilePicture}
+            onError={(error) => console.error("Error loading profile picture:", error)}
+            />
+          }
         </View>
         <Button
           style={{ backgroundColor: colors.primary }}
