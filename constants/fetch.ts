@@ -25,14 +25,13 @@ const get = (
   .catch(onErrorCallback);
 }
 
-
 const post = (
-  url: string = "/",
-  body: any = undefined,
-  token: string | undefined = undefined,
-  callback: ((response: any) => void) = () => {},
-  onErrorCallback: ((error: any) => void) = (e: any) => {
-    console.error("get failed with code ", e.response.status);
+  url = '/',
+  body = undefined,
+  token = undefined,
+  callback = () => {},
+  onErrorCallback = (e) => {
+    console.error('post failed with code ', e.response ? e.response.status : e);
   }
 ) => {
   let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
@@ -44,10 +43,23 @@ const post = (
   const requestUrl = BACKEND + url;
   console.log(requestUrl);
 
-  axios.post(requestUrl, body, token ? headers : {})
+  // Setting up headers
+  let headers = {
+    Authorization: 'Bearer ' + token,
+  };
+
+  // If body is FormData, set Content-Type to multipart/form-data
+  if (body instanceof FormData) {
+    headers['Content-Type'] = 'multipart/form-data';
+  }
+
+  axios.post(requestUrl, body, {
+    headers: headers
+  })
   .then(callback)
   .catch(onErrorCallback);
-}
+};
+
 
 
 const del = (
