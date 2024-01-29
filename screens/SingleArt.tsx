@@ -16,8 +16,6 @@ import ArtistCard from '../components/ArtistCard';
 import { ArtistType } from '../constants/homeValues';
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import { MainContext } from '../context/MainContext';
-import { get, post } from '../constants/fetch';
 import Modal from 'react-native-modal';
 
 const screenWidth = Dimensions.get('window').width;

@@ -50,7 +50,7 @@ const OtherProfile = ({ route }: any) => {
         }, (error) => {
           console.error('Erreur de follow :', error);
           Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-        };
+        });
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
