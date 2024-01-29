@@ -14,6 +14,7 @@ import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
+import { getImageUrl } from '../helpers/ImageHelper';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -214,7 +215,7 @@ const Profile = () => {
       {/* Banner */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage}
+          source={{ uri: getImageUrl(userData?.bannerPicture) }}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -223,7 +224,7 @@ const Profile = () => {
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
-            source={profilePicture}
+            source={{ uri: getImageUrl(userData?.profilePicture) }}
             style={styles.profilePicture}
           />
         </View>

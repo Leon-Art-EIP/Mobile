@@ -39,7 +39,7 @@ const ArtistCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.artistPlHolder,
+    backgroundColor: colors.white,
     marginRight: 5,
     marginBottom: 60,
     textAlign: 'center',

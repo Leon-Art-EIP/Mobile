@@ -7,7 +7,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
-// import { getImageUrl } from '../helpers/ImageHelper';
+import { getImageUrl } from '../helpers/ImageHelper';
 import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
@@ -19,7 +19,6 @@ import ImagePicker from 'react-native-image-picker';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
-
 const EditProfile = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -29,7 +28,7 @@ const EditProfile = () => {
   const userID = context?.userId;
   const [isAvailable, setIsAvailable] = useState<string>('');
   const [profilePicture, setProfilePicture] = useState<string>('');
-  const [Banner, setBanner] = useState<string>('');
+  const [banner, setBanner] = useState<string>('');
   const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
   const [selectedBanner, setSelectedBanner] = useState(null);
 
@@ -211,6 +210,7 @@ const EditProfile = () => {
         if (userData?.biography !== undefined) setBiography(userData.biography);
         if (userData?.availability !== undefined) setIsAvailable(userData.availability);
         if (userData?.profilePicture !== undefined) setProfilePicture(userData.profilePicture);
+        if (userData?.bannerPicture !== undefined) setBanner(userData.bannerPicture);
         // console.log("Selected Profile Picture URI:", selectedProfilePicture);
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -236,7 +236,7 @@ const EditProfile = () => {
       {/* Banner */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage}
+          source={{ uri: getImageUrl(banner) }}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -247,7 +247,7 @@ const EditProfile = () => {
         <View style={styles.circleImageContainer}>
           {/* {profilePicture && ( */}
             <Image
-              source={{ uri: getImageUrl(publication.image) }}
+              source={{ uri: getImageUrl(profilePicture) }}
               style={styles.profilePicture}
               onError={(error) => console.error("Error loading profile picture:", error)}
             />
