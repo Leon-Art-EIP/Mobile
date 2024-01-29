@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,13 +9,9 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  FlatList,
-  ListRenderItem,
   TextInput
 } from 'react-native';
-import { Socket } from 'socket.io-client';
 import TextBubble from '../components/inbox/TextBubble';
-import Input from '../components/Input';
 import colors from '../constants/colors';
 import { MessageType } from '../constants/conversations';
 import { get, post } from '../constants/fetch';
