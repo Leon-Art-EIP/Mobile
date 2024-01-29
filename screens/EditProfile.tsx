@@ -2,17 +2,20 @@ import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Tex
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useContext } from 'react';
+import { launchImageLibrary } from 'react-native-image-picker';
 // Local imports
 import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
-import profilePicture from '../assets/images/user.png'
+// import { getImageUrl } from '../helpers/ImageHelper';
 import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import Title from '../components/Title';
+import ImagePicker from 'react-native-image-picker';
+// import profilePicture from '../assets/images/user.png'
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -25,6 +28,10 @@ const EditProfile = () => {
   const token = context?.token;
   const userID = context?.userId;
   const [isAvailable, setIsAvailable] = useState<string>('');
+  const [profilePicture, setProfilePicture] = useState<string>('');
+  const [Banner, setBanner] = useState<string>('');
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
+  const [selectedBanner, setSelectedBanner] = useState(null);
 
   interface UserData {
     _id: string;
@@ -50,6 +57,28 @@ const EditProfile = () => {
 
   const handleBiographyChange = (value: string) => {
     setBiography(value);
+  };
+
+  const selectImage = async () => {
+    try {
+      const options = {
+        mediaType: 'photo',
+        quality: 1,
+      };
+  
+      ImagePicker.launchImageLibrary(options, (response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else {
+          const source = { uri: response.assets[0].uri };
+          setSelectedProfilePicture(source.uri);
+        }
+      });
+    } catch (error) {
+      console.error('An error occurred while picking the image:', error);
+    }
   };
 
   const handleSaveModifications = () => {
@@ -110,7 +139,6 @@ const EditProfile = () => {
         const callback = (response) => {
           setUserData(response.data);
           if (userData?.availability !== undefined) setIsAvailable(userData.availability);
-          console.log(isAvailable);
         };
         const onErrorCallback = (error) => {
           console.error('Error saving modifications:', error);
@@ -144,7 +172,7 @@ const EditProfile = () => {
         const url = `/api/user/profile/${userID}`;
         const callback = (response) => {
           setUserData(response.data);
-          if (userData?.biography !== undefined) setBiography(userData.biography);
+          // console.log(response.data);
         };
         const onErrorCallback = (error) => {
           console.error('Error fetching user data:', error);
@@ -180,10 +208,10 @@ const EditProfile = () => {
     const fetchData = async () => {
       try {
         await fetchUserData();
-        if (userData?.biography !== undefined) {
-          setBiography(userData.biography);
-          setIsAvailable(userData.availability);
-        }
+        if (userData?.biography !== undefined) setBiography(userData.biography);
+        if (userData?.availability !== undefined) setIsAvailable(userData.availability);
+        if (userData?.profilePicture !== undefined) setProfilePicture(userData.profilePicture);
+        // console.log("Selected Profile Picture URI:", selectedProfilePicture);
       } catch (error) {
         console.error('Error fetching user data:', error);
         Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
@@ -217,11 +245,20 @@ const EditProfile = () => {
       {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
-          <Image
-            source={profilePicture}
-            style={styles.profilePicture}
-          />
+          {/* {profilePicture && ( */}
+            <Image
+              source={{ uri: getImageUrl(publication.image) }}
+              style={styles.profilePicture}
+              onError={(error) => console.error("Error loading profile picture:", error)}
+            />
+          {/* )} */}
         </View>
+        <Button
+          style={{ backgroundColor: colors.primary }}
+          textStyle={{ color: colors.black }}
+          value="+"
+          onPress={selectImage}
+        />
       </View>
       <View style={styles.decorativeLine} />
       <View>
@@ -240,6 +277,7 @@ const EditProfile = () => {
               value={biography}
             />
         </View>
+        {/* Availability */}
         <View style={styles.infoBlock}>
           <Title style={styles.infoTitle}>Ouvert au commandes</Title>
           <View style={styles.buttonContainer}>
