@@ -175,7 +175,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       }
     };
     
-    
     const selectTag = () => {
     };
 
@@ -246,6 +245,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           />
       </View>
       {/* <Modal isVisible={isModalVisible} style={styles.modal}>
+      {/* <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Enregistrer dans...</Text>
           <FlatList
@@ -272,6 +272,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
             <Text style={styles.cancelButtonText}>Annuler</Text>
           </TouchableOpacity>
         </View>
+      </Modal> */}
       </Modal> */}
     </View>
     </ScrollView>

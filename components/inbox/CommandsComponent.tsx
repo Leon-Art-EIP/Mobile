@@ -96,32 +96,33 @@ const CommandsComponent = () => {
       </Text>
       {orders.map((order, index) => (
         <TouchableOpacity>
-      <View key={order._id || index} style={styles.orderItem}>
+        <View key={order._id || index} style={styles.orderItem}>
           <Image
             style={styles.image}
             source={require('../../assets/images/user.png')}
             testID="command-img"
           />
-          <View style={styles.orderDetailsContainer}>
-            <View style={styles.textContainer}>
-              <Text style={fwBold}>{publicationNames[order.artPublicationId] || 'Loading...'}</Text>
-              <Text style={styles.fwId}>{order._id}</Text>
-              <Text>{order.orderPrice} €</Text>
-            </View>
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity 
-                style={styles.cancel}
-                onPress={() => cancelOrder(order._id)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.confirm}
-                onPress={() => confirmOrder(order._id)}
-              >
-                <Text style={styles.buttonText}>Confirm</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.textContainer}>
+            <Text style={fwBold}>{order._id}</Text>
+            <Text>{order.orderPrice} €</Text>
+          </View>
+        </View>
+        </TouchableOpacity>
+      ))}
+      <Text style={styles.title}>
+        Sales
+      </Text>
+      {sales.map((sales, index) => (
+        <TouchableOpacity>
+        <View key={sales._id || index} style={styles.orderItem}>
+          <Image
+            style={styles.image}
+            source={require('../../assets/images/user.png')}
+            testID="command-img"
+          />
+          <View style={styles.textContainer}>
+            <Text style={fwBold}>{sales._id}</Text>
+            <Text>{sales.orderPrice} €</Text>
           </View>
         </View>
         </TouchableOpacity>
@@ -147,6 +148,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginLeft: 8,
+  },
+  title: {
+    color: colors.black,
+    fontSize: 25,
+    marginLeft: 8,
+    marginBottom: 13,
+    marginTop: 15,
+
   },
   textContainer: {
     padding: 3,
