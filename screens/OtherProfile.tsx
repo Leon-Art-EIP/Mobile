@@ -25,8 +25,9 @@ const OtherProfile = ({ route }: any) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
 
-  const handleArtworkClick = (pageName) => {
-    navigation.navigate(pageName);
+  const handleArtworkClick = (publicationId: string) => {
+    navigation.navigate('singleart', { id: publicationId });
+    
   };
 
   const handleBackButtonClick = () => {
@@ -299,18 +300,29 @@ const OtherProfile = ({ route }: any) => {
       {activeTab === 'Artwork' &&
       <View style={styles.squareContainer}>
         {userArtworks.map((artwork, index) => (
-        <TouchableOpacity
-          key={index}
-          style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-          onPress={() => handleArtworkClick(artwork._id, userData.user_id)}
-        >
-          <Image
-            source={{ uri: `${API_URL}api/${artwork.image}` }}
-            style={{ flex: 1, borderRadius: 10 }}
-            resizeMode="cover"
-            onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
-          />
-        </TouchableOpacity>
+        // <TouchableOpacity
+        //   key={index}
+        //   style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+        //   onPress={() => handleArtworkClick(artwork._id)}
+        // >
+        //   <Image
+        //     source={{ uri: `${API_URL}api/${artwork.image}` }}
+        //     style={{ flex: 1, borderRadius: 10 }}
+        //     resizeMode="cover"
+        //     onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
+        //   />
+        // </TouchableOpacity>
+          <TouchableOpacity
+            key={artwork._id}
+            style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+            onPress={() => handleArtworkClick(artwork._id)}
+          >
+            <Image
+              style={styles.artworkImage}
+              source={{ uri: getImageUrl(artwork.image) }}
+              onError={() => console.log("Image loading error")}
+            />
+          </TouchableOpacity>
         ))}
         </View>
       }
@@ -446,6 +458,11 @@ const styles = StyleSheet.create({
     top: 16,
     left: 16,
     zIndex: 1,
+  },
+  artworkImage: {
+    height: 120,
+    width: 120,
+    borderRadius: 7,
   },
 });
 

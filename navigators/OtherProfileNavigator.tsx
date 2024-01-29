@@ -14,9 +14,9 @@ const OtherProfileNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
       <Stack.Screen name="single_conversation" component={Conversation} options={options} />
+      <Stack.Screen name="singleart" component={SingleArt} options={options} />
     </Stack.Navigator>
   );
 }
 
 export default OtherProfileNavigator;
-
