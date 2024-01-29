@@ -40,7 +40,7 @@ const AddPublication = ({ navigation } : any) => {
       '/api/art-publication',
       requestData,
       context?.token,
-      () => navigation.navigate('main'),
+      () => navigation.navigate('homemain'),
       (error) => {
         console.error('Error publishing:', error);
         if (error.response && error.response.data && error.response.data.errors) {
