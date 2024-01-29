@@ -273,7 +273,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           </TouchableOpacity>
         </View>
       </Modal> */}
-      </Modal> */}
     </View>
     </ScrollView>
   );
