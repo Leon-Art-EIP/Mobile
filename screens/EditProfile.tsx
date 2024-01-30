@@ -1,32 +1,37 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useContext } from 'react';
+import { launchImageLibrary } from 'react-native-image-picker';
 // Local imports
+
 import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
-import profilePicture from '../assets/images/user.png'
+import { getImageUrl } from '../helpers/ImageHelper';
 import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import Title from '../components/Title';
+import ImagePicker from 'react-native-image-picker';
+// import profilePicture from '../assets/images/user.png'
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
-
 
 const EditProfile = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [biography, setBiography] = useState<string>('');
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
-
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
+  const [isAvailable, setIsAvailable] = useState<string>('');
+  const [profilePicture, setProfilePicture] = useState<string>('');
+  const [banner, setBanner] = useState<string>('');
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState<string>('');
+  const [selectedBanner, setSelectedBanner] = useState<string>('');
 
   interface UserData {
     _id: string;
@@ -43,14 +48,132 @@ const EditProfile = () => {
     __v: number;
     bannerPicture: string;
     profilePicture: string;
+    biography: string;
   }
 
+  const handleBackButtonClick = () => {
+    navigation.goBack();
+  };
+
+  const handleBiographyChange = (value: string) => {
+    setBiography(value);
+  };
+
+  const selectImage = async () => {
+    try {
+      const options = {
+        mediaType: 'photo',
+        quality: 1,
+      };
+
+      const response = await launchImageLibrary(options);
+
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const source = { uri: response.assets[0].uri };
+        if (source.uri !== undefined)
+          setSelectedProfilePicture(source.uri);
+      }
+    } catch (error) {
+      console.error('An error occurred while picking the image:', error);
+    }
+  };
+
+  const handleSaveModifications = () => {
+    console.log("Modifications saved.");
+    // Save new biography
+    saveBiography();
+    // Save availability
+    saveIsAvailable();
+    // Save new banner
+    // Save new Profile picture
+    navigation.goBack();
+  }
+
+  const saveBiography = () => {
+    try {
+      if (token) {
+        const url = `/api/user/profile/bio`;
+        const body = {
+          biography: biography
+        };
+        const callback = (response) => {
+          setUserData(response.data);
+          if (userData?.biography !== undefined) setBiography(userData.biography);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error saving modifications:', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
+        };
+
+        post(url, body, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
+  };
+
+  const saveIsAvailable = () => {
+    try {
+      if (token) {
+        const url = `/api/user/profile/availability`;
+        const body = {
+          availability: isAvailable
+        };
+        const callback = (response) => {
+          setUserData(response.data);
+          if (userData?.availability !== undefined) setIsAvailable(userData.availability);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error saving modifications:', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
+        };
+
+        post(url, body, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
+  };
+
   const fetchUserData = async () => {
-        try {
+    try {
       if (token) {
         const url = `/api/user/profile/${userID}`;
         const callback = (response) => {
           setUserData(response.data);
+          // console.log(response.data);
         };
         const onErrorCallback = (error) => {
           console.error('Error fetching user data:', error);
@@ -83,13 +206,28 @@ const EditProfile = () => {
   );
 
   useEffect(() => {
-    fetchUserData();
+    const fetchData = async () => {
+      try {
+        await fetchUserData();
+        if (userData?.biography !== undefined) setBiography(userData.biography);
+        if (userData?.availability !== undefined) setIsAvailable(userData.availability);
+        if (userData?.profilePicture !== undefined) setProfilePicture(userData.profilePicture);
+        if (userData?.bannerPicture !== undefined) setBanner(userData.bannerPicture);
+        // console.log("Selected Profile Picture URI:", selectedProfilePicture);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
     <ScrollView nestedScrollEnabled>
     <View>
       <View style={{ flexDirection: 'row', marginRight: 20 }}>
+        {/* Back button */}
         <TouchableOpacity
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
@@ -97,34 +235,58 @@ const EditProfile = () => {
           <Image source={BackArrow} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
       </View>
+      {/* Banner */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage}
+          source={{ uri: getImageUrl(banner) }}
           style={styles.bannerImage}
           resizeMode="cover"
         />
         <Title style={styles.mainTitle}>Modifier la bannière</Title>
       </View>
-
+      {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
-          <Image
-            source={profilePicture}
+          {selectedProfilePicture === '' &&
+            <Image
+            source={{ uri: getImageUrl(profilePicture) }}
             style={styles.profilePicture}
-          />
+            onError={(error) => console.error("Error loading profile picture:", error)}
+            />
+          }
+          {selectedProfilePicture !== '' &&
+            <Image
+            source={{ uri: (profilePicture) }}
+            style={styles.profilePicture}
+            onError={(error) => console.error("Error loading profile picture:", error)}
+            />
+          }
         </View>
+        <Button
+          style={{ backgroundColor: colors.primary }}
+          textStyle={{ color: colors.black }}
+          value="+"
+          onPress={selectImage}
+        />
       </View>
-
       <View style={styles.decorativeLine} />
       <View>
+        {/* Name */}
         <View style={styles.infoBlock}>
           <Title style={styles.infoTitle}>Nom</Title>
           <Text style={styles.infoValue}>{userData?.username}</Text>
         </View>
+        {/* Biography */}
         <View style={styles.infoBlock}>
           <Title style={styles.infoTitle}>Description</Title>
-          <Text style={styles.infoValue}>Hey salut, j’ai 19 ans et je suis fan de poterie ! J’adore toutes les oeuvres de Bernard Palissy qui est pour moi, le meilleur potereur du Monde !</Text>
+          <TextInput
+              placeholder="Parlez nous de vous..."
+              onChangeText={handleBiographyChange}
+              style={[styles.biographyInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
+              value={biography}
+            />
         </View>
+        {/* Availability */}
         <View style={styles.infoBlock}>
           <Title style={styles.infoTitle}>Ouvert au commandes</Title>
           <View style={styles.buttonContainer}>
@@ -132,12 +294,15 @@ const EditProfile = () => {
               value="Oui"
               style={styles.availableButton}
               textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+              onPress={() => setIsAvailable("available")}
+              secondary={isAvailable === "unavailable"}
             />
             <Button
               value="Non"
               style={styles.availableButton}
               textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-              tertiary
+              onPress={() => setIsAvailable("unavailable")}
+              secondary={isAvailable === "available"}
             />
           </View>
         </View>
@@ -145,6 +310,7 @@ const EditProfile = () => {
           value="Enregistrer les modifications"
           style={styles.disconnectButton}
           textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+          onPress={() => handleSaveModifications()}
           />
       </View>
     </View>
@@ -329,6 +495,20 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 100,
     justifyContent: 'center',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 100,
+    marginBottom: 16,
+    paddingHorizontal: 10,
+  },
+  biographyInput: {
+    marginLeft: 0,
+    marginRight: 0,
+    flex: 1,
+    borderRadius: 50
   },
 });
 

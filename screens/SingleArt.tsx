@@ -10,6 +10,8 @@ import { MainContext } from '../context/MainContext';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Linking } from 'react-native';
 import { getImageUrl } from '../helpers/ImageHelper';
+import ArtistCard from '../components/ArtistCard';
+import { ArtistType } from '../constants/homeValues';
 import axios from 'axios';
 
 
@@ -25,7 +27,39 @@ const SingleArt = ({ navigation, route } : any) => {
   useEffect(() => {
     getPublications();
   }, [id]);
+  
+  useEffect(() => {
+    if (publication && publication.userId) {
+      fetchArtistDetails();
+    }
+  }, [publication]);
 
+  const fetchArtistDetails = async () => {
+    try {
+      const response = await get(`/api/user/profile/${publication.userId}`, context?.token);
+      setArtist(response.data);
+    } catch (error) {
+      console.error("Error fetching artist details:", error);
+    }
+  };
+
+  const handleToArtistProfile = (artist: ArtistType) => {
+    console.log('artist id: ', artist._id);
+    navigation.navigate('other_profile', { id: artist._id });
+  };
+
+  const getAuthorName = (userId) => {
+    get(
+      `/api/user/profile/${userId}`,
+      context?.token,
+      (response) => {
+        setAuthor(response.data);
+      },
+      (error) => {
+        console.error("Error fetching Artist Name:", error);
+      }
+    );
+  };
 
   const fetchPaymentSheetParams = () => {
     console.log('In fetchPaymentSheetParams, sending id:', id);
@@ -105,10 +139,10 @@ const SingleArt = ({ navigation, route } : any) => {
       (error) => {
         console.error("Error fetching publications:", error);
       }
-    );
-  };
-
-  const savePublication = () => {};
+      );
+    };
+    
+    const savePublication = () => {};
 
   const likePublication = async () => {
     try {
@@ -141,68 +175,67 @@ const SingleArt = ({ navigation, route } : any) => {
     <ScrollView>
     <View style={styles.container}>
 
-    <View style={styles.logo}>
-      <Title style={{ color: colors.primary }}>Leon</Title>
-      <Title>'Art</Title>
-    </View>
-    <View style={{ flexDirection: 'row'}}>
-      <Text style={styles.artTitle}>{publication.name}</Text>
-    </View>
-    <View>
-      <Image
-        style={styles.img}
-        source={{ uri: getImageUrl(publication.image) }}
-        onError={() => console.log("Image loading error")}
-      />
-    </View>
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, paddingLeft: 20 }}>
-      <TagButton
-        onPress={handleArtistButtonClick}
-      />
-      <Text style={{ marginLeft: 90, fontSize: 10 }}/>
-      <Button
-        value={isSaved ? "Saved" : "Save"}
-        secondary= {isSaved ? true : false}
-        style={{
-          backgroundColor: colors.secondary,
-          width: 75,
-          height: 38,
-          borderRadius: 30,
-          marginLeft: 55,
-          justifyContent: 'center',
-        }}
-        textStyle={{fontSize: 14, textAlign: 'center', color: colors.black}}
-        onPress={() => savePublication()}
-      />
-      <Button
-        value={isLiked ? "Liked" : "Like"}
-        secondary={isLiked ? true : false}
-        style={styles.button}
-        textStyle={{fontSize: 14, textAlign: 'center'}}
-        onPress={likePublication}
-      />
-    </View>
-    <View>
-    <Text style={{ marginLeft: 20, fontSize: 20 }}>
-      {publication.price} €
-     </Text>
-    <Text style={{ marginLeft: 20, fontSize: 15 }}>
-      {publication.description}
-    </Text>
-    </View>
-    <View style={{ marginTop: 20, marginBottom: 30 }}>
-
-
-      <Button
-        value="Acheter"
-        onPress={openPaymentSheet}
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
+      </View>
+      <View style={{ flexDirection: 'row'}}>
+        <Text style={styles.artTitle}>{publication.name}</Text>
+      </View>
+      <View>
+        <Image 
+          style={styles.img}
+          source={{ uri: getImageUrl(publication.image) }}
+          onError={() => console.log("Image loading error")}
         />
-      <Button
-        style={{ backgroundColor: colors.secondary }}
-        textStyle={{ color: colors.black }}
-        value="Retour"
-        onPress={previous}
+      </View>
+      <View style={styles.rowContainer}>
+        {author && (
+          <ArtistCard
+            showTitle={false}
+            onPress={() => handleToArtistProfile(author)}
+            item={author}
+            path="other_profile"
+            style={styles.artistCardStyle}
+          />
+        )}
+        <Text style={styles.userIdText}>
+          {author ? author.username : 'Loading...'}
+        </Text>
+        <Button
+          value={isSaved ? "Saved" : "Save"}
+          secondary={isSaved ? true : false}
+          style={[styles.actionButton, { backgroundColor: colors.secondary }]}
+          textStyle={{ fontSize: 14, textAlign: 'center', color: colors.black }}
+          onPress={() => savePublication()}
         />
+        <Button
+          value={isLiked ? "Liked" : "Like"}
+          secondary={isLiked ? true : false}
+          style={[styles.actionButton, { backgroundColor: colors.black }]}
+          textStyle={{ fontSize: 14, textAlign: 'center', color: 'white' }}
+          onPress={likePublication}
+        />
+      </View>
+      <View style={{ marginLeft: 20 }}>
+      <Text style={{ marginLeft: 20, fontSize: 23, color: 'black' }}>
+        {publication.price} €
+       </Text>
+      <Text style={{ marginLeft: 20, fontSize: 15 }}>
+        {publication.description}
+      </Text>
+      </View>
+      <View style={{ marginTop: 20, marginBottom: 30 }}>
+        <Button
+          value="Acheter"
+          onPress={openPaymentSheet}
+          />
+        <Button
+          style={{ backgroundColor: colors.secondary }}
+          textStyle={{ color: colors.black }}
+          value="Retour"
+          onPress={previous}
+          />
       </View>
       {/* <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
@@ -284,7 +317,6 @@ const styles = StyleSheet.create({
     },
     TagButton: {
         backgroundColor: '#F4F4F4',
-
     },
     TagButtonText: {
         color: '#000',

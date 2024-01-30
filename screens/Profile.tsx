@@ -14,6 +14,7 @@ import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
+import { getImageUrl } from '../helpers/ImageHelper';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -88,6 +89,7 @@ const Profile = () => {
     __v: number;
     bannerPicture: string;
     profilePicture: string;
+    biography: string;
   }
 
   const fetchUserArtworks = async () => {
@@ -213,7 +215,7 @@ const Profile = () => {
       {/* Banner */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage}
+          source={{ uri: getImageUrl(userData?.bannerPicture) }}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -222,7 +224,7 @@ const Profile = () => {
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
-            source={profilePicture}
+            source={{ uri: getImageUrl(userData?.profilePicture) }}
             style={styles.profilePicture}
           />
         </View>
@@ -333,9 +335,13 @@ const Profile = () => {
           ))}
         </View>
       )}
-
-
-
+      {activeTab === 'A propos' && (
+        <View style={styles.biographyContainer}>
+          <Text style={[styles.biography, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}>
+            {userData?.biography}
+          </Text>
+        </View>
+      )}
     </View>
     </ScrollView>
   );
@@ -492,6 +498,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     marginLeft: 20,
+  },
+  biographyContainer: {
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 5,
+  },
+  biography: {
+    fontSize: 18,
+    color: colors.black,
   },
 });
 
