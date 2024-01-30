@@ -192,13 +192,18 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       }
       closeModal();
     };
+
     const likePublication = async () => {
       try {
         if (token) {
           const url = `/api/art-publication/like/${id}`;
           const body = undefined;
           const callback = () => {
-            setIsLiked(!isLiked);
+            setIsLiked(prevIsLiked => !prevIsLiked);
+            console.log(isLiked);
+            if (!isLiked && userCollections && userCollections.length > 0) {
+              addToCollection(userCollections[0].name);
+            }
           };
           const onErrorCallback = (error) => {
             console.error('Erreur de like :', error);
@@ -224,6 +229,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         console.error('Error fetching user data:', error);
         // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
       }
+      checkIsLiked();
     };
     
     const selectTag = () => {
@@ -240,6 +246,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
             const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
   
             setIsLiked(isArtLiked);
+            console.log(isLiked);
           };
           const onErrorCallback = (error) => {
             console.error('Error fetching like:', error);
