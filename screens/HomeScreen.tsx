@@ -74,6 +74,8 @@ const HomeScreen = ({ navigation }: any) => {
       context?.token,
       (response: any) => {
         setArtists(response?.data?.artists);
+        console.log('🥥 🍋🍋🍋🍋 RESPONSEEEE ', response.data);
+
       }
     )
   }

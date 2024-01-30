@@ -7,18 +7,19 @@ import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
-import { get, post } from '../constants/fetch';
+import { get, post, put } from '../constants/fetch';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 
-const OtherProfile = ({ route }: any) => {
-  const navigation = useNavigation();
+const OtherProfile = ({ route, navigation }: any) => {
+  // const navigation = useNavigation();
   const id = route?.params?.id;
   const context = useContext(MainContext);
   const token = context?.token;
+  const connectedUserId = '65a277cc4486c5e0fb208993';
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
@@ -26,18 +27,46 @@ const OtherProfile = ({ route }: any) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
 
+  console.log(id);
+
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
-
   };
-
+  
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
 
+  const createConversation = () => {
+    const requestData = {
+      UserOneId: connectedUserId,
+      UserTwoId: id,
+      name: "default_name",
+    };
+    
+    console.log('Request Data:', requestData);  // Add this line to check requestData
+    put(
+      '/api/conversations/create', 
+      requestData,
+      context?.token,
+      () => navigation.navigate('conversation', { id: requestData }),
+      (error) => {
+        console.error('Error creating or accessing the conversation', error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          error.response.data.errors.forEach(err => {
+            console.error(`Validation error - ${err.param}: ${err.msg}`);
+          });
+        }
+      }
+    );
+};
+
+  
+
   const handleContactButtonClick = () => {
-    // navigation?.navigate('single_conversation', { id: id, name: userData?.username });
-    navigation.navigate('single_conversation', { id: id, name: userData?.username });
+    // createConversation();
+    // // navigation?.navigate('single_conversation', { id: id, name: userData?.username });
+    // navigation.navigate('single_conversation', { id: id, name: userData?.username });
   };
 
   const handleFollowButtonClick = async () => {
@@ -128,6 +157,7 @@ const OtherProfile = ({ route }: any) => {
         const url = `/api/user/profile/${id}`;
         const callback = (response) => {
           setUserData(response.data);
+          console.log('MON LOOOOOOOOOg', response.data);
         };
         const onErrorCallback = (error) => {
           console.error('Error fetching user data:', error);
@@ -242,7 +272,7 @@ const OtherProfile = ({ route }: any) => {
           secondary
           style={{width: 150, height: 38, borderRadius: 10,}}
           textStyle={{fontSize: 14}}
-          onPress={() => handleContactButtonClick()}
+          onPress={() => createConversation()}
           />
       </View>
       {/* Trait décoratif de séparation */}

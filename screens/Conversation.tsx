@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,9 +9,13 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  FlatList,
+  ListRenderItem,
   TextInput
 } from 'react-native';
+import { Socket } from 'socket.io-client';
 import TextBubble from '../components/inbox/TextBubble';
+import Input from '../components/Input';
 import colors from '../constants/colors';
 import { MessageType } from '../constants/conversations';
 import { get, post } from '../constants/fetch';
@@ -44,6 +48,21 @@ const Conversation = () => {
   const context = useContext(MainContext);
   const scrollView = useRef<ScrollView>(null);
 
+  if (!params || !params.ids || params.ids.length !== 3) {
+    // Handle the case where params or ids are not as expected
+    console.error('Invalid params structure:', params);
+    return (
+      <SafeAreaView>
+        <Text>Error: Invalid params structure</Text>
+      </SafeAreaView>
+    );
+  }
+
+  interface ConversationData {
+    userOneId: string;
+    userTwoId: string;
+    name: string;
+  }
 
   const sendMessage = () => {
     if (!newMessage) {
@@ -65,13 +84,12 @@ const Conversation = () => {
     }
 
     // use newMessage to send the message via the backend
-    console.log(socketBody);
-    SockHelper.emit('send-msg', socketBody);
     post(
       `/api/conversations/messages/new`,
       body,
       context?.token,
       () => {
+        SockHelper.emit('send-msg', socketBody);
         getConversation();
         setNewMessage("");
       },
@@ -90,29 +108,24 @@ const Conversation = () => {
   }
 
 
-  const goBack = () => {
-    SockHelper.off('msg-receiver');
-    return navigation.goBack();
-  }
-
   useEffect(() => {
     getConversation();
 
     SockHelper.start(process.env.REACT_APP_API_URL, true);
     SockHelper.emit('add-user', context?.userId);
-    SockHelper.on('msg-recieve', () => getConversation());
+    SockHelper.on('msg-recieve', getConversation);
   }, []);
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={colors.black} barStyle='light-content' />
+      <StatusBar backgroundColor={colors.black} />
 
       {/* Title view */}
       <View style={styles.titleView}>
         <TouchableOpacity
           style={styles.arrowView}
-          onPress={goBack}
+          onPress={() => navigation.goBack()}
         >
           <Image
             style={styles.arrowImage}
@@ -139,7 +152,10 @@ const Conversation = () => {
       <ScrollView
         contentContainerStyle={styles.conversationContainer}
         ref={scrollView}
-        onContentSizeChange={(_, height) => scrollView.current?.scrollTo({ y: height, animated: true })}
+        onContentSizeChange={(_, height) => {
+          console.log(height, messages.map((msg) => msg.content));
+          scrollView.current?.scrollTo({ y: height, animated: true })
+        }}
       >
         { messages && messages.map((msg: MessageType) => (
             <TextBubble message={msg} key={msg._id} />
@@ -253,7 +269,6 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   messageInput: {
-    paddingHorizontal: 12,
     backgroundColor: colors.transparent,
     shadowColor: colors.transparent,
     borderRadius: 0,

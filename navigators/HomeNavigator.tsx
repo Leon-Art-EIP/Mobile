@@ -6,6 +6,7 @@ import Article from '../screens/Article';
 import SingleArt from '../screens/SingleArt';
 import OtherProfile from '../screens/OtherProfile';
 import Stripe from '../screens/Stripe';
+import Conversation from '../screens/Conversation';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -20,6 +21,7 @@ const HomeNavigator = () => {
       <Stack.Screen name="singleart" component={SingleArt} options={options} />
       <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
       <Stack.Screen name="stripe" component={Stripe} options={options} />
+      <Stack.Screen name="conversation" component={Conversation} options={options} />
     </Stack.Navigator>
   );
 }
