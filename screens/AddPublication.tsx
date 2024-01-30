@@ -65,6 +65,7 @@ const AddPublication = ({ navigation } : any) => {
         }
       }
     );
+    navigation.navigate('homemain');
   };
   
   const selectImage = async () => {
