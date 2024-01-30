@@ -21,7 +21,6 @@ const Login = ({ navigation }: any) => {
   const context = useContext(MainContext);
 
   const onLogin = async (response: any) => {
-    console.log({ ...response });
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
       console.log("Token : " + tokenFromDB);
@@ -48,9 +47,6 @@ const Login = ({ navigation }: any) => {
 
 
   const onLoginError = async (error: any) =>{
-    console.log("onLoginError response: ", { ...error });
-    /* console.log("status: ", error?.response); */
-
     if (error.response) {
       console.error('Server responded with an error:', { ...error.response.data });
       if (error.response.status === 422) {

@@ -11,7 +11,8 @@ const start = (
   verbose: boolean = false
 ) => {
   console.log(url, verbose);
-  socket = io(url, {transports: ['websocket']});
+  socket = io(url, {forceBase64: true});
+  /* socket = io(url, {transports: ['websocket'], jsonp: false, forceNew: true}); */
   isVerbose = verbose;
   storedUrl = url;
 
@@ -31,7 +32,7 @@ const emit = (
   }
 
   if (isVerbose) {
-    console.log("[SOCKET] socket with key '", key, "' emitted");
+    console.log("[SOCKET] socket with key '", key, "' emitted with value ", body);
   }
 
   return socket?.emit(key, body);

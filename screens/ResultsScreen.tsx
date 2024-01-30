@@ -7,7 +7,7 @@ import colors from '../constants/colors';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { aiCenter, bgGrey, br20, cBlack, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
+import { aiCenter, bgGrey, br20, cBlack, cDisabled, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import { getImageUrl } from '../helpers/ImageHelper';
 
@@ -89,7 +89,7 @@ const ResultsScreen = () => {
             source={require('../assets/icons/box.png')}
             style={styles.emptyImg}
           />
-          <Text>Il n'y a pas d'artiste qui porte ce nom !</Text>
+          <Text style={cDisabled}>Il n'y a pas d'artiste qui porte ce nom !</Text>
         </View>
       ) : (
         <ScrollView horizontal style={[bgGrey, br20, mh8]}>
@@ -138,7 +138,6 @@ const ResultsScreen = () => {
                     aspectRatio: 1,
                     borderRadius: 17
                   }}
-                  defaultSource={require('../assets/icons/box.png')}
                   source={{ uri: getImageUrl(item.image) }}
                 />
                 {/* <Text>{ e.item?.name }</Text> */}

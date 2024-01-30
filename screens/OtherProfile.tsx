@@ -70,17 +70,17 @@ const OtherProfile = ({ route }: any) => {
             // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+          // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
         };
 
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
     fetchUserData();
   };
@@ -163,17 +163,17 @@ const OtherProfile = ({ route }: any) => {
             // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
         };
 
         get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -354,6 +354,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profilePicture: {
+    backgroundColor: colors.white,
     width: 110,
     height: 110,
   },

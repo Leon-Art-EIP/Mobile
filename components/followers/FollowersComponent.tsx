@@ -59,11 +59,11 @@ const FollowersComponent = () => {
         setUserData(response.data);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -72,7 +72,7 @@ const FollowersComponent = () => {
       const token = await AsyncStorage.getItem('jwt');
       if (!token) {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
         return [];
       }
   
@@ -98,7 +98,7 @@ const FollowersComponent = () => {
       setFollowers(followersData); // Met à jour l'état followers avec les données obtenues
     } catch (error) {
       console.error('Error fetching users data:', error);
-      Alert.alert('Error fetching users data', 'An error occurred while fetching users data.');
+      // Alert.alert('Error fetching users data', 'An error occurred while fetching users data.');
     }
   };
 

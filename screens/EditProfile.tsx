@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useContext } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 // Local imports
+
 import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
@@ -115,17 +116,17 @@ const EditProfile = () => {
             // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
+          // Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
         };
 
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -152,17 +153,17 @@ const EditProfile = () => {
             // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
+          // Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
         };
 
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -186,17 +187,17 @@ const EditProfile = () => {
             // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
         };
 
         get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -215,7 +216,7 @@ const EditProfile = () => {
         // console.log("Selected Profile Picture URI:", selectedProfilePicture);
       } catch (error) {
         console.error('Error fetching user data:', error);
-        Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+        // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
       }
     };
 

@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,13 +9,9 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  FlatList,
-  ListRenderItem,
   TextInput
 } from 'react-native';
-import { Socket } from 'socket.io-client';
 import TextBubble from '../components/inbox/TextBubble';
-import Input from '../components/Input';
 import colors from '../constants/colors';
 import { MessageType } from '../constants/conversations';
 import { get, post } from '../constants/fetch';
@@ -69,12 +65,13 @@ const Conversation = () => {
     }
 
     // use newMessage to send the message via the backend
+    console.log(socketBody);
+    SockHelper.emit('send-msg', socketBody);
     post(
       `/api/conversations/messages/new`,
       body,
       context?.token,
       () => {
-        SockHelper.emit('send-msg', socketBody);
         getConversation();
         setNewMessage("");
       },
@@ -93,12 +90,17 @@ const Conversation = () => {
   }
 
 
+  const goBack = () => {
+    SockHelper.off('msg-receiver');
+    return navigation.goBack();
+  }
+
   useEffect(() => {
     getConversation();
 
     SockHelper.start(process.env.REACT_APP_API_URL, true);
     SockHelper.emit('add-user', context?.userId);
-    SockHelper.on('msg-recieve', getConversation);
+    SockHelper.on('msg-recieve', () => getConversation());
   }, []);
 
 
@@ -110,7 +112,7 @@ const Conversation = () => {
       <View style={styles.titleView}>
         <TouchableOpacity
           style={styles.arrowView}
-          onPress={() => navigation.goBack()}
+          onPress={goBack}
         >
           <Image
             style={styles.arrowImage}
