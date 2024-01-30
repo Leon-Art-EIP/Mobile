@@ -16,6 +16,8 @@ import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import Title from '../components/Title';
 import ImagePicker from 'react-native-image-picker';
+import { Platform } from 'react-native';
+import RNFS from 'react-native-fs';
 // import profilePicture from '../assets/images/user.png'
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
@@ -65,21 +67,61 @@ const EditProfile = () => {
         mediaType: 'photo',
         quality: 1,
       };
-
+  
       const response = await launchImageLibrary(options);
-
+  
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
         const source = { uri: response.assets[0].uri };
-        if (source.uri !== undefined)
+        if (source.uri !== undefined) {
           setSelectedProfilePicture(source.uri);
+          uploadProfilePicture();
+        }
       }
     } catch (error) {
       console.error('An error occurred while picking the image:', error);
     }
+  };
+  
+  const uploadProfilePicture = async () => {
+    console.log("Selected: " + selectedProfilePicture);
+  
+    const formData = new FormData();
+    if (selectedProfilePicture) {
+      try {
+        const fileData = await RNFS.readFile(selectedProfilePicture, 'base64');
+        formData.append('profilePicture', {
+          name: 'image.jpg',
+          type: 'image/jpeg',
+          uri: Platform.OS === 'android' ? `file://${selectedProfilePicture}` : selectedProfilePicture,
+          data: fileData
+        });
+      } catch (error) {
+        console.error('Error preparing image:', error);
+        return;
+      }
+    }
+
+    post(
+      '/api/user/profile/profile-pic',
+      formData,
+      context?.token,
+      (response) => {
+        // setUserData(response.data);
+        setProfilePicture(response.data.profilePicture);
+      },
+      (error) => {
+        console.error('Error publishing:', error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          error.response.data.errors.forEach(err => {
+            console.error(`Validation error - ${err.param}: ${err.msg}`);
+          });
+        }
+      }
+    );
   };
 
   const handleSaveModifications = () => {
@@ -221,7 +263,7 @@ const EditProfile = () => {
     };
 
     fetchData();
-  }, []);
+  }, [profilePicture]);
 
   return (
     <ScrollView nestedScrollEnabled>
@@ -247,27 +289,18 @@ const EditProfile = () => {
       {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
-          {selectedProfilePicture === '' &&
-            <Image
-            source={{ uri: getImageUrl(profilePicture) }}
-            style={styles.profilePicture}
-            onError={(error) => console.error("Error loading profile picture:", error)}
-            />
-          }
-          {selectedProfilePicture !== '' &&
-            <Image
-            source={{ uri: (profilePicture) }}
-            style={styles.profilePicture}
-            onError={(error) => console.error("Error loading profile picture:", error)}
-            />
-          }
+          <Image
+          source={{ uri: getImageUrl(profilePicture) }}
+          style={styles.profilePicture}
+          onError={(error) => console.error("Error loading profile picture:", error)}
+          />
         </View>
-        <Button
-          style={{ backgroundColor: colors.primary }}
-          textStyle={{ color: colors.black }}
-          value="+"
+        <TouchableOpacity
           onPress={selectImage}
-        />
+          style={styles.editProfilePictureButton}
+        >
+          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+        </TouchableOpacity>
       </View>
       <View style={styles.decorativeLine} />
       <View>
@@ -420,10 +453,14 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 1,
   },
-  editButton: {
-    position: 'absolute',
+  editProfilePictureButton: {
     top: 16,
-    right: 50,
+    left: 40,
+    zIndex: 1,
+  },
+  editBannerButton: {
+    top: 16,
+    left: 30,
     zIndex: 1,
   },
   settingButton: {
