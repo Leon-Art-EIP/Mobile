@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView } from 'react-native';
+import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { post, get } from '../constants/fetch';
 
 import colors from '../constants/colors';
@@ -23,6 +23,7 @@ const screenWidth = Dimensions.get('window').width;
 const SingleArt = ({ navigation, route } : any) => {
 
   const context = useContext(MainContext);
+  const token = context?.token;
   const [artist, setArtist] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -30,12 +31,17 @@ const SingleArt = ({ navigation, route } : any) => {
   const [author, setAuthor] = useState(false);
   const [artists, setArtists] = useState<ArtistType[]>([]);
   const { id } = route.params;
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [userCollections, setUserCollections] = useState<Collection | null>(null);
+  const [newCollectionName, setNewCollectionName] = useState('');
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getPublications();
+    checkIsLiked();
+    checkIsSaved();
   }, [id]);
   
   useEffect(() => {
@@ -132,7 +138,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       message,
     );
   };
-  
+
   const getPublications = () => {
     get(
       `/api/art-publication/${id}`,
@@ -148,35 +154,143 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       );
     };
     
-    const savePublication = () => {};
+    const handleSavedButtonClick = async () => {
+      setModalVisible(true);
+    };
 
-    const likePublication = async () => {
+    const closeModal = () => {
+      setModalVisible(false);
+      setNewCollectionName('');
+    };
+
+    const addToCollection = async (collectionName: string) => {
       try {
-        const updatedLikeStatus = !isLiked;
-        
-        const response = await axios.post(`/api/art-publication/like/${id}`, {
-          isLiked: updatedLikeStatus
-        }, {
-          headers: {
-            Authorization: `Bearer ${context?.token}`,
-          },
-        });
-    
-        if (response.status === 200) {
-          setIsLiked(response.data.isLiked);
-          console.log("Like status updated successfully");
-          showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
+        if (token) {
+          const url = `/api/collection`;
+          const body = {
+            artPublicationId: id,
+            collectionName: collectionName,
+            isPublic: true
+          };
+          const callback = (response) => {
+            console.log('Saved to collection successfully');
+            Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
+            setIsSaved(true);
+          };
+          const onErrorCallback = (error) => {
+            console.error('Error while saving to collection:', error);
+            Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+          };
+          post(url, body, token, callback, onErrorCallback);
         } else {
-          console.error("Failed to update like status");
-          showAlert('Failed to update like status');
+          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+          Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         }
       } catch (error) {
-        console.error("Error in liking publication:", error);
-        console.error(error.response || error)
+        console.error('Erreur lors de la récupération du token JWT :', error);
+        Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+      }
+      closeModal();
+    };
+    const likePublication = async () => {
+      try {
+        if (token) {
+          const url = `/api/art-publication/like/${id}`;
+          const body = undefined;
+          const callback = () => {
+            setIsLiked(!isLiked);
+          };
+          const onErrorCallback = (error) => {
+            console.error('Erreur de like :', error);
+            if (error.response) {
+              // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+              console.error('Server responded with non-2xx status:', error.response.data);
+            } else if (error.request) {
+              // La requête a été effectuée mais aucune réponse n'a été reçue
+              console.error('No response received from server');
+            } else {
+              // Une erreur s'est produite lors de la configuration de la requête
+              console.error('Error setting up the request:', error.message);
+            }
+            // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+          };
+  
+          post(url, body, token, callback, onErrorCallback);
+        } else {
+          console.error('Token JWT not found. Make sure the user is logged in.');
+          // Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
       }
     };
     
     const selectTag = () => {
+    };
+
+    const checkIsLiked = async () => {
+      try {
+        if (token) {
+          const url = `/api/art-publication/users-who-liked/${id}`;
+          const callback = (response) => {
+            const responseData = response.data;
+            const usersWhoLiked = responseData.users;
+            const currentUserUsername = "VivantGarrigues";
+            const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
+  
+            setIsLiked(isArtLiked);
+          };
+          const onErrorCallback = (error) => {
+            console.error('Error fetching like:', error);
+            Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+          };
+          get(url, token, callback, onErrorCallback);
+        } else {
+          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+          Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+        Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+      }
+    };
+  
+    const checkIsSaved = async () => {
+      try {
+        if (token) {
+          const url = `/api/collection/my-collections`;
+          const callback = (response) => {
+            setUserCollections(response.data);
+            if (response.data) {
+              for (const collection of response.data) {
+                const collectionId = collection._id;
+                try {
+                  const collectionCallBack = (collectionResponse) => {
+                    const collection = collectionResponse.data;
+                    if (collection.some((publication) => publication._id === id)) {
+                      setIsSaved(true);
+                      return;
+                    }
+                  }
+                  get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
+                } catch (error) {
+                  console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
+                }
+              }
+            }
+            setIsSaved(false);
+          };
+          const onErrorCallback = (error) => {
+            console.error('Error fetching collection:', error);
+          };
+          get(url, token, callback, onErrorCallback);
+        } else {
+          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      }
     };
 
     return (
@@ -217,13 +331,13 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           secondary={isSaved ? true : false}
           style={[styles.actionButton, { backgroundColor: colors.secondary }]}
           textStyle={{ fontSize: 14, textAlign: 'center', color: colors.black }}
-          onPress={() => savePublication()}
+          onPress={() => handleSavedButtonClick()}
         />
         <Button
           value={isLiked ? "Liked" : "Like"}
           secondary={isLiked ? true : false}
-          style={[styles.actionButton, { backgroundColor: colors.black }]}
-          textStyle={{ fontSize: 14, textAlign: 'center', color: 'white' }}
+          style={[styles.actionButton]}
+          textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
           onPress={likePublication}
         />
       </View>
@@ -247,10 +361,9 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           onPress={previous}
           />
       </View>
-      {/* <Modal isVisible={isModalVisible} style={styles.modal}>
+      <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Enregistrer dans...</Text>
-
           <FlatList
             data={userCollections}
             keyExtractor={(item) => item._id}
@@ -275,7 +388,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
             <Text style={styles.cancelButtonText}>Annuler</Text>
           </TouchableOpacity>
         </View>
-      </Modal> */}
+      </Modal>
     </View>
     </ScrollView>
   );
@@ -391,7 +504,60 @@ const styles = StyleSheet.create({
       marginLeft: 0,
       justifyContent: 'center',
       backgroundColor: colors.black
-    }
+    },
+    modal: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 20,
+      borderRadius: 10,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    collectionButton: {
+      padding: 10,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: '#ccc',
+      marginBottom: 10,
+      alignItems: 'center',
+    },
+    collectionButtonText: {
+      color: '#3498db',
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 5,
+      padding: 8,
+      marginBottom: 10,
+    },
+    createButton: {
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: '#3498db',
+      alignItems: 'center',
+    },
+    createButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    cancelButton: {
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: '#ccc',
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    cancelButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
 });
 
 export default SingleArt;
