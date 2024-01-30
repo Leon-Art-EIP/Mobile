@@ -110,6 +110,7 @@ const SingleArt = ({ navigation, route } : any) => {
     if (error.response && error.response.data && error.response.data.errors) {
       error.response.data.errors.forEach(err => {
         console.error(`API error - ${err.param}: ${err.msg}`);
+        Alert.alert('This publication is not for sale');
       });
     }
   }
