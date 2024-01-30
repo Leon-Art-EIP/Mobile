@@ -9,7 +9,6 @@ import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import { getImageUrl } from '../helpers/ImageHelper';
-import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
@@ -18,6 +17,7 @@ import Title from '../components/Title';
 import ImagePicker from 'react-native-image-picker';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
+// import bannerImage from '../assets/images/banner.jpg'
 // import profilePicture from '../assets/images/user.png'
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
@@ -112,6 +112,69 @@ const EditProfile = () => {
       (response) => {
         // setUserData(response.data);
         setProfilePicture(response.data.profilePicture);
+      },
+      (error) => {
+        console.error('Error publishing:', error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          error.response.data.errors.forEach(err => {
+            console.error(`Validation error - ${err.param}: ${err.msg}`);
+          });
+        }
+      }
+    );
+  };
+
+  const selectBanner = async () => {
+    try {
+      const options = {
+        mediaType: 'photo',
+        quality: 1,
+      };
+  
+      const response = await launchImageLibrary(options);
+  
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const source = { uri: response.assets[0].uri };
+        if (source.uri !== undefined) {
+          setSelectedBanner(source.uri);
+          uploadBanner();
+        }
+      }
+    } catch (error) {
+      console.error('An error occurred while picking the image:', error);
+    }
+  };
+  
+  const uploadBanner = async () => {
+    console.log("Selected: " + selectedBanner);
+  
+    const formData = new FormData();
+    if (selectedBanner) {
+      try {
+        const fileData = await RNFS.readFile(selectedBanner, 'base64');
+        formData.append('bannerPicture', {
+          name: 'image.jpg',
+          type: 'image/jpeg',
+          uri: Platform.OS === 'android' ? `file://${selectedBanner}` : selectedBanner,
+          data: fileData
+        });
+      } catch (error) {
+        console.error('Error preparing image:', error);
+        return;
+      }
+    }
+
+    post(
+      '/api/user/profile/banner-pic',
+      formData,
+      context?.token,
+      (response) => {
+        // setUserData(response.data);
+        setBanner(response.data.bannerPicture);
       },
       (error) => {
         console.error('Error publishing:', error);
@@ -263,7 +326,7 @@ const EditProfile = () => {
     };
 
     fetchData();
-  }, [profilePicture]);
+  }, [profilePicture, banner]);
 
   return (
     <ScrollView nestedScrollEnabled>
@@ -286,6 +349,12 @@ const EditProfile = () => {
         />
         <Title style={styles.mainTitle}>Modifier la bannière</Title>
       </View>
+      <TouchableOpacity
+          onPress={selectBanner}
+          style={styles.editBannerButton}
+        >
+          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+        </TouchableOpacity>
       {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
@@ -459,8 +528,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   editBannerButton: {
-    top: 16,
-    left: 30,
+    bottom: 50,
+    left: 340,
     zIndex: 1,
   },
   settingButton: {
