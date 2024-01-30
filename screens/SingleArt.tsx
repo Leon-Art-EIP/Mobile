@@ -1,11 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView, ToastAndroid } from 'react-native';
+import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView } from 'react-native';
 import { post, get } from '../constants/fetch';
 
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import TagButton from '../components/TagButton';
+import Toggle from '../assets/images/toggle.svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MainContext } from '../context/MainContext';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Linking } from 'react-native';
@@ -13,16 +15,24 @@ import { getImageUrl } from '../helpers/ImageHelper';
 import ArtistCard from '../components/ArtistCard';
 import { ArtistType } from '../constants/homeValues';
 import axios from 'axios';
+import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import Modal from 'react-native-modal';
 
+const screenWidth = Dimensions.get('window').width;
 
 const SingleArt = ({ navigation, route } : any) => {
 
   const context = useContext(MainContext);
+  const [artist, setArtist] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState(false);
+  const [author, setAuthor] = useState(false);
+  const [artists, setArtists] = useState<ArtistType[]>([]);
   const { id } = route.params;
 
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getPublications();
@@ -33,6 +43,7 @@ const SingleArt = ({ navigation, route } : any) => {
       fetchArtistDetails();
     }
   }, [publication]);
+  
 
   const fetchArtistDetails = async () => {
     try {
@@ -68,47 +79,48 @@ const SingleArt = ({ navigation, route } : any) => {
       artPublicationId: id,
     };
 
-    post(
-      '/api/order/create',
-      requestData,
-      context?.token,
-      (response) => {
-        console.log('Payment Sheet Params:', response);
+  console.log('In fetchedpayebrlgvweblrfvbweijvbofvbe');
+  post(
+    '/api/order/create',
+    requestData,
+    context?.token,
+    (response) => {
+      console.log('Payment Sheet Params:', response);
 
-        if (response && response.data && response.data.url) {
-          const paymentUrl = response.data.url;
-          Linking.openURL(paymentUrl)
-            .catch(err => {
-              console.error('Failed to open URL:', err);
-              Alert.alert('Error', 'Failed to open the payment page.');
-            });
-        } else {
-          console.error('No URL found in the response');
-          Alert.alert('Error', 'Payment URL not found.');
-        }
-      },
-      (error) => {
-        console.error('Error fetching payment sheet parameters:', error);
-        if (error.response && error.response.data && error.response.data.errors) {
-          error.response.data.errors.forEach(err => {
-            console.error(`API error - ${err.param}: ${err.msg}`);
+      if (response && response.data && response.data.url) {
+        const paymentUrl = response.data.url;
+        Linking.openURL(paymentUrl)
+          .catch(err => {
+            console.error('Failed to open URL:', err);
+            Alert.alert('Error', 'Failed to open the payment page.');
           });
-        }
+      } else {
+        console.error('No URL found in the response');
+        Alert.alert('Error', 'Payment URL not found.');
       }
-    );
-  };
+    },
+  (error) => {
+    console.error('Error fetching payment sheet parameters:', error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      error.response.data.errors.forEach(err => {
+        console.error(`API error - ${err.param}: ${err.msg}`);
+      });
+    }
+  }
+);
 
+console.log('Request to /api/order/create sent with payload:', requestData);
+};
 
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
   };
 
-
   const handleArtistButtonClick = async () => {
     navigation.navigate('other_profile');
+    
   }
-
-
+  
   const previous = async () => {
     navigation.navigate('homemain');
   }
@@ -120,21 +132,15 @@ const SingleArt = ({ navigation, route } : any) => {
       message,
     );
   };
-
-
+  
   const getPublications = () => {
-    console.log(route.params?.id);
-    if (!route.params?.id) {
-      ToastAndroid.show("Une erreur est survenue. Veuillez réessayer plus tard", ToastAndroid.LONG);
-      return navigation.goBack();
-    }
-
     get(
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
         console.log('🎨 Publications:', response.data)
         setPublication(response?.data || []);
+        getAuthorName(response?.data.userId);
       },
       (error) => {
         console.error("Error fetching publications:", error);
@@ -144,36 +150,38 @@ const SingleArt = ({ navigation, route } : any) => {
     
     const savePublication = () => {};
 
-  const likePublication = async () => {
-    try {
-      const updatedLikeStatus = !isLiked;
-
-      const response = await axios.post(`/api/art-publication/like/${id}`, {
-        isLiked: updatedLikeStatus
-      }, {
-        headers: {
-          Authorization: `Bearer ${context?.token}`,
-        },
-      });
-
-      if (response.status === 200) {
-        setIsLiked(response.data.isLiked);
-        console.log("Like status updated successfully");
-        showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
-      } else {
-        console.error("Failed to update like status");
-        showAlert('Failed to update like status');
+    const likePublication = async () => {
+      try {
+        const updatedLikeStatus = !isLiked;
+        
+        const response = await axios.post(`/api/art-publication/like/${id}`, {
+          isLiked: updatedLikeStatus
+        }, {
+          headers: {
+            Authorization: `Bearer ${context?.token}`,
+          },
+        });
+    
+        if (response.status === 200) {
+          setIsLiked(response.data.isLiked);
+          console.log("Like status updated successfully");
+          showAlert(response.data.isLiked ? 'Liked' : 'Unliked');
+        } else {
+          console.error("Failed to update like status");
+          showAlert('Failed to update like status');
+        }
+      } catch (error) {
+        console.error("Error in liking publication:", error);
+        console.error(error.response || error)
       }
-    } catch (error) {
-      console.error("Error in liking publication:", error);
-      console.error(error.response || error)
-    }
-  };
+    };
+    
+    const selectTag = () => {
+    };
 
-
-  return (
-    <ScrollView>
-    <View style={styles.container}>
+    return (
+      <ScrollView>
+      <View style={styles.container}>
 
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
@@ -199,6 +207,8 @@ const SingleArt = ({ navigation, route } : any) => {
             style={styles.artistCardStyle}
           />
         )}
+        {/* <TagButton onPress={handleArtistButtonClick} style={{ flex: 1 }} /> */}
+
         <Text style={styles.userIdText}>
           {author ? author.username : 'Loading...'}
         </Text>
@@ -217,11 +227,11 @@ const SingleArt = ({ navigation, route } : any) => {
           onPress={likePublication}
         />
       </View>
-      <View style={{ marginLeft: 20 }}>
-      <Text style={{ marginLeft: 20, fontSize: 23, color: 'black' }}>
+      <View>
+      <Text style={{ marginLeft: 35, fontSize: 23, color: 'black' }}>
         {publication.price} €
        </Text>
-      <Text style={{ marginLeft: 20, fontSize: 15 }}>
+      <Text style={{ marginLeft: 35, fontSize: 15 }}>
         {publication.description}
       </Text>
       </View>
@@ -274,7 +284,7 @@ const SingleArt = ({ navigation, route } : any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        padding: 10,
         backgroundColor: colors.white,
     },
     logo: {
@@ -284,8 +294,12 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 5,
     },
+    artistCardStyle: {
+      borderRadius: 30,
+      container: { width: 45, height: 45, borderRadius: 30, marginTop: 0, color: 'white'},
+      image: { width: 45, height: 45, borderRadius: 30, marginTop: 25 },
+    },
     img: {
-      backgroundColor: colors.disabledBg,
       alignSelf: 'center',
       resizeMode: 'contain',
       marginLeft: 15,
@@ -305,6 +319,47 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    rowContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 10,
+      justifyContent: 'space-between',
+    },
+    actionButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 15,
+      borderRadius: 30,
+      justifyContent: 'center',
+      marginLeft: 'auto',
+    },
+    primaryButton: {
+      backgroundColor: colors.primary,
+    },
+    secondaryButton: {
+      backgroundColor: colors.secondary,
+    },
+    buttonText: {
+      fontSize: 14,
+      color: colors.black,
+    },
+    userIdText: {
+      marginLeft: 6,
+      fontSize: 16,
+      flex: 1,
+      color: 'black',
+    },
+    saveButton: {
+      backgroundColor: colors.secondary,
+      width: 75,
+      height: 38,
+      borderRadius: 30,
+      justifyContent: 'center',
+      flex: 1,
+    },
+    likeButton: {
+      color: 'white',
+      flex: 1,
     },
     artText: {
         fontSize: 55,
@@ -329,7 +384,7 @@ const styles = StyleSheet.create({
         height: 31,
     },
     button:
-    {
+    { 
       width: 70,
       height: 38,
       borderRadius: 30,
@@ -338,6 +393,5 @@ const styles = StyleSheet.create({
       backgroundColor: colors.black
     }
 });
-
 
 export default SingleArt;
