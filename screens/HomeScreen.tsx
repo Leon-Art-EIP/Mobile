@@ -84,7 +84,7 @@ const HomeScreen = ({ navigation }: any) => {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
     get(
-      "/api/art-publication/feed/latest?page=0&limit=15",
+      "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
       (response) => {
         console.log('🎨 Publications:', response.data)
