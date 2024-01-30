@@ -48,16 +48,16 @@ const OtherProfile = ({ route }: any) => {
         const response = await post(url, undefined, token, (response) => {
         }, (error) => {
           console.error('Erreur de follow :', error);
-          Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+          // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
         });
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        // Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
     } catch (error) {
       console.error('Erreur lors de la récupération du token JWT :', error);
-      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+      // Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
     /* checkIsFollowing(); */
     fetchUserData();
@@ -141,17 +141,17 @@ const OtherProfile = ({ route }: any) => {
             // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
         };
 
         get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 

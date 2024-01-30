@@ -44,16 +44,16 @@ const Collection = ({ navigation, route }: any) => {
         };
         const onErrorCallback = (error) => {
           console.error('Une erreur s\'est produite lors de la supprésion de la collection.:', error);
-          Alert.alert('Erreur', 'Une erreur s\'est produite lors de la supprésion de la collection.');
+          // Alert.alert('Erreur', 'Une erreur s\'est produite lors de la supprésion de la collection.');
         };
         del(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        // Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
     } catch (error) {
       console.error('Erreur lors de la récupération du token JWT :', error);
-      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+      // Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
     }
     // Ferme la modal après la suppression
     setDeleteModalVisible(false);
