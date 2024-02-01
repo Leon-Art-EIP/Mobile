@@ -1,36 +1,32 @@
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 // Local imports
 import SettingsButtonImage from '../assets/images/settings_logo.png'
+import emptyCollectionImage from '../assets/icons/hamburger.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
-import profilePicture from '../assets/images/user.png'
-import bannerImage from '../assets/images/banner.jpg'
-import emptyCollectionImage from '../assets/icons/hamburger.png'
 import Button from '../components/Button';
 import colors from '../constants/colors';
+import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
-import { get, post } from '../constants/fetch';
 import { getImageUrl } from '../helpers/ImageHelper';
+import { Artwork, UserData } from '../utils/data';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const Profile = () => {
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('Artwork'); 
-  const [userCollections, setUserCollections] = useState([]);
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
-  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
-  const [userData, setUserData] = useState<UserData | null>(null);
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
+  const [activeTab, setActiveTab] = useState('Artwork'); 
+  const [userCollections, setUserCollections] = useState([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
+  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
 
   const handleToFollowerList = () => {
-    // TODO : rendre dynamique
     navigation.navigate('follower_list');
   };
 
@@ -46,10 +42,6 @@ const Profile = () => {
     navigation.navigate('settings');
   };
 
-  // TODO : remplacer pars cette version quand SingleArt est ready
-  // const handleArtworkClick = (pageName, artworkId) => {
-  //   navigation.navigate(pageName, artworkId);
-  // };
   const handleArtworkClick = (pageName) => {
     navigation.navigate(pageName);
   };
@@ -58,71 +50,17 @@ const Profile = () => {
     navigation.navigate('collection', { collection: collction});
   };
 
-  interface Artwork {
-    _id: string;
-    userId: string;
-    image: string;
-    artType: string;
-    name: string;
-    description: string;
-    dimension: string;
-    isForSale: boolean;
-    price: number;
-    location: string;
-    likes: any[];
-    comments: any[];
-    __v: number;
-  }
-
-  interface UserData {
-    _id: string;
-    username: string;
-    is_artist: boolean;
-    availability: string;
-    subscription: string;
-    collections: any[];
-    subscriptions: any[];
-    subscribers: any[];
-    subscribersCount: number;
-    likedPublications: any[];
-    canPostArticles: boolean;
-    __v: number;
-    bannerPicture: string;
-    profilePicture: string;
-    biography: string;
-  }
-
   const fetchUserArtworks = async () => {
-    try {
-      if (token) {
-        const url = `/api/art-publication/user/${userID}`;
-        const callback = (response) => {
-          setUserArtworks(response.data);
-          setUserArtworksCount(response.data.length);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user artworks:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
-    }
+    const success = (response) => {
+      setUserArtworks(response.data);
+      setUserArtworksCount(response.data.length);
+    };
+    get(
+      `/api/art-publication/user/${userID}`,
+      token,
+      success,
+      (err: any) => console.warn('Error fetching user artworks:', {...err}),
+    );
   };
 
   const fetchUserData = async () => {
