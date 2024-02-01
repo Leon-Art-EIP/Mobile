@@ -46,8 +46,8 @@ const Profile = () => {
     navigation.navigate(pageName);
   };
 
-  const handleCollectionClick = (collction) => {
-    navigation.navigate('collection', { collection: collction});
+  const handleCollectionClick = (collection) => {
+    navigation.navigate('collection', { collection: collection});
   };
 
   const fetchUserArtworks = async () => {
@@ -59,42 +59,30 @@ const Profile = () => {
       `/api/art-publication/user/${userID}`,
       token,
       success,
-      (err: any) => console.warn('Error fetching user artworks:', {...err}),
+      (err: any) => console.warn('Error fetching user artworks: ', {...err}),
     );
   };
 
   const fetchUserData = async () => {
-        try {
-      if (token) {
-        const url = `/api/user/profile/${userID}`;
-        const callback = (response) => {
-          setUserData(response.data);
-          fetchUserArtworks();
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user data:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-        };
+    const success = (response) => {
+      setUserData(response.data);
+      fetchUserArtworks();
+    };
+    get(
+      `/api/user/profile/${userID}`,
+      token,
+      success,
+      (err: any) => console.warn('Error fetching user data: ', {...err}),
+    );
+  };
 
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-    }
+  const updateCollections = async () => {
+      get(
+        `/api/collection/my-collections`,
+        token,
+        (response: any) => setUserCollections(response.data),
+        (err: any) => console.warn('Error updating user\'s collections: ', {...err}),
+      );
   };
 
   useFocusEffect(
@@ -106,179 +94,163 @@ const Profile = () => {
     updateCollections();
   }, []);
 
-  const updateCollections = async () => {
-      try {
-        const token = context?.token;
-        if (token) {
-          get(
-            `/api/collection/my-collections`,
-            token,
-            (response: any) => setUserCollections(response.data),
-            (error: any) => console.error({ ...error })
-          )
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          Alert.alert("Erreur", "Veuillez vous reconnecter");
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des collections de l\'utilisateur :', error);
-        Alert.alert('Erreur de récupération des collections', 'Une erreur s\'est produite.');
-      }
-  }
 
   return (
     <ScrollView nestedScrollEnabled>
-    <View>
-      {/* Buttons : Back, Edit profile and Settings */}
-      <View style={{ flexDirection: 'row', marginRight: 20 }}>
-        <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
+      <View>
+        {/* Buttons : Back, Edit profile and Settings */}
+        <View style={{ flexDirection: 'row', marginRight: 20 }}>
+          {/* Back button */}
+          <TouchableOpacity
+            onPress={() => handleBackButtonClick()}
+            style={styles.backButton}
           >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleEditButtonClick()}
-          style={styles.editButton}
-        >
-          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleSettingsButtonClick()}
-          style={styles.settingButton}
-        >
-          <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
-        </TouchableOpacity>
-      </View>
-      {/* Banner */}
-      <View style={styles.banner}>
-        <Image
-          source={{ uri: getImageUrl(userData?.bannerPicture) }}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
-      </View>
-      {/* Profile picture */}
-      <View style={styles.overlayImage}>
-        <View style={styles.circleImageContainer}>
-          <Image
-            source={{ uri: getImageUrl(userData?.profilePicture) }}
-            style={styles.profilePicture}
-          />
-        </View>
-      </View>
-      {/* Text blocks : followers, name and posts*/}
-      <View style={styles.textBlocks}>
-        {/* Bloc de texte followers */}
-        <View style={styles.textBlock}>
-          <TouchableOpacity onPress={handleToFollowerList}>
-            <View style={styles.centeredText}>
-              <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-              <Text style={styles.title}>followers</Text>
-            </View>
-
+            <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+          </TouchableOpacity>
+          {/* Edit button */}
+          <TouchableOpacity
+            onPress={() => handleEditButtonClick()}
+            style={styles.editButton}
+          >
+            <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+          </TouchableOpacity>
+          {/* Settings button */}
+          <TouchableOpacity
+            onPress={() => handleSettingsButtonClick()}
+            style={styles.settingButton}
+          >
+            <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
           </TouchableOpacity>
         </View>
-
-        {/* Bloc de texte au centre */}
-        <View style={styles.centerTextBlock}>
-          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
-          {userData && userData.availability !== "unavailable" && (
-            <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+        {/* Banner */}
+        <View style={styles.banner}>
+          <Image
+            source={{ uri: getImageUrl(userData?.bannerPicture) }}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+        </View>
+        {/* Profile picture */}
+        <View style={styles.overlayImage}>
+          <View style={styles.circleImageContainer}>
+            <Image
+              source={{ uri: getImageUrl(userData?.profilePicture) }}
+              style={styles.profilePicture}
+            />
+          </View>
+        </View>
+        {/* Text blocks : followers, name and posts*/}
+        <View style={styles.textBlocks}>
+          {/* Followers block text */}
+          <View style={styles.textBlock}>
+            <TouchableOpacity onPress={handleToFollowerList}>
+              <View style={styles.centeredText}>
+                <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
+                <Text style={styles.title}>followers</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          {/* Name and availability block text */}
+          <View style={styles.centerTextBlock}>
+            <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
+            {userData && userData.availability !== "unavailable" && (
+              <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
             )}
+          </View>
+          {/* Posts text block */}
+          <View style={styles.textBlock}>
+            <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
+            <Text style={styles.title}>posts</Text>
+          </View>
         </View>
-        
-        <View style={styles.textBlock}>
-          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
-          <Text style={styles.title}>posts</Text>
+        {/* Decorative line */}
+        <View style={styles.decorativeLine} />
+        {/* Tab selections buttons : Artwork, Collections and About */}
+        <View style={styles.tabsNavigation}>
+          <Button
+            value="Artwork"
+            secondary={activeTab !== 'Artwork'}
+            tertiary={activeTab === 'Artwork'}
+            style={[styles.navigationTabButton, styles.marginRightForTabs]}
+            textStyle={styles.navigationTabButtonText}
+            onPress={() => setActiveTab('Artwork')}
+            />
+          <Button
+            value="Collections"
+            secondary={activeTab !== 'Collections'}
+            tertiary={activeTab === 'Collections'}
+            style={[styles.navigationTabButton, styles.marginRightForTabs]}
+            textStyle={styles.navigationTabButtonText}
+            onPress={() => setActiveTab('Collections')}
+            />
+          <Button
+            value="A propos"
+            secondary={activeTab !== 'A propos'}
+            tertiary={activeTab === 'A propos'}
+            style={styles.navigationTabButton}
+            textStyle={styles.navigationTabButtonText}
+            onPress={() => setActiveTab('A propos')}
+            />
         </View>
+        {/* Artwork tab */}
+        {activeTab === 'Artwork' && (
+          <View style={styles.squareContainer}>
+            {userArtworks.map((artwork, index) => (
+              <TouchableOpacity
+                key={artwork._id}
+                style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+                onPress={() => handleArtworkClick(artwork._id)}
+              >
+                <Image
+                  style={styles.artworkImage}
+                  source={{ uri: getImageUrl(artwork.image) }}
+                  onError={() => console.log("Image loading error")}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+        {/* Collections tab */}
+        {activeTab === 'Collections' && userCollections.length > 0 && (
+          <View style={styles.squareContainer}>
+            {userCollections.map((collection, index) => (
+              <TouchableOpacity
+                key={collection._id}
+                style={[
+                  styles.squareFrame,
+                  {
+                    width: '48%',
+                    marginLeft: index % 2 === 0 ? 0 : '2%',
+                    marginRight: index % 2 === 0 ? '2%' : 0,
+                    marginBottom: 10,
+                  },
+                ]}
+                onPress={() => handleCollectionClick(collection)}
+              >
+                <Image
+                  source={
+                    collection.artPublications.length > 0
+                      ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
+                      : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
+                  }
+                  style={{ flex: 1, borderRadius: 10 }}
+                  resizeMode="cover"
+                  onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
+                />
+                <Text style={styles.collectionName}>{collection.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+        {/* About tab */}
+        {activeTab === 'A propos' && (
+          <View style={styles.biographyContainer}>
+            <Text style={[styles.biography, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}>
+              {userData?.biography}
+            </Text>
+          </View>
+        )}
       </View>
-      {/* Decorative line */}
-      <View style={styles.decorativeLine} />
-      {/* Tab selections button : Artwork, Collections and About */}
-      <View style={styles.tabsNavigation}>
-        <Button
-          value="Artwork"
-          secondary={activeTab !== 'Artwork'}
-          tertiary={activeTab === 'Artwork'}
-          style={[styles.navigationTabButton, styles.marginRightForTabs]}
-          textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Artwork')}
-          />
-        <Button
-          value="Collections"
-          secondary={activeTab !== 'Collections'}
-          tertiary={activeTab === 'Collections'}
-          style={[styles.navigationTabButton, styles.marginRightForTabs]}
-          textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collections')}
-          />
-        <Button
-          value="A propos"
-          secondary={activeTab !== 'A propos'}
-          tertiary={activeTab === 'A propos'}
-          style={styles.navigationTabButton}
-          textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('A propos')}
-          />
-      </View>
-      {activeTab === 'Artwork' &&
-        <View style={styles.squareContainer}>
-          {userArtworks.map((artwork, index) => (
-            <TouchableOpacity
-              key={artwork._id}
-              style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-              onPress={() => handleArtworkClick(artwork._id)}
-            >
-              <Image
-                style={styles.artworkImage}
-                source={{ uri: getImageUrl(artwork.image) }}
-                onError={() => console.log("Image loading error")}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
-      }
-      {/* Collections tab */}
-      {activeTab === 'Collections' && userCollections.length > 0 && (
-        <View style={styles.squareContainer}>
-          {userCollections.map((collection, index) => (
-            <TouchableOpacity
-              key={collection._id}
-              style={[
-                styles.squareFrame,
-                {
-                  width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
-                  marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
-                  marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
-                  marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
-                },
-              ]}
-              onPress={() => handleCollectionClick(collection)}
-            >
-              <Image
-                source={
-                  collection.artPublications.length > 0
-                    ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
-                    : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
-                }
-                style={{ flex: 1, borderRadius: 10 }}
-                resizeMode="cover"
-                onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
-              />
-              <Text style={styles.collectionName}>{collection.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-      {activeTab === 'A propos' && (
-        <View style={styles.biographyContainer}>
-          <Text style={[styles.biography, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}>
-            {userData?.biography}
-          </Text>
-        </View>
-      )}
-    </View>
     </ScrollView>
   );
 }
@@ -315,7 +287,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'absolute',
     top: -55,
-
   },
   textBlocks: {
     flexDirection: 'row',
@@ -351,14 +322,6 @@ const styles = StyleSheet.create({
   centerSubtitle: {
     fontSize: 12,
     color: 'rgba(112, 0, 255, 1)',
-  },
-  contactAndFollow: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 37,
-    flexDirection: 'row',
-    paddingVertical: 0,
-    paddingHorizontal: 17,
   },
   decorativeLine: {
     height: 1,
@@ -423,17 +386,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.tertiary,
-    // backgroundColor: colors.tertiary,
     padding: 8,
     marginBottom: 5,
     borderRadius: 40,
     marginLeft: 10,
     marginRight: 10,
-  },
-  artworkName: {
-    fontSize: 16,
-    color: 'black',
-    marginLeft: 20,
   },
   biographyContainer: {
     marginLeft: 15,
