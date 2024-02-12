@@ -1,12 +1,10 @@
 //* Standard imports
-import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native'
+import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View, FlatList, RefreshControl, processColor } from 'react-native'
 
 //* Local imports
 import colors from '../../constants/colors';
-import { MessageType } from '../../constants/conversations';
 import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import SockHelper from '../../helpers/SocketHelper';
@@ -30,50 +28,60 @@ const ConversationsComponent = () => {
   const navigation = useNavigation();
   const context = useContext(MainContext);
   const [conversations, setConversations] = useState<ConversationType[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const isFocused = useIsFocused();
 
 
   // get conversations through back end
   const getConversations = () => {
+    setIsRefreshing(true);
     get(
       `/api/conversations/${context?.userId}`,
       context?.token,
-      (res: any) => setConversations([
-        ...(res.data['chats'] as ConversationType[])
-      ]),
+      (res: any) => {
+        setConversations([ ...(res.data['chats'] as ConversationType[]) ]);
+        console.log('got conversations');
+        return setIsRefreshing(false);
+      },
       (err: any) => console.error("Couldn't get conversations: ", err)
     );
   }
 
 
   useEffect(() => {
-    // get conversations
-    getConversations();
+    if (isFocused) {
+      return getConversations();
+    }
+  }, [isFocused]);
 
-    /* // socket gestion */
-    /* if (!SockHelper.isStarted()) { */
-    /*   SockHelper.start(); */
-    /*   SockHelper.on('msg-recieve', (msg: MessageType) => console.log({ ...msg })) */
-    /* } */
-    /**/
-    //TODO implementing Sockets
+
+  useEffect(() => {
+    // get conversations
+    console.log('getting conversations');
+    getConversations();
+    if (!SockHelper.isStarted()) {
+      SockHelper.start(process.env.REACT_APP_API_URL, true);
+    }
+    SockHelper.on('msg-recieve', () => getConversations());
   }, []);
 
 
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-      { conversations.length > 0 ? conversations.map((conversation: ConversationType) => (
+  return conversations.length !== 0 ? (
+    <FlatList
+      data={conversations}
+      renderItem={({ item }) => (
         <TouchableOpacity
-          key={conversation['_id'].toString()}
+          key={item._id.toString()}
           style={styles.conversationView}
           onPress={() => navigation?.navigate(
             'single_conversation',
             {
-              name: conversation?.UserOneId === context?.userId ? conversation['UserTwoName'] : conversation['UserOneName'],
+              name: item?.UserOneId === context?.userId ? item.UserTwoName : item.UserOneName,
               // ids: conversation ID, your ID, the correspondant ID
               ids: [
-                conversation['_id'],
-                conversation['UserOneId'],
-                conversation['UserTwoId']
+                item._id,
+                item.UserOneId,
+                item.UserTwoId
               ]
             }
           )}
@@ -83,7 +91,7 @@ const ConversationsComponent = () => {
             {/* Unread dot */}
             <View style={[
               styles.unreadDot,
-              { backgroundColor: conversation.unreadMessages ? colors.primary : colors.white }
+              { backgroundColor: item.unreadMessages ? colors.primary : colors.white }
             ]} />
 
             <Image
@@ -92,27 +100,36 @@ const ConversationsComponent = () => {
             />
             <View style={{ marginTop: 'auto', marginBottom: 'auto' }}>
               <Title size={16}>{
-                context?.userId === conversation['UserTwoId'] ? conversation['UserOneName'] : conversation['UserTwoName']
+                context?.userId === item.UserTwoId ? item.UserOneName : item.UserTwoName
               }</Title>
               <Text numberOfLines={1} style={{
-                fontWeight: conversation.unreadMessages ? 'bold' : 'normal',
+                fontWeight: item.unreadMessages ? 'bold' : 'normal',
                 flexShrink: 1
-              }}>{ conversation.lastMessage }</Text>
+              }}>{ item.lastMessage }</Text>
             </View>
           </View>
           <View style={styles.lineView} />
         </TouchableOpacity>
-      )) : (
-        <View style={{ alignSelf: 'center', flex: 1, alignItems: 'center' }}>
-          <Image
-            source={require('../../assets/icons/box.png')}
-            style={styles.emptyImg}
-          />
-          <Text style={{ marginBottom: 'auto' }}>Looks empty right there !</Text>
-        </View>
-      ) }
-    </ScrollView>
-  )
+      )}
+      keyExtractor={(item) => item._id.toString()}
+      refreshing={isRefreshing}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={getConversations}
+          colors={[colors.primary]}
+        />
+      }
+    />
+  ) : (
+    <View style={{ alignSelf: 'center', flex: 1, alignItems: 'center' }}>
+      <Image
+        source={require('../../assets/icons/box.png')}
+        style={styles.emptyImg}
+      />
+      <Text style={{ marginBottom: 'auto' }}>Looks empty right there !</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

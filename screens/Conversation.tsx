@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  TextInput
+  TextInput,
+  FlatList
 } from 'react-native';
 import TextBubble from '../components/inbox/TextBubble';
 import colors from '../constants/colors';
@@ -17,6 +18,7 @@ import { MessageType } from '../constants/conversations';
 import { get, post } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import SockHelper from '../helpers/SocketHelper';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 type ConversationParams = {
@@ -65,7 +67,6 @@ const Conversation = () => {
     }
 
     // use newMessage to send the message via the backend
-    console.log(socketBody);
     SockHelper.emit('send-msg', socketBody);
     post(
       `/api/conversations/messages/new`,
@@ -91,7 +92,7 @@ const Conversation = () => {
 
 
   const goBack = () => {
-    SockHelper.off('msg-receiver');
+    SockHelper.off('msg-receive');
     return navigation.goBack();
   }
 
@@ -100,13 +101,13 @@ const Conversation = () => {
 
     SockHelper.start(process.env.REACT_APP_API_URL, true);
     SockHelper.emit('add-user', context?.userId);
-    SockHelper.on('msg-recieve', () => getConversation());
+    SockHelper.on('msg-recieve', getConversation);
   }, []);
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={colors.black} barStyle='light-content' />
+      <StatusBar backgroundColor={colors.disabledBg} barStyle='dark-content' />
 
       {/* Title view */}
       <View style={styles.titleView}>
@@ -114,9 +115,11 @@ const Conversation = () => {
           style={styles.arrowView}
           onPress={goBack}
         >
-          <Image
+          <Ionicons
+            name="chevron-back"
+            color={colors.black}
+            size={24}
             style={styles.arrowImage}
-            source={require('../assets/icons/light_arrow.png')}
           />
         </TouchableOpacity>
         <Image
@@ -127,24 +130,28 @@ const Conversation = () => {
           <Text style={styles.usernameText}>{ route?.params?.name }</Text>
           <Text style={{ color: colors.disabledFg }}>Online</Text>
         </View>
-        <TouchableOpacity style={styles.menuTouchable}>
-          <Image
-            style={styles.menuImage}
-            source={require('../assets/icons/hamburger.png')}
-          />
-        </TouchableOpacity>
       </View>
 
       {/* Messages */}
-      <ScrollView
+      {/* <ScrollView */}
+      {/*   contentContainerStyle={styles.conversationContainer} */}
+      {/*   ref={scrollView} */}
+      {/*   onContentSizeChange={(_, height) => scrollView.current?.scrollTo({ y: height, animated: true })} */}
+      {/* > */}
+      {/*   { messages && messages.map((msg: MessageType) => ( */}
+      {/*       <TextBubble message={msg} key={msg._id} /> */}
+      {/*   )) } */}
+      {/* </ScrollView> */}
+
+      {/* Messages FlatList */}
+      <FlatList
+        data={messages}
+        renderItem={({ item }) => (
+          <TextBubble message={item} key={item._id} />
+        )}
+        keyExtractor={(msg: MessageType) => msg._id.toString()}
         contentContainerStyle={styles.conversationContainer}
-        ref={scrollView}
-        onContentSizeChange={(_, height) => scrollView.current?.scrollTo({ y: height, animated: true })}
-      >
-        { messages && messages.map((msg: MessageType) => (
-            <TextBubble message={msg} key={msg._id} />
-        )) }
-      </ScrollView>
+      />
 
       {/* Input view */}
       <View style={styles.messageContainer}>
@@ -179,13 +186,11 @@ const Conversation = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.black,
+    backgroundColor: colors.disabledBg,
     flex: 1,
   },
   conversationContainer: {
     backgroundColor: colors.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
     flexGrow: 1,
     paddingVertical: 16,
     paddingHorizontal: 12,
@@ -209,11 +214,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start'
   },
   usernameText: {
-    color: '#fff',
+    color: colors.darkGreyFg,
     fontSize: 16
   },
   arrowView: {
-    backgroundColor: '#302D2B',
+    /* backgroundColor: '#302D2B', */
+    backgroundColor: colors.disabledBg,
     borderRadius: 50,
     paddingHorizontal: 8,
     paddingVertical: 8,
@@ -225,9 +231,7 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     marginBottom: 'auto',
     marginLeft: 'auto',
-    marginRight: 'auto',
-    width: 32,
-    height: 32
+    marginRight: 'auto'
   },
   menuTouchable: {
     marginLeft: 'auto',
