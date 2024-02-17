@@ -45,9 +45,9 @@ const SingleArt = ({ navigation, route } : any) => {
   }, [id]);
   
   useEffect(() => {
-    if (publication && publication.userId) {
-      fetchArtistDetails();
-    }
+    // if (publication && publication.userId) {
+    //   fetchArtistDetails();
+    // }
   }, [publication]);
   
 
@@ -55,7 +55,8 @@ const SingleArt = ({ navigation, route } : any) => {
     try {
       const response = await get(`/api/user/profile/${publication.userId}`, context?.token);
       setArtist(response.data);
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Error fetching artist details:", error);
     }
   };
@@ -302,6 +303,8 @@ console.log('Request to /api/order/create sent with payload:', requestData);
     };
 
     return (
+      <View style={styles.container}>
+
       <ScrollView>
       <View style={styles.container}>
 
@@ -310,8 +313,29 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         <Title>'Art</Title>
       </View>
       <View style={{ flexDirection: 'row'}}>
-        <Text style={styles.artTitle}>{publication.name}</Text>
+       <Text style={styles.artTitle}>{publication.name}</Text>
+      <Text style={{ marginLeft: 35, fontSize: 23, color: 'black' }}> Prix : </Text>
+      <Text style={{ marginLeft: 3, marginRight: 40, fontSize: 23, color: 'black' }}>
+        {publication.price} €
+       </Text>
       </View>
+      <View style={{ flexDirection : 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+        {author && (
+          <ArtistCard
+          showTitle={false}
+          onPress={() => handleToArtistProfile(author)}
+          item={author}
+          path="other_profile"
+          style={styles.artistCardStyle}
+          />
+          )}
+        <Text style={styles.userIdText}>
+          {author ? author.username : 'Loading...'}
+        </Text>
+      </View>
+      <Text style={{ marginLeft: 27, marginBottom: 10, fontSize: 15, color: colors.darkGreyBg }}>
+        {publication.description} ... Afficher plus
+      </Text>
       <View>
         <Image 
           style={styles.img}
@@ -320,55 +344,49 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         />
       </View>
       <View style={styles.rowContainer}>
-        {author && (
-          <ArtistCard
-            showTitle={false}
-            onPress={() => handleToArtistProfile(author)}
-            item={author}
-            path="other_profile"
-            style={styles.artistCardStyle}
-          />
-        )}
-        {/* <TagButton onPress={handleArtistButtonClick} style={{ flex: 1 }} /> */}
-
-        <Text style={styles.userIdText}>
-          {author ? author.username : 'Loading...'}
-        </Text>
         <Button
-          value={isSaved ? "Saved" : "Save"}
+          value={isSaved ? "Enregistré" : "Enregistrer"}
           secondary={isSaved ? true : false}
           style={[styles.actionButton, { backgroundColor: colors.secondary }]}
           textStyle={{ fontSize: 14, textAlign: 'center', color: colors.black }}
           onPress={() => handleSavedButtonClick()}
         />
         <Button
-          value={isLiked ? "Liked" : "Like"}
+          value={isLiked ? "Liké" : "Liker"}
           secondary={isLiked ? true : false}
           style={[styles.actionButton]}
           textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
           onPress={likePublication}
         />
-      </View>
-      <View>
-      <Text style={{ marginLeft: 35, fontSize: 23, color: 'black' }}>
-        {publication.price} €
-       </Text>
-      <Text style={{ marginLeft: 35, fontSize: 15 }}>
-        {publication.description}
-      </Text>
-      </View>
-      <View style={{ marginTop: 20, marginBottom: 30 }}>
         <Button
+          style={[styles.actionButton]}
+          textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
           value="Acheter"
           onPress={openPaymentSheet}
-          />
-        <Button
-          style={{ backgroundColor: colors.secondary }}
-          textStyle={{ color: colors.black }}
-          value="Retour"
-          onPress={previous}
-          />
+        />
       </View>
+      <View>
+
+      </View>
+      {/* Fake Comments Section */}
+    <View style={{ marginTop: 20, marginBottom: 30, marginLeft: 20, marginRight: 20 }}>
+      {/* Display Fake Comments */}
+      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+        <Text style={{ fontWeight: 'bold', marginRight: 5 }}>John Doe:</Text>
+        <Text>This is an amazing piece of art!</Text>
+      </View>
+      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+        <Text style={{ fontWeight: 'bold', marginRight: 5 }}>Jane Smith:</Text>
+        <Text>I love the colors used in this artwork.</Text>
+      </View>
+      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+        <Text style={{ fontWeight: 'bold', marginRight: 5 }}>Anonymous:</Text>
+        <Text>Great job!</Text>
+      </View>
+    </View>
+
+      {/*  MODAL */}
+
       <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Enregistrer dans...</Text>
@@ -397,8 +415,34 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           </TouchableOpacity>
         </View>
       </Modal>
+
     </View>
     </ScrollView>
+    <View style={{ marginTop: 0, marginBottom: 0, marginLeft: 20, marginRight: 20, }}>
+      <TextInput
+        placeholder="Commenter..."
+        style={{
+          borderWidth: 1,
+          borderColor: colors.secondary,
+          backgroundColor: colors.secondary,
+          borderRadius: 50,
+          padding: 10,
+          paddingLeft: 20,
+        }}
+        // You can handle the user's input using onChangeText prop
+        // For example: onChangeText={(text) => handleCommentInput(text)}
+        />
+      </View>
+          {/* Comment Input */}
+          {/* <View style={styles.commentInputContainer}>
+        <TextInput
+          placeholder="Commenter..."
+          style={styles.commentInput}
+          // value={newComment}
+          onChangeText={text => setNewComment(text)}
+        />
+      </View> */}
+    </View>
   );
 };
 
@@ -416,36 +460,34 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     artistCardStyle: {
-      borderRadius: 30,
-      container: { width: 45, height: 45, borderRadius: 30, marginTop: 0, color: 'white'},
-      image: { width: 45, height: 45, borderRadius: 30, marginTop: 25 },
+      // borderRadius: 30,
+      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
+      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
     },
     img: {
       alignSelf: 'center',
       resizeMode: 'contain',
-      marginLeft: 15,
-      marginRight: 15,
-      marginTop: 20,
-      height: 330,
-      width: 330,
+      marginTop: 0,
+      height: 345,
+      width: 345,
       borderRadius: 5,
     },
     artTitle: {
-      alignSelf: 'center',
-      marginTop: 15,
-      textAlign: 'center',
+      // alignSelf: 'center',
+      marginLeft: 30,
+      // textAlign: 'center',
       fontWeight: 'bold',
       fontSize: 25,
       color: '#000',
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      // justifyContent: 'center',
+      // alignItems: 'center',
     },
     rowContainer: {
       flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 10,
       justifyContent: 'space-between',
+      paddingHorizontal: 0,
+      alignItems: 'center',
     },
     actionButton: {
       paddingVertical: 10,
@@ -465,8 +507,8 @@ const styles = StyleSheet.create({
       color: colors.black,
     },
     userIdText: {
-      marginLeft: 6,
-      fontSize: 16,
+      marginLeft: 0,
+      fontSize: 18,
       flex: 1,
       color: 'black',
     },
@@ -504,15 +546,6 @@ const styles = StyleSheet.create({
         width: 25,
         height: 31,
     },
-    button:
-    { 
-      width: 70,
-      height: 38,
-      borderRadius: 30,
-      marginLeft: 0,
-      justifyContent: 'center',
-      backgroundColor: colors.black
-    },
     modal: {
       justifyContent: 'center',
       alignItems: 'center',
@@ -521,11 +554,12 @@ const styles = StyleSheet.create({
       backgroundColor: 'white',
       padding: 20,
       borderRadius: 10,
+      maxHeight: 250,
     },
     modalTitle: {
       fontSize: 18,
       fontWeight: 'bold',
-      marginBottom: 10,
+      marginBottom: 0,
     },
     collectionButton: {
       padding: 10,
@@ -541,14 +575,15 @@ const styles = StyleSheet.create({
     input: {
       borderWidth: 1,
       borderColor: '#ccc',
-      borderRadius: 5,
+      borderRadius: 15,
+      paddingLeft: 15,
       padding: 8,
       marginBottom: 10,
     },
     createButton: {
       padding: 10,
-      borderRadius: 5,
-      backgroundColor: '#3498db',
+      borderRadius: 18,
+      backgroundColor: colors.primary,
       alignItems: 'center',
     },
     createButtonText: {
@@ -557,8 +592,8 @@ const styles = StyleSheet.create({
     },
     cancelButton: {
       padding: 10,
-      borderRadius: 5,
-      backgroundColor: '#ccc',
+      borderRadius: 18,
+      backgroundColor: colors.darkGreyBg,
       alignItems: 'center',
       marginTop: 10,
     },
