@@ -17,6 +17,8 @@ import { ArtistType } from '../constants/homeValues';
 import axios from 'axios';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import Modal from 'react-native-modal';
+import CommentInput from '../components/CommentInput';
+import CommentsList from '../components/CommentsList';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -367,23 +369,22 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       </View>
       <View>
 
-      </View>
-      {/* Fake Comments Section */}
-    <View style={{ marginTop: 20, marginBottom: 30, marginLeft: 20, marginRight: 20 }}>
-      {/* Display Fake Comments */}
-      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-        <Text style={{ fontWeight: 'bold', marginRight: 5 }}>John Doe:</Text>
-        <Text>This is an amazing piece of art!</Text>
-      </View>
-      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-        <Text style={{ fontWeight: 'bold', marginRight: 5 }}>Jane Smith:</Text>
-        <Text>I love the colors used in this artwork.</Text>
-      </View>
-      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-        <Text style={{ fontWeight: 'bold', marginRight: 5 }}>Anonymous:</Text>
-        <Text>Great job!</Text>
-      </View>
     </View>
+    <CommentsList id={publication.id}></CommentsList>
+    {/* <ScrollView> */}
+    {/* <View style={{ marginTop: 20, marginBottom: 30, marginLeft: 20, marginRight: 20 }}>
+        {/* Display Fake Comments with Published Time */}
+        {/* {fakeComments.map((comment, index) => (
+          <View key={index} style={styles.commentContainer}>
+            <View style={styles.commentContent}>
+              <Text style={{ fontWeight: 'bold', marginRight: 5 }}>{comment.author}:</Text>
+              <Text>{comment.text}</Text>
+            </View>
+            <Text style={styles.publishedTime}>{comment.publishedTime}</Text>
+          </View>
+        ))} */}
+      {/* </View>  */}
+    {/* </ScrollView> */}
 
       {/*  MODAL */}
 
@@ -415,41 +416,43 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           </TouchableOpacity>
         </View>
       </Modal>
-
     </View>
     </ScrollView>
-    <View style={{ marginTop: 0, marginBottom: 0, marginLeft: 20, marginRight: 20, }}>
-      <TextInput
-        placeholder="Commenter..."
-        style={{
-          borderWidth: 1,
-          borderColor: colors.secondary,
-          backgroundColor: colors.secondary,
-          borderRadius: 50,
-          padding: 10,
-          paddingLeft: 20,
-        }}
-        // You can handle the user's input using onChangeText prop
-        // For example: onChangeText={(text) => handleCommentInput(text)}
-        />
-      </View>
-          {/* Comment Input */}
-          {/* <View style={styles.commentInputContainer}>
-        <TextInput
-          placeholder="Commenter..."
-          style={styles.commentInput}
-          // value={newComment}
-          onChangeText={text => setNewComment(text)}
-        />
-      </View> */}
+      <CommentInput id={publication.id}></CommentInput>
+
     </View>
   );
 };
 
+// const fakeComments = [
+//   { author: 'John Doe', text: 'This is an amazing piece of art!', publishedTime: '1h' },
+//   { author: 'Jane Smith', text: 'I love the colors used in this artwork.', publishedTime: '2d' },
+//   { author: 'Anonymous', text: 'Great job!', publishedTime: '3h' },
+// ];
+
 const styles = StyleSheet.create({
+
+  // Comments :
+
+  commentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+
+  commentContent: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+
+  publishedTime: {
+    color: '#888',
+  },
+
+  // MAIN :
+
     container: {
         flex: 1,
-        padding: 10,
         backgroundColor: colors.white,
     },
     logo: {
