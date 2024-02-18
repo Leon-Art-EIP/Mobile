@@ -1,41 +1,57 @@
-// CommentSection.js
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import Modal from 'react-native-modal';
-import { get } from '../constants/fetch';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { post } from '../constants/fetch';
 import { StyleSheet } from 'react-native';
 import colors from '../constants/colors';
+import { MainContext } from '../context/MainContext';
 
 const CommentInput = ({ id }) => {
-  const [comments, setComments] = useState([]);
+  const [commentInput, setCommentInput] = useState('');
+  const context = useContext(MainContext);
 
-  useEffect(() => {
-    fetchComments();
-  }, [id]);
-
-  const fetchComments = async () => {
-    
-    try {
-      const response = await get(`/api/art-publication/comments/${id}`);
-      setComments(response.data);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-    }
+  const handleCommentInput = (text) => {
+    setCommentInput(text);
   };
 
-  // ❗️ Always put this just after a scrollview on LeonArt App. ❗️
-  // It must be displayed as a fixed component at the bottom of the screen.
+  const postComment = async () => {
+    // Check if empty
+    if (!commentInput.trim()) {
+      console.warn('Comment cannot be empty');
+      return;
+    }
+
+    const body = {
+      text: commentInput, // Use the commentInput state here
+    };
+
+    post(
+      `/api/art-publication/comment/${id}`,
+      body,
+      context?.token,
+      (response) => {
+        if (response && response.data) {
+          setCommentInput(''); // Clear the input after successful post
+          console.log(response.data);
+        } else {
+          console.error('Invalid response:', response);
+        }
+      },
+      (error) => {
+        console.error('Error posting comments:', error);
+      }
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Comment Input */}
       <View style={styles.commentInputContainer}>
         <TextInput
           placeholder="Commenter..."
           style={styles.commentInput}
           onChangeText={(text) => handleCommentInput(text)}
+          value={commentInput}
         />
-        <TouchableOpacity style={styles.commentButton}>
+        <TouchableOpacity style={styles.commentButton} onPress={postComment}>
           <Text style={styles.commentButtonText}>Envoyer</Text>
         </TouchableOpacity>
       </View>

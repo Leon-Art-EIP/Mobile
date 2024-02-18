@@ -371,20 +371,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
 
     </View>
     <CommentsList id={ id }></CommentsList>
-    {/* <ScrollView> */}
-    {/* <View style={{ marginTop: 20, marginBottom: 30, marginLeft: 20, marginRight: 20 }}>
-        {/* Display Fake Comments with Published Time */}
-        {/* {fakeComments.map((comment, index) => (
-          <View key={index} style={styles.commentContainer}>
-            <View style={styles.commentContent}>
-              <Text style={{ fontWeight: 'bold', marginRight: 5 }}>{comment.author}:</Text>
-              <Text>{comment.text}</Text>
-            </View>
-            <Text style={styles.publishedTime}>{comment.publishedTime}</Text>
-          </View>
-        ))} */}
-      {/* </View>  */}
-    {/* </ScrollView> */}
 
       {/*  MODAL */}
 
