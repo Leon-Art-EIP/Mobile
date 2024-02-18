@@ -370,7 +370,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       <View>
 
     </View>
-    <CommentsList id={publication.id}></CommentsList>
+    <CommentsList id={ id }></CommentsList>
     {/* <ScrollView> */}
     {/* <View style={{ marginTop: 20, marginBottom: 30, marginLeft: 20, marginRight: 20 }}>
         {/* Display Fake Comments with Published Time */}
@@ -418,7 +418,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       </Modal>
     </View>
     </ScrollView>
-      <CommentInput id={publication.id}></CommentInput>
+      <CommentInput id={ id }></CommentInput>
 
     </View>
   );
