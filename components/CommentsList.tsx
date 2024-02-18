@@ -10,22 +10,46 @@ import colors from '../constants/colors';
 const CommentsList = ({ id }) => {
   const context = useContext(MainContext);
   const [comments, setComments] = useState([]);
-  const [username, setUsername] = useState([]);
+  const [usernames, setUsernames] = useState([]);
   useEffect(() => {
     fetchComments();
   }, [id]);
 
+  // const fetchComments = () => {
+  //   if (!context?.token) {
+  //     return
+  //   }
+  //   get(
+  //     `/api/art-publication/comment/${id}`,
+  //     context?.token,
+  //     (response) => {
+  //       if (response && response.data) {
+  //         setComments(response.data);
+  //         // getUsername(response.data);
+  //         console.log("CONSOLEKNLDJBJKB", response.data);
+  //       } else {
+  //         console.error('Invalid response:', response);
+  //       }
+  //     },
+  //     (error) => {
+  //       console.error("Error fetching comments:", error);
+  //     }
+  //   );
+  // };
+
   const getUsername = (userId) => {
     if (!context?.token) {
-      return
+      return;
     }
     get(
       `/api/user/profile/${userId}`,
       context?.token,
       (response) => {
         if (response && response.data) {
-          setUsername(response.data.username);
-          console.log("username", response.data.username);
+          setUsernames((prevUsernames) => ({
+            ...prevUsernames,
+            [userId]: response.data.username,
+          }));
         } else {
           console.error('Invalid response:', response);
         }
@@ -38,7 +62,7 @@ const CommentsList = ({ id }) => {
 
   const fetchComments = () => {
     if (!context?.token) {
-      return
+      return;
     }
     get(
       `/api/art-publication/comment/${id}`,
@@ -46,8 +70,9 @@ const CommentsList = ({ id }) => {
       (response) => {
         if (response && response.data) {
           setComments(response.data);
-          getUsername(response?.data.userId);
-          console.log(response.data);
+          response.data.forEach((comment) => {
+            getUsername(comment.userId);
+          });
         } else {
           console.error('Invalid response:', response);
         }
@@ -57,7 +82,7 @@ const CommentsList = ({ id }) => {
       }
     );
   };
-  
+
   const timeSince = (date) => {
     const now = new Date();
     const commentDate = new Date(date);
@@ -78,23 +103,22 @@ const CommentsList = ({ id }) => {
     }
   };
 
-  // ❗️ Always put this into a scrollview. ❗️
-  // It must be able to scroll through a list of comments.
-
-    return (
-      <View style={{ marginTop: 5, marginBottom: 65, marginLeft: 20, marginRight: 20 }}>
-        {comments.map((comment, index) => (
-          <View key={index} style={styles.commentContainer}>
-            <View style={styles.commentContent}>
-              <Text style={{ fontWeight: 'bold', marginRight: 5 }}>{(username)}</Text>
-              <Text>{comment.text}</Text>
-            </View>
-            <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
+  return (
+    <View style={{ marginTop: 5, marginBottom: 65, marginLeft: 20, marginRight: 20 }}>
+      {comments.map((comment, index) => (
+        <View key={index} style={styles.commentContainer}>
+          <View style={styles.commentContent}>
+            <Text style={{ fontWeight: 'bold', marginRight: 5 }}>
+              {usernames[comment.userId]}
+            </Text>
+            <Text>{comment.text}</Text>
           </View>
-        ))}
-      </View>
-    );
-  };
+          <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
+        </View>
+      ))}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -120,10 +144,6 @@ const styles = StyleSheet.create({
   publishedTime: {
     marginLeft: 'auto',
   },
-  modal: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   commentInputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -132,24 +152,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 2,
     width: '100%',
-  },
-  commentInput: {
-    flex: 1,
-    borderWidth: 0.5,
-    borderColor: 'gray',
-    backgroundColor: colors.white,
-    borderRadius: 30,
-    padding: 9,
-    paddingLeft: 15,
-  },
-  commentButton: {
-    marginLeft: 10,
-    padding: 15,
-    borderRadius: 50,
-    backgroundColor: colors.forYouPlHolder,
-  },
-  commentButtonText: {
-    color: 'black',
   },
 });
 
