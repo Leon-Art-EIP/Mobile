@@ -10,7 +10,8 @@ import {
   ScrollView,
   StatusBar,
   TextInput,
-  FlatList
+  FlatList,
+  ToastAndroid,
 } from 'react-native';
 import TextBubble from '../components/inbox/TextBubble';
 import colors from '../constants/colors';
@@ -19,6 +20,7 @@ import { get, post } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import SockHelper from '../helpers/SocketHelper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 
 type ConversationParams = {
@@ -44,10 +46,13 @@ const Conversation = () => {
   const route: any = useRoute();
   const params = route?.params as ConversationParams;
   const context = useContext(MainContext);
-  const scrollView = useRef<ScrollView>(null);
+  const _listRef = useRef<FlatList>(null);
 
 
-  const sendMessage = () => {
+  const sendMessage = (
+    type: 'string' | 'image' = 'string',
+    uri: string | undefined = undefined
+  ) => {
     if (!newMessage) {
       return
     }
@@ -55,15 +60,15 @@ const Conversation = () => {
     const body = {
       convId: params?.ids[0],
       userId: context?.userId,
-      contentType: 'string',
-      content: newMessage.toString()
+      contentType: type,
+      content: type === 'string' ? newMessage.toString() : uri?.toString()
     };
 
     const socketBody = {
       to: params?.ids[1] === context?.userId ? params?.ids[2] : params?.ids[1],
       from: context?.userId,
       convId: params?.ids[0],
-      msg: newMessage.toString()
+      msg: type === 'string' ? newMessage.toString() : uri?.toString()
     }
 
     // use newMessage to send the message via the backend
@@ -78,6 +83,28 @@ const Conversation = () => {
       },
       (err) => console.warn({ ...err })
     );
+  }
+
+  const selectPicture = async () => {
+    try {
+      const resp = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 1
+      });
+
+      if (resp.errorCode) {
+        ToastAndroid.show(resp.errorMessage, ToastAndroid.SHORT);
+        return console.error(resp.errorMessage);
+      }
+
+      if (!resp.assets) {
+        ToastAndroid.show('Error selecting picture, try again later', ToastAndroid.SHORT);
+        return console.error('Error selecting picture: no asset found');
+      }
+      sendMessage('image', resp?.assets[0].uri?.toString());
+    } catch (e: any) {
+      console.error('Error selecting picture: ', e);
+    }
   }
 
 
@@ -95,6 +122,7 @@ const Conversation = () => {
     SockHelper.off('msg-receive');
     return navigation.goBack();
   }
+
 
   useEffect(() => {
     getConversation();
@@ -133,17 +161,6 @@ const Conversation = () => {
       </View>
 
       {/* Messages */}
-      {/* <ScrollView */}
-      {/*   contentContainerStyle={styles.conversationContainer} */}
-      {/*   ref={scrollView} */}
-      {/*   onContentSizeChange={(_, height) => scrollView.current?.scrollTo({ y: height, animated: true })} */}
-      {/* > */}
-      {/*   { messages && messages.map((msg: MessageType) => ( */}
-      {/*       <TextBubble message={msg} key={msg._id} /> */}
-      {/*   )) } */}
-      {/* </ScrollView> */}
-
-      {/* Messages FlatList */}
       <FlatList
         data={messages}
         renderItem={({ item }) => (
@@ -151,11 +168,27 @@ const Conversation = () => {
         )}
         keyExtractor={(msg: MessageType) => msg._id.toString()}
         contentContainerStyle={styles.conversationContainer}
+        ref={_listRef}
+        onContentSizeChange={() => _listRef.current?.scrollToEnd()}
       />
 
       {/* Input view */}
       <View style={styles.messageContainer}>
         <View style={styles.messageView}>
+
+          {/* Add image */}
+          <TouchableOpacity
+            onPress={selectPicture}
+            style={styles.micView}
+          >
+            <Ionicons
+              name='image-outline'
+              size={24}
+              color="#E95DAD"
+              style={styles.micImage}
+            />
+          </TouchableOpacity>
+
 
           {/* Input message */}
           <TextInput

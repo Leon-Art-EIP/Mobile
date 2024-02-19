@@ -5,6 +5,7 @@ import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View, FlatList, 
 
 //* Local imports
 import colors from '../../constants/colors';
+import { MessageType } from '../../constants/conversations';
 import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import SockHelper from '../../helpers/SocketHelper';
@@ -62,7 +63,9 @@ const ConversationsComponent = () => {
     if (!SockHelper.isStarted()) {
       SockHelper.start(process.env.REACT_APP_API_URL, true);
     }
-    SockHelper.on('msg-recieve', () => getConversations());
+    SockHelper.on('msg-recieve', (e: MessageType) => {
+      getConversations()
+    });
   }, []);
 
 
