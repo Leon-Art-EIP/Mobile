@@ -12,6 +12,7 @@ import {
   TextInput,
   FlatList,
   ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import TextBubble from '../components/inbox/TextBubble';
 import colors from '../constants/colors';
@@ -21,6 +22,9 @@ import { MainContext } from '../context/MainContext';
 import SockHelper from '../helpers/SocketHelper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { launchImageLibrary } from 'react-native-image-picker';
+
+
+const SELECT_PICTURE_TEXT = "There was a problem selecting this picture. Please try again later";
 
 
 type ConversationParams = {
@@ -43,6 +47,7 @@ const Conversation = () => {
   const navigation = useNavigation();
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const route: any = useRoute();
   const params = route?.params as ConversationParams;
   const context = useContext(MainContext);
@@ -50,6 +55,7 @@ const Conversation = () => {
 
 
   const sendMessage = (
+    // Those arguments will be used when images will be sent
     type: 'string' | 'image' = 'string',
     uri: string | undefined = undefined
   ) => {
@@ -60,28 +66,31 @@ const Conversation = () => {
     const body = {
       convId: params?.ids[0],
       userId: context?.userId,
-      contentType: type,
-      content: type === 'string' ? newMessage.toString() : uri?.toString()
+      contentType: 'string',
+      content: newMessage.toString()
     };
 
     const socketBody = {
       to: params?.ids[1] === context?.userId ? params?.ids[2] : params?.ids[1],
       from: context?.userId,
       convId: params?.ids[0],
-      msg: type === 'string' ? newMessage.toString() : uri?.toString()
+      msg: newMessage.toString()
     }
 
     // use newMessage to send the message via the backend
-    SockHelper.emit('send-msg', socketBody);
     post(
       `/api/conversations/messages/new`,
       body,
       context?.token,
-      () => {
-        getConversation();
-        setNewMessage("");
+      (res) => {
+        SockHelper.emit('send-msg', socketBody);
+        addMessage(res?.data?.message)
+        return setNewMessage("");
       },
-      (err) => console.warn({ ...err })
+      (err) => {
+        ToastAndroid.show("Error sending your message", ToastAndroid.LONG);
+        return console.error("Error sending message: ", { ...err });
+      }
     );
   }
 
@@ -93,7 +102,10 @@ const Conversation = () => {
       });
 
       if (resp.errorCode) {
-        ToastAndroid.show(resp.errorMessage, ToastAndroid.SHORT);
+        ToastAndroid.show(
+          resp.errorMessage ?? SELECT_PICTURE_TEXT,
+          ToastAndroid.SHORT
+        );
         return console.error(resp.errorMessage);
       }
 
@@ -109,10 +121,14 @@ const Conversation = () => {
 
 
   const getConversation = () => {
+    setIsLoading(true);
     get(
       `/api/conversations/messages/${params?.ids[0]}`,
       context?.token,
-      (res: any) => setMessages(res?.data?.messages),
+      (res: any) => {
+        setMessages(res?.data?.messages);
+        setIsLoading(false);
+      },
       (err: any) => console.warn({...err})
     );
   }
@@ -124,12 +140,20 @@ const Conversation = () => {
   }
 
 
+  const addMessage = (msg: MessageType) => {
+    const new_messages: MessageType[] = [ ...messages, msg ];
+    return setMessages([ ...new_messages ]);
+  }
+
+
   useEffect(() => {
+    // Get messages
     getConversation();
 
+    // Get instant messages
     SockHelper.start(process.env.REACT_APP_API_URL, true);
     SockHelper.emit('add-user', context?.userId);
-    SockHelper.on('msg-recieve', getConversation);
+    SockHelper.on('msg-recieve', addMessage);
   }, []);
 
 
@@ -161,16 +185,26 @@ const Conversation = () => {
       </View>
 
       {/* Messages */}
-      <FlatList
-        data={messages}
-        renderItem={({ item }) => (
-          <TextBubble message={item} key={item._id} />
-        )}
-        keyExtractor={(msg: MessageType) => msg._id.toString()}
-        contentContainerStyle={styles.conversationContainer}
-        ref={_listRef}
-        onContentSizeChange={() => _listRef.current?.scrollToEnd()}
-      />
+      { isLoading ? (
+        <View style={styles.conversationContainer}>
+          <ActivityIndicator
+            color={colors.primary}
+            animating={true}
+          />
+        </View>
+      ) : (
+        <FlatList
+          data={messages}
+          renderItem={({ item }) => (
+            <TextBubble message={item} key={item._id} />
+          )}
+          keyExtractor={(msg: MessageType) => msg._id.toString()}
+          contentContainerStyle={styles.conversationContainer}
+          ref={_listRef}
+          onContentSizeChange={() => _listRef.current?.scrollToEnd()}
+          initialNumToRender={messages.length}
+        />
+      ) }
 
       {/* Input view */}
       <View style={styles.messageContainer}>

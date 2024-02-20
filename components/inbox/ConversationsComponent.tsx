@@ -1,7 +1,7 @@
 //* Standard imports
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View, FlatList, RefreshControl, processColor } from 'react-native'
+import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View, FlatList, RefreshControl, processColor, ToastAndroid } from 'react-native'
 
 //* Local imports
 import colors from '../../constants/colors';
@@ -10,6 +10,9 @@ import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import SockHelper from '../../helpers/SocketHelper';
 import Title from '../Title';
+
+
+const CONV_NOT_FOUND = "Error: couldn't find conversation to navigate to";
 
 
 type ConversationType = {
@@ -41,11 +44,44 @@ const ConversationsComponent = () => {
       context?.token,
       (res: any) => {
         setConversations([ ...(res.data['chats'] as ConversationType[]) ]);
-        console.log('got conversations');
         return setIsRefreshing(false);
       },
       (err: any) => console.error("Couldn't get conversations: ", err)
     );
+  }
+
+
+  const toggleRead = (id: string) => {
+    const mapCallback = (conv: ConversationType) => {
+      if (conv._id === id) {
+        conv.unreadMessages = !(conv.unreadMessages);
+      }
+      return conv;
+    }
+    const new_conversations: ConversationType[] = conversations.map(mapCallback);
+    return setConversations([ ...new_conversations ]);
+  }
+
+
+  const goToConversation = (convId: string) => {
+    const conv = conversations.find((c: ConversationType) => c._id === convId);
+    if (!conv) {
+      ToastAndroid.show(CONV_NOT_FOUND, ToastAndroid.LONG);
+      return console.error(CONV_NOT_FOUND);
+    }
+
+    const navObject = {
+      name: conv?.UserOneId === context?.userId ?
+        conv.UserTwoName : conv.UserOneName,
+      ids: [
+        conv._id,           // conversation ID
+        conv.UserOneId,     // user ID
+        conv.UserTwoId      // correspondant ID
+      ]
+    };
+
+    toggleRead(convId);
+    navigation?.navigate('single_conversation', navObject);
   }
 
 
@@ -57,15 +93,14 @@ const ConversationsComponent = () => {
 
 
   useEffect(() => {
-    // get conversations
-    console.log('getting conversations');
+    // Get conversations
     getConversations();
+
+    // Enable sockets (for instant messages)
     if (!SockHelper.isStarted()) {
       SockHelper.start(process.env.REACT_APP_API_URL, true);
     }
-    SockHelper.on('msg-recieve', (e: MessageType) => {
-      getConversations()
-    });
+    SockHelper.on('msg-recieve', getConversations);
   }, []);
 
 
@@ -76,18 +111,7 @@ const ConversationsComponent = () => {
         <TouchableOpacity
           key={item._id.toString()}
           style={styles.conversationView}
-          onPress={() => navigation?.navigate(
-            'single_conversation',
-            {
-              name: item?.UserOneId === context?.userId ? item.UserTwoName : item.UserOneName,
-              // ids: conversation ID, your ID, the correspondant ID
-              ids: [
-                item._id,
-                item.UserOneId,
-                item.UserTwoId
-              ]
-            }
-          )}
+          onPress={() => goToConversation(item._id)}
         >
           <View style={{ flexDirection: 'row', height: 60 }}>
 
