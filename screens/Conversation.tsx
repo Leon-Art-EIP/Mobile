@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -238,7 +238,7 @@ const Conversation = () => {
               styles.micView,
               { backgroundColor: '#E3F3FF', marginLeft: 'auto' }
             ]}
-            onPress={sendMessage}
+            onPress={() => sendMessage()}
           >
             <Image
               style={styles.micImage}
