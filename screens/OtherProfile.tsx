@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import profilePicture from '../assets/images/user.png'
-import bannerImage from '../assets/images/banner.jpg'
-import Button from '../components/Button';
-import colors from '../constants/colors';
-import { MainContext } from '../context/MainContext';
-import { get, post } from '../constants/fetch';
-import { getImageUrl } from '../helpers/ImageHelper';
+import React, { useState, useEffect, useContext } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+import AntDesign from 'react-native-vector-icons/AntDesign'
+// Local imports
+import { getImageUrl } from '../helpers/ImageHelper';
+import { MainContext } from '../context/MainContext';
+import { get, post, put } from '../constants/fetch';
+import colors from '../constants/colors';
+import Button from '../components/Button';
+import { Artwork, ConversationType, UserData } from '../utils/data';
 
 const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
-  const id = route?.params?.id;
+  const otherId = route?.params?.id;
   const context = useContext(MainContext);
   const token = context?.token;
 
@@ -24,163 +22,122 @@ const OtherProfile = ({ route }: any) => {
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState('Artwork');
+  const [conversationID, setConversationID] = useState<string>("");
+  const [conversation, setConversation] = useState<ConversationType>();
+
 
   const handleArtworkClick = (publicationId: string) => {
-    navigation.navigate('singleart', { id: publicationId });
-    
+    navigation.navigate('singleart', { otherID: publicationId });
   };
 
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
 
-  const handleContactButtonClick = () => {
-    // navigation.navigate('single_conversation', { id: id, name: userData?.username });
-    // navigation?.navigate(
-    //   'single_conversation',
-    //   {
-    //     name: conversation?.UserOneId === context?.userId ? conversation['UserTwoName'] : conversation['UserOneName'],
-    //     // ids: conversation ID, your ID, the correspondant ID
-    //     ids: [
-    //       conversation['_id'],
-    //       conversation['UserOneId'],
-    //       conversation['UserTwoId']
-    //     ]
-    //   }
-    // )
-  };
-
   const handleFollowButtonClick = async () => {
-    try {
-      if (token) {
-        const url = `/api/follow/${id}`;
-        const body = undefined;
-        const callback = () => {
-          setIsFollowing(!isFollowing);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Erreur de follow :', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-        };
-
-        post(url, body, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-    }
+    const success = (response) => {
+      setIsFollowing(!isFollowing);
+    };
+    post(
+      `/api/follow/${otherId}`,
+      undefined,
+      token,
+      success,
+      (err: any) => console.warn('Error following user: ', {...err}),
+    );
     fetchUserData();
   };
 
-
-  const checkIsFollowing = async () => {
-    try {
-      if (token) {
-        get(
-          "/api/follow/following",
-          token,
-          (response: any) => setIsFollowing(
-            response.data?.subscriptions.some(
-              (subscription: { _id: string }) => subscription._id === id
-            )
-          ),
-          (error: any) => console.error({ ...error })
-        );
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Erreur', 'Veuillez vous reconnecter');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la vérification du suivi :', error);
-    }
+  const handleContactButtonClick = async () => {
+    await fetchConversation();
+    navigateToConversation();
   };
 
-  interface Artwork {
-    _id: string;
-    userId: string;
-    image: string;
-    artType: string;
-    name: string;
-    description: string;
-    dimension: string;
-    isForSale: boolean;
-    price: number;
-    location: string;
-    likes: any[];
-    comments: any[];
-    __v: number;
-  }
+  const fetchConversation = () => {
+    const body = {
+      UserOneId: context?.userId,
+      UserTwoId: otherId,
+    };
+    const success = (response) => {
+      setConversationID(response.data.convId);
+      get(
+        `/api/conversations/single/${conversationID}`,
+        token,
+        (response2: any) => setConversation(response2.data.chat),
+        (err: any) => console.warn('Error fetching conversation : ', {...err}),
+      );
+    };
+    put(
+      `/api/conversations/create`,
+      body,
+      token,
+      success,
+      (err: any) => console.warn('Error accessing conversation : ', {...err}),
+    );
+  };
+
+  const navigateToConversation = () => {
+    console.log(conversation);
+    console.log("UserOneId " + conversation?.UserOneId);
+
+    const name = conversation?.UserOneId === context?.userId
+    ? conversation?.UserTwoName
+    : conversation?.UserOneName;
+
+
+    const ids = [
+      conversation?._id || '',
+      conversation?.UserOneId || '',
+      conversation?.UserTwoId || ''
+    ].map(String);
+
+    console.log('Name 1:', conversation?.UserOneName);
+    console.log('Name 2:', conversation?.UserTwoName);
+    console.log('SelfID:', context?.userId);
+    console.log('Name to be sent:', name);
+
+    navigation?.navigate('single_conversation', {
+      name: name || '',
+      ids: ids
+    });
+  };
+
 
   const fetchUserArtworks = async () => {
-    try {
-      const token = context?.token;
-      if (token) {
-        get(
-          `/api/art-publication/user/${id}`,
-          token,
-          (response: any) => setUserArtworks(response.data),
-          (error: any) => console.error({ ...error })
-        )
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert("Erreur", "Veuillez vous reconnecter");
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
-    }
+    get(
+      `/api/art-publication/user/${otherId}`,
+      token,
+      (response: any) => setUserArtworks(response.data),
+      (err: any) => console.warn('Error fetching user artworks : ', {...err}),
+    );
   };
 
   const fetchUserData = async () => {
-    try {
-      if (token) {
-        const url = `/api/user/profile/${id}`;
-        const callback = (response) => {
-          setUserData(response.data);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user data:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-        };
-
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-    }
+    get(
+      `/api/user/profile/${otherId}`,
+      token,
+      (response: any) => setUserData(response.data),
+      (err: any) => console.warn('Error fetching user datas : ', {...err}),
+    );
   };
 
+  const checkIsFollowing = async () => {
+    get(
+      "/api/follow/following",
+      token,
+      (response: any) => setIsFollowing(
+        response.data?.subscriptions.some(
+          (subscription: { _id: string }) => subscription._id === otherId
+        )
+      ),
+      (err: any) => console.warn('Error checking following : ', {...err}),
+    );
+  };
 
   useEffect(() => {
     fetchUserData();
     fetchUserArtworks();
+    fetchConversation();
     checkIsFollowing();
   }, []);
 
@@ -193,7 +150,7 @@ const OtherProfile = ({ route }: any) => {
     <SafeAreaView style={styles.container}>
     <ScrollView nestedScrollEnabled>
       <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
-      {/* Bouton de retour en haut à gauche */}
+      {/* Back button */}
       <TouchableOpacity
         onPress={() => handleBackButtonClick()}
         style={styles.backButton}
@@ -205,7 +162,7 @@ const OtherProfile = ({ route }: any) => {
           size={24}
         />
       </TouchableOpacity>
-      {/* Bannière */}
+      {/* Banner */}
       <View style={styles.banner}>
         <Image
           source={{ uri: getImageUrl(userData?.bannerImage) }}
@@ -213,7 +170,7 @@ const OtherProfile = ({ route }: any) => {
           resizeMode="cover"
         />
       </View>
-      {/* Photo de profile */}
+      {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
@@ -223,29 +180,27 @@ const OtherProfile = ({ route }: any) => {
           />
         </View>
       </View>
-      {/* Blocs de texte */}
+      {/* Text blocks */}
       <View style={styles.textBlocks}>
-        {/* Bloc de texte follower */}
+        {/* Followers text block */}
         <View style={styles.textBlock}>
           <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
           <Text style={styles.title}>followers</Text>
         </View>
-
-        {/* Bloc de texte au centre */}
+        {/* Center text block */}
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
           {userData && userData.availability !== "unavailable" && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
           )}
         </View>
-
-        {/* Bloc de texte posts */}
+        {/* Posts text block */}
         <View style={styles.textBlock}>
           <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
-      {/* Boutons "Suivre" et "Ecrire" */}
+      {/* Follow and Contact buttons */}
       <View style={styles.contactAndFollow}>
         <Button
           value={isFollowing ? "Suivi" : "Suivre"}
@@ -267,9 +222,9 @@ const OtherProfile = ({ route }: any) => {
           onPress={() => handleContactButtonClick()}
           />
       </View>
-      {/* Trait décoratif de séparation */}
+      {/* Decorative line */}
       <View style={styles.decorativeLine} />
-      {/* Boutons d'onglet, "Artwork", "Collections" et "A propos" */}
+      {/* Tab selections buttons : Artwork, Collections and About */}
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
@@ -296,7 +251,7 @@ const OtherProfile = ({ route }: any) => {
           onPress={() => setActiveTab('A propos')}
           />
       </View>
-      {/* Ensembles de cadres carrés */}
+      {/* Artwork tab */}
       {activeTab === 'Artwork' &&
         <View style={styles.squareContainer}>
           {userArtworks.map((artwork, index) => (

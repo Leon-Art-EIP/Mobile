@@ -5,11 +5,11 @@ import Conversation from "../screens/Conversation";
 import SingleArt from '../screens/SingleArt';
 
 const OtherProfileNavigator = () => {
-  const Stack = createNativeStackNavigator();
-
   // disables header for this navigator
   const options = { headerShown: false };
+  const Stack = createNativeStackNavigator();
 
+  
   return (
     <Stack.Navigator>
       <Stack.Screen name="other_profile" component={OtherProfile} options={options} />

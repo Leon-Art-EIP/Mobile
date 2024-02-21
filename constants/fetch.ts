@@ -87,8 +87,45 @@ const del = (
   .catch(onErrorCallback);
 }
 
+const put = (
+  url = '/',
+  body = undefined,
+  token = undefined,
+  callback = () => {},
+  onErrorCallback = (e) => {
+    console.error('post failed with code ', e.response ? e.response.status : e);
+  }
+) => {
+  if (!token) {
+    console.warn('Token is empty');
+  }
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
+
+  const requestUrl = BACKEND + url;
+  console.log(requestUrl);
+
+  // Setting up headers
+  let headers = {
+    Authorization: 'Bearer ' + token,
+  };
+
+  // If body is FormData, set Content-Type to multipart/form-data
+  if (body instanceof FormData) {
+    headers['Content-Type'] = 'multipart/form-data';
+  }
+
+  axios.put(requestUrl, body, {
+    headers: headers
+  })
+  .then(callback)
+  .catch(onErrorCallback);
+};
+
 export {
   get,
   post,
   del,
+  put,
 };

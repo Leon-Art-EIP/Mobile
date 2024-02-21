@@ -31,3 +31,27 @@ export interface UserData {
     profilePicture: string;
     biography: string;
   }
+
+export interface Conversation {
+  _id: "string",
+  lastMessage: "string",
+  unreadMessages: true,
+  UserOneId: "string",
+  UserOneName: "string",
+  UserOnePicture: "string",
+  UserTwoId: "string",
+  UserTwoName: "string",
+  UserTwoPicture: "string"
+}
+
+export type ConversationType = {
+  "_id": string;
+  "lastMessage": string;
+  "unreadMessages": boolean;
+  "UserOneId": string;
+  "UserOneName": string;
+  "UserOnePicture": string;
+  "UserTwoId": string;
+  "UserTwoName": string;
+  "UserTwoPicture": string;
+};

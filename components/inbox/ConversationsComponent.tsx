@@ -44,7 +44,6 @@ const ConversationsComponent = () => {
     );
   }
 
-
   useEffect(() => {
     // get conversations
     getConversations();
