@@ -7,23 +7,23 @@ const get = (
   token: string | undefined = undefined,
   callback: ((response: any) => void) = () => {},
   onErrorCallback: ((error: any) => void) = (e: any) => {
-    console.error("get failed: ", { ...e });
+    console.error("🔴 GET action failed: ", { ...e });
   }
 ) => {
   if (!token) {
-    console.warn("Token is empty");
+    console.log('🟡 Token is empty');
   }
   if (!BACKEND) {
-    return console.warn('Backend url is empty');
+    return console.log('🟡 Backend url is empty');
   }
 
   const requestUrl = BACKEND + url;
-  console.log(requestUrl);
 
   axios.get(requestUrl, { 'headers': { 'Authorization': 'Bearer ' + token } })
   .then(callback)
   .catch(onErrorCallback);
 }
+
 
 const post = (
   url = '/',
@@ -31,18 +31,17 @@ const post = (
   token = undefined,
   callback = () => {},
   onErrorCallback = (e) => {
-    console.error('post failed with code ', e.response ? e.response.status : e);
+    console.error('🔴 POST action failed: ', e.response ? e.response.status : e);
   }
 ) => {
   if (!token) {
-    console.warn('Token is empty');
+    console.log('🟡 Token is empty');
   }
   if (!BACKEND) {
-    return console.warn('Backend url is empty');
+    return console.log('🟡 Backend url is empty');
   }
 
   const requestUrl = BACKEND + url;
-  console.log(requestUrl);
 
   // Setting up headers
   let headers = {
@@ -67,16 +66,16 @@ const del = (
   token: string | undefined = undefined,
   callback: ((response: any) => void) = () => {},
   onErrorCallback: ((error: any) => void) = (e: any) => {
-    console.error("get failed with code ", e.response.status);
+    console.error("🔴 DEL action failed: ", e.response.status);
   }
 ) => {
   let headers = { 'headers': { 'Authorization': 'Bearer ' + token }};
 
   if (!token) {
-    // console.warn("Token is empty");
+    console.log('🟡 Token is empty');
   }
   if (!BACKEND) {
-    return console.warn('Backend url is empty');
+    return console.log('🟡 Backend url is empty');
   }
 
   const requestUrl = BACKEND + url;
@@ -93,18 +92,17 @@ const put = (
   token = undefined,
   callback = () => {},
   onErrorCallback = (e) => {
-    console.error('post failed with code ', e.response ? e.response.status : e);
+    console.error('🔴 PUT action failed: ', e.response ? e.response.status : e);
   }
 ) => {
   if (!token) {
-    console.warn('Token is empty');
+    console.log('🟡 Token is empty');
   }
   if (!BACKEND) {
-    return console.warn('Backend url is empty');
+    return console.log('🟡 Backend url is empty');
   }
 
   const requestUrl = BACKEND + url;
-  console.log(requestUrl);
 
   // Setting up headers
   let headers = {
