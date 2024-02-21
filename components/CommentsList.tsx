@@ -15,27 +15,6 @@ const CommentsList = ({ id }) => {
     fetchComments();
   }, [id]);
 
-  // const fetchComments = () => {
-  //   if (!context?.token) {
-  //     return
-  //   }
-  //   get(
-  //     `/api/art-publication/comment/${id}`,
-  //     context?.token,
-  //     (response) => {
-  //       if (response && response.data) {
-  //         setComments(response.data);
-  //         // getUsername(response.data);
-  //         console.log("CONSOLEKNLDJBJKB", response.data);
-  //       } else {
-  //         console.error('Invalid response:', response);
-  //       }
-  //     },
-  //     (error) => {
-  //       console.error("Error fetching comments:", error);
-  //     }
-  //   );
-  // };
 
   const getUsername = (userId) => {
     if (!context?.token) {
@@ -108,7 +87,7 @@ const CommentsList = ({ id }) => {
       {comments.map((comment, index) => (
         <View key={index} style={styles.commentContainer}>
           <View style={styles.commentContent}>
-            <Text style={{ fontWeight: 'bold', marginRight: 5 }}>
+            <Text style={{ fontWeight: 'bold', marginRight: 5, color: colors.darkGreyFg, fontSize: 15, }}>
               {usernames[comment.userId]}
             </Text>
             <Text>{comment.text}</Text>
@@ -140,6 +119,7 @@ const styles = StyleSheet.create({
   },
   commentContent: {
     flex: 1,
+    marginBottom: 7,
   },
   publishedTime: {
     marginLeft: 'auto',
