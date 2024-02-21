@@ -20,25 +20,15 @@ const GeneralConditions = () => {
   };
 
   const fetchGeneralCondition = async () => {
-    try {
-      if (token) {
-        const url = `/api/conditions/`;
-        const callback = (response) => {
-          setConditions(response.data.conditions);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching general conditions:', error);
-          Alert.alert('Error', 'Les conditions générales de vente n\'ont pas pu être récupérées.');
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
-    }
+    const url = `/api/conditions/`;
+    const callback = (response) => {
+      setConditions(response.data.conditions);
+    };
+    const onErrorCallback = (error) => {
+      console.log('🔴 Error fetching general conditions:', error);
+      Alert.alert('Une erreur s\'est produite', 'Les conditions générales de vente n\'ont pas pu être récupérées.');
+    };
+    get(url, token, callback, onErrorCallback);
   };
 
   useEffect(() => {

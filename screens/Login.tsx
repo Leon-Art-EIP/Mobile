@@ -22,7 +22,7 @@ const Login = ({ navigation }: any) => {
   const onLogin = async (response: any) => {
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
-      console.log("🟢 User connected, token retrieved:\n" + tokenFromDB + '\n');
+      console.log("🟢 User connected, token retrieved:\n\t" + tokenFromDB + '\n');
 
       try {
         await AsyncStorage.setItem('jwt', tokenFromDB);

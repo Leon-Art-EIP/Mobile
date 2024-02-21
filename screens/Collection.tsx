@@ -31,30 +31,21 @@ const Collection = ({ navigation, route }: any) => {
   };
 
   const handleDeleteConfirmed = () => {
-    try {
-      if (token) {
-        const url = `/api/collection/${collectionId}`;
-        const body = {
-          collectionId: collectionId,
-        };
-        const callback = (response) => {
-          console.log('Collection : \"' + collectionName + '\" deleted.');
-          navigation.goBack();
-          Alert.alert('Collection supprimée', 'collectionName');
-        };
-        const onErrorCallback = (error) => {
-          console.error('Une erreur s\'est produite lors de la supprésion de la collection.:', error);
-          // Alert.alert('Erreur', 'Une erreur s\'est produite lors de la supprésion de la collection.');
-        };
-        del(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        // Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du token JWT :', error);
-      // Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
-    }
+    const url = `/api/collection/${collectionId}`;
+    const body = {
+      collectionId: collectionId,
+    };
+    const callback = (response) => {
+      console.log('🟢 Collection : \"' + collectionName + '\" deleted.');
+      navigation.goBack();
+      Alert.alert('Collection supprimée', 'collectionName');
+    };
+    const onErrorCallback = (error) => {
+      console.log('🔴 Error deleting collection :\"' + collectionName + '\"', error);
+      Alert.alert('Erreur', 'Une erreur s\'est produite lors de la supprésion de la collection.');
+    };
+    del(url, token, callback, onErrorCallback);
+
     // Ferme la modal après la suppression
     setDeleteModalVisible(false);
   };
@@ -101,7 +92,7 @@ const Collection = ({ navigation, route }: any) => {
               source={{ uri: `${API_URL}api/${artwork.image}` }}
               style={{ flex: 1, borderRadius: 10 }}
               resizeMode="cover"
-              onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
+              onError={(error) => console.log(`🔴 Error loading image ${index}:`, error.nativeEvent)}
             />
           </TouchableOpacity>
         ))}

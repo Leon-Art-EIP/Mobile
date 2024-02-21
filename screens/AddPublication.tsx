@@ -46,7 +46,7 @@ const AddPublication = ({ navigation } : any) => {
           data: fileData
         });
       } catch (error) {
-        console.error('Error preparing image:', error);
+        console.log('🔴 Error preparing image:', error);
         return;
       }
     }
@@ -57,10 +57,10 @@ const AddPublication = ({ navigation } : any) => {
       context?.token,
       () => navigation.navigate('main'),
       (error) => {
-        console.error('Error publishing:', error);
+        console.log('🔴 Error publishing:', error);
         if (error.response && error.response.data && error.response.data.errors) {
           error.response.data.errors.forEach(err => {
-            console.error(`Validation error - ${err.param}: ${err.msg}`);
+            console.log(`🔴 Validation error - ${err.param}: ${err.msg}`);
           });
         }
       }
@@ -77,15 +77,15 @@ const AddPublication = ({ navigation } : any) => {
       const response = await launchImageLibrary(options);
 
       if (response.didCancel) {
-        console.log('User cancelled image picker');
+        console.log('🟢 User cancelled image picker');
       } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
+        console.log('🔴 ImagePicker Error: ', response.error);
       } else {
         const source = { uri: response.assets[0].uri };
         setSelectedImage(source.uri);
       }
     } catch (error) {
-      console.error('An error occurred while picking the image:', error);
+      console.error('🔴 An error occurred while picking the image:', error);
     }
   };
 

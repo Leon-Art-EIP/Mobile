@@ -65,7 +65,6 @@ const Conversation = () => {
     }
 
     // use newMessage to send the message via the backend
-    console.log(socketBody);
     SockHelper.emit('send-msg', socketBody);
     post(
       `/api/conversations/messages/new`,
@@ -75,7 +74,7 @@ const Conversation = () => {
         getConversation();
         setNewMessage("");
       },
-      (err) => console.warn({ ...err })
+      (err) => console.log('🔴 Error sending message:', { ...err})
     );
   }
 
@@ -85,7 +84,7 @@ const Conversation = () => {
       `/api/conversations/messages/${params?.ids[0]}`,
       context?.token,
       (res: any) => setMessages(res?.data?.messages),
-      (err: any) => console.warn({...err})
+      (err: any) => console.log('🔴 Error fetching messages:', { ...err})
     );
   }
 
