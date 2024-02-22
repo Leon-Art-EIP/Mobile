@@ -71,9 +71,9 @@ const EditProfile = () => {
       const response = await launchImageLibrary(options);
   
       if (response.didCancel) {
-        console.log('User cancelled image picker');
+        console.log('🟢 User cancelled image picker');
       } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
+        console.log('🔴 ImagePicker Error: ', response.error);
       } else {
         const source = { uri: response.assets[0].uri };
         if (source.uri !== undefined) {
@@ -82,12 +82,12 @@ const EditProfile = () => {
         }
       }
     } catch (error) {
-      console.error('An error occurred while picking the image:', error);
+      console.log('🔴 An error occurred while picking the image:', error);
     }
   };
   
   const uploadProfilePicture = async () => {
-    console.log("Selected: " + selectedProfilePicture);
+    console.log("🟢 Image selected as profile picture: " + selectedProfilePicture);
   
     const formData = new FormData();
     if (selectedProfilePicture) {
@@ -100,7 +100,7 @@ const EditProfile = () => {
           data: fileData
         });
       } catch (error) {
-        console.error('Error preparing image:', error);
+        console.log('🔴 Error preparing image:', error);
         return;
       }
     }
@@ -110,14 +110,13 @@ const EditProfile = () => {
       formData,
       context?.token,
       (response) => {
-        // setUserData(response.data);
         setProfilePicture(response.data.profilePicture);
       },
       (error) => {
-        console.error('Error publishing:', error);
+        console.log('🔴 Error publishing:', error);
         if (error.response && error.response.data && error.response.data.errors) {
           error.response.data.errors.forEach(err => {
-            console.error(`Validation error - ${err.param}: ${err.msg}`);
+            console.log(`🔴 Validation error - ${err.param}: ${err.msg}`);
           });
         }
       }
@@ -134,9 +133,9 @@ const EditProfile = () => {
       const response = await launchImageLibrary(options);
   
       if (response.didCancel) {
-        console.log('User cancelled image picker');
+        console.log('🟢 User cancelled image picker');
       } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
+        console.log('🔴 ImagePicker Error: ', response.error);
       } else {
         const source = { uri: response.assets[0].uri };
         if (source.uri !== undefined) {
@@ -145,12 +144,13 @@ const EditProfile = () => {
         }
       }
     } catch (error) {
-      console.error('An error occurred while picking the image:', error);
+      console.log('🔴 An error occurred while picking the image:', error);
     }
   };
   
   const uploadBanner = async () => {
-    console.log("Selected: " + selectedBanner);
+    console.log("🟢 Image selected as banner: " + selectedBanner);
+
   
     const formData = new FormData();
     if (selectedBanner) {
@@ -163,7 +163,7 @@ const EditProfile = () => {
           data: fileData
         });
       } catch (error) {
-        console.error('Error preparing image:', error);
+        console.log('🔴 Error preparing image:', error);
         return;
       }
     }
@@ -177,10 +177,10 @@ const EditProfile = () => {
         setBanner(response.data.bannerPicture);
       },
       (error) => {
-        console.error('Error publishing:', error);
+        console.log('🔴 Error publishing:', error);
         if (error.response && error.response.data && error.response.data.errors) {
           error.response.data.errors.forEach(err => {
-            console.error(`Validation error - ${err.param}: ${err.msg}`);
+            console.log(`🔴 Validation error - ${err.param}: ${err.msg}`);
           });
         }
       }
@@ -188,7 +188,7 @@ const EditProfile = () => {
   };
 
   const handleSaveModifications = () => {
-    console.log("Modifications saved.");
+    console.log("🟢 Profile modifications saved.");
     // Save new biography
     saveBiography();
     // Save availability
@@ -199,111 +199,78 @@ const EditProfile = () => {
   }
 
   const saveBiography = () => {
-    try {
-      if (token) {
-        const url = `/api/user/profile/bio`;
-        const body = {
-          biography: biography
-        };
-        const callback = (response) => {
-          setUserData(response.data);
-          if (userData?.biography !== undefined) setBiography(userData.biography);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error saving modifications:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
-        };
-
-        post(url, body, token, callback, onErrorCallback);
+    const url = `/api/user/profile/bio`;
+    const body = {
+      biography: biography
+    };
+    const callback = (response) => {
+      setUserData(response.data);
+      if (userData?.biography !== undefined) setBiography(userData.biography);
+    };
+    const onErrorCallback = (error) => {
+      console.log('🔴 Error saving modifications:', error);
+      if (error.response) {
+        // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+        console.log('🔴 Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        // La requête a été effectuée mais aucune réponse n'a été reçue
+        console.log('🔴 No response received from server');
       } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Une erreur s'est produite lors de la configuration de la requête
+        console.log('🔴 Error setting up the request:', error.message);
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-    }
+      Alert.alert('Une erreur est survenue.', 'Les modifications n\'ont pas pu être sauvegardées.');
+    };
+
+    post(url, body, token, callback, onErrorCallback);
   };
 
   const saveIsAvailable = () => {
-    try {
-      if (token) {
-        const url = `/api/user/profile/availability`;
-        const body = {
-          availability: isAvailable
-        };
-        const callback = (response) => {
-          setUserData(response.data);
-          if (userData?.availability !== undefined) setIsAvailable(userData.availability);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error saving modifications:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
-        };
-
-        post(url, body, token, callback, onErrorCallback);
+    const url = `/api/user/profile/availability`;
+    const body = {
+      availability: isAvailable
+    };
+    const callback = (response) => {
+      setUserData(response.data);
+      if (userData?.availability !== undefined) setIsAvailable(userData.availability);
+    };
+    const onErrorCallback = (error) => {
+      console.log('🔴 Error saving modifications:', error);
+      if (error.response) {
+        // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+        console.log('🔴 Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        // La requête a été effectuée mais aucune réponse n'a été reçue
+        console.log('🔴 No response received from server');
       } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        // Une erreur s'est produite lors de la configuration de la requête
+        console.log('🔴 Error setting up the request:', error.message);
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-    }
+      Alert.alert('Une erreur est survenue.', 'Les modifications n\'ont pas pu être sauvegardées.');
+    };
+      
+    post(url, body, token, callback, onErrorCallback);
   };
 
   const fetchUserData = async () => {
-    try {
-      if (token) {
-        const url = `/api/user/profile/${userID}`;
-        const callback = (response) => {
-          setUserData(response.data);
-          // console.log(response.data);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user data:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-        };
-
-        get(url, token, callback, onErrorCallback);
+    const url = `/api/user/profile/${userID}`;
+    const callback = (response) => {
+      setUserData(response.data);
+      console.log("🟢 User data fetched");
+    };
+    const onErrorCallback = (error) => {
+      Alert.alert('Une erreur est survenue.', 'Vos informations n\'ont pas pu être récupérées.');
+      console.log('🔴 Error fetching user data:', error);
+      if (error.response) {
+        console.log('🔴 Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        console.log('🔴 No response received from server');
       } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        console.log('🔴 Error setting up the request:', error.message);
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-    }
+    };
+
+    get(url, token, callback, onErrorCallback);
   };
 
   useFocusEffect(
@@ -318,10 +285,8 @@ const EditProfile = () => {
         if (userData?.availability !== undefined) setIsAvailable(userData.availability);
         if (userData?.profilePicture !== undefined) setProfilePicture(userData.profilePicture);
         if (userData?.bannerPicture !== undefined) setBanner(userData.bannerPicture);
-        // console.log("Selected Profile Picture URI:", selectedProfilePicture);
       } catch (error) {
-        console.error('Error fetching user data:', error);
-        // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+        console.log('🔴 Error updating screen:', error);
       }
     };
 
@@ -361,7 +326,7 @@ const EditProfile = () => {
           <Image
           source={{ uri: getImageUrl(profilePicture) }}
           style={styles.profilePicture}
-          onError={(error) => console.error("Error loading profile picture:", error)}
+          onError={(error) => console.log("🔴 Error loading profile picture:", error)}
           />
         </View>
         <TouchableOpacity

@@ -33,11 +33,11 @@ const FollowersComponent = () => {
     is_artist: boolean;
     availability: string;
     subscription: string;
-    collections: any[]; // Replace with the actual type
-    subscriptions: any[]; // Replace with the actual type
-    subscribers: any[]; // Replace with the actual type
+    collections: any[];
+    subscriptions: any[];
+    subscribers: any[];
     subscribersCount: number;
-    likedPublications: any[]; // Replace with the actual type
+    likedPublications: any[];
     canPostArticles: boolean;
     __v: number;
     bannerPicture: string;
@@ -45,26 +45,16 @@ const FollowersComponent = () => {
   }
 
   const fetchUserData = async () => {
-    try {
-      const token = await AsyncStorage.getItem('jwt');
-      const userId = await AsyncStorage.getItem('id');
-      if (token) {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const response = await axios.get<UserData>(
-          `${API_URL}api/user/profile/${userId}`,
-          { headers }
-        );
-        setUserData(response.data);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-    }
+    const token = await AsyncStorage.getItem('jwt');
+    const userId = await AsyncStorage.getItem('id');
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    const response = await axios.get<UserData>(
+      `${API_URL}api/user/profile/${userId}`,
+      { headers }
+    );
+    setUserData(response.data);
   };
 
   const fetchFollowers = async (userIds: string[]) => {
