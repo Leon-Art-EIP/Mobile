@@ -13,7 +13,7 @@ const Title = ({
   children = "Title",
   style = {},
   bold = true,
-  size = 42
+  size = 35
 }: TitleProps) => {
   const getFontSize = () => {
     return {
