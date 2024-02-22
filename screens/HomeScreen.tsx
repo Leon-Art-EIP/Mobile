@@ -26,7 +26,6 @@ import ArtistCard from "../components/ArtistCard";
 import ArticleCard from '../components/ArticleCard';
 
 const HomeScreen = ({ navigation }: any) => {
-  console.log('HomeScreen mounted');
   const context = useContext(MainContext);
   const [artists, setArtists] = useState<ArtistType[]>([]);
   const [articles, setArticles] = useState<ArticleType[]>([]);
@@ -52,7 +51,7 @@ const HomeScreen = ({ navigation }: any) => {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
       get(
-      "/api/article/latest?limit=5&page=0",
+      "/api/article/latest?limit=10&page=0",
       context?.token,
       (response) => {
         setArticles(response?.data || []);
@@ -176,7 +175,6 @@ const HomeScreen = ({ navigation }: any) => {
         </View>
 
         {/* Artistes */}
-
         <View>
           <Title
             size={24}
@@ -207,12 +205,11 @@ const HomeScreen = ({ navigation }: any) => {
               showsHorizontalScrollIndicator={false}
               horizontal
               nestedScrollEnabled
-              renderItem={(e: ListRenderItemInfo<ArtistType>) => (
+              renderItem={(e: ListRenderItemInfo<ArtistType>) => e.item._id === context?.userId ? (<></>) : (
                 <ArtistCard
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
                   path="other_profile"
-                  // style={{ marginRight: 8 }}
                 />
               )}
             />
@@ -221,28 +218,30 @@ const HomeScreen = ({ navigation }: any) => {
 
         {/* Pour Vous */}
 
-    <View>
-      <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
-        Publications
-      </Title>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <View>
+        <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+          Publications
+        </Title>
+
         <View style={styles.publicationsContainer}>
-          {publications.map((publication, index) => (
-            <TouchableOpacity key={publication._id} onPress={() => towardsPost(publication._id)}>
-              <View style={styles.publicationItem}>
-                <Image
-                  style={styles.publicationImage}
-                  source={{ uri: getImageUrl(publication.image) }}
-                  onError={() => console.log("Image loading error")}
-                />
-                {/* <Text style={styles.publicationTitle}>{publication.name}</Text> */}
-              </View>
-            </TouchableOpacity>
-          ))}
+          <FlatList
+            data={publications.filter((pub) => pub?.userId !== context?.userId)}
+            numColumns={3}
+            renderItem={(e) => (
+              <TouchableOpacity key={e.item._id} onPress={() => towardsPost(e.item._id)}>
+                <View style={styles.publicationItem}>
+                  <Image
+                    style={styles.publicationImage}
+                    source={{ uri: getImageUrl(e.item.image) }}
+                    onError={() => console.log("Image loading error")}
+                  />
+                </View>
+              </TouchableOpacity>
+            )}
+          />
         </View>
-      </ScrollView>
-    </View>
-  </ScrollView>
+      </View>
+    </ScrollView>
   </SafeAreaView>
   );
 }

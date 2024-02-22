@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 // Local imports
@@ -12,11 +12,16 @@ import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { Artwork, UserData } from '../utils/data';
+import { mh4 } from '../constants/styles';
+
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
+
 const Profile = () => {
   const navigation = useNavigation();
+
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
@@ -26,17 +31,21 @@ const Profile = () => {
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
 
+
   const handleToFollowerList = () => {
     navigation.navigate('follower_list');
   };
+
 
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
 
+
   const handleEditButtonClick = () => {
     navigation.navigate('edit_profile');
   };
+
 
   const handleSettingsButtonClick = () => {
     navigation.navigate('settings');
@@ -85,14 +94,18 @@ const Profile = () => {
       );
   };
 
+
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
 
+
   useEffect(() => {
+    setIsRefreshing(true);
     fetchUserData();
     updateCollections();
   }, []);
+
 
 
   return (
@@ -260,7 +273,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center', // Ajoutez cette ligne
   },
-  banner: { 
+  banner: {
     backgroundColor: 'lightblue',
     height: 180,
     width: '100%',
@@ -357,7 +370,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
     borderRadius: 10,
     margin: 5,
-  },  
+  },
   squareContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
