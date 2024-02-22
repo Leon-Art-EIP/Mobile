@@ -1,62 +1,66 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 // Local imports
 import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
-import profilePicture from '../assets/images/user.png'
-import bannerImage from '../assets/images/banner.jpg'
 import emptyCollectionImage from '../assets/icons/hamburger.png'
 import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
-import { get, post } from '../constants/fetch';
+import { get } from '../constants/fetch';
 import { getImageUrl } from '../helpers/ImageHelper';
+import { mh4 } from '../constants/styles';
+
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
+
 const Profile = () => {
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('Artwork'); 
+  const [activeTab, setActiveTab] = useState('Artwork');
   const [userCollections, setUserCollections] = useState([]);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
+
 
   const handleToFollowerList = () => {
     // TODO : rendre dynamique
     navigation.navigate('follower_list');
   };
 
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
+
 
   const handleEditButtonClick = () => {
     navigation.navigate('edit_profile');
   };
 
+
   const handleSettingsButtonClick = () => {
     navigation.navigate('settings');
   };
 
-  // TODO : remplacer pars cette version quand SingleArt est ready
-  // const handleArtworkClick = (pageName, artworkId) => {
-  //   navigation.navigate(pageName, artworkId);
-  // };
-  const handleArtworkClick = (pageName) => {
-    navigation.navigate(pageName);
+
+  const handleArtworkClick = (id: string) => {
+    navigation.navigate('singleArt', { id: id });
   };
+
 
   const handleCollectionClick = (collction) => {
     navigation.navigate('collection', { collection: collction});
   };
+
 
   interface Artwork {
     _id: string;
@@ -159,34 +163,42 @@ const Profile = () => {
     }
   };
 
+
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
 
+
   useEffect(() => {
+    setIsRefreshing(true);
     fetchUserData();
     updateCollections();
   }, []);
 
+
   const updateCollections = async () => {
-      try {
-        const token = context?.token;
-        if (token) {
-          get(
-            `/api/collection/my-collections`,
-            token,
-            (response: any) => setUserCollections(response.data),
-            (error: any) => console.error({ ...error })
-          )
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          Alert.alert("Erreur", "Veuillez vous reconnecter");
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des collections de l\'utilisateur :', error);
-        Alert.alert('Erreur de récupération des collections', 'Une erreur s\'est produite.');
+    try {
+      const token = context?.token;
+      if (token) {
+        get(
+          `/api/collection/my-collections`,
+          token,
+          (response: any) => {
+            setUserCollections(response.data);
+            setIsRefreshing(false);
+          },
+          (error: any) => console.error({ ...error })
+        )
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert("Erreur", "Veuillez vous reconnecter");
       }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des collections de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des collections', 'Une erreur s\'est produite.');
+    }
   }
+
 
   return (
     <ScrollView nestedScrollEnabled>
@@ -229,8 +241,10 @@ const Profile = () => {
           />
         </View>
       </View>
+
       {/* Text blocks : followers, name and posts*/}
       <View style={styles.textBlocks}>
+
         {/* Bloc de texte followers */}
         <View style={styles.textBlock}>
           <TouchableOpacity onPress={handleToFollowerList}>
@@ -249,14 +263,16 @@ const Profile = () => {
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
             )}
         </View>
-        
+
         <View style={styles.textBlock}>
           <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
+
       {/* Decorative line */}
       <View style={styles.decorativeLine} />
+
       {/* Tab selections button : Artwork, Collections and About */}
       <View style={styles.tabsNavigation}>
         <Button
@@ -284,27 +300,44 @@ const Profile = () => {
           onPress={() => setActiveTab('A propos')}
           />
       </View>
-      {activeTab === 'Artwork' &&
+
+      {/* Artworks */}
+      { activeTab === 'Artwork' && (
         <View style={styles.squareContainer}>
-          {userArtworks.map((artwork, index) => (
-            <TouchableOpacity
-              key={artwork._id}
-              style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-              onPress={() => handleArtworkClick(artwork._id)}
-            >
-              <Image
-                style={styles.artworkImage}
-                source={{ uri: getImageUrl(artwork.image) }}
-                onError={() => console.log("Image loading error")}
+          <FlatList
+            data={userArtworks}
+            numColumns={3}
+            renderItem={(e) => (
+              <TouchableOpacity
+                onPress={() => handleArtworkClick(e.item._id)}
+                key={e.item._id}
+                style={[mh4]}
+              >
+                <Image
+                  source={{ uri: getImageUrl(e.item.image) }}
+                  style={styles.artworkImage}
+                />
+              </TouchableOpacity>
+            )}
+            refreshControl={(
+              <RefreshControl
+                colors={[ colors.primary ]}
+                refreshing={isRefreshing}
+                onRefresh={() => {
+                  setIsRefreshing(true);
+                  fetchUserData();
+                  updateCollections();
+                }}
               />
-            </TouchableOpacity>
-          ))}
+            )}
+          />
         </View>
-      }
+      ) }
+
       {/* Collections tab */}
       {activeTab === 'Collections' && userCollections.length > 0 && (
         <View style={styles.squareContainer}>
-          {userCollections.map((collection, index) => (
+{userCollections.map((collection, index) => (
             <TouchableOpacity
               key={collection._id}
               style={[
@@ -350,7 +383,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center', // Ajoutez cette ligne
   },
-  banner: { 
+  banner: {
     backgroundColor: 'lightblue',
     height: 180,
     width: '100%',
@@ -456,7 +489,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
     borderRadius: 10,
     margin: 5,
-  },  
+  },
   squareContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',

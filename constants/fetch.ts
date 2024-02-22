@@ -61,6 +61,37 @@ const post = (
   .catch(onErrorCallback);
 };
 
+const put = (
+  url = '/',
+  body = undefined,
+  token = undefined,
+  callback = () => {},
+  onErrorCallback = (e) => {
+    console.error('post failed with code ', e.response ? e.response.status : e);
+  }
+) => {
+  if (!token) {
+    console.warn('Token is empty');
+  }
+  if (!BACKEND) {
+    return console.warn('Backend url is empty');
+  }
+
+  const requestUrl = BACKEND + url;
+  console.log(requestUrl);
+
+  // Setting up headers
+  let headers = {
+    Authorization: 'Bearer ' + token,
+  };
+
+  axios.put(requestUrl, body, {
+    headers: headers
+  })
+  .then(callback)
+  .catch(onErrorCallback);
+};
+
 
 const del = (
   url: string = "/",
@@ -91,4 +122,5 @@ export {
   get,
   post,
   del,
+  put
 };

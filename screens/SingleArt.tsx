@@ -1,26 +1,19 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Alert, View, StyleSheet, Text, Image, Dimensions, ScrollView, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { Alert, View, StyleSheet, Text, Image, ScrollView, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { post, get } from '../constants/fetch';
-
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
-import TagButton from '../components/TagButton';
-import Toggle from '../assets/images/toggle.svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MainContext } from '../context/MainContext';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Linking } from 'react-native';
 import { getImageUrl } from '../helpers/ImageHelper';
 import ArtistCard from '../components/ArtistCard';
 import { ArtistType } from '../constants/homeValues';
-import axios from 'axios';
-import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import Modal from 'react-native-modal';
 import CommentInput from '../components/CommentInput';
 import CommentsList from '../components/CommentsList';
 
-const screenWidth = Dimensions.get('window').width;
 
 const SingleArt = ({ navigation, route } : any) => {
 
@@ -45,13 +38,13 @@ const SingleArt = ({ navigation, route } : any) => {
     checkIsLiked();
     checkIsSaved();
   }, [id]);
-  
+
   useEffect(() => {
     // if (publication && publication.userId) {
     //   fetchArtistDetails();
     // }
   }, [publication]);
-  
+
 
   const fetchArtistDetails = async () => {
     try {
@@ -128,9 +121,9 @@ console.log('Request to /api/order/create sent with payload:', requestData);
 
   const handleArtistButtonClick = async () => {
     navigation.navigate('other_profile');
-    
+
   }
-  
+
   const previous = async () => {
     navigation.navigate('homemain');
   }
@@ -157,7 +150,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       }
       );
     };
-    
+
     const handleSavedButtonClick = async () => {
       setModalVisible(true);
     };
@@ -223,7 +216,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
             }
             // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
           };
-  
+
           post(url, body, token, callback, onErrorCallback);
         } else {
           console.error('Token JWT not found. Make sure the user is logged in.');
@@ -235,7 +228,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       }
       checkIsLiked();
     };
-    
+
     const selectTag = () => {
     };
 
@@ -248,7 +241,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
             const usersWhoLiked = responseData.users;
             const currentUserUsername = "VivantGarrigues";
             const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
-  
+
             setIsLiked(isArtLiked);
             console.log(isLiked);
           };
@@ -266,7 +259,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
       }
     };
-  
+
     const checkIsSaved = async () => {
       try {
         if (token) {
@@ -339,7 +332,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         {publication.description} ... Afficher plus
       </Text>
       <View>
-        <Image 
+        <Image
           style={styles.img}
           source={{ uri: getImageUrl(publication.image) }}
           onError={() => console.log("Image loading error")}
@@ -534,6 +527,15 @@ const styles = StyleSheet.create({
     vector: {
         width: 25,
         height: 31,
+    },
+    button:
+    {
+      width: 70,
+      height: 38,
+      borderRadius: 30,
+      marginLeft: 0,
+      justifyContent: 'center',
+      backgroundColor: colors.black
     },
     modal: {
       justifyContent: 'center',
