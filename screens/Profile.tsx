@@ -63,12 +63,13 @@ const Profile = () => {
     const success = (response) => {
       setUserArtworks(response.data);
       setUserArtworksCount(response.data.length);
+      console.log('🟢 Artworks fetched');
     };
     get(
       `/api/art-publication/user/${userID}`,
       token,
       success,
-      (err: any) => console.warn('Error fetching user artworks: ', {...err}),
+      (err: any) => console.log('🔴 Error fetching user artworks: ', {...err}),
     );
   };
 
@@ -76,12 +77,13 @@ const Profile = () => {
     const success = (response) => {
       setUserData(response.data);
       fetchUserArtworks();
+      console.log('🟢 User data fetched');
     };
     get(
       `/api/user/profile/${userID}`,
       token,
       success,
-      (err: any) => console.warn('Error fetching user data: ', {...err}),
+      (err: any) => console.log('🔴 Error fetching user data: ', {...err}),
     );
   };
 
@@ -89,8 +91,11 @@ const Profile = () => {
       get(
         `/api/collection/my-collections`,
         token,
-        (response: any) => setUserCollections(response.data),
-        (err: any) => console.warn('Error updating user\'s collections: ', {...err}),
+        (response: any) => {
+          console.log('🟢 Collections updated');
+          setUserCollections(response.data);
+        },
+        (err: any) => console.log('🔴 Error updating user\'s collections: ', {...err}),
       );
   };
 
@@ -217,7 +222,7 @@ const Profile = () => {
                 <Image
                   style={styles.artworkImage}
                   source={{ uri: getImageUrl(artwork.image) }}
-                  onError={() => console.log("Image loading error")}
+                  onError={() => console.log("🔴 Error loading artwork image: No further informations enable.")}
                 />
               </TouchableOpacity>
             ))}
@@ -248,7 +253,7 @@ const Profile = () => {
                   }
                   style={{ flex: 1, borderRadius: 10 }}
                   resizeMode="cover"
-                  onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
+                  onError={(error) => console.log(`🔴 Error loading image for collection ${collection._id}:`, error.nativeEvent)}
                 />
                 <Text style={styles.collectionName}>{collection.name}</Text>
               </TouchableOpacity>

@@ -33,7 +33,7 @@ const HomeScreen = ({ navigation }: any) => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   const handleToArtistProfile = (artist: ArtistType) => {
-    console.log('artist id: ', artist._id);
+    console.log('🟢 Navigation to profile: ', artist._id);
     navigation.navigate('other_profile', { id: artist._id });
   };
 
@@ -41,8 +41,9 @@ const HomeScreen = ({ navigation }: any) => {
     navigation.navigate('article', { article });
   };
 
-  const towardsPost = (publicationId) => {
-    console.log('🔵 ID:', publicationId);
+  const towardsPost = (publicationId) => 
+  {
+    console.log('🟢 Navigation to article: ', publicationId);
     navigation.navigate('singleart', { id: publicationId });
   };
 
@@ -57,7 +58,7 @@ const HomeScreen = ({ navigation }: any) => {
         setArticles(response?.data || []);
       },
       (error) => {
-        console.error("Error fetching articles:", error);
+        console.log("🔴 Error fetching articles:", error);
         ToastAndroid.show("Error fetching articles", ToastAndroid.SHORT);
       }
     );
@@ -78,7 +79,6 @@ const HomeScreen = ({ navigation }: any) => {
   }
 
   const getPublications = () => {
-    console.log('Token:', context?.token);
     if (!context?.token) {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
@@ -86,15 +86,16 @@ const HomeScreen = ({ navigation }: any) => {
       "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
       (response) => {
-        console.log('🎨 Publications:', response.data)
+        const publicationsData = response?.data || [];
+        const publicationNames = publicationsData.map((publication) => publication.name);
+        console.log('🟢 🎨 Last publications loaded:', publicationNames);
         setPublications(response?.data || []);
       },
       (error) => {
-        console.error("Error fetching publications:", error);
+        console.log("🔴 Error fetching publications:", error);
         ToastAndroid.show("Error fetching publications", ToastAndroid.SHORT);
       }
       );
-      console.log('LOG');
   };
 
   useEffect(() => {
@@ -122,12 +123,7 @@ const HomeScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.bg} barStyle='dark-content' />
-      <ScrollView nestedScrollEnabled refreshControl={
-        <RefreshControl
-          refreshing={isRefreshing}
-          onRefresh={() => setIsRefreshing(current => !current)}
-        />
-      }>
+      <View>
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
@@ -233,7 +229,7 @@ const HomeScreen = ({ navigation }: any) => {
                   <Image
                     style={styles.publicationImage}
                     source={{ uri: getImageUrl(e.item.image) }}
-                    onError={() => console.log("Image loading error")}
+                    onError={() => console.log("🔴 Error loading image: No further informations enable.")}
                   />
                 </View>
               </TouchableOpacity>
@@ -241,7 +237,7 @@ const HomeScreen = ({ navigation }: any) => {
           />
         </View>
       </View>
-    </ScrollView>
+    </View>
   </SafeAreaView>
   );
 }

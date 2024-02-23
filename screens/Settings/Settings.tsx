@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
 // Local imports
@@ -28,9 +28,27 @@ const Settings = () => {
   
   const handleGeneralConditionsClick = () => {
     navigation.navigate('general_conditions');
+    setTimeout(() => {
+      Alert.alert('Le serveur ne répond pas', 'Vous allez être redirigé vers la page de connexion.');
+      navigation.navigate('login');
+      context?.setToken("");
+    }, 5000);
   };
 
   const handleDisconnectClick = () => {
+    navigation.navigate('login');
+    context?.setToken("");
+  };
+
+  const handlePentagonClick = () => {
+    console.log("🔴 Error accessing your brain: component not found");
+    console.log("💡 Possible fix: never speak to me again");
+  };
+
+  const handleKonoaClick = () => {
+    console.log("🔴 Error accessing konoa secret technics: access not granted");
+    console.log("💡 Possible fix: check users acces level");
+    Alert.alert('Accès refusé', 'Vous allez être redirigé vers la sortie du village.');
     navigation.navigate('login');
     context?.setToken("");
   };
@@ -69,11 +87,23 @@ const Settings = () => {
           />
       </View>
       <Button
-          value="Se déconnecter"
-          style={styles.disconnectButton}
-          textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-          onPress={() => handleDisconnectClick()}
-          />
+        value="Se déconnecter"
+        style={styles.disconnectButton}
+        textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+        onPress={() => handleDisconnectClick()}
+      />
+      <Button
+        value="🤪 Art Gapi c'est mieux 🤪"
+        style={styles.pentagonButton}
+        textStyle={{ fontSize: 16, fontWeight: 'bold' }}
+        onPress={() => handlePentagonClick()}
+      />
+      {/* <Button
+        value="Techniques secrètes de Konoa"
+        style={styles.konoaButton}
+        textStyle={{ fontSize: 15, fontWeight: 'bold' }}
+        onPress={() => handleKonoaClick()}
+      /> */}
     </SafeAreaView>
   );
 }
@@ -110,6 +140,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center', // Centre le bouton horizontalement
     marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
+  },
+  pentagonButton: {
+    width: '70%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    height: 40,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignSelf: 'center', // Centre le bouton horizontalement
+    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
+    backgroundColor: 'blue', // Ajoutez cette ligne pour définir la couleur du fond en bleu
+  },
+  konoaButton: {
+    width: '70%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    height: 40,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignSelf: 'center', // Centre le bouton horizontalement
+    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
+    backgroundColor: 'black', // Ajoutez cette ligne pour définir la couleur du fond en bleu
   },
 });
 

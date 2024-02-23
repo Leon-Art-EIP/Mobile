@@ -8,7 +8,7 @@ const get = (
   callback: ((response: any) => void) = () => {},
   onErrorCallback: ((error: any) => void) = (e: any) => {
     console.error("🔴 GET action failed: ", { ...e });
-  }
+  },
 ) => {
   if (!token) {
     console.log('🟡 Token is empty');
