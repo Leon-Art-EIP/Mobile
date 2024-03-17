@@ -11,7 +11,7 @@ import Signup from '../screens/Signup';
 import GoogleLogin from '../screens/GoogleLogin';
 import ForgotPassword from '../screens/ForgotPassword';
 import BottomNavigator from './BottomNavigator';
-import { useRoute } from '@react-navigation/native';
+import {NavigationContainer, useRoute} from '@react-navigation/native';
 
 
 type ConnexionNavigatorParams = {
@@ -21,20 +21,8 @@ type ConnexionNavigatorParams = {
 
 const ConnexionNavigator = () => {
   const Stack = createNativeStackNavigator();
-  const context = useContext(MainContext);
-  const route = useRoute();
   const options = { headerShown: false };
-
-
-  useEffect(() => {
-    let params = route.params as ConnexionNavigatorParams;
-
-    if (params?.noLogin) {
-      let token = process.env.REACT_APP_TEST_TOKEN;
-      console.log("Test login enabled. Token: ", token);
-      context?.setToken(token);
-    }
-  }, []);
+  const context = useContext(MainContext);
 
 
   return context?.token ? (

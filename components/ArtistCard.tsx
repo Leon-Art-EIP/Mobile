@@ -8,9 +8,9 @@ import Title from './Title';
 
 interface ArtistCardProps {
   onPress?: () => void;
-  item: ArtistType;
+  item: ArtistType | undefined;
   path: string;
-  style?: object;
+  style?: any;
   showTitle?: boolean;
 }
 
@@ -24,17 +24,17 @@ const ArtistCard = ({
   showTitle = true,
 }: ArtistCardProps) => (
   <TouchableOpacity onPress={onPress}>
-     <Card style={[styles.container, style.container]}>
-       {item?.profilePicture && (
+     <Card style={[styles.container, style?.container]}>
+       { item?.profilePicture && (
          <Image
-           style={[styles.image, style.image]}
+           style={[styles.image, style?.image]}
            source={{ uri: getImageUrl(item?.profilePicture) }}
          />
-       )}
+       ) }
      </Card>
      {showTitle && (
        <Title size={16} style={[styles.title, style.title]}>
-         {item.username}
+         { item?.username }
        </Title>
      )}
   </TouchableOpacity>
@@ -60,14 +60,12 @@ const styles = StyleSheet.create({
     borderRadius: 70,
   },
   title: {
-    left: '50%',
     transform: [{ translateX: -50 }],
     marginRight: 5,
     marginLeft: 25,
     position: 'absolute',
     bottom: 10,
     left: '50%',
-    transform: [{ translateX: -50 }],
     color: colors.darkGreyBg,
   },
 });

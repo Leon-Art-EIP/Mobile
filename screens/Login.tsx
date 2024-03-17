@@ -23,9 +23,6 @@ const Login = ({ navigation }: any) => {
   const onLogin = async (response: any) => {
     if (response && response.data && response.data.token) {
       const tokenFromDB = response.data.token;
-      console.log("Token : " + tokenFromDB);
-      // console.log(response.data);
-      // console.log(response.data.user.id);
 
       try {
         await AsyncStorage.setItem('jwt', tokenFromDB);
@@ -46,7 +43,7 @@ const Login = ({ navigation }: any) => {
   }
 
 
-  const onLoginError = async (error: any) =>{
+  const onLoginError = async (error: any) => {
     if (error.response) {
       console.error('Server responded with an error:', { ...error.response.data });
       if (error.response.status === 422) {

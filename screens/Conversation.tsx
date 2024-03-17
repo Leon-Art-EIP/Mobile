@@ -126,7 +126,7 @@ const Conversation = () => {
       `/api/conversations/messages/${params?.ids[0]}`,
       context?.token,
       (res: any) => {
-        setMessages(res?.data?.messages);
+        setMessages([ ...res?.data?.messages ]);
         setIsLoading(false);
       },
       (err: any) => console.warn({...err})
@@ -135,14 +135,15 @@ const Conversation = () => {
 
 
   const goBack = () => {
-    SockHelper.off('msg-receive');
+    SockHelper.off('msg-recieve');
     return navigation.goBack();
   }
 
 
   const addMessage = (msg: MessageType) => {
+    console.log("message I received: ", msg);
     const new_messages: MessageType[] = [ ...messages, msg ];
-    return setMessages([ ...new_messages ]);
+    return setMessages(new_messages);
   }
 
 
@@ -153,7 +154,8 @@ const Conversation = () => {
     // Get instant messages
     SockHelper.start(process.env.REACT_APP_API_URL, true);
     SockHelper.emit('add-user', context?.userId);
-    SockHelper.on('msg-recieve', addMessage);
+    SockHelper.off('msg-recieve');
+    SockHelper.on('msg-recieve', getConversation);
   }, []);
 
 

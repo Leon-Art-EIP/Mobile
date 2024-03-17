@@ -100,6 +100,7 @@ const ConversationsComponent = () => {
     if (!SockHelper.isStarted()) {
       SockHelper.start(process.env.REACT_APP_API_URL, true);
     }
+    SockHelper.off('msg-recieve');
     SockHelper.on('msg-recieve', getConversations);
   }, []);
 
