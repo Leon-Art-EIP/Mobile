@@ -17,6 +17,7 @@ import Title from '../components/Title';
 import ImagePicker from 'react-native-image-picker';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
+import Ionicons from "react-native-vector-icons/Ionicons";
 // import bannerImage from '../assets/images/banner.jpg'
 // import profilePicture from '../assets/images/user.png'
 
@@ -330,92 +331,92 @@ const EditProfile = () => {
 
   return (
     <ScrollView nestedScrollEnabled>
-    <View>
-      <View style={{ flexDirection: 'row', marginRight: 20 }}>
-        {/* Back button */}
-        <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
-          >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
-        </TouchableOpacity>
-      </View>
-      {/* Banner */}
-      <View style={styles.banner}>
-        <Image
-          source={{ uri: getImageUrl(banner) }}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
-        <Title style={styles.mainTitle}>Modifier la bannière</Title>
-      </View>
-      <TouchableOpacity
-          onPress={selectBanner}
-          style={styles.editBannerButton}
-        >
-          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
-        </TouchableOpacity>
-      {/* Profile picture */}
-      <View style={styles.overlayImage}>
-        <View style={styles.circleImageContainer}>
-          <Image
-          source={{ uri: getImageUrl(profilePicture) }}
-          style={styles.profilePicture}
-          onError={(error) => console.error("Error loading profile picture:", error)}
-          />
-        </View>
-        <TouchableOpacity
-          onPress={selectImage}
-          style={styles.editProfilePictureButton}
-        >
-          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.decorativeLine} />
       <View>
-        {/* Name */}
-        <View style={styles.infoBlock}>
-          <Title style={styles.infoTitle}>Nom</Title>
-          <Text style={styles.infoValue}>{userData?.username}</Text>
+        <View style={{ flexDirection: 'row', marginRight: 20 }}>
+          {/* Back button */}
+          <TouchableOpacity
+            onPress={() => handleBackButtonClick()}
+            style={styles.backButton}
+          >
+            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+          </TouchableOpacity>
         </View>
-        {/* Biography */}
-        <View style={styles.infoBlock}>
-          <Title style={styles.infoTitle}>Description</Title>
-          <TextInput
-              placeholder="Parlez nous de vous..."
-              onChangeText={handleBiographyChange}
-              style={[styles.biographyInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
-              value={biography}
-            />
+        {/* Banner */}
+        <View style={styles.banner}>
+          <Image
+            source={{ uri: getImageUrl(banner) }}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+          <Title style={styles.mainTitle}>Modifier la bannière</Title>
         </View>
-        {/* Availability */}
-        <View style={styles.infoBlock}>
-          <Title style={styles.infoTitle}>Ouvert au commandes</Title>
-          <View style={styles.buttonContainer}>
-            <Button
-              value="Oui"
-              style={styles.availableButton}
-              textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-              onPress={() => setIsAvailable("available")}
-              secondary={isAvailable === "unavailable"}
-            />
-            <Button
-              value="Non"
-              style={styles.availableButton}
-              textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-              onPress={() => setIsAvailable("unavailable")}
-              secondary={isAvailable === "available"}
+        <TouchableOpacity
+            onPress={selectBanner}
+            style={styles.editBannerButton}
+          >
+            <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+          </TouchableOpacity>
+        {/* Profile picture */}
+        <View style={styles.overlayImage}>
+          <View style={styles.circleImageContainer}>
+            <Image
+            source={{ uri: getImageUrl(profilePicture) }}
+            style={styles.profilePicture}
+            onError={(error) => console.error("Error loading profile picture:", error)}
             />
           </View>
+          <TouchableOpacity
+            onPress={selectImage}
+            style={styles.editProfilePictureButton}
+          >
+            <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+          </TouchableOpacity>
         </View>
-        <Button
-          value="Enregistrer les modifications"
-          style={styles.disconnectButton}
-          textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-          onPress={() => handleSaveModifications()}
-          />
+        <View style={styles.decorativeLine} />
+        <View>
+          {/* Name */}
+          <View style={styles.infoBlock}>
+            <Title style={styles.infoTitle}>Nom</Title>
+            <Text style={styles.infoValue}>{userData?.username}</Text>
+          </View>
+          {/* Biography */}
+          <View style={styles.infoBlock}>
+            <Title style={styles.infoTitle}>Description</Title>
+            <TextInput
+                placeholder="Parlez nous de vous..."
+                onChangeText={handleBiographyChange}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
+                value={biography}
+              />
+          </View>
+          {/* Availability */}
+          <View style={styles.infoBlock}>
+            <Title style={styles.infoTitle}>Ouvert au commandes</Title>
+            <View style={styles.buttonContainer}>
+              <Button
+                value="Oui"
+                style={styles.availableButton}
+                textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                onPress={() => setIsAvailable("available")}
+                secondary={isAvailable === "unavailable"}
+              />
+              <Button
+                value="Non"
+                style={styles.availableButton}
+                textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                onPress={() => setIsAvailable("unavailable")}
+                secondary={isAvailable === "available"}
+              />
+            </View>
+          </View>
+          <Button
+            value="Enregistrer les modifications"
+            style={styles.disconnectButton}
+            textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+            onPress={() => handleSaveModifications()}
+            />
+        </View>
       </View>
-    </View>
     </ScrollView>
   );
 }

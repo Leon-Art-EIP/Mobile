@@ -30,6 +30,7 @@ const Login = ({ navigation }: any) => {
         context?.setUserEmail(response.data.user.email);
         context?.setUserId(response.data.user.id);
         context?.setisArtist(response.data.user.is_artist);
+        context?.setUsername(response.data.user.username);
         navigation.navigate('main');
       } catch (error) {
         console.error('Error storing token:', error);

@@ -9,6 +9,7 @@ import BackArrow from '../../assets/images/back_arrow_black.png'
 import Button from '../../components/Button';
 import { post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const PasswordAndSecurity = () => {
   const navigation = useNavigation();
@@ -73,18 +74,20 @@ const PasswordAndSecurity = () => {
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
       <StatusBar backgroundColor={colors.white} />
+
+      {/* Go back button */}
       <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
-          >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
-        </TouchableOpacity>
+        onPress={() => handleBackButtonClick()}
+        style={styles.backButton}
+      >
+        <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+      </TouchableOpacity>
+
       <Title style={styles.mainTitle}>Mot de passe et sécurité</Title>
 
       {showPasswordChangeFields && (
         <View>
           <View style={styles.inputContainer}>
-            {/* <Image source={require('../../assets/password_icon.png')} style={styles.icon} /> */}
             <TextInput
               placeholder="Mot de passe actuel ..."
               onChangeText={handleOldPasswordChange}

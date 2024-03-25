@@ -1,10 +1,10 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
-  Alert,
+  Alert, Dimensions,
   FlatList,
   Image,
   Linking,
-  ScrollView,
+  ScrollView, StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -22,8 +22,23 @@ import {getImageUrl} from '../helpers/ImageHelper';
 import ArtistCard from '../components/ArtistCard';
 import {ArtistType, PostType} from '../constants/homeValues';
 import Modal from 'react-native-modal';
-import {flex1, flexRow, ml8} from "../constants/styles";
+import {
+  acCenter,
+  aiCenter,
+  bgColor, bgRed, cBlack,
+  cPrimary,
+  flex1,
+  flexRow,
+  mbAuto,
+  mh24, mh8,
+  ml8,
+  mr8,
+  mtAuto
+} from "../constants/styles";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import SlidingUpPanel from "rn-sliding-up-panel";
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -41,7 +56,15 @@ const SingleArt = ({ navigation, route } : any) => {
   const isOwnArtist = context?.userId === artist?._id;
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
+  let _slidingPanel = useRef<SlidingUpPanel>(null);
 
+
+  useEffect(() => {
+    if (isDeleteModalShown) {
+      return _slidingPanel.current.show();
+    }
+    return _slidingPanel.current.hide();
+  }, [isDeleteModalShown]);
 
   useEffect(() => {
     getPublications();
@@ -142,15 +165,27 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   const deletePost = () => {
+    const callback = () => {
+      const msg: string = "Post supprimé avec succès !";
+      ToastAndroid.show(msg, ToastAndroid.SHORT);
+      setIsDeleteModalShown(false);
+      return navigation.goBack();
+    }
+
+    const onErrorCallback = (err: any) => {
+      let errorMsg: string = err?.response?.data?.msg;
+
+      console.error("Delete post ", err?.response?.status, ' : ', errorMsg);
+      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+      return setIsDeleteModalShown(false);
+    }
+
     del(
       `/api/art-publication/${id}`,
       context?.token,
-      () => navigation.goBack(),
-      (err) => {
-        console.error('Delete post: ', err?.code);
-        ToastAndroid.show("Could not delete this post. Try again", ToastAndroid.LONG);
-      }
-    )
+      callback,
+      onErrorCallback
+    );
   }
 
 
@@ -186,15 +221,18 @@ const SingleArt = ({ navigation, route } : any) => {
           collectionName: collectionName,
           isPublic: true
         };
+
         const callback = (response) => {
           console.log('Saved to collection successfully');
           Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
           setIsSaved(true);
         };
+
         const onErrorCallback = (error) => {
           console.error('Error while saving to collection:', error);
           Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
         };
+
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -248,26 +286,27 @@ const SingleArt = ({ navigation, route } : any) => {
 
   const checkIsLiked = async () => {
     try {
-      if (token) {
-        const url = `/api/art-publication/users-who-liked/${id}`;
-        const callback = (response) => {
-          const responseData = response.data;
-          const usersWhoLiked = responseData.users;
-          const currentUserUsername = "VivantGarrigues";
-          const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
-
-          setIsLiked(isArtLiked);
-          console.log(isLiked);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching like:', error);
-          Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
+      if (!token) {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        return;
       }
+
+      const url = `/api/art-publication/users-who-liked/${id}`;
+
+      const callback = (response) => {
+        const usersWhoLiked = response.data?.users;
+        const isArtLiked = usersWhoLiked.some((user) => user?.username === context?.username);
+
+        return setIsLiked(!!isArtLiked);
+      };
+
+      const onErrorCallback = (error) => {
+        console.error('Error fetching like:', error);
+        Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+      };
+
+      return get(url, token, callback, onErrorCallback);
     } catch (error) {
       console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
       Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
@@ -314,142 +353,173 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   return (
-    <ScrollView>
+    <ScrollView
+      contentContainerStyle={flex1}
+      style={[ bgColor ]}
+      scrollEnabled={!isDeleteModalShown}
+    >
       <View style={styles.container}>
-
         <View style={styles.logo}>
-          <Title style={{ color: colors.primary }}>Leon</Title>
-          <Title>'Art</Title>
+
+          {/* Go back button */}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={[ aiCenter, mr8, mtAuto, mbAuto ]}
+          >
+            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+          </TouchableOpacity>
+
+          {/* Title */}
+          <Title style={[ cPrimary, mtAuto, mbAuto ]}>Leon</Title>
+          <Title style={[ cBlack, mtAuto, mbAuto ]}>'Art</Title>
         </View>
 
-        <ScrollView horizontal style={{ marginLeft: 24 }}>
-          <Text style={styles.artTitle}>{publication?.name}</Text>
-        </ScrollView>
+        <View style={[ flexRow, acCenter, mh24 ]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
+          >
+            <Image
+              source={{ uri: getImageUrl(artist?.profilePicture) }}
+              style={{ height: 50, width: 50 }}
+            />
+          </TouchableOpacity>
 
-        <View>
-          <Image
-            style={styles.img}
-            source={{ uri: getImageUrl(publication?.image) }}
-            onError={() => console.log("Image loading error")}
-          />
+          <ScrollView horizontal style={{ marginLeft: 24 }}>
+            <Text style={styles.artTitle}>{publication?.name}</Text>
+          </ScrollView>
         </View>
 
-        <View style={styles.rowContainer}>
-          { !isOwnArtist && (
-            <View style={flexRow}>
-              <ArtistCard
-                showTitle={false}
-                onPress={() => handleToArtistProfile(artist?._id ?? "error")}
-                item={artist}
-                path="other_profile"
-                style={styles.artistCardStyle}
-              />
+        {/* Main picture */}
+        <Image
+          style={styles.img}
+          source={{ uri: getImageUrl(publication?.image) }}
+          onError={() => console.log("Image loading error")}
+        />
 
-              <Text style={styles.userIdText}>
-                { author ? artist?.username : 'Loading...' }
-              </Text>
-            </View>
+        {/* Action bar */}
+        <View style={[ flexRow, flex1, mh8 ]}>
+
+          {/* Save to collection button */}
+          <TouchableOpacity
+            style={[ styles.deleteBtn, { marginHorizontal: 12 }]}
+            onPress={handleSavedButtonClick}
+          >
+            <MaterialIcons name="playlist-add" size={32} color={colors.black} />
+          </TouchableOpacity>
+
+          {/* Like button */}
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            onPress={likePublication}
+          >
+            <AntDesign
+              name={isLiked ? "hearto" : "heart"}
+              size={24}
+              style={[ mtAuto, mbAuto ]}
+              color={!isLiked ? colors.primary : colors.black}
+            />
+          </TouchableOpacity>
+
+          {/* Delete post button */}
+          { isOwnArtist && (
+            <TouchableOpacity
+              style={[styles.deleteBtn, { marginLeft: 'auto', marginRight: 12 }]}
+              onPress={() => setIsDeleteModalShown(true)}
+            >
+              <MaterialIcons name="delete" size={32} color={colors.primary} />
+            </TouchableOpacity>
           ) }
+        </View>
+      </View>
 
-          <View style={flexRow}>
-            <Button
-              value={isSaved ? "Saved" : "Save"}
-              secondary={isSaved}
-              style={[styles.actionButton, { backgroundColor: colors.secondary }]}
-              textStyle={{ fontSize: 14, textAlign: 'center', color: colors.black }}
-              onPress={() => handleSavedButtonClick()}
-            />
-            <Button
-              value={isLiked ? "Liked" : "Like"}
-              secondary={isLiked}
-              style={[styles.actionButton]}
-              textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
-              onPress={likePublication}
-            />
-            { isOwnArtist && (
+      {/* title + description */}
+      <View>
+        <Text style={{ marginLeft: 35, fontSize: 23, color: 'black' }}>
+          { publication?.price ?? "0" } €
+        </Text>
+        <Text style={{ marginLeft: 35, fontSize: 15 }}>
+          { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
+        </Text>
+      </View>
+
+      {/* Go back + buy button */}
+      <View style={{ marginTop: 20, marginBottom: 30, flexDirection: 'row' }}>
+
+        {/* Go back button */}
+        <Button
+          style={{ backgroundColor: colors.secondary, flex: 1 }}
+          textStyle={{ color: colors.black }}
+          value="Retour"
+          onPress={previous}
+        />
+
+        {/* Buy button */}
+        <Button
+          value="Acheter"
+          onPress={openPaymentSheet}
+          style={flex1}
+        />
+      </View>
+
+      {/* Modal to save in collection */}
+      <Modal isVisible={isModalVisible} style={styles.modal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Enregistrer dans...</Text>
+          <FlatList
+            data={userCollections}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
               <TouchableOpacity
-                style={styles.deleteBtn}
-                onPress={() => setIsDeleteModalShown(true)}
+                style={styles.collectionButton}
+                onPress={() => addToCollection(item.name)}
               >
-                <MaterialIcons name="delete" size={32} color={colors.primary} />
+                <Text style={styles.collectionButtonText}>{item.name}</Text>
               </TouchableOpacity>
-            ) }
-          </View>
+            )}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onChangeText={(text) => setNewCollectionName(text)}
+          />
+          <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
+            <Text style={styles.createButtonText}>Créer</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
+            <Text style={styles.cancelButtonText}>Annuler</Text>
+          </TouchableOpacity>
         </View>
+      </Modal>
 
-        <View>
-          <Text style={{ marginLeft: 35, fontSize: 23, color: 'black' }}>
-            { publication?.price ?? "0" } €
-           </Text>
-          <Text style={{ marginLeft: 35, fontSize: 15 }}>
-            { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
-          </Text>
-        </View>
-
-        <View style={{ marginTop: 20, marginBottom: 30 }}>
-          <Button
-            value="Acheter"
-            onPress={openPaymentSheet}
-            />
-          <Button
-            style={{ backgroundColor: colors.secondary }}
-            textStyle={{ color: colors.black }}
-            value="Retour"
-            onPress={previous}
-            />
-        </View>
-
-        {/* Modal to save in collection */}
-        <Modal isVisible={isModalVisible} style={styles.modal}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enregistrer dans...</Text>
-            <FlatList
-              data={userCollections}
-              keyExtractor={(item) => item._id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.collectionButton}
-                  onPress={() => addToCollection(item.name)}
-                >
-                  <Text style={styles.collectionButtonText}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Nouvelle collection"
-              onChangeText={(text) => setNewCollectionName(text)}
-            />
-            <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
-              <Text style={styles.createButtonText}>Créer</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
-              <Text style={styles.cancelButtonText}>Annuler</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-
-        {/* Modal to confirm deleting the post */}
-        <Modal
-          isVisible={isDeleteModalShown}
-          onBackButtonPress={() => setIsDeleteModalShown(false)}
-          onModalHide={() => setIsDeleteModalShown(false)}
-          style={{ backgroundColor: colors.bg, borderRadius: 12 }}
-        >
-          <Text>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+      {/* Modal to confirm deleting the post */}
+      <SlidingUpPanel
+        ref={_slidingPanel}
+        height={Dimensions.get('window').height / 5}
+        containerStyle={styles.deleteModal}
+        draggableRange={{ top: Dimensions.get('window').height / 5, bottom: 0 }}
+        onBackButtonPress={() => {
+          setIsDeleteModalShown(false)
+          return true;
+        }}
+        onBottomReached={() => setIsDeleteModalShown(false)}
+      >
+        <>
+          <Text style={{ margin: 24 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
           <View style={flexRow}>
             <Button
-              secondary
               value="Oui"
               onPress={deletePost}
+              style={flex1}
             />
             <Button
+              secondary
               value="Non"
+              style={flex1}
               onPress={() => setIsDeleteModalShown(false)}
             />
           </View>
-        </Modal>
-      </View>
+        </>
+      </SlidingUpPanel>
     </ScrollView>
   );
 };
@@ -504,7 +574,7 @@ const styles = StyleSheet.create({
     color: colors.black,
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   rowContainer: {
     flexDirection: 'row',
@@ -635,7 +705,14 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    marginVertical: 16
+    marginVertical: 8
+  },
+  deleteModal: {
+    backgroundColor: colors.bg,
+    borderRadius: 12,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    zIndex: 2
   }
 });
 
