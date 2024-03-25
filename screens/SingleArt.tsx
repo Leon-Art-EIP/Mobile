@@ -31,7 +31,7 @@ import {
   flexRow,
   mbAuto,
   mh24, mh8,
-  ml8,
+  ml8, mlAuto,
   mr8,
   mtAuto
 } from "../constants/styles";
@@ -39,6 +39,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -250,6 +251,7 @@ const SingleArt = ({ navigation, route } : any) => {
       if (token) {
         const url = `/api/art-publication/like/${id}`;
         const body = undefined;
+
         const callback = () => {
           setIsLiked(prevIsLiked => !prevIsLiked);
           console.log(isLiked);
@@ -257,6 +259,7 @@ const SingleArt = ({ navigation, route } : any) => {
             addToCollection(userCollections[0].name);
           }
         };
+
         const onErrorCallback = (error) => {
           console.error('Erreur de like :', error);
           if (error.response) {
@@ -273,6 +276,7 @@ const SingleArt = ({ navigation, route } : any) => {
         };
 
         post(url, body, token, callback, onErrorCallback);
+        setIsLiked((current: boolean) => !current);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
         // Alert.alert('Token JWT not found. Make sure the user is logged in.');
@@ -281,7 +285,6 @@ const SingleArt = ({ navigation, route } : any) => {
       console.error('Error fetching user data:', error);
       // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
-    checkIsLiked();
   };
 
   const checkIsLiked = async () => {
@@ -397,14 +400,19 @@ const SingleArt = ({ navigation, route } : any) => {
         />
 
         {/* Action bar */}
-        <View style={[ flexRow, flex1, mh8 ]}>
+        <View style={[ flexRow, flex1, mh24 ]}>
 
           {/* Save to collection button */}
           <TouchableOpacity
-            style={[ styles.deleteBtn, { marginHorizontal: 12 }]}
+            style={[ styles.deleteBtn, mr8 ]}
             onPress={handleSavedButtonClick}
           >
-            <MaterialIcons name="playlist-add" size={32} color={colors.black} />
+            <MaterialIcons
+              name="playlist-add"
+              size={32}
+              color={colors.black}
+              style={[ mtAuto, mbAuto ]}
+            />
           </TouchableOpacity>
 
           {/* Like button */}
@@ -412,21 +420,26 @@ const SingleArt = ({ navigation, route } : any) => {
             style={styles.deleteBtn}
             onPress={likePublication}
           >
-            <AntDesign
-              name={isLiked ? "hearto" : "heart"}
-              size={24}
+            <MaterialCommunityIcons
+              name={isLiked ? 'cards-heart' : 'cards-heart-outline'}
+              size={32}
               style={[ mtAuto, mbAuto ]}
-              color={!isLiked ? colors.primary : colors.black}
+              color={isLiked ? colors.primary : colors.black}
             />
           </TouchableOpacity>
 
           {/* Delete post button */}
           { isOwnArtist && (
             <TouchableOpacity
-              style={[styles.deleteBtn, { marginLeft: 'auto', marginRight: 12 }]}
+              style={[ styles.deleteBtn, mlAuto ]}
               onPress={() => setIsDeleteModalShown(true)}
             >
-              <MaterialIcons name="delete" size={32} color={colors.primary} />
+              <MaterialIcons
+                name="delete"
+                size={32}
+                color={colors.primary}
+                style={[ mtAuto, mbAuto ]}
+              />
             </TouchableOpacity>
           ) }
         </View>
@@ -693,8 +706,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     backgroundColor: '#ccc',
-    alignItems: 'center',
-    marginTop: 10,
+    alignItems: 'center'
   },
   cancelButtonText: {
     color: colors.white,
@@ -705,7 +717,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    marginVertical: 8
+    marginTop: 'auto',
+    marginBottom: 'auto'
   },
   deleteModal: {
     backgroundColor: colors.bg,

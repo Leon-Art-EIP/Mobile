@@ -7,9 +7,25 @@ import colors from '../constants/colors';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { aiCenter, bgGrey, br20, cBlack, cDisabled, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
+import {
+  aiCenter,
+  bgGrey,
+  br20,
+  cBlack,
+  cDisabled,
+  flex1,
+  flexRow,
+  jcCenter,
+  mh24,
+  mh8, mt8, mv24,
+  mv4,
+  mv8,
+  ph8,
+  pv24, taCenter
+} from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import { getImageUrl } from '../helpers/ImageHelper';
+import {PostType} from "../constants/homeValues";
 
 
 type ArtPublicationType = {
@@ -53,15 +69,25 @@ const ResultsScreen = () => {
 
 
   useEffect(() => {
+    const callback = (res: any) => {
+      let posts: ArtPublicationType[] = res?.data?.artPublications;
+      let users: UserType[] = res?.data?.users;
+
+      console.log(posts);
+
+      posts = posts.filter((post: ArtPublicationType) => post.userId !== context?.userId);
+      users = users.filter((user: UserType) => user._id !== context?.userId);
+
+      setPosts(posts);
+      setUsers(users);
+    }
+
     // Get results from received API call
     get(
       "/api/explorer/search?" + params?.url,
       context?.token,
-      (res: any) => {
-        setPosts(res?.data?.artPublications);
-        setUsers(res?.data?.users);
-      },
-      (err: any) => console.error({ ...err })
+      callback,
+      (err: any) => console.error(err?.response)
     );
   }, []);
 
@@ -71,13 +97,13 @@ const ResultsScreen = () => {
       <StatusBar backgroundColor={colors.white} barStyle="dark-content" />
 
       {/* Header */}
-      <View style={[flexRow, aiCenter, mv8]}>
+      <View style={[flexRow, aiCenter, mv24]}>
         <Ionicons
-          name='chevron-back'
+          name='chevron-back-outline'
           size={32}
           color={colors.title}
           onPress={() => navigation.goBack()}
-          style={mh8}
+          style={mh24}
         />
         <Title>Search</Title>
       </View>
@@ -89,7 +115,7 @@ const ResultsScreen = () => {
             source={require('../assets/icons/box.png')}
             style={styles.emptyImg}
           />
-          <Text style={cDisabled}>Il n'y a pas d'artiste qui porte ce nom !</Text>
+          <Text style={[cDisabled, mt8]}>Il n'y a pas d'artiste qui porte ce nom !</Text>
         </View>
       ) : (
         <ScrollView horizontal style={[bgGrey, br20, mh8]}>
@@ -118,7 +144,9 @@ const ResultsScreen = () => {
               source={require('../assets/icons/box.png')}
               style={styles.emptyImg}
             />
-            <Text>Il n'y a pas de postes qui correspondent à la recherche !</Text>
+            <Text style={[ cDisabled, taCenter, mt8 ]}>
+              Il n'y a pas de postes qui correspondent à la recherche !
+            </Text>
           </View>
 
         ) : (

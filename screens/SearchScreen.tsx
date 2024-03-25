@@ -58,7 +58,7 @@ const SearchScreen = ({ navigation }: any) => {
 
   // Puts the arguments in the api URL and navigates to the page results
   const getSearchApi = () => {
-    let args1: string = `searchTerm=${search}${filtersToString()}`;
+    let args1: string = `searchTerm=${search.toLowerCase()}${filtersToString()}`;
     let args2: string = `&priceRange=${priceValues}`;
     let args3: string = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
     let url: string = args1 + args2 + args3;
