@@ -17,19 +17,19 @@ import CommentsList from '../components/CommentsList';
 
 const SingleArt = ({ navigation, route } : any) => {
 
+  const { id } = route.params;
   const context = useContext(MainContext);
   const token = context?.token;
   const [artist, setArtist] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState(false);
+  const [isSold, setSoldState] = useState(false);
   const [author, setAuthor] = useState(false);
   const [artists, setArtists] = useState<ArtistType[]>([]);
-  const { id } = route.params;
   const [isModalVisible, setModalVisible] = useState(false);
   const [userCollections, setUserCollections] = useState<Collection | null>(null);
   const [newCollectionName, setNewCollectionName] = useState('');
-  let isSold = false;
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
@@ -145,6 +145,8 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         console.log('🎨 Publications:', response.data)
         setPublication(response?.data || []);
         getAuthorName(response?.data.userId);
+        setSoldState(response?.data.isSold)
+        console.log('🤑💵 Is Sooooold', isSold);
       },
       (error) => {
         console.error("Error fetching publications:", error);
