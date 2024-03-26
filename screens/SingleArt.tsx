@@ -29,6 +29,7 @@ const SingleArt = ({ navigation, route } : any) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userCollections, setUserCollections] = useState<Collection | null>(null);
   const [newCollectionName, setNewCollectionName] = useState('');
+  let isSold = false;
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
@@ -307,14 +308,33 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      <View style={{ flexDirection: 'row'}}>
-       <Text style={styles.artTitle}>{publication.name}</Text>
-      <Text style={{ marginLeft: 35, fontSize: 23, color: 'black' }}> Prix : </Text>
-      <Text style={{ marginLeft: 3, marginRight: 40, fontSize: 23, color: 'black' }}>
-        {publication.price} €
-       </Text>
+      <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
+        <Text style={styles.artTitle}>{publication.name}</Text>
+        <Text style={{fontSize: 23, color: 'black' }}>, {publication.price} €</Text>
       </View>
-      <View style={{ flexDirection : 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+      <Text style={{ marginLeft: 30, marginBottom: 10, fontSize: 16, color: colors.darkGreyBg }}>
+        {publication.description} ... Afficher plus
+      </Text>
+      <View>
+        <Image
+          style={styles.img}
+          source={{ uri: getImageUrl(publication.image) }}
+          onError={() => console.log("Image loading error")}
+        />
+      </View>
+      <View>
+      <Button
+        style={[styles.actionButton, isSold ? styles.soldButton : styles.availableButton, { width: '80%' }]}
+        textStyle={{ fontSize: 20, textAlign: 'center', color: isSold ? colors.disabledText : 'white' }}
+        value={isSold ? "Vendu" : "Acheter"}
+        onPress={openPaymentSheet}
+        disabled={isSold}
+      />
+      </View>
+
+
+      {/* Informations */}
+      <View style={styles.rowContainer}>
         {author && (
           <ArtistCard
           showTitle={false}
@@ -327,18 +347,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         <Text style={styles.userIdText}>
           {author ? author.username : 'Loading...'}
         </Text>
-      </View>
-      <Text style={{ marginLeft: 27, marginBottom: 10, fontSize: 15, color: colors.darkGreyBg }}>
-        {publication.description} ... Afficher plus
-      </Text>
-      <View>
-        <Image
-          style={styles.img}
-          source={{ uri: getImageUrl(publication.image) }}
-          onError={() => console.log("Image loading error")}
-        />
-      </View>
-      <View style={styles.rowContainer}>
         <Button
           value={isSaved ? "Enregistré" : "Enregistrer"}
           secondary={isSaved ? true : false}
@@ -352,12 +360,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           style={[styles.actionButton]}
           textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
           onPress={likePublication}
-        />
-        <Button
-          style={[styles.actionButton]}
-          textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
-          value="Acheter"
-          onPress={openPaymentSheet}
         />
       </View>
       <View>
@@ -403,12 +405,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
   );
 };
 
-// const fakeComments = [
-//   { author: 'John Doe', text: 'This is an amazing piece of art!', publishedTime: '1h' },
-//   { author: 'Jane Smith', text: 'I love the colors used in this artwork.', publishedTime: '2d' },
-//   { author: 'Anonymous', text: 'Great job!', publishedTime: '3h' },
-// ];
-
 const styles = StyleSheet.create({
 
   // Comments :
@@ -449,21 +445,16 @@ const styles = StyleSheet.create({
     img: {
       alignSelf: 'center',
       resizeMode: 'contain',
-      marginTop: 0,
+      marginTop: 10,
       height: 345,
       width: 345,
       borderRadius: 5,
     },
     artTitle: {
-      // alignSelf: 'center',
       marginLeft: 30,
-      // textAlign: 'center',
       fontWeight: 'bold',
       fontSize: 25,
       color: '#000',
-      flex: 1,
-      // justifyContent: 'center',
-      // alignItems: 'center',
     },
     rowContainer: {
       flexDirection: 'row',
@@ -472,11 +463,10 @@ const styles = StyleSheet.create({
       alignItems: 'center',
     },
     actionButton: {
-      paddingVertical: 10,
-      paddingHorizontal: 15,
-      borderRadius: 30,
+      // borderRadius: 30,
       justifyContent: 'center',
-      marginLeft: 'auto',
+      alignSelf: 'center',
+      // marginLeft: 'auto',
     },
     primaryButton: {
       backgroundColor: colors.primary,
@@ -496,7 +486,7 @@ const styles = StyleSheet.create({
     },
     saveButton: {
       backgroundColor: colors.secondary,
-      width: 75,
+      width: '70%',
       height: 38,
       borderRadius: 30,
       justifyContent: 'center',
@@ -530,7 +520,7 @@ const styles = StyleSheet.create({
     },
     button:
     {
-      width: 70,
+      width: '70%',
       height: 38,
       borderRadius: 30,
       marginLeft: 0,
@@ -567,12 +557,22 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#ccc',
       borderRadius: 15,
-      paddingLeft: 15,
-      padding: 8,
+      // paddingLeft: 15,
+      // padding: 8,
       marginBottom: 10,
     },
+
+    // Buttons
+
+    soldButton: {
+      backgroundColor: colors.disabledBg,
+    },
+    availableButton: {
+      // Styles specific to the button when it's available
+      backgroundColor: colors.primary,
+    },
     createButton: {
-      padding: 10,
+      // padding: 10,
       borderRadius: 18,
       backgroundColor: colors.primary,
       alignItems: 'center',
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
     },
     cancelButton: {
-      padding: 10,
+      // padding: 10,
       borderRadius: 18,
       backgroundColor: colors.darkGreyBg,
       alignItems: 'center',
