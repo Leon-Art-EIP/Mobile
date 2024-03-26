@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
+import {Image, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import colors from '../../constants/colors';
 import { bgGrey, flexRow, fwBold } from '../../constants/styles';
 import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
-import { useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 
 
 const CommandsComponent = () => {
@@ -16,23 +16,34 @@ const CommandsComponent = () => {
   const context = useContext(MainContext);
 
 
-  useEffect(() => {
-    if (context?.token) {
-      get(
-        `/api/order/latest-buy-orders?limit=50&page=1`,
-        context.token,
-        (response) => setOrders(response?.data || []),
-        (error) => console.error('Error fetching orders: ', error)
-      );
-
-      get(
-        `/api/order/latest-sell-orders?limit=10&page=1`,
-        context?.token,
-        (response) => setSales(response?.data || []),
-        (error) => console.error('Error fetching orders:', error)
-      );
+  const getCommands = () => {
+    if (!context?.token) {
+      ToastAndroid.show("Error getting your token. Please log in", ToastAndroid.SHORT);
+      return navigation.navigate('login');
     }
-  }, [context?.token]);
+
+    get(
+      `/api/order/latest-buy-orders?limit=50&page=1`,
+      context.token,
+      (response) => setOrders(response?.data || []),
+      (error) => console.error('Error fetching orders: ', error)
+    );
+
+    get(
+      `/api/order/latest-sell-orders?limit=10&page=1`,
+      context?.token,
+      (response) => setSales(response?.data || []),
+      (error) => console.error('Error fetching orders:', error)
+    );
+  };
+
+
+  useFocusEffect(
+    useCallback(getCommands, [navigation])
+  );
+
+
+  useEffect(getCommands, []);
 
 
   return (
@@ -47,12 +58,12 @@ const CommandsComponent = () => {
         <View key={order._id || index} style={styles.orderItem}>
           <Image
             style={styles.image}
-            source={{ uri: getImageUrl(order.artPublicationImage) }}
+            source={{ uri: getImageUrl(order?.artPublicationImage) }}
             testID="command-img"
           />
           <View style={styles.textContainer}>
-            <Text style={fwBold}>{order.artPublicationName}</Text>
-            <Text>{order.orderPrice} €</Text>
+            <Text style={fwBold}>{order?.artPublicationName}</Text>
+            <Text>{order?.orderPrice} €</Text>
           </View>
         </View>
         </TouchableOpacity>
@@ -63,17 +74,17 @@ const CommandsComponent = () => {
       { sales.map((sales, index) => (
         <TouchableOpacity
           key={sales._id}
-          onPress={() => navigation.navigate('single_order', { id: sales.orderId, buy: false })}
+          onPress={() => navigation.navigate('single_order', { id: sales?.orderId, buy: false })}
         >
           <View key={sales._id || index} style={styles.orderItem}>
             <Image
               style={styles.image}
-              source={{ uri: getImageUrl(sales.artPublicationImage) }}
+              source={{ uri: getImageUrl(sales?.artPublicationImage) }}
               testID="command-img"
             />
             <View style={styles.textContainer}>
-              <Text style={fwBold}>{sales.artPublicationName}</Text>
-              <Text>{sales.orderPrice} €</Text>
+              <Text style={fwBold}>{sales?.artPublicationName}</Text>
+              <Text>{sales?.orderPrice} €</Text>
             </View>
           </View>
         </TouchableOpacity>

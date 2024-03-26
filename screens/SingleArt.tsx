@@ -36,7 +36,6 @@ import {
   mtAuto
 } from "../constants/styles";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -57,14 +56,14 @@ const SingleArt = ({ navigation, route } : any) => {
   const isOwnArtist = context?.userId === artist?._id;
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
-  let _slidingPanel = useRef<SlidingUpPanel>(null);
+  const _slidingPanel = useRef<SlidingUpPanel>(null);
 
 
   useEffect(() => {
     if (isDeleteModalShown) {
-      return _slidingPanel.current.show();
+      return _slidingPanel?.current.show();
     }
-    return _slidingPanel.current.hide();
+    return _slidingPanel?.current.hide();
   }, [isDeleteModalShown]);
 
   useEffect(() => {
@@ -93,9 +92,11 @@ const SingleArt = ({ navigation, route } : any) => {
     );
   };
 
+
   const handleToArtistProfile = (artistId: string) => {
     navigation.navigate('other_profile', { id: artistId });
   };
+
 
   const getAuthorName = (userId) => {
     get(
@@ -157,29 +158,29 @@ const SingleArt = ({ navigation, route } : any) => {
   const handleArtistButtonClick = async () => {
     navigation.navigate('other_profile');
 
-  }
+  };
 
 
   const previous = async () => {
     navigation.navigate('homemain');
-  }
+  };
 
 
   const deletePost = () => {
     const callback = () => {
-      const msg: string = "Post supprimé avec succès !";
+      const msg = "Post supprimé avec succès !";
       ToastAndroid.show(msg, ToastAndroid.SHORT);
       setIsDeleteModalShown(false);
       return navigation.goBack();
-    }
+    };
 
     const onErrorCallback = (err: any) => {
-      let errorMsg: string = err?.response?.data?.msg;
+      const errorMsg: string = err?.response?.data?.msg;
 
       console.error("Delete post ", err?.response?.status, ' : ', errorMsg);
       ToastAndroid.show(errorMsg, ToastAndroid.LONG);
       return setIsDeleteModalShown(false);
-    }
+    };
 
     del(
       `/api/art-publication/${id}`,
@@ -187,7 +188,7 @@ const SingleArt = ({ navigation, route } : any) => {
       callback,
       onErrorCallback
     );
-  }
+  };
 
 
   const getPublications = () => {
@@ -333,7 +334,7 @@ const SingleArt = ({ navigation, route } : any) => {
                     setIsSaved(true);
                     return;
                   }
-                }
+                };
                 get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
               } catch (error) {
                 console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
@@ -511,7 +512,7 @@ const SingleArt = ({ navigation, route } : any) => {
         containerStyle={styles.deleteModal}
         draggableRange={{ top: Dimensions.get('window').height / 5, bottom: 0 }}
         onBackButtonPress={() => {
-          setIsDeleteModalShown(false)
+          setIsDeleteModalShown(false);
           return true;
         }}
         onBottomReached={() => setIsDeleteModalShown(false)}

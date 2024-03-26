@@ -1,19 +1,46 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, Image, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid, Alert } from 'react-native';
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {
+  StatusBar,
+  StyleSheet,
+  Image,
+  Dimensions,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ToastAndroid,
+  Alert,
+  RefreshControl
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Title from '../components/Title';
 import colors from '../constants/colors';
 import { get, post, put } from '../constants/fetch';
-import { acCenter, aiCenter, asCenter, displayFlex, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv4, mv8, noHMargin, noMargin } from '../constants/styles';
+import {
+  aiCenter,
+  asCenter,
+  flex1,
+  flexRow,
+  mb8,
+  mbAuto,
+  ml4, mlAuto,
+  mr4,
+  mr8, mrAuto,
+  mtAuto,
+  mv4,
+  mv8,
+  noHMargin
+} from '../constants/styles';
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { formatName } from '../helpers/NamesHelper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import RatingModal from '../components/RatingModal';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 
 type OrderType = {
@@ -51,6 +78,7 @@ const SingleOrder = () => {
   const [order, setOrder] = useState<OrderType | undefined>(undefined);
   const [displayModal, setDisplayModal] = useState<boolean>(false);
   const [rating, setRating] = useState<number | undefined>(undefined);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
   const setOrderAsSent = () => {
@@ -64,7 +92,7 @@ const SingleOrder = () => {
         console.error({ ...err });
       }
     );
-  }
+  };
 
 
   const cancelOrder = () => {
@@ -85,7 +113,7 @@ const SingleOrder = () => {
       },
       (err) => console.warn(err)
     );
-  }
+  };
 
 
   // When the art is received by the buyer
@@ -100,11 +128,11 @@ const SingleOrder = () => {
       },
       (err) => console.warn(err)
     );
-  }
+  };
 
 
   const navigateToConversation = () => {
-    let convBody = {
+    const convBody = {
       UserOneId: context?.userId,
       UserTwoId: params.buy ? order?.sellerId : order?.buyerId
     };
@@ -127,36 +155,45 @@ const SingleOrder = () => {
       },
       (err) => console.warn(err)
     );
-  }
+  };
 
 
-  useEffect(() => {
+  const getOrder = () => {
+    const callback = (res: any) => {
+      setOrder(res?.data);
+      setIsRefreshing(false);
+    };
+
+    setIsRefreshing(true);
     get(
       `/api/order/${params?.buy ? "buy" : "sell"}/${params.id}`,
       context?.token,
-      (res: any) => setOrder(res?.data),
+      callback,
       (err: any) => console.error(err)
     );
-  }, [])
+  };
+
+
+  useFocusEffect(
+    useCallback(getOrder, [navigation])
+  );
+
+
+  useEffect(getOrder, []);
 
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.white} />
 
-      <View style={[flexRow, aiCenter]}>
+      <View style={[ flexRow, aiCenter ]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={mr8}
+          style={[ mtAuto, mbAuto ]}
         >
-          <AntDesign
-            name="left"
-            color={colors.black}
-            onPress={() => navigation.goBack()}
-            size={24}
-          />
+          <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
         </TouchableOpacity>
-        <Title style={mv8}>Commande</Title>
+        <Title style={[ mv8, mlAuto, mrAuto ]}>Commande</Title>
 
         <TouchableOpacity
           onPress={navigateToConversation}
@@ -181,35 +218,40 @@ const SingleOrder = () => {
         style={styles.orderImage}
       />
 
-      {/* Title and artist */}
-      <Card style={{ marginHorizontal: 0 }}>
-        <View style={[flexRow, aiCenter]}>
-          <Title
-            size={22}
-            bold={false}
-            style={[mb8, flex1]}
-          >{ formatName(order?.artPublicationName) }</Title>
-          <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
-        </View>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={getOrder} />}
+        contentContainerStyle={flex1}
+      >
 
-        <TouchableOpacity
-          style={[flexRow, aiCenter]}
-          /* navigate to user profile */
-          onPress={() => navigation.navigate('single_profile', {
-            id: params?.buy ? order?.sellerId : order?.buyerId
-          })}
-        >
-          <Text>{
-            'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
-          }</Text>
-        </TouchableOpacity>
-      </Card>
+        {/* Title and artist */}
+        <Card style={{ marginHorizontal: 0 }}>
+          <View style={[flexRow, aiCenter]}>
+            <Title
+              size={22}
+              bold={false}
+              style={[mb8, flex1]}
+            >{ formatName(order?.artPublicationName) }</Title>
+            <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
+          </View>
 
-      <Card style={{ marginHorizontal: 0, flex: 1 }}>
-        <ScrollView>
+          <TouchableOpacity
+            style={[flexRow, aiCenter]}
+            /* navigate to user profile */
+            onPress={() => navigation.navigate('single_profile', {
+              id: params?.buy ? order?.sellerId : order?.buyerId
+            })}
+          >
+            <Text>{
+              'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
+            }</Text>
+          </TouchableOpacity>
+        </Card>
+
+        <Card style={{ marginHorizontal: 0, flex: 1 }}>
           <Text>{ order?.artPublicationDescription }</Text>
-        </ScrollView>
-      </Card>
+        </Card>
+
+      </ScrollView>
 
 
       { !params?.buy ? (
@@ -234,6 +276,7 @@ const SingleOrder = () => {
                 name={rating && rating >= item ? 'star' : 'staro'}
                 color={rating && rating >= item ? colors.primary : colors.offerFg}
                 size={32}
+                key={item.toString()}
               />
             )) }
           </View>
@@ -281,7 +324,7 @@ const SingleOrder = () => {
 
     </SafeAreaView>
   );
-}
+};
 
 
 const styles = StyleSheet.create({
