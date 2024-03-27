@@ -1,8 +1,7 @@
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView } from 'react-native';
+import { TextInput, View, StyleSheet, Text, Image, ScrollView } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 
-import { getImageUrl } from '../helpers/ImageHelper';
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/Title';
@@ -26,8 +25,8 @@ const AddPublication = ({ navigation } : any) => {
   const publish = async () => {
     const parsedPrice = parseFloat(price);
     const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
-
     const formData = new FormData();
+
     formData.append('name', name);
     formData.append('artType', artType !== '' ? artType : 'empty');
     formData.append('description', description !== '' ? description : 'empty');

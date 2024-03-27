@@ -138,6 +138,7 @@ const HomeScreen = ({ navigation }: any) => {
         <RefreshControl
           refreshing={isRefreshing}
           onRefresh={() => setIsRefreshing(current => !current)}
+          colors={[colors.primary]}
         />
       }>
         <View style={styles.titleView}>

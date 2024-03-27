@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
-import {Image, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from 'react-native';
+import {Image, RefreshControl, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import colors from '../../constants/colors';
-import { bgGrey, flexRow, fwBold } from '../../constants/styles';
-import { get, post } from '../../constants/fetch';
+import { bgGrey, fwBold } from '../../constants/styles';
+import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -13,6 +13,7 @@ const CommandsComponent = () => {
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
   const [publicationNames, setPublicationNames] = useState({});
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
 
 
@@ -47,7 +48,14 @@ const CommandsComponent = () => {
 
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      refreshControl={<RefreshControl
+        refreshing={isRefreshing}
+        colors={[colors.primary]}
+        onRefresh={getCommands}
+      />}
+      contentContainerStyle={styles.container}
+    >
       <Text style={styles.title}>Commandes</Text>
 
       { orders.map((order, index) => (

@@ -12,7 +12,7 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
 import { getImageUrl } from '../helpers/ImageHelper';
-import { mh4 } from '../constants/styles';
+import { mh4, mv4 } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -324,7 +324,7 @@ const Profile = () => {
                 <TouchableOpacity
                   onPress={() => handleArtworkClick(e.item._id)}
                   key={e.item._id}
-                  style={[mh4]}
+                  style={[ mh4, mv4 ]}
                 >
                   <Image
                     source={{ uri: getImageUrl(e.item.image) }}
