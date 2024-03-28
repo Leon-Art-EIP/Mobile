@@ -1,9 +1,10 @@
+import { useEffect, useState, useContext } from 'react';
 import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking } from 'react-native';
-import React, { useContext, useState } from 'react';
+// import React, { useContext, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 import { getImageUrl } from '../helpers/ImageHelper';
-import { post } from '../constants/fetch';
+import { post, get } from '../constants/fetch'; // Import the get function
 import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
@@ -11,8 +12,7 @@ import { MainContext } from '../context/MainContext';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 
-
-const AddPublication = ({ navigation } : any) => {
+const AddPublication = ({ navigation }: any) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [name, setName] = useState('');
   const [artType, setType] = useState('');
@@ -21,8 +21,33 @@ const AddPublication = ({ navigation } : any) => {
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [dimension, setDimension] = useState('');
+  const [isAccountLinked, setIsAccountLinked] = useState(false); // State to store whether the Stripe account is linked
   const context = useContext(MainContext);
+
+  useEffect(() => {
+    checkAccountLinkStatus();
+  }, []);
+
+  const checkAccountLinkStatus = () => {
+    get(
+      `/api/stripe/account-link-status`,
+      context?.token,
+      (response) => {
+        if (response && response.data && response.data.linked !== undefined) {
+          console.log("LINKED STATUS", response.data.linked);
+          setIsAccountLinked(response.data.linked);
+        } else {
+          console.error('Invalid response format:', response.data);
+        }
+      },
+      (error) => {
+        console.error('Error checking account link status:', error);
+      }
+    );
+  };
   
+  
+
   const publish = async () => {
     const parsedPrice = parseFloat(price);
     const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
@@ -32,7 +57,7 @@ const AddPublication = ({ navigation } : any) => {
     formData.append('artType', artType !== '' ? artType : 'empty');
     formData.append('description', description !== '' ? description : 'empty');
     formData.append('dimension', dimension !== '' ? dimension : 'empty');
-    formData.append('isForSale', isForSale === 'true');
+    formData.append('isForSale', false);
     formData.append('price', isPriceValid ? parsedPrice : 0);
     formData.append('location', location !== '' ? location : 'empty');
   
@@ -66,6 +91,7 @@ const AddPublication = ({ navigation } : any) => {
       }
     );
   };
+  
   
   const linkStripeAccount = () => {
     post(
@@ -128,28 +154,76 @@ const AddPublication = ({ navigation } : any) => {
     navigation.navigate('homemain');      
   }
 
-return (
-  <ScrollView style={styles.container}>
-    <View style={styles.logo}>
-      <Title style={{ color: colors.primary }}>Leon</Title>
-      <Title>'Art</Title>
-    </View>
-    <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-      <Text style={styles.artTitle}>Add Publication</Text>
-    </View>
-    <Button
-        value="Stripe"
-        onPress={linkStripeAccount}
+  const sellWithAccount = async () => {
+    if (isAccountLinked) {
+      // Set isForSale to true only if the account is linked
+      setIsForSale(true);
+  
+      const parsedPrice = parseFloat(price);
+      const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
+  
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('artType', artType !== '' ? artType : 'empty');
+      formData.append('description', description !== '' ? description : 'empty');
+      formData.append('dimension', dimension !== '' ? dimension : 'empty');
+      formData.append('isForSale', true); // Set isForSale to true
+      formData.append('price', isPriceValid ? parsedPrice : 0);
+      formData.append('location', location !== '' ? location : 'empty');
+  
+      if (selectedImage) {
+        try {
+          const fileData = await RNFS.readFile(selectedImage, 'base64');
+          formData.append('image', {
+            name: 'image.jpg',
+            type: 'image/jpeg',
+            uri: Platform.OS === 'android' ? `file://${selectedImage}` : selectedImage,
+            data: fileData
+          });
+        } catch (error) {
+          console.error('Error preparing image:', error);
+          return;
+        }
+      }
+  
+      post(
+        '/api/art-publication',
+        formData,
+        context?.token,
+        () => navigation.navigate('main'),
+        (error) => {
+          console.error('Error publishing:', error);
+          if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+              console.error(`Validation error - ${err.param}: ${err.msg}`);
+            });
+          }
+        }
+      );
+    } else {
+      Alert.alert('Account Not Linked', 'Please link your Stripe account before selling.');
+    }
+  };
+  
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
+      </View>
+      <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
+        <Text style={styles.artTitle}>Add Publication</Text>
+      </View>
+      <Button
+        style={{ backgroundColor: colors.platinium }}
+        textStyle={{ color: colors.black }}
+        value="+"
+        onPress={selectImage}
       />
-    <Button
-      style={{ backgroundColor: colors.platinium }}
-      textStyle={{ color: colors.black }}
-      value="+"
-      onPress={selectImage}
-    />
-    {selectedImage && (
-      <Image source={{ uri: selectedImage }} style={styles.img} />
-    )}
+      {selectedImage && (
+        <Image source={{ uri: selectedImage }} style={styles.img} />
+      )}
       <View>
         <TextInput
           placeholder="Titre"
@@ -175,17 +249,23 @@ return (
           value={artType}
           style={styles.textInput}
         />
-      </View>
-    <View style={{ marginTop: 20 }}>
       <Button
-        value="Ajouter"
-        onPress={publish}
+        value="Mise en vente"
+        onPress={sellWithAccount}
+        disabled={!isAccountLinked} // Disable button if account is not linked
+        style={styles.textButton}
       />
-      <Button
-        style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
-        textStyle={{ color: colors.black }}
-        value="Annuler"
-        onPress={previous}
+      </View>
+      <View style={{ marginTop: 20 }}>
+        <Button
+          value="Publication simple"
+          onPress={publish}
+        />
+        <Button
+          style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
+          textStyle={{ color: colors.black }}
+          value="Annuler"
+          onPress={previous}
         />
       </View>
     </ScrollView>
@@ -195,66 +275,46 @@ return (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-      padding: 16,
-      backgroundColor: colors.white,
-    },
-    logo: {
-      flexDirection: 'row',
-      height: 100,
-      paddingLeft: 20,
-      padding: 20,
-      borderRadius: 5,
-    },
-    img: {
-      margin: 13,
-      height: 300,
-      borderRadius: 4.5,
-      backgroundColor: colors.placeholder,
-    },
-    artTitle: {
-      marginTop: 25,
-      fontWeight: 'bold',
-      textAlign: 'center',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 0,
-      fontSize: 30,
-      color: '#000',
-    },
-    artText: {
-      fontSize: 55,
-      color: '#000',
-    },
-    Tags: {
-      justifyContent: 'space-between',
-      margin: 50,
-      flex: 1,
-    },
-    TagButton: {
-      backgroundColor: '#F4F4F4',
-
-    },
-    TagButtonText: {
-      color: '#000',
-    },
-    favorite: {
-      margin: 10,
-    },
-    vector: {
-      width: 25,
-      height: 31,
-    },
-    textInput: {
-      fontSize: 15,
-      marginLeft: 20,
-      marginRight: 20,
-      backgroundColor: colors.secondary,
-      borderRadius: 10,
-      marginBottom: 20,
-      paddingLeft: 20,
-      overlayColor: colors.black,
-    },
+    padding: 16,
+    backgroundColor: colors.white,
+  },
+  logo: {
+    flexDirection: 'row',
+    height: 100,
+    paddingLeft: 20,
+    padding: 20,
+    borderRadius: 5,
+  },
+  img: {
+    margin: 13,
+    height: 300,
+    borderRadius: 4.5,
+    backgroundColor: colors.placeholder,
+  },
+  artTitle: {
+    marginTop: 25,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 0,
+    fontSize: 30,
+    color: '#000',
+  },
+  textInput: {
+    fontSize: 15,
+    marginLeft: 20,
+    marginRight: 20,
+    backgroundColor: colors.secondary,
+    borderRadius: 10,
+    marginBottom: 20,
+    paddingLeft: 20,
+    overlayColor: colors.black,
+  },
+  textButton: {
+    color: colors.black,
+    backgroundColor: colors.darkGreyBg,
+  },
 });
-
 
 export default AddPublication;

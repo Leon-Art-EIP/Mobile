@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image,  } from 'react-native';
+import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Linking } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
 // Local imports
@@ -75,7 +75,7 @@ const Settings = () => {
       <Title style={styles.mainTitle}>Paramètres</Title>
       <View>
         <Button style={styles.stripebutton}
-        value="Stripe Account"
+        value="Link my Stripe Account"
         onPress={linkStripeAccount}
         />
         <Button
