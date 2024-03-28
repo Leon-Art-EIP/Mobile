@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Linking } from 'react-native';
+import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image,  } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
 // Local imports
+import { post } from '../../constants/fetch';
 import Title from '../../components/Title';
 import colors from '../../constants/colors';
 import Button from '../../components/Button';
@@ -36,32 +37,28 @@ const Settings = () => {
   };
 
   const linkStripeAccount = () => {
-    console.log('Token:', context?.token);
     post(
       '/api/stripe/account-link',
+      undefined,
       context?.token,
-      () => navigation.navigate('main'),
-      (error) => {
+      (response) => {
         if (response && response.data && response.data.url) {
           const url = response.data.url;
-          Linking.openURL(url).then(() => console.log('Link opened successfully')).catch((err) => console.error('Error opening link:', err));
+          Linking.openURL(url)
+            .then(() => console.log('Link opened successfully'))
+            .catch((err) => console.error('Error opening link:', err));
         } else {
           console.error('Error: Unable to retrieve URL');
         }
       },
       (error) => {
-        if (error.response && error.response.status === 401) {
-          // Handle unauthorized access (401) here
-          console.error('Unauthorized access. Please log in again.');
-          // Redirect the user to the login screen or perform any other appropriate action
+        if (error.response && error.response.status === 400) {
+          console.error('User already linked stripe account');
+          // Handle specific error for 400 status code, if needed
         } else {
-          console.error('🟣 Error linking stripe account:', error);
-          if (error.response && error.response.data && error.response.data.errors) {
-            error.response.data.errors.forEach(err => {
-              console.error(`Validation error - ${err.param}: ${err.msg}`);
-            });
-          }
+          console.error('Error linking Stripe account:', error);
         }
+        // console.error('Error linking Stripe account:', error);
       }
     );
   };
