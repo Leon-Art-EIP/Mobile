@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Linking } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 
 // Local imports
@@ -35,6 +35,37 @@ const Settings = () => {
     context?.setToken("");
   };
 
+  const linkStripeAccount = () => {
+    console.log('Token:', context?.token);
+    post(
+      '/api/stripe/account-link',
+      context?.token,
+      () => navigation.navigate('main'),
+      (error) => {
+        if (response && response.data && response.data.url) {
+          const url = response.data.url;
+          Linking.openURL(url).then(() => console.log('Link opened successfully')).catch((err) => console.error('Error opening link:', err));
+        } else {
+          console.error('Error: Unable to retrieve URL');
+        }
+      },
+      (error) => {
+        if (error.response && error.response.status === 401) {
+          // Handle unauthorized access (401) here
+          console.error('Unauthorized access. Please log in again.');
+          // Redirect the user to the login screen or perform any other appropriate action
+        } else {
+          console.error('🟣 Error linking stripe account:', error);
+          if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+              console.error(`Validation error - ${err.param}: ${err.msg}`);
+            });
+          }
+        }
+      }
+    );
+  };
+
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
       <StatusBar backgroundColor={colors.white} />
@@ -46,6 +77,10 @@ const Settings = () => {
         </TouchableOpacity>
       <Title style={styles.mainTitle}>Paramètres</Title>
       <View>
+        <Button style={styles.stripebutton}
+        value="Stripe Account"
+        onPress={linkStripeAccount}
+        />
         <Button
           value="Informations personnelles"
           secondary
@@ -82,6 +117,9 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flex: 1
+  },
+  stripebutton: {
+    backgroundColor: colors.stripe,
   },
   mainTitle: {
     marginTop: 50,

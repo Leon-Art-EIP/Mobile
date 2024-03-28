@@ -1,4 +1,4 @@
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -67,6 +67,27 @@ const AddPublication = ({ navigation } : any) => {
     );
   };
   
+  const linkStripeAccount = () => {
+    post(
+      '/api/stripe/account-link',
+      undefined,
+      context?.token,
+      (response) => {
+        if (response && response.data && response.data.url) {
+          const url = response.data.url;
+          Linking.openURL(url)
+            .then(() => console.log('Link opened successfully'))
+            .catch((err) => console.error('Error opening link:', err));
+        } else {
+          console.error('Error: Unable to retrieve URL');
+        }
+      },
+      (error) => {
+        console.error('Error linking Stripe account:', error);
+      }
+    );
+  };
+  
   const selectImage = async () => {
     try {
       const options = {
@@ -117,6 +138,10 @@ return (
       <Text style={styles.artTitle}>Add Publication</Text>
     </View>
     <Button
+        value="Stripe"
+        onPress={linkStripeAccount}
+      />
+    <Button
       style={{ backgroundColor: colors.platinium }}
       textStyle={{ color: colors.black }}
       value="+"
@@ -155,7 +180,7 @@ return (
       <Button
         value="Ajouter"
         onPress={publish}
-        />
+      />
       <Button
         style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
         textStyle={{ color: colors.black }}
