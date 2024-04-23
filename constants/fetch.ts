@@ -11,7 +11,7 @@ const get = (
   }
 ) => {
   if (!token) {
-    console.warn("Token is empty");
+    console.log("Token is empty");
   }
   if (!BACKEND) {
     return console.warn('Backend url is empty');
@@ -35,7 +35,7 @@ const post = (
   }
 ) => {
   if (!token) {
-    console.warn('Token is empty');
+    console.log('Token is empty');
   }
   if (!BACKEND) {
     return console.warn('Backend url is empty');

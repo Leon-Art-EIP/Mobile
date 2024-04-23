@@ -25,7 +25,7 @@ import Modal from 'react-native-modal';
 import {
   acCenter,
   aiCenter,
-  bgColor, bgRed, cBlack,
+  bgColor, bgGrey, bgRed, br20, cBlack,
   cPrimary,
   flex1,
   flexRow,
@@ -39,6 +39,8 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import CommentInput from '../components/CommentInput';
+import CommentsList from '../components/CommentsList';
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -74,9 +76,9 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   useEffect(() => {
-    if (publication && publication.userId) {
-      fetchArtistDetails();
-    }
+    // if (publication && publication.userId) {
+    //   fetchArtistDetails();
+    // }
   }, [publication]);
 
 
@@ -158,11 +160,6 @@ const SingleArt = ({ navigation, route } : any) => {
   const handleArtistButtonClick = async () => {
     navigation.navigate('other_profile');
 
-  };
-
-
-  const previous = async () => {
-    navigation.navigate('homemain');
   };
 
 
@@ -376,11 +373,26 @@ const SingleArt = ({ navigation, route } : any) => {
           {/* Title */}
           <Title style={[ cPrimary, mtAuto, mbAuto ]}>Leon</Title>
           <Title style={[ cBlack, mtAuto, mbAuto ]}>'Art</Title>
+
+          {/* Delete post (if artist) */}
+          { context?.userId === publication?.userId && (
+            <TouchableOpacity
+              style={[mtAuto, mbAuto, mlAuto]}
+              onPress={() => setIsDeleteModalShown(true)}
+            >
+              <MaterialCommunityIcons
+                name='delete'
+                color={colors.primary}
+                size={32}
+              />
+            </TouchableOpacity>
+          ) }
         </View>
 
         <View style={[ flexRow, acCenter, mh24 ]}>
           <TouchableOpacity
             onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
+            style={[bgGrey, { borderRadius: 50 }]}
           >
             <Image
               source={{ uri: getImageUrl(artist?.profilePicture) }}
@@ -391,6 +403,7 @@ const SingleArt = ({ navigation, route } : any) => {
           <ScrollView horizontal style={{ marginLeft: 24 }}>
             <Text style={styles.artTitle}>{publication?.name}</Text>
           </ScrollView>
+
         </View>
 
         {/* Main picture */}
@@ -399,51 +412,6 @@ const SingleArt = ({ navigation, route } : any) => {
           source={{ uri: getImageUrl(publication?.image) }}
           onError={() => console.log("Image loading error")}
         />
-
-        {/* Action bar */}
-        <View style={[ flexRow, flex1, mh24 ]}>
-
-          {/* Save to collection button */}
-          <TouchableOpacity
-            style={[ styles.deleteBtn, mr8 ]}
-            onPress={handleSavedButtonClick}
-          >
-            <MaterialIcons
-              name="playlist-add"
-              size={32}
-              color={colors.black}
-              style={[ mtAuto, mbAuto ]}
-            />
-          </TouchableOpacity>
-
-          {/* Like button */}
-          <TouchableOpacity
-            style={styles.deleteBtn}
-            onPress={likePublication}
-          >
-            <MaterialCommunityIcons
-              name={isLiked ? 'cards-heart' : 'cards-heart-outline'}
-              size={32}
-              style={[ mtAuto, mbAuto ]}
-              color={isLiked ? colors.primary : colors.black}
-            />
-          </TouchableOpacity>
-
-          {/* Delete post button */}
-          { isOwnArtist && (
-            <TouchableOpacity
-              style={[ styles.deleteBtn, mlAuto ]}
-              onPress={() => setIsDeleteModalShown(true)}
-            >
-              <MaterialIcons
-                name="delete"
-                size={32}
-                color={colors.primary}
-                style={[ mtAuto, mbAuto ]}
-              />
-            </TouchableOpacity>
-          ) }
-        </View>
       </View>
 
       {/* title + description */}
@@ -464,7 +432,7 @@ const SingleArt = ({ navigation, route } : any) => {
           style={{ backgroundColor: colors.secondary, flex: 1 }}
           textStyle={{ color: colors.black }}
           value="Retour"
-          onPress={previous}
+          onPress={() => navigation.goBack()}
         />
 
         {/* Buy button */}
@@ -504,6 +472,9 @@ const SingleArt = ({ navigation, route } : any) => {
           </TouchableOpacity>
         </View>
       </Modal>
+
+      {/* This is commented for now because it does not work */}
+      {/* <CommentInput id={ id }></CommentInput> */}
 
       {/* Modal to confirm deleting the post */}
       <SlidingUpPanel
