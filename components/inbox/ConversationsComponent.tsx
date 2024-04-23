@@ -9,7 +9,7 @@ import { MessageType } from '../../constants/conversations';
 import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import SockHelper from '../../helpers/SocketHelper';
-import Title from '../Title';
+import Title from '../text/Title';
 
 
 const CONV_NOT_FOUND = "Error: couldn't find conversation to navigate to";

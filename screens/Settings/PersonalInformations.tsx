@@ -3,11 +3,12 @@ import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navig
 import React, { useState, useEffect, useContext } from 'react';
 
 // Local imports
-import Title from '../../components/Title';
+import Title from '../../components/text/Title';
 import colors from '../../constants/colors';
 import BackArrow from '../../assets/images/back_arrow_black.png'
 import { MainContext } from '../../context/MainContext';
-import Button from '../../components/Button';
+import Button from '../../components/buttons/Button';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const PersonalInformations = () => {
   const navigation = useNavigation();
@@ -27,12 +28,16 @@ const PersonalInformations = () => {
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
       <StatusBar backgroundColor={colors.white} />
       <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
-          >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
-        </TouchableOpacity>
-
+        onPress={() => handleBackButtonClick()}
+        style={styles.backButton}
+      >
+        <AntDesign
+          name="left"
+          color={colors.black}
+          onPress={() => navigation.goBack()}
+          size={24}
+        />
+      </TouchableOpacity>
       <Title style={styles.mainTitle}>Informations personnelles</Title>
 
       {/* Bloc 1 - Email */}

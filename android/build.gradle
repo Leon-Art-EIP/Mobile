@@ -16,6 +16,9 @@ buildscript {
             ndkVersion = "21.4.7075529"
         }
     }
+    // plugins {
+    //     id 'org.jetbrains.kotlin.jvm' version '1.5.21' apply false
+    // }
     repositories {
         google()
         mavenCentral()

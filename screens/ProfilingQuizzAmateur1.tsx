@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
-import TagButton from '../components/TagButton';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
+import TagButton from '../components/tags/TagButton';
 
 const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
   const { objective } = route.params;

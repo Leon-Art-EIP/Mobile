@@ -7,8 +7,11 @@ import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import emptyCollectionImage from '../assets/icons/hamburger.png'
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Pen from 'react-native-vector-icons/pen';
+
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
 import { getImageUrl } from '../helpers/ImageHelper';
@@ -209,13 +212,24 @@ const Profile = () => {
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
           >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+          <AntDesign
+            name="left"
+            color={colors.black}
+            onPress={() => navigation.goBack()}
+            size={24}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleEditButtonClick()}
           style={styles.editButton}
         >
-          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+          <AntDesign
+            name="edit"
+            color={colors.black}
+            onPress={() => navigation.goBack()}
+            size={24}
+          />
+          {/* <Image source={EditButtonImage} style={{ width: 40, height: 40 }} /> */}
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleSettingsButtonClick()}
@@ -278,7 +292,7 @@ const Profile = () => {
         <Button
           value="Artwork"
           secondary={activeTab !== 'Artwork'}
-          tertiary={activeTab === 'Artwork'}
+          primary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Artwork')}
@@ -286,7 +300,7 @@ const Profile = () => {
         <Button
           value="Collections"
           secondary={activeTab !== 'Collections'}
-          tertiary={activeTab === 'Collections'}
+          primary={activeTab === 'Collections'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Collections')}
@@ -294,7 +308,7 @@ const Profile = () => {
         <Button
           value="A propos"
           secondary={activeTab !== 'A propos'}
-          tertiary={activeTab === 'A propos'}
+          primary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('A propos')}
@@ -381,10 +395,10 @@ const Profile = () => {
 const styles = StyleSheet.create({
   centeredText: {
     justifyContent: 'center',
-    alignItems: 'center', // Ajoutez cette ligne
+    alignItems: 'center',
   },
   banner: {
-    backgroundColor: 'lightblue',
+    backgroundColor: colors.platinium,
     height: 180,
     width: '100%',
     justifyContent: 'center',

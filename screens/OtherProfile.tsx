@@ -4,7 +4,7 @@ import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navig
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import profilePicture from '../assets/images/user.png'
 import bannerImage from '../assets/images/banner.jpg'
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
@@ -61,26 +61,20 @@ const OtherProfile = ({ route }: any) => {
         const onErrorCallback = (error) => {
           console.error('Erreur de follow :', error);
           if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
             console.error('Server responded with non-2xx status:', error.response.data);
           } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
             console.error('No response received from server');
           } else {
-            // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
         };
 
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
     fetchUserData();
   };
@@ -154,26 +148,20 @@ const OtherProfile = ({ route }: any) => {
         const onErrorCallback = (error) => {
           console.error('Error fetching user data:', error);
           if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
             console.error('Server responded with non-2xx status:', error.response.data);
           } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
             console.error('No response received from server');
           } else {
-            // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
         };
 
         get(url, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -193,7 +181,6 @@ const OtherProfile = ({ route }: any) => {
     <SafeAreaView style={styles.container}>
     <ScrollView nestedScrollEnabled>
       <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
-      {/* Bouton de retour en haut à gauche */}
       <TouchableOpacity
         onPress={() => handleBackButtonClick()}
         style={styles.backButton}
@@ -205,7 +192,6 @@ const OtherProfile = ({ route }: any) => {
           size={24}
         />
       </TouchableOpacity>
-      {/* Bannière */}
       <View style={styles.banner}>
         <Image
           source={{ uri: getImageUrl(userData?.bannerImage) }}
@@ -213,7 +199,6 @@ const OtherProfile = ({ route }: any) => {
           resizeMode="cover"
         />
       </View>
-      {/* Photo de profile */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
@@ -223,29 +208,22 @@ const OtherProfile = ({ route }: any) => {
           />
         </View>
       </View>
-      {/* Blocs de texte */}
       <View style={styles.textBlocks}>
-        {/* Bloc de texte follower */}
         <View style={styles.textBlock}>
           <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
           <Text style={styles.title}>followers</Text>
         </View>
-
-        {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
           {userData && userData.availability !== "unavailable" && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
           )}
         </View>
-
-        {/* Bloc de texte posts */}
         <View style={styles.textBlock}>
           <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
-      {/* Boutons "Suivre" et "Ecrire" */}
       <View style={styles.contactAndFollow}>
         <Button
           value={isFollowing ? "Suivi" : "Suivre"}
@@ -267,14 +245,12 @@ const OtherProfile = ({ route }: any) => {
           onPress={() => handleContactButtonClick()}
           />
       </View>
-      {/* Trait décoratif de séparation */}
       <View style={styles.decorativeLine} />
-      {/* Boutons d'onglet, "Artwork", "Collections" et "A propos" */}
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
           secondary={activeTab !== 'Artwork'}
-          tertiary={activeTab === 'Artwork'}
+          primary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Artwork')}
@@ -282,7 +258,7 @@ const OtherProfile = ({ route }: any) => {
         <Button
           value="Collection"
           secondary={activeTab !== 'Collection'}
-          tertiary={activeTab === 'Collection'}
+          primary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Collection')}
@@ -290,13 +266,12 @@ const OtherProfile = ({ route }: any) => {
         <Button
           value="A propos"
           secondary={activeTab !== 'A propos'}
-          tertiary={activeTab === 'A propos'}
+          primary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('A propos')}
           />
       </View>
-      {/* Ensembles de cadres carrés */}
       {activeTab === 'Artwork' &&
         <View style={styles.squareContainer}>
           {userArtworks.map((artwork, index) => (
@@ -326,7 +301,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   banner: {
-    backgroundColor: 'lightblue',
+    backgroundColor: colors.whitesmoke,
     height: 180,
     width: '100%',
     justifyContent: 'center',

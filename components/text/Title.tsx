@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet, StyleProp, TextStyle } from 'react-native';
-import colors from '../constants/colors';
+import colors from '../../constants/colors';
 
 interface TitleProps {
   children?: string;

@@ -7,7 +7,7 @@ import CommandsComponent from '../components/inbox/CommandsComponent';
 //* Local imports
 import ConversationsComponent from '../components/inbox/ConversationsComponent';
 import MessageTabs from '../components/inbox/MessageTabs';
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import colors from '../constants/colors';
 
 

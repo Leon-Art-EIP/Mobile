@@ -2,17 +2,17 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Alert, View, StyleSheet, Text, Image, ScrollView, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { post, get } from '../constants/fetch';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Linking } from 'react-native';
 import { getImageUrl } from '../helpers/ImageHelper';
-import ArtistCard from '../components/ArtistCard';
+import ArtistCard from '../components/cards/ArtistCard';
 import { ArtistType } from '../constants/homeValues';
 import Modal from 'react-native-modal';
-import CommentInput from '../components/CommentInput';
-import CommentsList from '../components/CommentsList';
+import CommentInput from '../components/textInput/CommentInput';
+import CommentsList from '../components/cards/CommentsList';
+import Title from '../components/text/Title';
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -311,7 +311,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         <Title>'Art</Title>
       </View>
       <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
-        <Text style={styles.artTitle}>{publication.name}</Text>
+        <Title style={styles.artTitle}>{publication.name}</Title>
         <Text style={{fontSize: 23, color: 'black' }}>, {publication.price} €</Text>
       </View>
       <Text style={{ marginLeft: 30, marginBottom: 10, fontSize: 16, color: colors.darkGreyBg }}>
@@ -334,6 +334,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       />
       </View>
 
+      <View style={styles.decorativeLine} />
 
       {/* Informations */}
       <View style={styles.rowContainer}>
@@ -368,8 +369,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
 
     </View>
     <CommentsList id={ id }></CommentsList>
-
-      {/*  MODAL */}
 
       <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
@@ -593,6 +592,13 @@ const styles = StyleSheet.create({
     cancelButtonText: {
       color: 'white',
       fontWeight: 'bold',
+    },
+    decorativeLine: {
+      height: 1,
+      backgroundColor: colors.platinium,
+      marginVertical: 10,
+      marginLeft: 30,
+      marginRight: 30,
     },
 });
 

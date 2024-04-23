@@ -4,6 +4,7 @@ const colors = {
   disabledBg: '#F5F5F5',
   disabledFg: '#afafaf',
   error: '#F16565',
+  success: '#98e69d',
 
   transparent: '#00000000',
   black: '#000',
@@ -21,7 +22,7 @@ const colors = {
 
   sampleBg: '#D3A1A1',
   darkGreyBg: '#3E3E3E',
-  darkGreyFg: '#251A00',
+  darkGreyFg: '#2D2F2E',
 
   tag: '#FF7F74',
   pressedTag: '#FF7F74',
@@ -30,7 +31,7 @@ const colors = {
   articlePlHolder: '#a6c8ff',
   artistPlHolder: '#FF7F74',
   forYouPlHolder: '#ededed',
-  publicationPlHolder: '#FFCF70',
+  deepyellow: '#FFC043',
 
   platinium: '#E0E0E0',
   vermilion: '#F64C3C',

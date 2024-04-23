@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import Title from '../components/Title';
+import Button from '../components/buttons/Button';
+import Input from '../components/textInput/Input';
+import Title from '../components/text/Title';
 import colors from "../constants/colors";
 
 const ForgotPassword = ({ navigation }: any) => {

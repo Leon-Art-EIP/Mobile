@@ -9,11 +9,11 @@ import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import { getImageUrl } from '../helpers/ImageHelper';
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import ImagePicker from 'react-native-image-picker';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
@@ -382,7 +382,7 @@ const EditProfile = () => {
         <View style={styles.infoBlock}>
           <Title style={styles.infoTitle}>Description</Title>
           <TextInput
-              placeholder="Parlez nous de vous..."
+              placeholder="Présentez-vous !"
               onChangeText={handleBiographyChange}
               style={[styles.biographyInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
               value={biography}

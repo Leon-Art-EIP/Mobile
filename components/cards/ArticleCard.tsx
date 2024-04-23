@@ -1,10 +1,10 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
-import colors from '../constants/colors';
-import { ArticleType } from "../constants/homeValues";
+import colors from '../../constants/colors';
+import { ArticleType } from "../../constants/homeValues";
 import Card from "./Card";
-import Title from "./Title";
-import { getImageUrl } from '../helpers/ImageHelper';
+import Title from "../text/Title";
+import { getImageUrl } from '../../helpers/ImageHelper';
 
 interface ArticleCardProps {
   onPress?: (item) => void;
@@ -35,12 +35,12 @@ const ArticleCard = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.articlePlHolder,
-    marginRight: 5,
+    marginRight: 1,
     margin: 0,
-    width: 230,
-    height: 145,
+    width: 250,
+    height: 150,
     position: "relative",
-    borderRadius: 15,
+    borderRadius: 10,
   },
   image: {
     position: "absolute",

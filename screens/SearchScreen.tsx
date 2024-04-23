@@ -9,7 +9,9 @@ import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh8, mt8, bgRed
 import Entypo from 'react-native-vector-icons/Entypo';
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
+import InfoModal from '../components/infos/InfoModal';
+import Title from '../components/text/Title';
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
@@ -18,6 +20,9 @@ const SearchScreen = ({ navigation }: any) => {
   const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [priceValues, setPriceValues] = useState<string>("0-1000");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState('error');  // State to track the type of the modal
   const context = useContext(MainContext);
 
 
@@ -63,9 +68,12 @@ const SearchScreen = ({ navigation }: any) => {
     let args3: string = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
     let url: string = args1 + args2 + args3;
 
-    if (!search) {
-      return console.warn('Empty search');
-    }
+    if (!search.trim()) {
+      setModalMessage("Veuillez entrer un champ pour votre recherche.");
+      setModalType('error');
+      setModalVisible(true);
+      return;
+  }
     navigation.navigate('results', { url });
   }
 
@@ -101,7 +109,6 @@ const SearchScreen = ({ navigation }: any) => {
 
   const clearFilters = () => {
     setPriceValues("0-1000");
-    /* setSelectedFilters([]); */
     setSelectedSubFilters([]);
     ToastAndroid.show("Les filtres ont été réinitialisés", ToastAndroid.SHORT);
   }
@@ -125,13 +132,11 @@ const SearchScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
-
-      {/* Search input */}
       <View style={styles.searchView}>
         <TextInput
           onChangeText={setSearch}
           placeholderTextColor={colors.disabledFg}
-          placeholder="Recherche..."
+          placeholder="Rechercher..."
           style={styles.searchBar}
         />
         <FontAwesome
@@ -143,12 +148,13 @@ const SearchScreen = ({ navigation }: any) => {
         />
       </View>
 
+      <Text style={{fontSize: 16, color: colors.darkGreyBg, marginLeft: 12,}}>Prix</Text>
       {/* Search price */}
-      <View style={styles.searchView}>
+      <View style={styles.searchView2}>
         <Text style={[mlAuto, mrAuto, cBlack]}>{ getPriceValues()[0] } €</Text>
         <MultiSlider
           values={getPriceValues()}
-          max={1000}
+          max={5000}
           selectedStyle={{ backgroundColor: colors.primary }}
           markerStyle={{ backgroundColor: colors.primary }}
           onValuesChange={setPriceValuesFromSlider}
@@ -166,12 +172,12 @@ const SearchScreen = ({ navigation }: any) => {
           style={[ styles.filterTouchableOpacity, flexRow ]}
           onPress={() => setIsArtTypeDisplayed(e => !e)}
         >
-          <Text style={[
+          <Title style={[
             styles.filterText,
             fwBold,
             flex1,
             { fontSize: 17 }
-          ]}>Types</Text>
+          ]}>Types</Title>
           <Entypo
             name={isArtTypeDisplayed ? "chevron-thin-up" : "chevron-thin-down"}
             size={24}
@@ -226,6 +232,12 @@ const SearchScreen = ({ navigation }: any) => {
           onPress={getSearchApi}
           value="Rechercher"
         />
+        <InfoModal 
+          isVisible={isModalVisible}
+          message={modalMessage}
+          onClose={() => setModalVisible(false)}
+          messageType={modalType}
+        />
       </View>
     </SafeAreaView>
   );
@@ -240,8 +252,17 @@ const styles = StyleSheet.create({
   },
   searchView: {
     alignItems: 'center',
+    borderColor: 'red',
     backgroundColor: colors.disabledBg,
-    borderRadius: 50,
+    borderRadius: 10,
+    flexDirection: 'row',
+    marginBottom: 12
+  },
+  searchView2: {
+    alignItems: 'center',
+    borderColor: 'red',
+    backgroundColor: colors.white,
+    borderRadius: 10,
     flexDirection: 'row',
     marginBottom: 12
   },
@@ -250,7 +271,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 'auto',
     marginBottom: 'auto',
-    borderRadius: 50,
+    borderRadius: 0,
     shadowColor: colors.transparent,
     marginHorizontal: 12,
     marginVertical: 12,

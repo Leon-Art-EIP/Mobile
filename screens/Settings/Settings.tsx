@@ -1,12 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Linking } from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 // Local imports
 import { post } from '../../constants/fetch';
-import Title from '../../components/Title';
+import Title from '../../components/text/Title';
 import colors from '../../constants/colors';
-import Button from '../../components/Button';
+import Button from '../../components/buttons/Button';
 import BackArrow from '../../assets/images/back_arrow_black.png'
 import { MainContext } from '../../context/MainContext';
 
@@ -70,7 +71,12 @@ const Settings = () => {
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
           >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+        <AntDesign
+          name="left"
+          color={colors.black}
+          onPress={() => navigation.goBack()}
+          size={24}
+        />
         </TouchableOpacity>
       <Title style={styles.mainTitle}>Paramètres</Title>
       <View>
@@ -82,21 +88,21 @@ const Settings = () => {
           value="Informations personnelles"
           secondary
           style={styles.settingsButton}
-          textStyle={{fontSize: 17}}
+          textStyle={{fontSize: 16}}
           onPress={() => handlePersonalInformationsClick()}
           />
         <Button
           value="Mot de passe et sécurité"
           secondary
           style={styles.settingsButton}
-          textStyle={{fontSize: 17}}
+          textStyle={{fontSize: 16, textAlign: 'left'}}
           onPress={() => handlePasswordAndSecurityClick()}
           />
         <Button
           value="Conditions générales de vente"
           secondary
           style={styles.settingsButton}
-          textStyle={{fontSize: 17}}
+          textStyle={{fontSize: 16}}
           onPress={() => handleGeneralConditionsClick()}
           />
       </View>

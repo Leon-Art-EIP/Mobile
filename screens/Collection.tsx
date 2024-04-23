@@ -3,11 +3,11 @@ import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navig
 import React, { useState, useEffect, useContext } from 'react';
 
 // Local imports
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import BackArrow from '../assets/images/back_arrow_black.png'
 import { MainContext } from '../context/MainContext';
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 import DeleteButtonImage from '../assets/icons/delete_red.png'
 import { get, post, del } from '../constants/fetch';
 

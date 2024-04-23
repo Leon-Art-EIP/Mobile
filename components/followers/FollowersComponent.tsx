@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //* Local imports
 import colors from '../../constants/colors';
-import Title from '../Title';
+import Title from '../text/Title';
 
 /*
  * There is a problem that prevents the app to get

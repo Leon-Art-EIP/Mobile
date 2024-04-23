@@ -5,7 +5,7 @@ import { MessageType } from '../../constants/conversations';
 import { flex1, flexRow, fwBold, mlAuto, mrAuto, noVMargin } from '../../constants/styles';
 import { MainContext } from '../../context/MainContext';
 import { dateToHour } from '../../helpers/DateHelper';
-import Button from '../Button';
+import Button from '../buttons/Button';
 
 
 type TextBubbleType = {

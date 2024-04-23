@@ -6,7 +6,8 @@ import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
 import { useNavigation } from '@react-navigation/native';
-import Button from '../Button';
+import Button from '../buttons/Button';
+import Title from '../text/Title';
 
 
 const CommandsComponent = () => {
@@ -60,7 +61,7 @@ const CommandsComponent = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Commandes</Text>
+      <Title style={styles.title}>Commandes</Title>
   
       {orders.map((order, index) => (
         <TouchableOpacity
@@ -90,7 +91,7 @@ const CommandsComponent = () => {
         </TouchableOpacity>
       ))}
   
-      <Text style={styles.title}>Ventes</Text>
+      <Title style={styles.title}>Ventes</Title>
   
       {sales.map((sale, index) => (
         <TouchableOpacity

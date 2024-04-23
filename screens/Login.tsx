@@ -5,8 +5,8 @@ import { Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dime
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import Button from '../components/Button';
-import Title from '../components/Title';
+import Button from '../components/buttons/Button';
+import Title from '../components/text/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
@@ -16,7 +16,7 @@ const Login = ({ navigation }) => {
   const context = useContext(MainContext);
 
   // Define a hardcoded token
-  const hardcodedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjVhMjc3Y2M0NDg2YzVlMGZiMjA4OTkzIn0sImlhdCI6MTcxMTU5MzIzNiwiZXhwIjoxNzExOTUzMjM2fQ.WdpnG59t_DpBGQIIlbXOiWUr0KqDvpwehVxiwbfXM4c';
+  const hardcodedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjVhMjc3Y2M0NDg2YzVlMGZiMjA4OTkzIn0sImlhdCI6MTcxMzg1NDU1OSwiZXhwIjoxNzE0MjE0NTU5fQ.ihwwDIn7_legFoa1d8bw0BU0RN_Uf9VRs4gsd115BvI';
 
   // Modified onLogin function to use hardcoded token
   const onLogin = async () => {

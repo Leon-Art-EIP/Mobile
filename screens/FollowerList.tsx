@@ -5,7 +5,7 @@ import CartComponent from '../components/inbox/CartComponent';
 
 // Local imports
 import FollowersTabs from '../components/followers/FollowsTabs';
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import FollowersComponent from '../components/followers/FollowersComponent';

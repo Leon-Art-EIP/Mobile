@@ -1,16 +1,16 @@
 import { useEffect, useState, useContext } from 'react';
 import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking } from 'react-native';
+// import React, { useContext, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 import { getImageUrl } from '../helpers/ImageHelper';
-import { post, get } from '../constants/fetch';
+import { post, get } from '../constants/fetch'; // Import the get function
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
-import InfoModal from '../components/infos/InfoModal';
 
 const AddPublication = ({ navigation }: any) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -21,10 +21,7 @@ const AddPublication = ({ navigation }: any) => {
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [dimension, setDimension] = useState('');
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
-  const [isAccountLinked, setIsAccountLinked] = useState(false);
-  const [modalType, setModalType] = useState('error');
+  const [isAccountLinked, setIsAccountLinked] = useState(false); // State to store whether the Stripe account is linked
   const context = useContext(MainContext);
 
   useEffect(() => {
@@ -48,14 +45,10 @@ const AddPublication = ({ navigation }: any) => {
       }
     );
   };
+  
+  
 
   const publish = async () => {
-    if (!name || !artType || !description || !price || !selectedImage) {
-      setModalMessage("Assurez-vous d'avoir renseigner tous les champs avant de publier votre œuvre.");
-      setModalVisible(true);
-      return;
-    }
-
     const parsedPrice = parseFloat(price);
     const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
   
@@ -97,9 +90,6 @@ const AddPublication = ({ navigation }: any) => {
         }
       }
     );
-    setModalMessage("Votre œuvre a bien été publiée.");
-    setModalType('success');
-    setModalVisible(true);
   };
   
   
@@ -165,19 +155,6 @@ const AddPublication = ({ navigation }: any) => {
   }
 
   const sellWithAccount = async () => {
-    if (!name || !artType || !description || !price || !selectedImage) {
-      setModalMessage("Assurez-vous d'avoir renseigner tous les champs avant de publier votre œuvre.");
-      setModalType('error');
-      setModalVisible(true);
-      return;
-    }
-    if (!isAccountLinked) {
-      setModalMessage("Votre compte Stripe n'est pas encore relié à l'application ! Pour ce faire, rendez-vous dans vos paramètres et mettez votre œuvre à la vente ensuite. ");
-      setModalType('error');
-      setModalVisible(true);
-      return;
-    }
-
     const isForSale = true;
   
     if (isAccountLinked) {
@@ -222,11 +199,7 @@ const AddPublication = ({ navigation }: any) => {
           }
         }
       );
-      setModalMessage("Votre œuvre a bien été publiée.");
-      setModalType('success');
-      setModalVisible(true);
-    }
-    else {
+    } else {
       Alert.alert('Account Not Linked', 'Please link your Stripe account before selling.');
     }
   };
@@ -241,12 +214,12 @@ const AddPublication = ({ navigation }: any) => {
         <Title>'Art</Title>
       </View>
       <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <Title style={styles.artTitle}>Nouvelle publication</Title>
+        <Text style={styles.artTitle}>Add Publication</Text>
       </View>
       <Button
-        style={{ backgroundColor: colors.whitesmoke }}
-        textStyle={{ color: colors.darkGreyBg }}
-        value="Choisir une image"
+        style={{ backgroundColor: colors.platinium }}
+        textStyle={{ color: colors.black }}
+        value="+"
         onPress={selectImage}
       />
       {selectedImage && (
@@ -280,15 +253,14 @@ const AddPublication = ({ navigation }: any) => {
       <Button
         value="Publier et mettre à la vente"
         onPress={sellWithAccount}
-        // disabled={!isAccountLinked} // Disable button if account is not linked
-        style={styles.saleButton}
+        disabled={!isAccountLinked} // Disable button if account is not linked
+        style={styles.textButton}
       />
       </View>
-      <View style={{ marginTop: 5 }}>
+      <View style={{ marginTop: 20 }}>
         <Button
           value="Publier sans possibilité d'achat"
           onPress={publish}
-          style={styles.nosaleButton}
         />
         <Button
           style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
@@ -296,12 +268,12 @@ const AddPublication = ({ navigation }: any) => {
           value="Annuler"
           onPress={previous}
         />
-        <InfoModal 
+        {/* <InfoModal 
           isVisible={isModalVisible}
           message={modalMessage}
           onClose={() => setModalVisible(false)}
           messageType="error"
-        />
+        /> */}
       </View>
     </ScrollView>
   );
@@ -340,23 +312,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 20,
     marginRight: 20,
-    // backgroundColor: colors.secondary,
+    backgroundColor: colors.secondary,
     borderRadius: 10,
     marginBottom: 20,
     paddingLeft: 20,
     overlayColor: colors.black,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.platinium,
   },
-  saleButton: {
-    color: colors.black,
-    backgroundColor: colors.primary,
-    marginBottom: 0,
-  },
-  nosaleButton: {
+  textButton: {
     color: colors.black,
     backgroundColor: colors.darkGreyBg,
-    marginBottom: 40,
   },
 });
 

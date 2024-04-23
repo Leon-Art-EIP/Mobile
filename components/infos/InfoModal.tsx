@@ -1,31 +1,36 @@
-// InfoModal.tsx
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import colors from '../../constants/colors';  // Adjust the import path as necessary
+import colors from '../../constants/colors';
 
 interface InfoModalProps {
     isVisible: boolean;
     message: string;
     onClose: () => void;
-    messageType: 'error' | 'validation' | 'other';
+    messageType: 'error' | 'validation' | 'success' | 'other';
 }
 
 const InfoModal: React.FC<InfoModalProps> = ({ isVisible, message, onClose, messageType }) => {
-    const backgroundColor = messageType === 'error' ? colors.errorColor : 
-                            messageType === 'validation' ? colors.validationColor : colors.otherColor;
+    const modalBackgroundStyle = {
+        backgroundColor: messageType === 'error' ? colors.error :
+                          messageType === 'success' ? colors.success :
+                          messageType === 'validation' ? colors.validationColor : colors.otherColor,
+        borderColor: messageType === 'error' ? colors.error :
+                     messageType === 'success' ? colors.success :
+                     messageType === 'validation' ? colors.validationDark : colors.otherDark,
+    };
 
     return (
         <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={isVisible}
             onRequestClose={onClose}
         >
             <View style={styles.modal}>
-                <View style={[styles.modalView, {borderColor: backgroundColor}]}>
+                <View style={[styles.modalView, modalBackgroundStyle]}>
                     <Text style={styles.modalText}>{message}</Text>
                     <TouchableOpacity
-                        style={[styles.buttonClose, {backgroundColor}]}
+                        style={[styles.buttonClose, modalBackgroundStyle]}
                         onPress={onClose}
                     >
                         <Text style={styles.textStyle}>Fermer</Text>
@@ -45,7 +50,6 @@ const styles = StyleSheet.create({
     },
     modalView: {
         margin: 20,
-        backgroundColor: "white",
         borderRadius: 20,
         padding: 35,
         alignItems: "center",

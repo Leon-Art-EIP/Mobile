@@ -2,18 +2,18 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, Image, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Button from '../components/Button';
-import Card from '../components/Card';
-import Title from '../components/Title';
+import Button from '../components/buttons/Button';
+import Card from '../components/cards/Card';
+import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { get, post, put } from '../constants/fetch';
-import { acCenter, aiCenter, asCenter, displayFlex, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv4, mv8, noHMargin, noMargin } from '../constants/styles';
+import { acCenter, aiCenter, asCenter, bgGrey, displayFlex, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv4, mv8, noHMargin, noMargin } from '../constants/styles';
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { formatName } from '../helpers/NamesHelper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import RatingModal from '../components/RatingModal';
+import RatingModal from '../components/modals/RatingModal';
 
 
 type OrderType = {
@@ -158,21 +158,7 @@ const SingleOrder = () => {
         </TouchableOpacity>
         <Title style={mv8}>Commande</Title>
 
-        <TouchableOpacity
-          onPress={navigateToConversation}
-          style={{
-            marginLeft: 'auto',
-            backgroundColor: colors.offerBg,
-            borderRadius: 50,
-            padding: 12
-          }}
-        >
-          <MaterialCommunityIcons
-            name="message-reply-text-outline"
-            size={24}
-            color={colors.offerFg}
-          />
-        </TouchableOpacity>
+
       </View>
 
       {/* Art picture */}
@@ -188,8 +174,8 @@ const SingleOrder = () => {
             size={22}
             bold={false}
             style={[mb8, flex1]}
-          >{ formatName(order?.artPublicationName) }</Title>
-          <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
+          >{formatName(order?.artPublicationName)}</Title>
+          <Text style={mr8}>{order?.orderPrice.toString()} €</Text>
         </View>
 
         <TouchableOpacity
@@ -204,48 +190,75 @@ const SingleOrder = () => {
           }</Text>
         </TouchableOpacity>
       </Card>
-
       <Card style={{ marginHorizontal: 0, flex: 1 }}>
         <ScrollView>
-          <Text>{ order?.artPublicationDescription }</Text>
+          <Text>{order?.artPublicationDescription}</Text>
         </ScrollView>
       </Card>
+      <View style={{
+        margincenter: 'auto',
+        backgroundColor: colors.deepyellow,
+        padding: 0,
+        borderRadius: 30,
+        // flex: 1,
+      }}>
 
-
-      { !params?.buy ? (
+        <TouchableOpacity
+          onPress={navigateToConversation}
+          style={{
+            margincenter: 'auto',
+            backgroundColor: colors.deepyellow,
+            borderRadius: 20,
+            padding: 12,
+            flexDirection: 'row',  // Align children (icon and text) in a row
+            alignItems: 'center',  // Center align items vertically within the touchable opacity
+            justifyContent: 'center'  // Center align items horizontally within the touchable opacity
+          }}
+        >
+          <MaterialCommunityIcons
+            name="message-reply-text-outline"
+            size={24}
+            color={colors.darkGreyFg}
+          />
+          <Text style={{ marginLeft: 5, backgroundColor: bgGrey }}>Contacter le vendeur</Text>
+        </TouchableOpacity>
+      </View>
+      {!params?.buy ? (
         <Card style={{
           marginHorizontal: 0,
-          backgroundColor: colors.offerBg,
-          marginVertical: 0
+          backgroundColor: colors.darkGreyFg,
+          marginVertical: 0,
+          marginTop: 5,
+          marginBottom: 20,
         }}>
-          <Text style={{ color: colors.offerFg }}>{
+          <Text style={{ color: colors.deepyellow }}>{
             order?.orderState === 'shipping' ?
-            "L'oeuvre a été envoyée ! Veuillez patienter que l'acheteur la recoive !" :
-            "L'oeuvre est prête ? Appuyez sur \"Envoyer l'oeuvre\" après l'avoir envoyée à votre acheteur !"
+              "L'oeuvre a été envoyée ! Veuillez patienter que l'acheteur la recoive !" :
+              "L'oeuvre est prête ? Appuyez sur \"Envoyer l'oeuvre\" après l'avoir envoyée à votre acheteur !"
           }</Text>
         </Card>
       ) : order?.orderState !== 'completed' ? (
-        <Card style={{ marginHorizontal: 0, backgroundColor: colors.offerBg }}>
-          <Text style={{ color: colors.offerFg }}>Notez votre transaction avant de l'achever !</Text>
+        <Card style={{ marginHorizontal: 0, backgroundColor: colors.darkGreyFg }}>
+          <Text style={{ color: colors.deepyellow }}>Notez votre transaction avant de l'achever !</Text>
           <View style={[flexRow, asCenter, mv4]}>
-            { [1, 2, 3, 4, 5].map((item: number) => (
+            {[1, 2, 3, 4, 5].map((item: number) => (
               <AntDesign
                 onPress={() => setRating(item)}
                 name={rating && rating >= item ? 'star' : 'staro'}
-                color={rating && rating >= item ? colors.primary : colors.offerFg}
+                color={rating && rating >= item ? colors.deepyellow : colors.deepyellow}
                 size={32}
               />
-            )) }
+            ))}
           </View>
         </Card>
-      ) : (<></>) }
+      ) : (<></>)}
 
 
       {/* Back and goToMessage buttons */}
       <View style={[mtAuto, flexRow]}>
 
         {/* If seller */}
-        { !params.buy ? (
+        {!params.buy ? (
           <>
             <Button
               value='Cancel'
@@ -268,7 +281,7 @@ const SingleOrder = () => {
             onPress={validateOrder}
             style={[flex1, noHMargin, ml4]}
           />
-        ) }
+        )}
 
       </View>
 
