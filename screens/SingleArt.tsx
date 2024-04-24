@@ -1,6 +1,18 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Alert, View, StyleSheet, Text, Image, ScrollView, FlatList, TouchableOpacity, TextInput } from 'react-native';
-import { post, get } from '../constants/fetch';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {
+  Alert, Dimensions,
+  FlatList,
+  Image,
+  Linking,
+  ScrollView, StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import {del, get, post} from '../constants/fetch';
 import colors from '../constants/colors';
 import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
@@ -20,7 +32,7 @@ const SingleArt = ({ navigation, route } : any) => {
   const { id } = route.params;
   const context = useContext(MainContext);
   const token = context?.token;
-  const [artist, setArtist] = useState(null);
+  const [artist, setArtist] = useState<ArtistType | undefined>(undefined);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState(false);
@@ -30,15 +42,25 @@ const SingleArt = ({ navigation, route } : any) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userCollections, setUserCollections] = useState<Collection | null>(null);
   const [newCollectionName, setNewCollectionName] = useState('');
-
+  const isOwnArtist = context?.userId === artist?._id;
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const [loading, setLoading] = useState(false);
+  const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
+  const _slidingPanel = useRef<SlidingUpPanel>(null);
+
+
+  useEffect(() => {
+    if (isDeleteModalShown) {
+      return _slidingPanel?.current.show();
+    }
+    return _slidingPanel?.current.hide();
+  }, [isDeleteModalShown]);
 
   useEffect(() => {
     getPublications();
     checkIsLiked();
     checkIsSaved();
   }, [id]);
+
 
   useEffect(() => {
     // if (publication && publication.userId) {
@@ -48,19 +70,22 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   const fetchArtistDetails = async () => {
-    try {
-      const response = await get(`/api/user/profile/${publication.userId}`, context?.token);
-      setArtist(response.data);
-    }
-    catch (error) {
-      console.error("Error fetching artist details:", error);
-    }
+    get(
+      `/api/user/profile/${publication.userId}`,
+      context?.token,
+      (response) => setArtist(response?.data),
+      (error) => {
+        ToastAndroid.show("Could not get artist data. Try again later", ToastAndroid.LONG);
+        return console.error("Error getting profile data: ", error);
+      }
+    );
   };
 
-  const handleToArtistProfile = (artist: ArtistType) => {
-    console.log('artist id: ', artist._id);
-    navigation.navigate('other_profile', { id: artist._id });
+
+  const handleToArtistProfile = (artistId: string) => {
+    navigation.navigate('other_profile', { id: artistId });
   };
+
 
   const getAuthorName = (userId) => {
     get(
@@ -76,73 +101,85 @@ const SingleArt = ({ navigation, route } : any) => {
   };
 
   const fetchPaymentSheetParams = () => {
-    console.log('In fetchPaymentSheetParams, sending id:', id);
-
     const requestData = {
       artPublicationId: id,
     };
 
-  console.log('In fetchedpayebrlgvweblrfvbweijvbofvbe');
-  post(
-    '/api/order/create',
-    requestData,
-    context?.token,
-    (response) => {
-      console.log('Payment Sheet Params:', response);
+    post(
+      '/api/order/create',
+      requestData,
+      context?.token,
+      (response) => {
+        console.log('Payment Sheet Params:', response);
 
-      if (response && response.data && response.data.url) {
-        const paymentUrl = response.data.url;
-        Linking.openURL(paymentUrl)
-          .catch(err => {
-            console.error('Failed to open URL:', err);
-            Alert.alert('Error', 'Failed to open the payment page.');
+        if (response && response.data && response.data.url) {
+          const paymentUrl = response.data.url;
+          Linking.openURL(paymentUrl)
+            .catch(err => {
+              console.error('Failed to open URL:', err);
+              Alert.alert('Error', 'Failed to open the payment page.');
+            });
+        } else {
+          console.error('No URL found in the response');
+          Alert.alert('Error', 'Payment URL not found.');
+        }
+      },
+      (error) => {
+        console.error('Error fetching payment sheet parameters:', error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          error.response.data.errors.forEach(err => {
+            console.error(`API error - ${err.param}: ${err.msg}`);
+            Alert.alert('This publication is not for sale');
           });
-      } else {
-        console.error('No URL found in the response');
-        Alert.alert('Error', 'Payment URL not found.');
+        }
       }
-    },
-  (error) => {
-    console.error('Error fetching payment sheet parameters:', error);
-    if (error.response && error.response.data && error.response.data.errors) {
-      error.response.data.errors.forEach(err => {
-        console.error(`API error - ${err.param}: ${err.msg}`);
-        Alert.alert('This publication is not for sale');
-      });
-    }
-  }
-);
+    );
 
-console.log('Request to /api/order/create sent with payload:', requestData);
-};
+    console.log('Request to /api/order/create sent with payload:', requestData);
+  };
+
 
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
   };
 
+
   const handleArtistButtonClick = async () => {
     navigation.navigate('other_profile');
 
-  }
-
-  const previous = async () => {
-    navigation.navigate('homemain');
-  }
+  };
 
 
-  const showAlert = (message) => {
-    Alert.alert(
-      "Art Publication",
-      message,
+  const deletePost = () => {
+    const callback = () => {
+      const msg = "Post supprimé avec succès !";
+      ToastAndroid.show(msg, ToastAndroid.SHORT);
+      setIsDeleteModalShown(false);
+      return navigation.goBack();
+    };
+
+    const onErrorCallback = (err: any) => {
+      const errorMsg: string = err?.response?.data?.msg;
+
+      console.error("Delete post ", err?.response?.status, ' : ', errorMsg);
+      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+      return setIsDeleteModalShown(false);
+    };
+
+    del(
+      `/api/art-publication/${id}`,
+      context?.token,
+      callback,
+      onErrorCallback
     );
   };
+
 
   const getPublications = () => {
     get(
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
-        console.log('🎨 Publications:', response.data)
         setPublication(response?.data || []);
         getAuthorName(response?.data.userId);
         setSoldState(response?.data.isSold)
@@ -151,159 +188,166 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       (error) => {
         console.error("Error fetching publications:", error);
       }
-      );
-    };
+    );
+  };
 
-    const handleSavedButtonClick = async () => {
-      setModalVisible(true);
-    };
+  const handleSavedButtonClick = async () => {
+    setModalVisible(true);
+  };
 
-    const closeModal = () => {
-      setModalVisible(false);
-      setNewCollectionName('');
-    };
+  const closeModal = () => {
+    setModalVisible(false);
+    setNewCollectionName('');
+  };
 
-    const addToCollection = async (collectionName: string) => {
-      try {
-        if (token) {
-          const url = `/api/collection`;
-          const body = {
-            artPublicationId: id,
-            collectionName: collectionName,
-            isPublic: true
-          };
-          const callback = (response) => {
-            console.log('Saved to collection successfully');
-            Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
-            setIsSaved(true);
-          };
-          const onErrorCallback = (error) => {
-            console.error('Error while saving to collection:', error);
-            Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
-          };
-          post(url, body, token, callback, onErrorCallback);
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération du token JWT :', error);
-        Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+  const addToCollection = async (collectionName: string) => {
+    try {
+      if (token) {
+        const url = `/api/collection`;
+        const body = {
+          artPublicationId: id,
+          collectionName: collectionName,
+          isPublic: true
+        };
+
+        const callback = (response) => {
+          console.log('Saved to collection successfully');
+          Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
+          setIsSaved(true);
+        };
+
+        const onErrorCallback = (error) => {
+          console.error('Error while saving to collection:', error);
+          Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+        };
+
+        post(url, body, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
-      closeModal();
-    };
+    } catch (error) {
+      console.error('Erreur lors de la récupération du token JWT :', error);
+      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+    }
+    closeModal();
+  };
 
-    const likePublication = async () => {
-      try {
-        if (token) {
-          const url = `/api/art-publication/like/${id}`;
-          const body = undefined;
-          const callback = () => {
-            setIsLiked(prevIsLiked => !prevIsLiked);
-            console.log(isLiked);
-            if (!isLiked && userCollections && userCollections.length > 0) {
-              addToCollection(userCollections[0].name);
-            }
-          };
-          const onErrorCallback = (error) => {
-            console.error('Erreur de like :', error);
-            if (error.response) {
-              // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-              console.error('Server responded with non-2xx status:', error.response.data);
-            } else if (error.request) {
-              // La requête a été effectuée mais aucune réponse n'a été reçue
-              console.error('No response received from server');
-            } else {
-              // Une erreur s'est produite lors de la configuration de la requête
-              console.error('Error setting up the request:', error.message);
-            }
-            // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-          };
+  const likePublication = async () => {
+    try {
+      if (token) {
+        const url = `/api/art-publication/like/${id}`;
+        const body = undefined;
 
-          post(url, body, token, callback, onErrorCallback);
-        } else {
-          console.error('Token JWT not found. Make sure the user is logged in.');
-          // Alert.alert('Token JWT not found. Make sure the user is logged in.');
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+        const callback = () => {
+          setIsLiked(prevIsLiked => !prevIsLiked);
+          console.log(isLiked);
+          if (!isLiked && userCollections && userCollections.length > 0) {
+            addToCollection(userCollections[0].name);
+          }
+        };
+
+        const onErrorCallback = (error) => {
+          console.error('Erreur de like :', error);
+          if (error.response) {
+            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            // La requête a été effectuée mais aucune réponse n'a été reçue
+            console.error('No response received from server');
+          } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            console.error('Error setting up the request:', error.message);
+          }
+          // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+        };
+
+        post(url, body, token, callback, onErrorCallback);
+        setIsLiked((current: boolean) => !current);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
-      checkIsLiked();
-    };
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    }
+  };
 
-    const selectTag = () => {
-    };
-
-    const checkIsLiked = async () => {
-      try {
-        if (token) {
-          const url = `/api/art-publication/users-who-liked/${id}`;
-          const callback = (response) => {
-            const responseData = response.data;
-            const usersWhoLiked = responseData.users;
-            const currentUserUsername = "VivantGarrigues";
-            const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
-
-            setIsLiked(isArtLiked);
-            console.log(isLiked);
-          };
-          const onErrorCallback = (error) => {
-            console.error('Error fetching like:', error);
-            Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
-          };
-          get(url, token, callback, onErrorCallback);
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-        Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+  const checkIsLiked = async () => {
+    try {
+      if (!token) {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        return;
       }
-    };
 
-    const checkIsSaved = async () => {
-      try {
-        if (token) {
-          const url = `/api/collection/my-collections`;
-          const callback = (response) => {
-            setUserCollections(response.data);
-            if (response.data) {
-              for (const collection of response.data) {
-                const collectionId = collection._id;
-                try {
-                  const collectionCallBack = (collectionResponse) => {
-                    const collection = collectionResponse.data;
-                    if (collection.some((publication) => publication._id === id)) {
-                      setIsSaved(true);
-                      return;
-                    }
+      const url = `/api/art-publication/users-who-liked/${id}`;
+
+      const callback = (response) => {
+        const usersWhoLiked = response.data?.users;
+        const isArtLiked = usersWhoLiked.some((user) => user?.username === context?.username);
+
+        return setIsLiked(!!isArtLiked);
+      };
+
+      const onErrorCallback = (error) => {
+        console.error('Error fetching like:', error);
+        Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+      };
+
+      return get(url, token, callback, onErrorCallback);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    }
+  };
+
+
+  const checkIsSaved = async () => {
+    try {
+      if (token) {
+        const url = `/api/collection/my-collections`;
+        const callback = (response) => {
+          setUserCollections(response.data);
+          if (response.data) {
+            for (const collection of response.data) {
+              const collectionId = collection._id;
+              try {
+                const collectionCallBack = (collectionResponse) => {
+                  const collection = collectionResponse.data;
+                  if (collection.some((publication) => publication._id === id)) {
+                    setIsSaved(true);
+                    return;
                   }
-                  get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
-                } catch (error) {
-                  console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
-                }
+                };
+                get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
+              } catch (error) {
+                console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
               }
             }
-            setIsSaved(false);
-          };
-          const onErrorCallback = (error) => {
-            console.error('Error fetching collection:', error);
-          };
-          get(url, token, callback, onErrorCallback);
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+          }
+          setIsSaved(false);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error fetching collection:', error);
+        };
+        get(url, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
-    };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
+    }
+  };
 
-    return (
-      <View style={styles.container}>
 
-      <ScrollView>
+  return (
+    <ScrollView
+      contentContainerStyle={flex1}
+      style={[ bgColor ]}
+      scrollEnabled={!isDeleteModalShown}
+    >
       <View style={styles.container}>
 
       <View style={styles.logo}>
@@ -398,11 +442,40 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           </TouchableOpacity>
         </View>
       </Modal>
-    </View>
-    </ScrollView>
-      <CommentInput id={ id }></CommentInput>
 
-    </View>
+      {/* This is commented for now because it does not work */}
+      {/* <CommentInput id={ id }></CommentInput> */}
+
+      {/* Modal to confirm deleting the post */}
+      <SlidingUpPanel
+        ref={_slidingPanel}
+        height={Dimensions.get('window').height / 5}
+        containerStyle={styles.deleteModal}
+        draggableRange={{ top: Dimensions.get('window').height / 5, bottom: 0 }}
+        onBackButtonPress={() => {
+          setIsDeleteModalShown(false);
+          return true;
+        }}
+        onBottomReached={() => setIsDeleteModalShown(false)}
+      >
+        <>
+          <Text style={{ margin: 24 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+          <View style={flexRow}>
+            <Button
+              value="Oui"
+              onPress={deletePost}
+              style={flex1}
+            />
+            <Button
+              secondary
+              value="Non"
+              style={flex1}
+              onPress={() => setIsDeleteModalShown(false)}
+            />
+          </View>
+        </>
+      </SlidingUpPanel>
+    </ScrollView>
   );
 };
 
@@ -601,5 +674,6 @@ const styles = StyleSheet.create({
       marginRight: 30,
     },
 });
+
 
 export default SingleArt;

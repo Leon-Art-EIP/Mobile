@@ -58,8 +58,8 @@ const AddPublication = ({ navigation }: any) => {
 
     const parsedPrice = parseFloat(price);
     const isPriceValid = !isNaN(parsedPrice) && parsedPrice >= 0;
-  
     const formData = new FormData();
+
     formData.append('name', name);
     formData.append('artType', artType !== '' ? artType : 'empty');
     formData.append('description', description !== '' ? description : 'empty');
@@ -67,7 +67,7 @@ const AddPublication = ({ navigation }: any) => {
     formData.append('isForSale', false);
     formData.append('price', isPriceValid ? parsedPrice : 0);
     formData.append('location', location !== '' ? location : 'empty');
-  
+
     if (selectedImage) {
       try {
         const fileData = await RNFS.readFile(selectedImage, 'base64');
@@ -82,7 +82,7 @@ const AddPublication = ({ navigation }: any) => {
         return;
       }
     }
-  
+
     post(
       '/api/art-publication',
       formData,
@@ -123,7 +123,7 @@ const AddPublication = ({ navigation }: any) => {
       }
     );
   };
-  
+
   const selectImage = async () => {
     try {
       const options = {
@@ -148,7 +148,7 @@ const AddPublication = ({ navigation }: any) => {
 
   const handleName = (value: string) => {
     setName(value);
-  }
+  };
   const handleDescription = (value: string) => {
     setDescription(value);
   };

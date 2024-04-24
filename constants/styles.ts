@@ -70,6 +70,11 @@ const pv24: StyleProp<any> = { paddingVertical: 24 };
 // text
 const fwBold: StyleProp<TextStyle> = { fontWeight: 'bold', color: colors.black };
 const fwNormal: StyleProp<TextStyle> = { fontWeight: 'normal' };
+const taCenter: StyleProp<TextStyle> = { textAlign: 'center' };
+const taJustify: StyleProp<TextStyle> = { textAlign: 'justify' };
+const taAuto: StyleProp<TextStyle> = { textAlign: 'auto' };
+const taLeft: StyleProp<TextStyle> = { textAlign: 'left' };
+const taRight: StyleProp<TextStyle> = { textAlign: 'right' };
 
 // background color
 const bgColor: StyleProp<any> = { backgroundColor: colors.bg };
@@ -103,7 +108,7 @@ export {
   pv4, pv8, pv24, ph4, ph8, ph24,
   m4, m8, mt4, mt8, mb4, mb8, ml4, ml8, mr4, mr8,
   mv4, mv8, mv24, mh4, mh8, mh24,
-  fwBold, fwNormal,
+  fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft,
   bgColor, bgRed, bgGrey,
   br5, br7, br12, br20, br50,
   cBlack, cWhite, cPrimary, cDisabled, cText

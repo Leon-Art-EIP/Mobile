@@ -1,0 +1,25 @@
+{
+  "parser": "@typescript-eslint/parser",  // Use the TS parser
+  "plugins": [
+    "@typescript-eslint",
+    "unused-imports"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/no-empty-function": "error",  // Disallow empty functions
+    "@typescript-eslint/explicit-function-boundaries": ["error", "never"],  // Enforce function declarations
+    // "@typescript-eslint/explicit-module-boundary-types": ["error", true],  // Require types in function declarations
+    "no-trailing-spaces": "error",  // Disallow trailing spaces
+    "semi": ["error", "always"],  // Enforce semicolons
+    "react/prefer-stateless-function": "error",  // Enforce functional components
+    "react/jsx-curly-spacing": ["error", "never"],  // Disallow unnecessary curly braces in JSX
+    "react/jsx-props-no-spreading": ["error", { "exceptions": ["Component"] }],  // Disallow prop spreading except for specific components
+    "space-between-functions": ["error", { "lines": 2 }],
+    "unused-imports/no-unused-imports": "warn"
+  }
+}

@@ -26,7 +26,7 @@ describe('AddPublication', () => {
 
   it('renders correctly', () => {
     const { getByPlaceholderText, getByText } = renderComponent();
-    
+
     expect(getByPlaceholderText('Titre')).toBeTruthy();
     expect(getByPlaceholderText('Description')).toBeTruthy();
     expect(getByText('Ajouter')).toBeTruthy();
@@ -35,7 +35,7 @@ describe('AddPublication', () => {
 
   it('handles input changes', () => {
     const { getByPlaceholderText } = renderComponent();
-    
+
     const titleInput = getByPlaceholderText('Titre');
     fireEvent.changeText(titleInput, 'Test Title');
     expect(titleInput.props.value).toBe('Test Title');
@@ -45,7 +45,7 @@ describe('AddPublication', () => {
 
   it('handles publish button click', () => {
     const { getByText } = renderComponent();
-    
+
     fireEvent.press(getByText('Ajouter'));
     // Here you would normally check if the post method was called correctly
     // However, that requires mocking the post method and ensuring it's used correctly

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   FlatList,
@@ -12,7 +12,7 @@ import {
   ToastAndroid,
   Text,
   RefreshControl
-} from 'react-native'
+} from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
@@ -20,6 +20,7 @@ import { getImageUrl } from '../helpers/ImageHelper';
 import colors from "../constants/colors";
 import { ArtistType, ArticleType } from "../constants/homeValues";
 import { get } from '../constants/fetch';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Title from "../components/text/Title";
 import ArtistCard from "../components/cards/ArtistCard";
@@ -32,19 +33,22 @@ const HomeScreen = ({ navigation }: any) => {
   const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
+
   const handleToArtistProfile = (artist: ArtistType) => {
     console.log('artist id: ', artist._id);
     navigation.navigate('other_profile', { id: artist._id });
   };
 
+
   const handleToArticle = (article: ArticleType) => {
     navigation.navigate('article', { article });
   };
 
-  const towardsPost = (publicationId) => {
-    console.log('🔵 ID:', publicationId);
+
+  const towardsPost = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
   };
+
 
   const getArticles = () => {
     if (!context?.token) {
@@ -63,6 +67,7 @@ const HomeScreen = ({ navigation }: any) => {
     );
   };
 
+
   const getArtists = () => {
     if (!context?.token) {
       return ToastAndroid.show("Problem authentificating", ToastAndroid.SHORT);
@@ -74,8 +79,9 @@ const HomeScreen = ({ navigation }: any) => {
       (response: any) => {
         setArtists(response?.data?.artists);
       }
-    )
-  }
+    );
+  };
+
 
   const getPublications = () => {
     console.log('Token:', context?.token);
@@ -86,7 +92,7 @@ const HomeScreen = ({ navigation }: any) => {
       "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
       (response) => {
-        console.log('🎨 Publications:', response.data)
+        console.log('🎨 Publications:', response.data);
         setPublications(response?.data || []);
       },
       (error) => {
@@ -97,26 +103,32 @@ const HomeScreen = ({ navigation }: any) => {
       console.log('LOG');
   };
 
-  useEffect(() => {
-  }, [articles]);
+
+  const refreshData = () => {
+    getArticles();
+    getArtists();
+    getPublications();
+  };
+
 
   useEffect(() => {
     if (!isRefreshing) {
       return;
     }
-    getArticles();
-    getArtists();
-    getPublications();
+    refreshData();
     setIsRefreshing(false);
   }, [isRefreshing]);
 
+
   useEffect(() => {
-    getArtists();
-    getArticles();
-    getPublications();
+    refreshData();
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
+
+  useFocusEffect(
+    useCallback(refreshData, [navigation])
+  );
 
 
   return (
@@ -126,6 +138,7 @@ const HomeScreen = ({ navigation }: any) => {
         <RefreshControl
           refreshing={isRefreshing}
           onRefresh={() => setIsRefreshing(current => !current)}
+          colors={[colors.primary]}
         />
       }>
         <View style={styles.titleView}>
@@ -134,7 +147,7 @@ const HomeScreen = ({ navigation }: any) => {
         </View>
         <View>
 
-        {/* Actualités */}
+        {/* Actuality */}
 
           <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
             Actualités
@@ -244,7 +257,7 @@ const HomeScreen = ({ navigation }: any) => {
     </ScrollView>
   </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

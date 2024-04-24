@@ -37,6 +37,22 @@ type ArtistType = {
   profilePicture: string | undefined;
 };
 
+type PostType = {
+  _id: string;
+  userId: string;
+  image: string;
+  artType: string;
+  name: string;
+  description: string;
+  dimension: string;
+  isForSale: boolean;
+  isSold: boolean;
+  price: number;
+  location: string;
+  likes: [];
+  comments: []
+}
+
 const const_news: NewsType[] = [
   {
     id: 0,
@@ -73,7 +89,7 @@ const const_artists: NewsType[] = [
   }
 ];
 
-export type { NewsType, ArtistType, ArticleType, PublicationType };
+export type { NewsType, ArtistType, ArticleType, PublicationType, PostType };
 export {
   const_news,
   const_artists,

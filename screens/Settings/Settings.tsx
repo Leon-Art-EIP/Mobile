@@ -10,31 +10,17 @@ import colors from '../../constants/colors';
 import Button from '../../components/buttons/Button';
 import BackArrow from '../../assets/images/back_arrow_black.png'
 import { MainContext } from '../../context/MainContext';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import {aiCenter, flexRow, mh8, mv24} from "../../constants/styles";
 
 const Settings = () => {
   const navigation = useNavigation();
   const context = useContext(MainContext);
 
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
-
-  const handlePersonalInformationsClick = () => {
-    navigation.navigate('personal_informations');
-  };
-  
-  const handlePasswordAndSecurityClick = () => {
-    navigation.navigate('password_and_security');
-
-  };
-  
-  const handleGeneralConditionsClick = () => {
-    navigation.navigate('general_conditions');
-  };
 
   const handleDisconnectClick = () => {
     navigation.navigate('login');
-    context?.setToken("");
+    return context?.logOut();
   };
 
   const linkStripeAccount = () => {
@@ -65,7 +51,7 @@ const Settings = () => {
   };
 
   return (
-    <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.white} />
       <TouchableOpacity
           onPress={() => handleBackButtonClick()}
@@ -77,8 +63,18 @@ const Settings = () => {
           onPress={() => navigation.goBack()}
           size={24}
         />
+
+      <View style={[ flexRow, mv24, aiCenter, mh8 ]}>
+        {/* Go back button */}
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
         </TouchableOpacity>
-      <Title style={styles.mainTitle}>Paramètres</Title>
+
+        <Title style={{ marginHorizontal: 24 }}>Paramètres</Title>
+      </View>
+
       <View>
         <Button style={styles.stripebutton}
         value="Link my Stripe Account"
@@ -88,37 +84,41 @@ const Settings = () => {
           value="Informations personnelles"
           secondary
           style={styles.settingsButton}
-          textStyle={{fontSize: 16}}
-          onPress={() => handlePersonalInformationsClick()}
-          />
+          textStyle={{ fontSize: 16 }}
+          onPress={() => navigation.navigate("personal_informations")}
+        />
         <Button
           value="Mot de passe et sécurité"
           secondary
           style={styles.settingsButton}
-          textStyle={{fontSize: 16, textAlign: 'left'}}
-          onPress={() => handlePasswordAndSecurityClick()}
-          />
+          textStyle={{ fontSize: 16, textAlign: 'left' }}
+          onPress={() => navigation.navigate("password_and_security")}
+        />
         <Button
           value="Conditions générales de vente"
           secondary
           style={styles.settingsButton}
-          textStyle={{fontSize: 16}}
-          onPress={() => handleGeneralConditionsClick()}
-          />
+          textStyle={{ fontSize: 16 }}
+          onPress={() => navigation.navigate("general_conditions")}
+        />
       </View>
+
+      {/* Log out button */}
       <Button
-          value="Se déconnecter"
-          style={styles.disconnectButton}
-          textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-          onPress={() => handleDisconnectClick()}
-          />
+        value="Se déconnecter"
+        style={styles.disconnectButton}
+        textStyle={{ marginTop: 'auto' }}
+        onPress={() => handleDisconnectClick()}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
+    backgroundColor: colors.white,
+    paddingHorizontal: 12,
+    paddingBottom: 80,
     flex: 1
   },
   stripebutton: {
@@ -131,27 +131,17 @@ const styles = StyleSheet.create({
   },
   settingsButton: {
     width: '95%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
-    height: 50,
     borderRadius: 10,
     justifyContent: 'center',
     alignSelf: 'center', // Centre le bouton horizontalement
     marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
   },
-  backButton: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    zIndex: 1,
-    color: colors.tertiary,
-  },
   disconnectButton: {
-    width: '60%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
-    height: 40,
-    borderRadius: 100,
+    width: '60%',
+    marginTop: 'auto',
     justifyContent: 'center',
-    alignSelf: 'center', // Centre le bouton horizontalement
-    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
-  },
+    alignSelf: 'center'
+  }
 });
 
 export default Settings;

@@ -15,7 +15,11 @@ import Pen from 'react-native-vector-icons/pen';
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
 import { getImageUrl } from '../helpers/ImageHelper';
-import { mh4 } from '../constants/styles';
+import { mh4, mv4 } from '../constants/styles';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Feather from "react-native-vector-icons/Feather";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Card from "../components/cards/Card";
 
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
@@ -167,16 +171,19 @@ const Profile = () => {
   };
 
 
-  useFocusEffect(
-    React.useCallback(() => {}, [navigation])
-  );
-
-
-  useEffect(() => {
+  const reloadProfile = () => {
     setIsRefreshing(true);
     fetchUserData();
     updateCollections();
-  }, []);
+  }
+
+
+  useFocusEffect(
+    React.useCallback(reloadProfile, [navigation])
+  );
+
+
+  useEffect(reloadProfile, []);
 
 
   const updateCollections = async () => {
@@ -205,87 +212,82 @@ const Profile = () => {
 
   return (
     <ScrollView nestedScrollEnabled>
-    <View>
-      {/* Buttons : Back, Edit profile and Settings */}
-      <View style={{ flexDirection: 'row', marginRight: 20 }}>
-        <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
+      <View>
+        {/* Buttons : Back, Edit profile and Settings */}
+        <View style={{ flexDirection: 'row', marginRight: 20, zIndex: 10 }}>
+
+          {/* Go back button */}
+          <TouchableOpacity
+            onPress={() => handleBackButtonClick()}
+            style={styles.backButton}
           >
-          <AntDesign
-            name="left"
-            color={colors.black}
-            onPress={() => navigation.goBack()}
-            size={24}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleEditButtonClick()}
-          style={styles.editButton}
-        >
-          <AntDesign
-            name="edit"
-            color={colors.black}
-            onPress={() => navigation.goBack()}
-            size={24}
-          />
-          {/* <Image source={EditButtonImage} style={{ width: 40, height: 40 }} /> */}
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleSettingsButtonClick()}
-          style={styles.settingButton}
-        >
-          <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
-        </TouchableOpacity>
-      </View>
-      {/* Banner */}
-      <View style={styles.banner}>
-        <Image
-          source={{ uri: getImageUrl(userData?.bannerPicture) }}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
-      </View>
-      {/* Profile picture */}
-      <View style={styles.overlayImage}>
-        <View style={styles.circleImageContainer}>
-          <Image
-            source={{ uri: getImageUrl(userData?.profilePicture) }}
-            style={styles.profilePicture}
-          />
-        </View>
-      </View>
+            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+          </TouchableOpacity>
 
-      {/* Text blocks : followers, name and posts*/}
-      <View style={styles.textBlocks}>
+          {/* Edit button */}
+          <TouchableOpacity
+            onPress={() => handleEditButtonClick()}
+            style={styles.editButton}
+          >
+            <Feather name="edit-2" color={colors.black} size={24} />
+          </TouchableOpacity>
 
-        {/* Bloc de texte followers */}
-        <View style={styles.textBlock}>
-          <TouchableOpacity onPress={handleToFollowerList}>
-            <View style={styles.centeredText}>
-              <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-              <Text style={styles.title}>followers</Text>
-            </View>
-
+          {/* Settings button */}
+          <TouchableOpacity
+            onPress={() => handleSettingsButtonClick()}
+            style={styles.settingButton}
+          >
+            <MaterialIcons name="settings" color={colors.black} size={32} />
           </TouchableOpacity>
         </View>
-
-        {/* Bloc de texte au centre */}
-        <View style={styles.centerTextBlock}>
-          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
-          {userData && userData.availability !== "unavailable" && (
-            <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
-            )}
+        {/* Banner */}
+        <View style={styles.banner}>
+          <Image
+            source={{ uri: getImageUrl(userData?.bannerPicture) }}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+        </View>
+        {/* Profile picture */}
+        <View style={styles.overlayImage}>
+          <View style={styles.circleImageContainer}>
+            <Image
+              source={{ uri: getImageUrl(userData?.profilePicture) }}
+              style={styles.profilePicture}
+            />
+          </View>
         </View>
 
-        <View style={styles.textBlock}>
-          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
-          <Text style={styles.title}>posts</Text>
-        </View>
-      </View>
+        {/* Text blocks : followers, name and posts*/}
+        <View style={styles.textBlocks}>
 
-      {/* Decorative line */}
-      <View style={styles.decorativeLine} />
+          {/* Bloc de texte followers */}
+          <View style={styles.textBlock}>
+            <TouchableOpacity onPress={handleToFollowerList}>
+              <View style={styles.centeredText}>
+                <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
+                <Text style={styles.title}>followers</Text>
+              </View>
+
+            </TouchableOpacity>
+          </View>
+
+          {/* Bloc de texte au centre */}
+          <View style={styles.centerTextBlock}>
+            <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
+            {userData && userData.availability !== "unavailable" && (
+              <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
+              )}
+          </View>
+
+          <View style={styles.textBlock}>
+            <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
+            <Text style={styles.title}>posts</Text>
+          </View>
+        </View>
+
+        {/* Decorative line */}
+        <View style={styles.decorativeLine} />
 
       {/* Tab selections button : Artwork, Collections and About */}
       <View style={styles.tabsNavigation}>
@@ -313,81 +315,81 @@ const Profile = () => {
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('A propos')}
           />
-      </View>
+        </View>
 
-      {/* Artworks */}
-      { activeTab === 'Artwork' && (
-        <View style={styles.squareContainer}>
-          <FlatList
-            data={userArtworks}
-            numColumns={3}
-            renderItem={(e) => (
+        {/* Artworks */}
+        { activeTab === 'Artwork' && (
+          <View style={styles.squareContainer}>
+            <FlatList
+              data={userArtworks}
+              numColumns={3}
+              renderItem={(e) => (
+                <TouchableOpacity
+                  onPress={() => handleArtworkClick(e.item._id)}
+                  key={e.item._id}
+                  style={[ mh4, mv4 ]}
+                >
+                  <Image
+                    source={{ uri: getImageUrl(e.item.image) }}
+                    style={styles.artworkImage}
+                  />
+                </TouchableOpacity>
+              )}
+              refreshControl={(
+                <RefreshControl
+                  colors={[ colors.primary ]}
+                  refreshing={isRefreshing}
+                  onRefresh={() => {
+                    setIsRefreshing(true);
+                    fetchUserData();
+                    updateCollections();
+                  }}
+                />
+              )}
+            />
+          </View>
+        ) }
+
+        {/* Collections tab */}
+        {activeTab === 'Collections' && userCollections.length > 0 && (
+          <View style={styles.squareContainer}>
+  {userCollections.map((collection, index) => (
               <TouchableOpacity
-                onPress={() => handleArtworkClick(e.item._id)}
-                key={e.item._id}
-                style={[mh4]}
+                key={collection._id}
+                style={[
+                  styles.squareFrame,
+                  {
+                    width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
+                    marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
+                    marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
+                    marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
+                  },
+                ]}
+                onPress={() => handleCollectionClick(collection)}
               >
                 <Image
-                  source={{ uri: getImageUrl(e.item.image) }}
-                  style={styles.artworkImage}
+                  source={
+                    collection.artPublications.length > 0
+                      ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
+                      : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
+                  }
+                  style={{ flex: 1, borderRadius: 10 }}
+                  resizeMode="cover"
+                  onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
                 />
+                <Text style={styles.collectionName}>{collection.name}</Text>
               </TouchableOpacity>
-            )}
-            refreshControl={(
-              <RefreshControl
-                colors={[ colors.primary ]}
-                refreshing={isRefreshing}
-                onRefresh={() => {
-                  setIsRefreshing(true);
-                  fetchUserData();
-                  updateCollections();
-                }}
-              />
-            )}
-          />
-        </View>
-      ) }
-
-      {/* Collections tab */}
-      {activeTab === 'Collections' && userCollections.length > 0 && (
-        <View style={styles.squareContainer}>
-{userCollections.map((collection, index) => (
-            <TouchableOpacity
-              key={collection._id}
-              style={[
-                styles.squareFrame,
-                {
-                  width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
-                  marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
-                  marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
-                  marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
-                },
-              ]}
-              onPress={() => handleCollectionClick(collection)}
-            >
-              <Image
-                source={
-                  collection.artPublications.length > 0
-                    ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
-                    : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
-                }
-                style={{ flex: 1, borderRadius: 10 }}
-                resizeMode="cover"
-                onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
-              />
-              <Text style={styles.collectionName}>{collection.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-      {activeTab === 'A propos' && (
-        <View style={styles.biographyContainer}>
-          <Text style={[styles.biography, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}>
-            {userData?.biography}
-          </Text>
-        </View>
-      )}
-    </View>
+            ))}
+          </View>
+        )}
+        {activeTab === 'A propos' && (
+          <Card style={styles.biographyContainer}>
+            <Text style={[styles.biography, { paddingLeft: 15 }]}>
+              {userData?.biography}
+            </Text>
+          </Card>
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -513,20 +515,17 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     top: 16,
-    left: 16,
-    zIndex: 1,
+    left: 16
   },
   editButton: {
     position: 'absolute',
     top: 16,
-    right: 50,
-    zIndex: 1,
+    right: 50
   },
   settingButton: {
     position: 'absolute',
     top: 16,
-    right: 0,
-    zIndex: 1,
+    right: 0
   },
   collectionName: {
     fontSize: 18,
@@ -547,7 +546,7 @@ const styles = StyleSheet.create({
   biographyContainer: {
     marginLeft: 15,
     marginRight: 15,
-    marginTop: 5,
+    marginTop: 5
   },
   biography: {
     fontSize: 18,

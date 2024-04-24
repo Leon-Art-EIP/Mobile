@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
+import {Image, RefreshControl, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import colors from '../../constants/colors';
 import { bgGrey, cDisabled, flexRow, fwBold } from '../../constants/styles';
 import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
-import { useNavigation } from '@react-navigation/native';
-import Button from '../buttons/Button';
-import Title from '../text/Title';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 
 
 const CommandsComponent = () => {
@@ -17,6 +15,7 @@ const CommandsComponent = () => {
   const [ordersState, setOrdersState] = useState([]);
   const [salesState, setSalesState] = useState([]);
   const [publicationNames, setPublicationNames] = useState({});
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
 
 
@@ -60,10 +59,17 @@ const CommandsComponent = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Title style={styles.title}>Commandes</Title>
-  
-      {orders.map((order, index) => (
+    <ScrollView
+      refreshControl={<RefreshControl
+        refreshing={isRefreshing}
+        colors={[colors.primary]}
+        // onRefresh={getCommands}
+      />}
+      contentContainerStyle={styles.container}
+    >
+      <Text style={styles.title}>Commandes</Text>
+
+      { orders.map((order, index) => (
         <TouchableOpacity
           key={order.orderId + Math.random().toString()}
           onPress={() => navigation.navigate('single_order', { id: order.orderId, buy: true })}

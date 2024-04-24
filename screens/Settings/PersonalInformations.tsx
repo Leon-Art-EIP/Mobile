@@ -8,6 +8,7 @@ import colors from '../../constants/colors';
 import BackArrow from '../../assets/images/back_arrow_black.png'
 import { MainContext } from '../../context/MainContext';
 import Button from '../../components/buttons/Button';
+import Ionicons from "react-native-vector-icons/Ionicons";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const PersonalInformations = () => {
@@ -27,17 +28,15 @@ const PersonalInformations = () => {
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
       <StatusBar backgroundColor={colors.white} />
+
+      {/* Go back button */}
       <TouchableOpacity
         onPress={() => handleBackButtonClick()}
         style={styles.backButton}
       >
-        <AntDesign
-          name="left"
-          color={colors.black}
-          onPress={() => navigation.goBack()}
-          size={24}
-        />
+        <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
       </TouchableOpacity>
+
       <Title style={styles.mainTitle}>Informations personnelles</Title>
 
       {/* Bloc 1 - Email */}
