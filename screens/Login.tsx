@@ -193,7 +193,7 @@ const Login = ({ navigation }: any) => {
         <Button
           onPress={handleGoogleLogin}
           value="Se connecter avec Google"
-          style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
+          style={[styles.googleButton, { backgroundColor: colors.platinium }]}
           textStyle={styles.googleButtonText}
         />
 
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'white',
+    color: 'black',
   },
   registerButton: {
     backgroundColor: 'gray',
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'white',
+    color: 'primary',
   },
   titleView: {
     display: 'flex',

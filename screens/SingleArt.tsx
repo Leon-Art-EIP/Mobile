@@ -378,11 +378,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       </View>
       <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
         <Text style={styles.artTitle}>{publication.name}</Text>
-        {context?.userId === publication?.userId && (
-          <TouchableOpacity onPress={() => setIsDeleteModalShown(true)}>
-            <MaterialCommunityIcons name="trash-can-outline" size={24} color="#D32F2F" />
-          </TouchableOpacity>
-        )}
         <Text style={{fontSize: 23, color: 'black' }}>, {publication.price} €</Text>
         { context?.userId === publication?.userId && (
             <TouchableOpacity
@@ -408,71 +403,44 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         />
       </View>
       <View>
-      <Button
-        style={[styles.actionButton, isSold ? styles.soldButton : styles.availableButton, { width: '80%' }]}
-        textStyle={{ fontSize: 20, textAlign: 'center', color: isSold ? colors.disabledText : 'white' }}
-        value={isSold ? "Vendu" : "Acheter"}
-        onPress={openPaymentSheet}
-        disabled={isSold}
-      />
+      {isForSale && (
+        <Button
+          style={[styles.actionButton, isSold ? styles.soldButton : styles.availableButton, { width: '80%' }]}
+          textStyle={{ fontSize: 20, textAlign: 'center', color: isSold ? colors.disabledText : 'white' }}
+          value={isSold ? "Vendu" : "Acheter"}
+          onPress={openPaymentSheet}
+          disabled={isSold}
+        />
+      )}
       </View>
 
 
       {/* Informations */}
       <View style={styles.rowContainer}>
-        {author && (
-          <ArtistCard
-          showTitle={false}
-          onPress={() => handleToArtistProfile(author)}
-          item={author}
-          path="other_profile"
-          style={styles.artistCardStyle}
-          />
-          )}
-        <Text style={styles.userIdText}>
-          {author ? author.username : 'Loading...'}
-        </Text>
-        <TouchableOpacity
-        // onPress={() => handleBackButtonClick()}
-        // style={styles.backButton}
-      >
-        <Ionicons name="bookmark-outline" color={colors.black} size={32} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        // onPress={() => handleBackButtonClick()}
-        // style={styles.backButton}
-      >
-        <Ionicons name="heart-outline" color={colors.black} size={32} />
-      </TouchableOpacity>
-        {/* <Button
-          value={isSaved ? "Enregistré" : "Enregistrer"}
-          secondary={isSaved ? true : false}
-          style={[styles.actionButton, { backgroundColor: colors.secondary }]}
-          textStyle={{ fontSize: 14, textAlign: 'center', color: colors.black }}
-          onPress={() => handleSavedButtonClick()}
+    {author && (
+        <ArtistCard
+            showTitle={false}
+            onPress={() => handleToArtistProfile(author)}
+            item={author}
+            path="other_profile"
+            style={styles.artistCardStyle}
         />
-        <Button
-          value={isLiked ? "Liké" : "Liker"}
-          secondary={isLiked ? true : false}
-          style={[styles.actionButton]}
-          textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
-          onPress={likePublication}
-        /> */}
-        {/* <Button
-          value={isSaved ? "Enregistré" : "Enregistrer"}
-          secondary={isSaved ? true : false}
-          style={[styles.actionButton, { backgroundColor: colors.secondary }]}
-          textStyle={{ fontSize: 14, textAlign: 'center', color: colors.black }}
-          onPress={() => handleSavedButtonClick()}
-        />
-        <Button
-          value={isLiked ? "Liké" : "Liker"}
-          secondary={isLiked ? true : false}
-          style={[styles.actionButton]}
-          textStyle={{ fontSize: 14, textAlign: 'center', color: isLiked ? 'black' : 'white', }}
-          onPress={likePublication}
-        /> */}
-      </View>
+    )}
+    <Text style={styles.userIdText}>
+        {author ? author.username : 'Loading...'}
+    </Text>
+    <TouchableOpacity
+        onPress={() => handleSavedButtonClick()} // Save action for the bookmark icon
+    >
+        <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} color={colors.black} size={32} />
+    </TouchableOpacity>
+    <TouchableOpacity
+        onPress={() => likePublication()}
+    >
+        <Ionicons name={isLiked ? "heart" : "heart-outline"} color={colors.black} size={32}/>
+    </TouchableOpacity>
+</View>
+
       <View>
 
     </View>
@@ -584,6 +552,7 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       paddingHorizontal: 0,
       alignItems: 'center',
+      marginRight: 20,
     },
     actionButton: {
       // borderRadius: 30,
