@@ -4,6 +4,7 @@ import {
   FlatList,
   Image,
   Linking,
+  RefreshControl,
   ScrollView, StatusBar,
   StyleSheet,
   Text,
@@ -54,6 +55,7 @@ const SingleArt = ({ navigation, route } : any) => {
   const context = useContext(MainContext);
   const token = context?.token;
   const [artist, setArtist] = useState<ArtistType | undefined>(undefined);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState<PostType | undefined>(undefined);
@@ -207,12 +209,14 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   const getPublications = () => {
+    setIsRefreshing(true);
     get(
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
         setPublication(response?.data || []);
         getArtistName(response?.data.userId);
+        setIsRefreshing(false);
       },
       (error) => {
         console.error("Error fetching publications:", error);
@@ -447,7 +451,17 @@ const SingleArt = ({ navigation, route } : any) => {
           </View>
 
           {/* description */}
-          <ScrollView style={{ flexGrow: 1 }}>
+          <ScrollView
+            style={{ flexGrow: 1 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={getPublications}
+                tintColor={colors.primary}
+                colors={[ colors.primary ]}
+              />
+            }
+          >
             <Text style={{ fontSize: 15 }}>
               { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
             </Text>
