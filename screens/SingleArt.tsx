@@ -9,6 +9,7 @@ import {
   Text,
   TextInput,
   ToastAndroid,
+  Touchable,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -33,14 +34,20 @@ import {
   mh24, mh8,
   ml8, mlAuto,
   mr8,
-  mtAuto
+  mtAuto,
+  mv8,
+  ph24,
+  ph8,
+  pv4,
+  pv8
 } from "../constants/styles";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import CommentInput from '../components/CommentInput';
 import CommentsList from '../components/CommentsList';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -60,6 +67,9 @@ const SingleArt = ({ navigation, route } : any) => {
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
 
+  // In case we use more than one currency for different countries
+  const [currency, setCurrency] = useState<string>("€");
+
 
   useEffect(() => {
     if (isDeleteModalShown) {
@@ -67,6 +77,7 @@ const SingleArt = ({ navigation, route } : any) => {
     }
     return _slidingPanel?.current.hide();
   }, [isDeleteModalShown]);
+
 
   useEffect(() => {
     getPublications();
@@ -80,6 +91,12 @@ const SingleArt = ({ navigation, route } : any) => {
     //   fetchArtistDetails();
     // }
   }, [publication]);
+
+  useEffect(() => {
+    getPublications();
+    checkIsLiked();
+    checkIsSaved();
+  }, []);
 
 
   const fetchArtistDetails = async () => {
@@ -100,18 +117,19 @@ const SingleArt = ({ navigation, route } : any) => {
   };
 
 
-  const getAuthorName = (userId) => {
+  const getArtistName = (userId) => {
     get(
       `/api/user/profile/${userId}`,
       context?.token,
       (response) => {
-        setAuthor(response.data);
+        setArtist(response.data);
       },
       (error) => {
         console.error("Error fetching Artist Name:", error);
       }
     );
   };
+
 
   const fetchPaymentSheetParams = () => {
     const requestData = {
@@ -194,7 +212,7 @@ const SingleArt = ({ navigation, route } : any) => {
       context?.token,
       (response) => {
         setPublication(response?.data || []);
-        getAuthorName(response?.data.userId);
+        getArtistName(response?.data.userId);
       },
       (error) => {
         console.error("Error fetching publications:", error);
@@ -202,162 +220,138 @@ const SingleArt = ({ navigation, route } : any) => {
     );
   };
 
+
   const handleSavedButtonClick = async () => {
     setModalVisible(true);
   };
+
 
   const closeModal = () => {
     setModalVisible(false);
     setNewCollectionName('');
   };
 
+
   const addToCollection = async (collectionName: string) => {
-    try {
-      if (token) {
-        const url = `/api/collection`;
-        const body = {
-          artPublicationId: id,
-          collectionName: collectionName,
-          isPublic: true
-        };
-
-        const callback = (response) => {
-          console.log('Saved to collection successfully');
-          Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
-          setIsSaved(true);
-        };
-
-        const onErrorCallback = (error) => {
-          console.error('Error while saving to collection:', error);
-          Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
-        };
-
-        post(url, body, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du token JWT :', error);
-      Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
     }
+
+    const url = `/api/collection`;
+    const body = {
+      artPublicationId: id,
+      collectionName: collectionName,
+      isPublic: true
+    };
+
+    const callback = (response: any) => {
+      console.log('Saved to collection successfully');
+      Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
+      setIsSaved(true);
+      checkIsSaved();
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error while saving to collection:', error);
+      Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+    };
+
+    post(url, body, token, callback, onErrorCallback);
     closeModal();
   };
 
+
   const likePublication = async () => {
-    try {
-      if (token) {
-        const url = `/api/art-publication/like/${id}`;
-        const body = undefined;
-
-        const callback = () => {
-          setIsLiked(prevIsLiked => !prevIsLiked);
-          console.log(isLiked);
-          if (!isLiked && userCollections && userCollections.length > 0) {
-            addToCollection(userCollections[0].name);
-          }
-        };
-
-        const onErrorCallback = (error) => {
-          console.error('Erreur de like :', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-        };
-
-        post(url, body, token, callback, onErrorCallback);
-        setIsLiked((current: boolean) => !current);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    if (!token) {
+      return console.error('Token JWT not found. Make sure the user is logged in.');
     }
+
+    const url = `/api/art-publication/like/${id}`;
+    const body = undefined;
+
+    const onPost = () => {
+      /* setIsLiked(prevIsLiked => !prevIsLiked); */
+      checkIsLiked();
+      console.log(isLiked);
+
+      if (!isLiked && userCollections && userCollections.length > 0) {
+        addToCollection(userCollections[0].name);
+      }
+    };
+
+    const onPostError = (error) => {
+      console.error('Erreur de like :', error);
+    };
+
+    post(url, body, token, onPost, onPostError);
   };
 
+
   const checkIsLiked = async () => {
-    try {
-      if (!token) {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        return;
-      }
-
-      const url = `/api/art-publication/users-who-liked/${id}`;
-
-      const callback = (response) => {
-        const usersWhoLiked = response.data?.users;
-        const isArtLiked = usersWhoLiked.some((user) => user?.username === context?.username);
-
-        return setIsLiked(!!isArtLiked);
-      };
-
-      const onErrorCallback = (error) => {
-        console.error('Error fetching like:', error);
-        Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
-      };
-
-      return get(url, token, callback, onErrorCallback);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
     }
+
+    const url = `/api/art-publication/users-who-liked/${id}`;
+
+    const callback = (response) => {
+      const usersWhoLiked: any[] = response.data?.users;
+      const isArtLiked = usersWhoLiked.some((user: any) => user?._id === context?.userId);
+
+      return setIsLiked(isArtLiked);
+    };
+
+    const onErrorCallback = (error) => {
+      console.error('Error fetching like:', error);
+      Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+    };
+
+    return get(url, token, callback, onErrorCallback);
   };
 
 
   const checkIsSaved = async () => {
-    try {
-      if (token) {
-        const url = `/api/collection/my-collections`;
-        const callback = (response) => {
-          setUserCollections(response.data);
-          if (response.data) {
-            for (const collection of response.data) {
-              const collectionId = collection._id;
-              try {
-                const collectionCallBack = (collectionResponse) => {
-                  const collection = collectionResponse.data;
-                  if (collection.some((publication) => publication._id === id)) {
-                    setIsSaved(true);
-                    return;
-                  }
-                };
-                get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
-              } catch (error) {
-                console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
-              }
-            }
-          }
-          setIsSaved(false);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching collection:', error);
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      if (!token) {
+        return console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-    }
+
+      const url = `/api/collection/my-collections`;
+
+      const callback = (response: any) => {
+        setUserCollections(response?.data);
+        if (!response?.data) {
+          return
+        }
+
+        for (const collection of response.data) {
+          const collectionId = collection._id;
+
+          const collectionCallBack = (collectionResponse: any) => {
+            const collection: any[] = collectionResponse.data;
+            if (collection.some((publication) => publication._id === id)) {
+              setIsSaved(true);
+              return;
+            }
+          };
+
+          get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
+        }
+        setIsSaved(false);
+      };
+
+      const onErrorCallback = (error: any) => {
+        console.error('Error fetching collection:', error);
+      };
+
+      get(url, token, callback, onErrorCallback);
   };
 
 
   return (
-    <ScrollView
-      contentContainerStyle={flex1}
-      style={[ bgColor ]}
-      scrollEnabled={!isDeleteModalShown}
+    <View
+      style={[ bgColor, flex1, ph24, pv4 ]}
     >
       <View style={styles.container}>
         <View style={styles.logo}>
@@ -389,14 +383,14 @@ const SingleArt = ({ navigation, route } : any) => {
           ) }
         </View>
 
-        <View style={[ flexRow, acCenter, mh24 ]}>
+        <View style={[ flexRow, acCenter ]}>
           <TouchableOpacity
             onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
-            style={[bgGrey, { borderRadius: 50 }]}
+            style={[bgGrey, { borderRadius: 50, height: 50 }]}
           >
             <Image
               source={{ uri: getImageUrl(artist?.profilePicture) }}
-              style={{ height: 50, width: 50 }}
+              style={{ height: 50, width: 50, borderRadius: 50 }}
             />
           </TouchableOpacity>
 
@@ -407,40 +401,78 @@ const SingleArt = ({ navigation, route } : any) => {
         </View>
 
         {/* Main picture */}
-        <Image
-          style={styles.img}
-          source={{ uri: getImageUrl(publication?.image) }}
-          onError={() => console.log("Image loading error")}
-        />
+        { getImageUrl(publication?.image) ? (
+          <ImageViewer
+            style={styles.img}
+            backgroundColor={colors.disabledBg}
+            imageUrls={[{ url: getImageUrl(publication?.image) ?? "" }]}
+            renderIndicator={() => <></>}
+          />
+        ) : (
+          <View style={styles.img} />
+        ) }
       </View>
 
-      {/* title + description */}
-      <View>
-        <Text style={{ marginLeft: 35, fontSize: 23, color: 'black' }}>
-          { publication?.price ?? "0" } €
-        </Text>
-        <Text style={{ marginLeft: 35, fontSize: 15 }}>
-          { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
-        </Text>
-      </View>
+      <View style={flex1}>
+        {/* price + description */}
+        <View style={flex1}>
 
-      {/* Go back + buy button */}
-      <View style={{ marginTop: 20, marginBottom: 30, flexDirection: 'row' }}>
+          {/* price, like, save */}
+          <View style={[ flexRow, mv8 ]}>
+            <Text style={styles.priceText}>
+              { publication?.price ?? "0" } { currency }
+            </Text>
 
-        {/* Go back button */}
-        <Button
-          style={{ backgroundColor: colors.secondary, flex: 1 }}
-          textStyle={{ color: colors.black }}
-          value="Retour"
-          onPress={() => navigation.goBack()}
-        />
+            <TouchableOpacity
+              onPress={likePublication}
+              style={mh8}
+            >
+              <AntDesign
+                name={isLiked ? "heart" : "hearto"}
+                size={32}
+                color={isLiked ? colors.primary : colors.black}
+              />
+            </TouchableOpacity>
 
-        {/* Buy button */}
-        <Button
-          value="Acheter"
-          onPress={openPaymentSheet}
-          style={flex1}
-        />
+            <TouchableOpacity
+              onPress={handleSavedButtonClick}
+              style={mh8}
+            >
+              <Ionicons
+                name={isSaved ? "checkmark-circle" : "add-circle-outline"}
+                color={isSaved ? colors.primary : colors.black}
+                size={32}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* description */}
+          <ScrollView style={{ flexGrow: 1 }}>
+            <Text style={{ fontSize: 15 }}>
+              { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
+            </Text>
+          </ScrollView>
+        </View>
+
+        {/* Go back + buy button */}
+        <View style={flexRow}>
+
+          {/* Go back button */}
+          <Button
+            style={[ flex1, { marginLeft: 0 } ]}
+            textStyle={{ color: colors.black }}
+            value="Retour"
+            onPress={() => navigation.goBack()}
+            secondary
+          />
+
+          {/* Buy button */}
+          <Button
+            value="Acheter"
+            onPress={openPaymentSheet}
+            style={[ flex1, { marginRight: 0 } ]}
+          />
+        </View>
       </View>
 
       {/* Modal to save in collection */}
@@ -505,7 +537,7 @@ const SingleArt = ({ navigation, route } : any) => {
           </View>
         </>
       </SlidingUpPanel>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -513,14 +545,11 @@ const SingleArt = ({ navigation, route } : any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
     backgroundColor: colors.white,
   },
   logo: {
     flexDirection: 'row',
     height: 100,
-    paddingLeft: 20,
-    padding: 20,
     borderRadius: 5,
   },
   artistCardStyle: {
@@ -541,14 +570,19 @@ const styles = StyleSheet.create({
   },
   img: {
     alignSelf: 'center',
-    resizeMethod: 'contain',
     backgroundColor: colors.bg,
-    marginLeft: 15,
-    marginRight: 15,
     marginTop: 20,
-    height: 330,
-    width: 330,
+    width: '100%',
     borderRadius: 5,
+  },
+  priceText: {
+    fontSize: 18,
+    color: colors.black,
+    marginRight: 'auto',
+    backgroundColor: colors.disabledBg,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 50
   },
   artTitle: {
     alignSelf: 'center',

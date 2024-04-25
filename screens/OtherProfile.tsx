@@ -27,7 +27,6 @@ const OtherProfile = ({ route }: any) => {
 
   const handleArtworkClick = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
-    
   };
 
   const handleBackButtonClick = () => {
@@ -179,6 +178,7 @@ const OtherProfile = ({ route }: any) => {
 
 
   useEffect(() => {
+    console.log("id : ", id);
     fetchUserData();
     fetchUserArtworks();
     checkIsFollowing();
