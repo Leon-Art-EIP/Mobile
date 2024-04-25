@@ -18,9 +18,9 @@ const Article = ({ navigation, route }: any) => {
         <Title>'Art</Title>
       </View>
       <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <Text style={styles.artTitle}>
+        <Title style={styles.artTitle}>
           {article.title}
-        </Text>
+        </Title>
       </View>
       <View>
         <Text

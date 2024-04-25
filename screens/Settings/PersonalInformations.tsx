@@ -10,6 +10,7 @@ import { MainContext } from '../../context/MainContext';
 import Button from '../../components/buttons/Button';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Subtitle from '../../components/text/Subtitle';
 
 const PersonalInformations = () => {
   const navigation = useNavigation();

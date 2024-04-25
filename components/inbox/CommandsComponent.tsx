@@ -6,7 +6,8 @@ import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-
+import Title from '../text/Title';
+import Button from '../buttons/Button';
 
 const CommandsComponent = () => {
   const navigation = useNavigation();

@@ -56,14 +56,7 @@ const Settings = () => {
       <TouchableOpacity
           onPress={() => handleBackButtonClick()}
           style={styles.backButton}
-          >
-        <AntDesign
-          name="left"
-          color={colors.black}
-          onPress={() => navigation.goBack()}
-          size={24}
-        />
-
+          />
       <View style={[ flexRow, mv24, aiCenter, mh8 ]}>
         {/* Go back button */}
         <TouchableOpacity
@@ -112,7 +105,7 @@ const Settings = () => {
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

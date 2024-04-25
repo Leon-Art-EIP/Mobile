@@ -25,6 +25,7 @@ import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import {bgRed, cPrimary} from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
+import Subtitle from '../components/text/Subtitle';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -364,23 +365,23 @@ const EditProfile = () => {
         <View>
           {/* Name */}
           <View style={styles.infoBlock}>
-            <Title style={styles.infoTitle}>Nom</Title>
+            <Subtitle>Nom</Subtitle>
             <Text style={styles.infoValue}>{userData?.username}</Text>
           </View>
           {/* Biography */}
           <View style={styles.infoBlock}>
-            <Title style={styles.infoTitle}>Description</Title>
+            <Subtitle>Description</Subtitle>
             <TextInput
                 placeholder="Parlez nous de vous..."
                 onChangeText={handleBiographyChange}
-                style={[styles.biographyInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
                 value={biography}
               />
           </View>
 
           {/* Availability */}
           <View style={styles.infoBlock}>
-            <Title style={styles.infoTitle}>Ouvert au commandes</Title>
+            <Subtitle>Ouvert au commandes</Subtitle>
             <View style={styles.buttonContainer}>
               <Button
                 value="Oui"

@@ -12,6 +12,7 @@ import { get } from '../constants/fetch';
 import Button from '../components/buttons/Button';
 import InfoModal from '../components/infos/InfoModal';
 import Title from '../components/text/Title';
+import Subtitle from '../components/text/Subtitle';
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
@@ -148,7 +149,7 @@ const SearchScreen = ({ navigation }: any) => {
         />
       </View>
 
-      <Text style={{fontSize: 16, color: colors.darkGreyBg, marginLeft: 12,}}>Prix</Text>
+      <Subtitle style={{fontSize: 16, marginTop: 20, marginBottom: 20, color: colors.darkGreyBg, marginLeft: 12,}}>Prix</Subtitle>
       {/* Search price */}
       <View style={styles.searchView2}>
         <Text style={[mlAuto, mrAuto, cBlack]}>{ getPriceValues()[0] } €</Text>
@@ -172,14 +173,15 @@ const SearchScreen = ({ navigation }: any) => {
           style={[ styles.filterTouchableOpacity, flexRow ]}
           onPress={() => setIsArtTypeDisplayed(e => !e)}
         >
-          <Title style={[
+          <Subtitle style={[
             styles.filterText,
             fwBold,
             flex1,
-            { fontSize: 17 }
-          ]}>Types</Title>
+          ]}>
+            Types
+          </Subtitle>
           <Entypo
-            name={isArtTypeDisplayed ? "chevron-thin-up" : "chevron-thin-down"}
+            name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
             size={24}
             color={colors.black}
           />
@@ -264,7 +266,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 10,
     flexDirection: 'row',
-    marginBottom: 12
+    marginBottom: 25
   },
   searchBar: {
     backgroundColor: colors.disabledBg,
@@ -280,7 +282,7 @@ const styles = StyleSheet.create({
   },
   filterScrollView: {
     flexGrow: 0,
-    backgroundColor: colors.disabledBg,
+    backgroundColor: colors.white,
     borderRadius: 20,
     paddingVertical: 12,
     marginBottom: 8
@@ -288,18 +290,21 @@ const styles = StyleSheet.create({
   filterTouchableOpacity: {
     padding: 5,
     paddingHorizontal: 23,
+    marginTop: 20,
   },
   filterText: {
     color: colors.black,
-    fontSize: 18
+    fontSize: 20
   },
   subFilterTouchableOpacity: {
-    padding: 11
+    padding: 11,
+
   },
   subFilterList: {
-    backgroundColor: '#e1E1E1',
+    backgroundColor: colors.white,
     marginHorizontal: 12,
-    borderRadius: 12
+    borderRadius: 12,
+    marginLeft: 30,
   }
 });
 

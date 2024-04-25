@@ -3,8 +3,8 @@ import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import colors from '../constants/colors';
 import { ArtistType } from '../constants/homeValues';
 import { getImageUrl } from '../helpers/ImageHelper';
-import Card from './Card';
-import Title from './Title';
+import Card from './cards/Card';
+import Title from './text/Title';
 
 interface ArtistCardProps {
   onPress?: () => void;
@@ -43,29 +43,30 @@ const styles = StyleSheet.create({
     marginRight: 5,
     marginBottom: 60,
     textAlign: 'center',
-    width: 120,
-    height: 120,
+    width: 80,  // Reduced from 120 to 80
+    height: 80,  // Reduced from 120 to 80
     position: 'relative',
-    borderRadius: 70,
+    borderRadius: 40,  // Adjusted for perfect circle
   },
   image: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: 120,
-    height: 120,
-    borderRadius: 70,
+    width: 80,  // Match container size
+    height: 80,  // Match container size
+    borderRadius: 40,  // Adjusted for perfect circle
   },
   title: {
     transform: [{ translateX: -50 }],
-    marginRight: 5,
-    marginLeft: 25,
     position: 'absolute',
-    bottom: 10,
+    bottom: -20,  // Adjust position to be visible (outside the card if needed)
     left: '50%',
     color: colors.darkGreyBg,
+    fontSize: 12,  // Optionally reduce font size
+    disabled: false,
   },
 });
+
 
 export default ArtistCard;
 export type { ArtistCardProps };
