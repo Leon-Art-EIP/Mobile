@@ -61,7 +61,6 @@ const CommentInput = ({ id }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
   },
   commentsContainer: {
     marginTop: 20,
