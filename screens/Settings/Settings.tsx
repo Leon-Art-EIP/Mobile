@@ -69,10 +69,6 @@ const Settings = () => {
       </View>
 
       <View>
-        <Button style={styles.stripebutton}
-        value="Link my Stripe Account"
-        onPress={linkStripeAccount}
-        />
         <Button
           value="Informations personnelles"
           secondary
@@ -93,6 +89,11 @@ const Settings = () => {
           style={styles.settingsButton}
           textStyle={{ fontSize: 16 }}
           onPress={() => navigation.navigate("general_conditions")}
+        />
+        <Button
+          style={styles.stripebutton}
+          value="Link my Stripe Account"
+          onPress={linkStripeAccount}
         />
       </View>
 
@@ -115,7 +116,11 @@ const styles = StyleSheet.create({
     flex: 1
   },
   stripebutton: {
+    width: '85%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
     backgroundColor: colors.stripe,
+    ifyContent: 'center',
+    alignSelf: 'center', // Centre le bouton horizontalement
+    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
   },
   mainTitle: {
     marginTop: 50,
@@ -123,8 +128,7 @@ const styles = StyleSheet.create({
     marginVertical: 32
   },
   settingsButton: {
-    width: '95%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
-    borderRadius: 10,
+    width: '85%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
     justifyContent: 'center',
     alignSelf: 'center', // Centre le bouton horizontalement
     marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté

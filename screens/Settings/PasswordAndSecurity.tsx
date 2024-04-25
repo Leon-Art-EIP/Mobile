@@ -143,8 +143,6 @@ const PasswordAndSecurity = () => {
       )}
       <Button
         value="Changer le mot de passe"
-        style={styles.changePasswordButton}
-        textStyle={{ fontSize: 18, fontWeight: 'bold' }}
         onPress={() => handlePasswordChangeClick()}
       />
       <InfoModal 

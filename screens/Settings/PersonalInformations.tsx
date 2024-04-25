@@ -42,19 +42,17 @@ const PersonalInformations = () => {
 
       {/* Bloc 1 - Email */}
       <View style={styles.infoBlock}>
-        <Title style={styles.infoTitle}>Adresse email</Title>
+        <Subtitle style={styles.infoTitle}>Adresse email</Subtitle>
         <Text style={styles.infoValue}>{userEmail}</Text>
       </View>
       {/* Bloc 2 - Account type */}
       <View style={styles.infoBlock}>
-        <Title style={styles.infoTitle}>Type de compte</Title>
+        <Subtitle style={styles.infoTitle}>Type de compte</Subtitle>
         <Text style={styles.infoValue}>{accountType}</Text>
       </View>
 
       <Button
           value="(Re)faire le quizz"
-          style={styles.quizzButton}
-          textStyle={{ fontSize: 18, fontWeight: 'bold' }}
           onPress={() => handleQuizzClick()}
           />
     </SafeAreaView>
