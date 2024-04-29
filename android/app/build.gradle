@@ -188,6 +188,10 @@ android {
 }
 
 dependencies {
+  // Android notifications
+  implementation project(':react-native-notifications')
+  implementation 'com.google.firebase:firebase-core:16.0.0'
+
   // Stripe Android SDK
   implementation 'com.stripe:stripe-android:20.36.0'
 
@@ -253,3 +257,5 @@ def isNewArchitectureEnabled() {
   // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
   return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
 }
+
+// apply plugin: 'com.google.gms.google-services'
