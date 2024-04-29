@@ -56,13 +56,14 @@ const styles = StyleSheet.create({
         borderWidth: 2,
     },
     modalText: {
+        color: 'black',
         marginBottom: 15,
         textAlign: "center"
     },
     buttonClose: {
         borderRadius: 20,
         padding: 10,
-        elevation: 2
+        // elevation: 2
     },
     textStyle: {
         color: "white",

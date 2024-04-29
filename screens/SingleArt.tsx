@@ -33,6 +33,8 @@ import {
   mh24, mh8,
   ml8, mlAuto,
   mr8,
+  mr20,
+  mrAuto,
   mtAuto
 } from "../constants/styles";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -41,8 +43,9 @@ import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import CommentInput from '../components/CommentInput';
 import CommentsList from '../components/cards/CommentsList';
-
-
+import Content from '../components/text/Content';
+import Subtitle from '../components/text/Subtitle';
+import InfoModal from '../components/infos/InfoModal';
 const SingleArt = ({ navigation, route } : any) => {
 
   const { id } = route.params;
@@ -56,7 +59,10 @@ const SingleArt = ({ navigation, route } : any) => {
   const [isForSale, setSaleState] = useState(false);
   const [author, setAuthor] = useState(false);
   const [artists, setArtists] = useState<ArtistType[]>([]);
+  const [modalMessage, setModalMessage] = useState('');
+  const [infoModalMessage, setInfoModalMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
   const [userCollections, setUserCollections] = useState<Collection | null>(null);
   const [newCollectionName, setNewCollectionName] = useState('');
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
@@ -241,8 +247,9 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           };
           const callback = (response) => {
             console.log('Saved to collection successfully');
-            Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
             setIsSaved(true);
+            setInfoModalMessage(`Oeuvre ajoutée à la collection "${collectionName}".`);
+            setInfoModalVisible(true);
           };
           const onErrorCallback = (error) => {
             console.error('Error while saving to collection:', error);
@@ -268,9 +275,9 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           const callback = () => {
             setIsLiked(prevIsLiked => !prevIsLiked);
             console.log(isLiked);
-            if (!isLiked && userCollections && userCollections.length > 0) {
-              addToCollection(userCollections[0].name);
-            }
+            // if (!isLiked && userCollections && userCollections.length > 0) {
+            //   addToCollection(userCollections[0].name);
+            // }
           };
           const onErrorCallback = (error) => {
             console.error('Erreur de like :', error);
@@ -381,7 +388,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         <Text style={{fontSize: 23, color: 'black' }}>, {publication.price} €</Text>
         { context?.userId === publication?.userId && (
             <TouchableOpacity
-              style={[mtAuto, mbAuto, mlAuto]}
+              style={[mtAuto, mbAuto, mlAuto, mr20]}
               onPress={() => setIsDeleteModalShown(true)}
             >
               <MaterialCommunityIcons
@@ -392,9 +399,9 @@ console.log('Request to /api/order/create sent with payload:', requestData);
             </TouchableOpacity>
           )}
       </View>
-      <Text style={{ marginLeft: 30, marginBottom: 10, fontSize: 16, color: colors.darkGreyBg }}>
+      <Content style={{ marginLeft: 30, marginBottom: 10, marginTop: 15, color: colors.darkGreyBg }}>
         {publication.description} ... Afficher plus
-      </Text>
+      </Content>
       <View>
         <Image
           style={styles.img}
@@ -450,7 +457,12 @@ console.log('Request to /api/order/create sent with payload:', requestData);
 
       <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Enregistrer dans...</Text>
+          <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
+          <TextInput
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onChangeText={(text) => setNewCollectionName(text)}
+          />
           <FlatList
             data={userCollections}
             keyExtractor={(item) => item._id}
@@ -463,11 +475,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
               </TouchableOpacity>
             )}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Nouvelle collection"
-            onChangeText={(text) => setNewCollectionName(text)}
-          />
+
           <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
             <Text style={styles.createButtonText}>Créer</Text>
           </TouchableOpacity>
@@ -478,20 +486,27 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       </Modal>
       <SlidingUpPanel
         ref={_slidingPanel}
-        height={200} // Adjust as needed
+        height={200} // Adjust as needed 
         draggableRange={{ top: 200, bottom: 0 }}
         allowDragging={false}
       >
-  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-    <Text>Are you sure you want to delete this post?</Text>
-    <Button title="Yes, Delete" onPress={deletePost} />
-    <Button title="Cancel" onPress={() => setIsDeleteModalShown(false)} />
+  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white }}>
+    <Text style={{ color: colors.darkGreyBg, marginTop: 40 }}>Are you sure you want to delete this post?</Text>
+    <Button style={{ backgroundColor: colors.primary, marginTop: 40, width: '60%' }} value="Supprimer" onPress={deletePost} />
+    <Button style={{ backgroundColor: colors.darkGreyBg, marginTop: 7, width: '60%' }} value="Annuler" onPress={() => setIsDeleteModalShown(false)} />
   </View>
+
 </SlidingUpPanel>
 
     </View>
     </ScrollView>
       <CommentInput id={ id }></CommentInput>
+      <InfoModal 
+        isVisible={isInfoModalVisible}
+        message={infoModalMessage}
+        onClose={() => setInfoModalVisible(false)}
+        messageType="success"
+      />
     </View>
   );
 };
@@ -622,36 +637,40 @@ const styles = StyleSheet.create({
     modal: {
       justifyContent: 'center',
       alignItems: 'center',
+      margin: 20,
+
     },
     modalContent: {
       backgroundColor: 'white',
-      padding: 20,
-      borderRadius: 10,
-      maxHeight: 250,
+      padding: 30,
+      borderRadius: 12,
+      alignSelf: 'center',
+      width: '70%',
+      maxHeight: '70%',
     },
     modalTitle: {
       fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 0,
+      marginBottom: 15,
     },
     collectionButton: {
       padding: 10,
-      borderRadius: 5,
+      borderRadius: 10,
       borderWidth: 1,
-      borderColor: '#ccc',
-      marginBottom: 10,
+      borderColor: colors.platinium,
+      marginBottom: 15,
       alignItems: 'center',
     },
     collectionButtonText: {
-      color: '#3498db',
+      color: colors.darkGreyFg,
     },
     input: {
       borderWidth: 1,
-      borderColor: '#ccc',
-      borderRadius: 15,
-      // paddingLeft: 15,
-      // padding: 8,
+      borderColor: colors.darkGreyBg,
+      borderRadius: 12,
+      paddingLeft: 15,
+      padding: 8,
       marginBottom: 10,
+      marginTop: 10,
     },
 
     // Buttons
@@ -664,8 +683,8 @@ const styles = StyleSheet.create({
       backgroundColor: colors.primary,
     },
     createButton: {
-      // padding: 10,
-      borderRadius: 18,
+      padding: 10,
+      borderRadius: 5,
       backgroundColor: colors.primary,
       alignItems: 'center',
     },
@@ -676,13 +695,13 @@ const styles = StyleSheet.create({
     cancelButton: {
       // padding: 10,
       borderRadius: 18,
-      backgroundColor: colors.darkGreyBg,
+      backgroundColor: colors.white,
       alignItems: 'center',
       marginTop: 10,
     },
     cancelButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
+      color: 'black',
+      // fontWeight: 'bold',
     },
     deleteBtn: {
       backgroundColor: colors.disabledBg,

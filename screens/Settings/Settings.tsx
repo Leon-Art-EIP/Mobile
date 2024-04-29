@@ -52,6 +52,10 @@ const Settings = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
+      </View>
       <StatusBar backgroundColor={colors.white} />
       <TouchableOpacity
           onPress={() => handleBackButtonClick()}
@@ -115,6 +119,13 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     flex: 1
   },
+  logo: {
+    flexDirection: 'row',
+    height: 100,
+    paddingLeft: 20,
+    padding: 20,
+    borderRadius: 5,
+  },
   stripebutton: {
     width: '85%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
     backgroundColor: colors.stripe,
@@ -123,7 +134,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
   },
   mainTitle: {
-    marginTop: 50,
+    marginTop: 10,
     marginHorizontal: 12,
     marginVertical: 32
   },
@@ -134,10 +145,11 @@ const styles = StyleSheet.create({
     marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
   },
   disconnectButton: {
-    width: '60%',
-    marginTop: 'auto',
+    width: '65%',
+    marginTop: 85,
     justifyContent: 'center',
-    alignSelf: 'center'
+    alignSelf: 'center',
+    fontWeight: 'bold',
   }
 });
 

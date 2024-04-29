@@ -18,6 +18,10 @@ const InboxScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
+      </View>
       {/* <StatusBar backgroundColor={colors.white} barStyle='dark-content' /> */}
       <View style={[ flexRow, mv24, aiCenter, mh8 ]}>
       <TouchableOpacity
@@ -52,9 +56,17 @@ const styles = StyleSheet.create({
     flex: 1
   },
   mainTitle: {
-    marginHorizontal: 12,
-    marginVertical: 32
-  }
+    marginLeft: 12,
+    // marginHorizontal: 12,
+    // marginVertical: 32
+  },
+  logo: {
+    alignItems: 'center',
+    borderColor: 'red',
+    // backgroundColor: colors.disabledBg,
+    flexDirection: 'row',
+    // marginBottom: 12
+  },
 });
 
 export default InboxScreen;

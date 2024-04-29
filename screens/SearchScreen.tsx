@@ -132,6 +132,10 @@ const SearchScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.logo}>
+      <Title style={{ color: colors.primary }}>Leon</Title>
+      <Title>'Art</Title>
+      </View>
       <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
       <View style={styles.searchView}>
         <TextInput
@@ -251,6 +255,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     flex: 1,
     paddingHorizontal: 12
+  },
+  logo: {
+    alignItems: 'center',
+    borderColor: 'red',
+    // backgroundColor: colors.disabledBg,
+    borderRadius: 10,
+    flexDirection: 'row',
+    marginBottom: 12
   },
   searchView: {
     alignItems: 'center',

@@ -2,19 +2,19 @@ import React from 'react';
 import { Text, StyleSheet, StyleProp, TextStyle } from 'react-native';
 import colors from '../../constants/colors';
 
-interface TitleProps {
+interface ContentProps {
   children?: string;
   style?: StyleProp<TextStyle>;
   bold?: boolean;
   size?: number;
 }
 
-const Title = ({
-  children = "Title",
+const Content = ({
+  children = "Content",
   style = {},
-  bold = true,
-  size = 35
-}: TitleProps) => {
+  bold = false,
+  size = 17
+}: ContentProps) => {
   const getFontSize = () => {
     return {
       fontSize: size
@@ -37,12 +37,12 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Manrope',
     fontSize: 42,
-    color: colors.title
+    color: colors.black
   },
   bold: {
     fontWeight: 'bold'
   }
 });
 
-export default Title;
-export type { TitleProps };
+export default Content;
+export type { ContentProps };

@@ -11,6 +11,7 @@ import { MainContext } from '../context/MainContext';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
+import Logo from '../components/assets/logo';
 
 const AddPublication = ({ navigation }: any) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -97,9 +98,10 @@ const AddPublication = ({ navigation }: any) => {
         }
       }
     );
-    setModalMessage("Votre œuvre a bien été publiée.");
     setModalType('success');
+    setModalMessage("Votre œuvre a bien été publiée.");
     setModalVisible(true);
+    navigation.navigate('homemain');
   };
   
   

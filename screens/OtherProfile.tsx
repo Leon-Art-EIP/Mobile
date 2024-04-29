@@ -10,6 +10,7 @@ import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -182,16 +183,11 @@ const OtherProfile = ({ route }: any) => {
     <ScrollView nestedScrollEnabled>
       <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
       <TouchableOpacity
-        onPress={() => handleBackButtonClick()}
-        style={styles.backButton}
-      >
-        <AntDesign
-          name="left"
-          color={colors.white}
-          onPress={() => navigation.goBack()}
-          size={24}
-        />
-      </TouchableOpacity>
+            onPress={() => handleBackButtonClick()}
+            style={styles.backButton}
+          >
+            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+          </TouchableOpacity>
       <View style={styles.banner}>
         <Image
           source={{ uri: getImageUrl(userData?.bannerImage) }}
@@ -415,12 +411,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   backButton: {
-    backgroundColor: colors.darkGreyBg,
-    padding: 12,
-    borderRadius: 50,
+    padding: 15,
     position: 'absolute',
-    top: 16,
-    left: 16,
     zIndex: 1,
   },
   artworkImage: {

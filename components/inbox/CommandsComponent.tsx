@@ -8,6 +8,7 @@ import { getImageUrl } from '../../helpers/ImageHelper';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Title from '../text/Title';
 import Button from '../buttons/Button';
+import Subtitle from '../text/Subtitle';
 
 const CommandsComponent = () => {
   const navigation = useNavigation();
@@ -68,7 +69,7 @@ const CommandsComponent = () => {
       />}
       contentContainerStyle={styles.container}
     >
-      <Text style={styles.title}>Commandes</Text>
+    <Subtitle>Commandes</Subtitle>
 
       { orders.map((order, index) => (
         <TouchableOpacity
@@ -98,8 +99,8 @@ const CommandsComponent = () => {
         </TouchableOpacity>
       ))}
   
-      <Title style={styles.title}>Ventes</Title>
-  
+    <Subtitle>Ventes</Subtitle>
+
       {sales.map((sale, index) => (
         <TouchableOpacity
           key={sale._id}

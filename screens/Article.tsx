@@ -3,6 +3,7 @@ import { View, StyleSheet, Text } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
+import Content from '../components/text/Content';
 
 const Article = ({ navigation, route }: any) => {
   const { article } = route.params;
@@ -23,11 +24,11 @@ const Article = ({ navigation, route }: any) => {
         </Title>
       </View>
       <View>
-        <Text
+        <Content
           style={styles.textInput}
         >
           {article.content}
-        </Text>
+        </Content>
       </View>
       <View style={{ marginTop: 20 }}>
         <Button

@@ -23,7 +23,7 @@ import Title from '../components/text/Title';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {bgRed, cPrimary} from "../constants/styles";
+import {bgRed, cPrimary, cBlack} from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 
@@ -341,8 +341,8 @@ const EditProfile = () => {
       <ModifyTag
         onPress={selectBanner}
         title="Modifier la bannière"
-        style={[ bgRed, styles.bannerTouchable]}
-        textStyle={{ cPrimary }}
+        style={[ cBlack, styles.bannerTouchable]}
+        textStyle={{ cBlack }}
       />
       </ImageBackground>
 
@@ -385,15 +385,15 @@ const EditProfile = () => {
             <View style={styles.buttonContainer}>
               <Button
                 value="Oui"
-                style={styles.availableButton}
-                textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                // style={styles.availableButton}
+                textStyle={{ fontSize: 16 }}
                 onPress={() => setIsAvailable("available")}
                 secondary={isAvailable === "unavailable"}
               />
               <Button
                 value="Non"
-                style={styles.notAvailableButton}
-                textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                // style={styles.notAvailableButton}
+                textStyle={{ fontSize: 16 }}
                 onPress={() => setIsAvailable("unavailable")}
                 secondary={isAvailable === "available"}
               />
@@ -401,8 +401,8 @@ const EditProfile = () => {
           </View>
           <Button
             value="Enregistrer les modifications"
-            style={styles.disconnectButton}
-            textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+            // style={styles.disconnectButton}
+            textStyle={{ fontSize: 17 }}
             onPress={() => handleSaveModifications()}
             />
         </View>
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     borderRadius: 50,
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.darkGreyFg,
     paddingVertical: 8,
     paddingHorizontal: 12
   },

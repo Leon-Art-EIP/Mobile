@@ -257,13 +257,13 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   registerButton: {
-    backgroundColor: 'gray',
+    backgroundColor: colors.deepyellow,
   },
   registerButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'primary',
+    color: colors.black,
   },
   titleView: {
     display: 'flex',

@@ -5,6 +5,7 @@ import { post } from '../../constants/fetch';
 import colors from '../../constants/colors';
 import { MainContext } from '../../context/MainContext';
 import InfoModal from '../infos/InfoModal';
+import CommentInput from '../CommentInput';
 
 interface CommentInputProps {
     id: string;
