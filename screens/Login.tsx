@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 
 import Button from '../components/Button';
 import Title from '../components/Title';
@@ -20,27 +19,31 @@ const Login = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const context = useContext(MainContext);
 
-  const onLogin = async (response: any) => {
-    if (response && response.data && response.data.token) {
-      const tokenFromDB = response.data.token;
 
-      try {
-        await AsyncStorage.setItem('jwt', tokenFromDB);
-        context?.setToken(tokenFromDB);
-        context?.setUserEmail(response.data.user.email);
-        context?.setUserId(response.data.user.id);
-        context?.setisArtist(response.data.user.is_artist);
-        context?.setUsername(response.data.user.username);
-        navigation.navigate('main');
-      } catch (error) {
-        console.error('Error storing token:', error);
-        Alert.alert('Login Failed', 'Error storing token');
-      }
-    } else {
+  const onLogin = async (response: any) => {
+    if (!response || !response.data || !response.data.token) {
       console.error('Invalid response format: ', response);
       Alert.alert('Login Failed', 'Invalid response format');
+      return;
     }
+
+    const tokenFromDB = response.data.token;
+
+    try {
+      await AsyncStorage.setItem('jwt', tokenFromDB);
+    } catch (error) {
+      console.error('Error storing token:', error);
+      Alert.alert('Login Failed', 'Error storing token');
+      return;
+    }
+
+    context?.setToken(tokenFromDB);
+    context?.setUserEmail(response.data.user.email);
+    context?.setUserId(response.data.user.id);
+    context?.setisArtist(response.data.user.is_artist);
+    context?.setUsername(response.data.user.username);
     setIsLoading(false);
+    return navigation.navigate('main');
   }
 
 
@@ -80,35 +83,6 @@ const Login = ({ navigation }: any) => {
   };
 
 
-  const handleGoogleLogin = () => {
-    navigation.navigate('google');
-  };
-
-
-  const handleRegister = () => {
-    navigation.navigate('signup');
-  };
-
-
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-  };
-
-
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-  };
-
-
-  const handleForgotPassword = () => {
-    navigation.navigate('recover');
-  };
-
-
-  const handleRememberMeChange = () => {
-    setRememberMe(!rememberMe);
-  };
-
   return (
     <View style={styles.container}>
 
@@ -126,7 +100,7 @@ const Login = ({ navigation }: any) => {
             <Image source={require('../assets/mail_icon.png')} style={styles.icon} />
             <TextInput
               placeholder="Email"
-              onChangeText={handleEmailChange}
+              onChangeText={(newEmail: string) => setEmail(newEmail)}
               placeholderTextColor={colors.disabledFg}
               style={styles.passwordInput}
             />
@@ -138,7 +112,7 @@ const Login = ({ navigation }: any) => {
             <TextInput
               placeholder="Mot de passe"
               placeholderTextColor={colors.disabledFg}
-              onChangeText={handlePasswordChange}
+              onChangeText={(newPsw: string) => setPassword(newPsw)}
               style={styles.passwordInput}
               secureTextEntry={!showPassword}
               value={password}
@@ -155,24 +129,29 @@ const Login = ({ navigation }: any) => {
           </View>
         </View>
 
-        <TouchableOpacity onPress={handleRememberMeChange}>
+        <TouchableOpacity
+          onPress={() => setRememberMe((currentValue: boolean) => !currentValue)}
+        >
           <View style={styles.checkboxContainer}>
             <CheckBox
-              tintColor={{ true: colors.primary, false: colors.black }}
+              tintColors={{ true: colors.primary, false: colors.bg }}
+              tintColor={colors.bg}
+              onFillColor={colors.primary}
               value={rememberMe}
-              onValueChange={handleRememberMeChange}
+              onValueChange={(value: boolean) => setRememberMe(value)}
             />
             <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleForgotPassword}>
+        <TouchableOpacity onPress={() => navigation.navigate('recover')}>
           <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
         </TouchableOpacity>
 
         { isLoading && (
           <ActivityIndicator color={colors.primary} />
         )}
+
         <Button
           onPress={handleLogin}
           value="Se connecter"
@@ -191,14 +170,14 @@ const Login = ({ navigation }: any) => {
         </View>
 
         <Button
-          onPress={handleGoogleLogin}
+          onPress={() => navigation.navigate('google')}
           value="Se connecter avec Google"
           style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
           textStyle={styles.googleButtonText}
         />
 
         <Button
-          onPress={handleRegister}
+          onPress={() => navigation.navigate('signup')}
           value="S'inscrire"
           style={styles.registerButton}
           textStyle={styles.registerButtonText}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Card from './Card';
 import { NotificationsType } from '../constants/notifications';
 import { Text } from 'react-native';
-import { mh4, mv4 } from '../constants/styles';
+import { cBlack, cText, mh4, mv4 } from '../constants/styles';
 
 
 type NotificationCardProps = {
@@ -34,7 +34,7 @@ const NotificationCard = ({
 
   return item && index !== -1 ? (
     <Card style={[ mh4, mv4 ]}>
-      <Text>{ text }</Text>
+      <Text style={cBlack}>{ text }</Text>
     </Card>
   ) : (
     <Text>Error rendering notification</Text>

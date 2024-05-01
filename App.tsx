@@ -1,13 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, {useContext, useEffect} from 'react';
-import {MainContext, MainContextProvider} from './context/MainContext';
+import React from 'react';
+import {MainContextProvider} from './context/MainContext';
 import ConnexionNavigator from './navigators/ConnexionNavigator';
 import { StripeProvider } from '@stripe/stripe-react-native';
-import { setupNotifications } from './constants/notifications';
 
 
-const App = ({ noLogin = false }) => {
+const App = () => {
   const Stack = createNativeStackNavigator();
   const options = { headerShown: false };
 

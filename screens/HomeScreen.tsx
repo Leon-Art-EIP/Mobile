@@ -127,7 +127,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     refreshData();
-    setupNotifications();
+    setupNotifications(context?.token);
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 

@@ -26,11 +26,11 @@ const get = (
 }
 
 const post = (
-  url = '/',
-  body = undefined,
-  token = undefined,
+  url: string = '/',
+  body: any | undefined = undefined,
+  token: string | undefined = undefined,
   callback = () => {},
-  onErrorCallback = (e) => {
+  onErrorCallback = (e: any) => {
     console.error('post failed with code ', e.response ? e.response.status : e);
   }
 ) => {

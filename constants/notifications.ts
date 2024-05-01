@@ -1,4 +1,5 @@
-import { Notifications, Registered } from "react-native-notifications";
+import { Notification, NotificationBackgroundFetchResult, NotificationCompletion, Notifications, Registered } from "react-native-notifications";
+import { NotificationActionResponse } from "react-native-notifications/lib/dist/interfaces/NotificationActionResponse";
 import { get, put } from "./fetch";
 
 
@@ -16,12 +17,37 @@ type NotificationsType = {
 
 
 /*
+  * This private function is used to register the notifications when the app is in use (foreground)
+  * It doesn't take any argument
+  */
+const _registerFgNotifs = () => {
+  Notifications.events().registerNotificationReceivedForeground(
+    (notif: Notification, completion: (response: NotificationCompletion) => void) => {
+      console.log('notification received: ', notif.body);
+      completion({ alert: true, sound: true, badge: false });
+    }
+  );
+}
+
+
+const _registerBgNotifs = () => {
+  Notifications.events().registerNotificationReceivedBackground(
+    (notif: Notification, completion: (response: NotificationBackgroundFetchResult) => void) => {
+      console.log('bg notification received: ', notif.body);
+      //TODO I have to find what I must type there because the documentation says it's another object type
+      completion();
+    }
+  )
+}
+
+
+/*
   * This function sets up the notification channel
   * It has to be called in the start of the app
   */
 const setupNotifications = (
-  postToBack: boolean = true,
-  token: string | undefined = undefined
+  token: string | undefined = undefined,
+  postToBack: boolean = true
 ) => {
   let isRegistered: boolean = false;
 
@@ -39,6 +65,7 @@ const setupNotifications = (
       return
     }
 
+    console.log("device token: ", event.deviceToken);
     put(
       "/api/notifications/update-fcm-token",
       { fcmToken: event.deviceToken },
@@ -47,6 +74,8 @@ const setupNotifications = (
       (err: any) => console.error("Notifications setup error: ", err)
     );
   });
+  _registerFgNotifs();
+  _registerBgNotifs();
 }
 
 
