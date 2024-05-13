@@ -414,7 +414,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 20,
     marginRight: 20,
-    // backgroundColor: colors.secondary,
     borderRadius: 10,
     marginBottom: 20,
     paddingLeft: 20,
@@ -423,19 +422,30 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.platinium,
   },
   saleButton: {
-    color: colors.black,
     backgroundColor: colors.primary,
     marginBottom: 0,
+    marginTop: 30,
   },
   nosaleButton: {
-    color: colors.black,
     backgroundColor: colors.darkGreyBg,
     marginBottom: 40,
   },
+  filterTouchableOpacity: {
+    flexDirection: 'row',
+    alignItems: 'center', // Align items in a row horizontally
+    marginLeft: 30,
+    marginTop: 20,
+  },
+  filterText: {
+    flex: 1, // Allows the text to take up the space and pushes the icon to the right
+    fontSize: 18,
+  },
   subFilterTouchableOpacity: {
-    padding: 10,
-    marginLeft: 20, // Indent sub-filters for visual hierarchy
-  }  
+    paddingLeft: 30, // Adds padding to align sub-filters with the genre text
+    marginLeft: 50, // Further indentation relative to the main filter
+    marginTop: 10,
+  }
 });
+
 
 export default AddPublication;
