@@ -1,6 +1,8 @@
 import { useEffect, useState, useContext } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';  // Importer les filtres
+import Entypo from 'react-native-vector-icons/Entypo';  // Pour les icônes des filtres
 
 import { getImageUrl } from '../helpers/ImageHelper';
 import { post, get } from '../constants/fetch';
@@ -8,7 +10,6 @@ import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
-import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
 import Logo from '../components/assets/logo';
@@ -18,7 +19,7 @@ const AddPublication = ({ navigation }: any) => {
   const [name, setName] = useState('');
   const [artType, setType] = useState('');
   const [description, setDescription] = useState('');
-  const [isForSale, setSale] = useState('');
+  const [isForSale, setSale] = useState(false);
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [dimension, setDimension] = useState('');
@@ -27,6 +28,38 @@ const AddPublication = ({ navigation }: any) => {
   const [isAccountLinked, setIsAccountLinked] = useState(false);
   const [modalType, setModalType] = useState('error');
   const context = useContext(MainContext);
+
+  // Etats pour les filtres de genres
+  const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
+  const [selectedSubFilters, setSelectedSubFilters] = useState<string[]>([]);
+
+// Adjust function to handle sub-filters
+const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
+  let newFilterArray: string[] = [];
+  let array = isSubFilter ? selectedSubFilters : selectedFilters;
+
+  if (array.includes(filterName)) {
+    newFilterArray = array.filter(f => f !== filterName);
+  } else {
+    newFilterArray = [...array, filterName];
+  }
+
+  isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
+};
+
+
+  // Fonction pour sélectionner/désélectionner les filtres
+  // const selectOrDeselect = (filterName: string) => {
+  //   let newFilterArray: string[] = [];
+  //   if (selectedFilters.includes(filterName)) {
+  //     newFilterArray = selectedFilters.filter(f => f !== filterName);
+  //   } else {
+  //     newFilterArray = [...selectedFilters, filterName];
+  //   }
+  //   setSelectedFilters(newFilterArray);
+  // };
 
   useEffect(() => {
     checkAccountLinkStatus();
@@ -273,12 +306,51 @@ const AddPublication = ({ navigation }: any) => {
           value={price}
           style={styles.textInput}
         />
-        <TextInput
+<TouchableOpacity
+  style={[styles.filterTouchableOpacity, { flexDirection: 'row' }]}
+  onPress={() => setIsArtTypeDisplayed(e => !e)}
+>
+  <Text style={[styles.filterText, { fontWeight: 'bold', flex: 1 }]}>
+    Genre
+  </Text>
+  <Entypo
+    name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
+    size={24}
+    color={colors.black}
+  />
+</TouchableOpacity>
+{isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
+  <View key={filter.category.toString()}>
+    <TouchableOpacity
+      style={styles.filterTouchableOpacity}
+      onPress={() => selectOrDeselect(filter.category)}
+    >
+      <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
+        {filter.category}
+      </Text>
+    </TouchableOpacity>
+
+    {/* Display sub-filters if main filter is selected */}
+    {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
+      <TouchableOpacity
+        key={subFilter}
+        style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
+        onPress={() => selectOrDeselect(subFilter, true)}
+      >
+        <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
+          {subFilter}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+))}
+
+        {/* <TextInput
           placeholder="Genre"
           onChangeText={handleType}
           value={artType}
           style={styles.textInput}
-        />
+        /> */}
       <Button
         value="Publier et mettre à la vente"
         onPress={sellWithAccount}
@@ -360,6 +432,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.darkGreyBg,
     marginBottom: 40,
   },
+  subFilterTouchableOpacity: {
+    padding: 10,
+    marginLeft: 20, // Indent sub-filters for visual hierarchy
+  }  
 });
 
 export default AddPublication;
