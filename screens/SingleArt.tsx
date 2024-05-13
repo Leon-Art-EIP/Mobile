@@ -8,9 +8,7 @@ import {
   ScrollView, StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   ToastAndroid,
-  Touchable,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -21,34 +19,32 @@ import Button from '../components/Button';
 import {MainContext} from '../context/MainContext';
 import {useStripe} from '@stripe/stripe-react-native';
 import {getImageUrl} from '../helpers/ImageHelper';
-import ArtistCard from '../components/ArtistCard';
 import {ArtistType, PostType} from '../constants/homeValues';
 import Modal from 'react-native-modal';
 import {
   acCenter,
   aiCenter,
-  bgColor, bgGrey, bgRed, br20, cBlack,
+  bgColor, bgGrey, cBlack,
   cPrimary,
   flex1,
   flexRow,
   mbAuto,
-  mh24, mh8,
-  ml8, mlAuto,
+  mh8,
+  mlAuto,
   mr8,
   mtAuto,
   mv8,
   ph24,
-  ph8,
-  pv4,
-  pv8
+  pv4
 } from "../constants/styles";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import CommentInput from '../components/CommentInput';
-import CommentsList from '../components/CommentsList';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import Input from '../components/Input';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CollectionType } from '../constants/artTypes';
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -59,13 +55,10 @@ const SingleArt = ({ navigation, route } : any) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState<PostType | undefined>(undefined);
-  const [author, setAuthor] = useState(false);
   const { id } = route.params;
   const [isModalVisible, setModalVisible] = useState(false);
-  const [userCollections, setUserCollections] = useState<Collection | null>(null);
+  const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
   const [newCollectionName, setNewCollectionName] = useState('');
-  const isOwnArtist = context?.userId === artist?._id;
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
 
@@ -142,45 +135,26 @@ const SingleArt = ({ navigation, route } : any) => {
       '/api/order/create',
       requestData,
       context?.token,
-      (response) => {
-        console.log('Payment Sheet Params:', response);
-
+      (response: any) => {
         if (response && response.data && response.data.url) {
           const paymentUrl = response.data.url;
           Linking.openURL(paymentUrl)
-            .catch(err => {
-              console.error('Failed to open URL:', err);
-              Alert.alert('Error', 'Failed to open the payment page.');
-            });
-        } else {
-          console.error('No URL found in the response');
-          Alert.alert('Error', 'Payment URL not found.');
-        }
-      },
-      (error) => {
-        console.error('Error fetching payment sheet parameters:', error);
-        if (error.response && error.response.data && error.response.data.errors) {
-          error.response.data.errors.forEach(err => {
-            console.error(`API error - ${err.param}: ${err.msg}`);
-            Alert.alert('This publication is not for sale');
+          .catch(err => {
+            console.error('Failed to open URL:', err);
+            Alert.alert('Error', 'Failed to open the payment page.');
           });
         }
+      },
+      (error: any) => {
+        console.error('Error fetching payment sheet parameters:', error);
       }
     );
-
-    console.log('Request to /api/order/create sent with payload:', requestData);
-  };
+  }
 
 
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
-  };
-
-
-  const handleArtistButtonClick = async () => {
-    navigation.navigate('other_profile');
-
-  };
+  }
 
 
   const deletePost = () => {
@@ -197,7 +171,7 @@ const SingleArt = ({ navigation, route } : any) => {
       console.error("Delete post ", err?.response?.status, ' : ', errorMsg);
       ToastAndroid.show(errorMsg, ToastAndroid.LONG);
       return setIsDeleteModalShown(false);
-    };
+    }
 
     del(
       `/api/art-publication/${id}`,
@@ -205,7 +179,7 @@ const SingleArt = ({ navigation, route } : any) => {
       callback,
       onErrorCallback
     );
-  };
+  }
 
 
   const getPublications = () => {
@@ -222,24 +196,31 @@ const SingleArt = ({ navigation, route } : any) => {
         console.error("Error fetching publications:", error);
       }
     );
-  };
+  }
 
 
   const handleSavedButtonClick = async () => {
     setModalVisible(true);
-  };
+  }
 
 
   const closeModal = () => {
     setModalVisible(false);
     setNewCollectionName('');
-  };
+  }
 
 
   const addToCollection = async (collectionName: string) => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+    }
+
+    if (!collectionName) {
+      return ToastAndroid.show(
+        "Veuillez nommer votre collection",
+        ToastAndroid.SHORT
+      );
     }
 
     const url = `/api/collection`;
@@ -263,7 +244,7 @@ const SingleArt = ({ navigation, route } : any) => {
 
     post(url, body, token, callback, onErrorCallback);
     closeModal();
-  };
+  }
 
 
   const likePublication = async () => {
@@ -289,7 +270,7 @@ const SingleArt = ({ navigation, route } : any) => {
     };
 
     post(url, body, token, onPost, onPostError);
-  };
+  }
 
 
   const checkIsLiked = async () => {
@@ -300,20 +281,20 @@ const SingleArt = ({ navigation, route } : any) => {
 
     const url = `/api/art-publication/users-who-liked/${id}`;
 
-    const callback = (response) => {
+    const callback = (response: any) => {
       const usersWhoLiked: any[] = response.data?.users;
       const isArtLiked = usersWhoLiked.some((user: any) => user?._id === context?.userId);
 
       return setIsLiked(isArtLiked);
     };
 
-    const onErrorCallback = (error) => {
+    const onErrorCallback = (error: any) => {
       console.error('Error fetching like:', error);
       Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
     };
 
     return get(url, token, callback, onErrorCallback);
-  };
+  }
 
 
   const checkIsSaved = async () => {
@@ -354,9 +335,11 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   return (
-    <View
+    <SafeAreaView
       style={[ bgColor, flex1, ph24, pv4 ]}
     >
+      <StatusBar barStyle='dark-content' backgroundColor={colors.bg} />
+
       <View style={styles.container}>
         <View style={styles.logo}>
 
@@ -490,7 +473,10 @@ const SingleArt = ({ navigation, route } : any) => {
       </View>
 
       {/* Modal to save in collection */}
-      <Modal isVisible={isModalVisible} style={styles.modal}>
+      <Modal
+        isVisible={isModalVisible}
+        style={styles.modal}
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Enregistrer dans...</Text>
           <FlatList
@@ -501,21 +487,33 @@ const SingleArt = ({ navigation, route } : any) => {
                 style={styles.collectionButton}
                 onPress={() => addToCollection(item.name)}
               >
-                <Text style={styles.collectionButtonText}>{item.name}</Text>
+                <Text style={styles.collectionButtonText}>{ item.name }</Text>
               </TouchableOpacity>
             )}
           />
-          <TextInput
+
+          {/* Add new collection */}
+          <Input
             style={styles.input}
             placeholder="Nouvelle collection"
-            onChangeText={(text) => setNewCollectionName(text)}
+            onTextChanged={(text: string) => setNewCollectionName(text)}
           />
-          <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
-            <Text style={styles.createButtonText}>Créer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
-            <Text style={styles.cancelButtonText}>Annuler</Text>
-          </TouchableOpacity>
+
+          <View style={flexRow}>
+            <Button
+              value="Annuler"
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+              onPress={closeModal}
+              secondary
+            />
+            <Button
+              value="Créer"
+              onPress={() => addToCollection(newCollectionName)}
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+            />
+          </View>
         </View>
       </Modal>
 
@@ -535,7 +533,13 @@ const SingleArt = ({ navigation, route } : any) => {
         onBottomReached={() => setIsDeleteModalShown(false)}
       >
         <>
-          <Text style={{ margin: 24 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+          <Text style={{
+            marginHorizontal: 24,
+            marginTop: 24,
+            color: colors.textDark,
+            fontSize: 16
+          }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+
           <View style={flexRow}>
             <Button
               value="Oui"
@@ -549,9 +553,10 @@ const SingleArt = ({ navigation, route } : any) => {
               onPress={() => setIsDeleteModalShown(false)}
             />
           </View>
+
         </>
       </SlidingUpPanel>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -560,6 +565,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  collectionBtn: {
+    marginHorizontal: 2,
+    height: 40,
+    marginVertical: 0,
+    flex: 1
   },
   logo: {
     flexDirection: 'row',
@@ -681,17 +692,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.black
   },
   modal: {
+    width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
+    width: Dimensions.get('window').width - 24,
+    height: Dimensions.get('window').height - 24,
     backgroundColor: colors.white,
     padding: 20,
     borderRadius: 10,
   },
   modalTitle: {
+    color: colors.textDark,
     fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 10,
   },
   collectionButton: {
@@ -706,11 +720,9 @@ const styles = StyleSheet.create({
     color: '#3498db',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 8,
-    marginBottom: 10,
+    backgroundColor: colors.disabledBg,
+    marginHorizontal: 4,
+    marginVertical: 8
   },
   createButton: {
     padding: 10,

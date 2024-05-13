@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl, FlatListProps, ListRenderItem, ImageBackground, StatusBar } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
@@ -11,21 +11,21 @@ import Button from '../components/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
-import { getImageUrl } from '../helpers/ImageHelper';
-import { mh4, mv4 } from '../constants/styles';
+import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
+import { cTextDark, mh4, mv4 } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Card from "../components/Card";
-
-
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+import { CollectionType } from '../constants/artTypes';
+import { formatName } from '../helpers/NamesHelper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const Profile = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Artwork');
-  const [userCollections, setUserCollections] = useState([]);
+  const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -61,8 +61,8 @@ const Profile = () => {
   };
 
 
-  const handleCollectionClick = (collction) => {
-    navigation.navigate('collection', { collection: collction});
+  const handleCollectionClick = (collection: CollectionType) => {
+    navigation.navigate('collection', { collection: collection });
   };
 
 
@@ -165,22 +165,7 @@ const Profile = () => {
       console.error('Error fetching user data:', error);
       // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
-  };
-
-
-  const reloadProfile = () => {
-    setIsRefreshing(true);
-    fetchUserData();
-    updateCollections();
   }
-
-
-  useFocusEffect(
-    React.useCallback(reloadProfile, [navigation])
-  );
-
-
-  useEffect(reloadProfile, []);
 
 
   const updateCollections = async () => {
@@ -207,8 +192,26 @@ const Profile = () => {
   }
 
 
+  const reloadProfile = () => {
+    setIsRefreshing(true);
+    fetchUserData();
+    updateCollections();
+  }
+
+
+  useFocusEffect(
+    React.useCallback(reloadProfile, [navigation])
+  );
+
+
+  useEffect(reloadProfile, []);
+
+
   return (
-    <ScrollView nestedScrollEnabled>
+    <SafeAreaView>
+
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       <View>
         {/* Buttons : Back, Edit profile and Settings */}
         <View style={{ flexDirection: 'row', marginRight: 20, zIndex: 10 }}>
@@ -336,11 +339,7 @@ const Profile = () => {
                 <RefreshControl
                   colors={[ colors.primary ]}
                   refreshing={isRefreshing}
-                  onRefresh={() => {
-                    setIsRefreshing(true);
-                    fetchUserData();
-                    updateCollections();
-                  }}
+                  onRefresh={reloadProfile}
                 />
               )}
             />
@@ -348,46 +347,43 @@ const Profile = () => {
         ) }
 
         {/* Collections tab */}
-        {activeTab === 'Collections' && userCollections.length > 0 && (
-          <View style={styles.squareContainer}>
-  {userCollections.map((collection, index) => (
+        { activeTab === 'Collections' && userCollections.length !== 0 && (
+          <FlatList
+            data={userCollections}
+            numColumns={2}
+            renderItem={({ item }: any) => (
               <TouchableOpacity
-                key={collection._id}
+                key={item?._id.toString()}
                 style={[
                   styles.squareFrame,
-                  {
-                    width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
-                    marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
-                    marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
-                    marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
-                  },
+                  { backgroundColor: getRandomBgColor() }
                 ]}
-                onPress={() => handleCollectionClick(collection)}
+                onPress={() => handleCollectionClick(item)}
               >
-                <Image
-                  source={
-                    collection.artPublications.length > 0
-                      ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
-                      : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
-                  }
-                  style={{ flex: 1, borderRadius: 10 }}
-                  resizeMode="cover"
-                  onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
-                />
-                <Text style={styles.collectionName}>{collection.name}</Text>
+                <Text style={styles.collectionName}>{
+                  formatName(item?.name ?? "Collection", 10)
+                }</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        )}
-        {activeTab === 'A propos' && (
+            )}
+            refreshControl={(
+              <RefreshControl
+                colors={[ colors.primary ]}
+                refreshing={isRefreshing}
+                onRefresh={reloadProfile}
+              />
+            )}
+          />
+        ) }
+
+        { activeTab === 'A propos' && (
           <Card style={styles.biographyContainer}>
-            <Text style={[styles.biography, { paddingLeft: 15 }]}>
-              {userData?.biography}
+            <Text style={[styles.biography, { paddingLeft: 15 }, cTextDark]}>
+              { userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
             </Text>
           </Card>
-        )}
+        ) }
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -497,11 +493,12 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrame: {
-    width: 115,
+    maxWidth: '33%',
     height: 115,
-    backgroundColor: 'lightgray',
+    backgroundColor: colors.platinium,
     borderRadius: 10,
     margin: 5,
+    marginBottom: 10
   },
   squareContainer: {
     flexDirection: 'row',
@@ -546,7 +543,7 @@ const styles = StyleSheet.create({
     marginTop: 5
   },
   biography: {
-    fontSize: 18,
+    fontSize: 14,
     color: colors.black,
   },
   artworkImage: {

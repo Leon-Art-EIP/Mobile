@@ -22,8 +22,10 @@ import { get, post, put } from '../constants/fetch';
 import {
   aiCenter,
   asCenter,
+  cTextDark,
   flex1,
   flexRow,
+  mb4,
   mb8,
   mbAuto,
   ml4, mlAuto,
@@ -107,7 +109,7 @@ const SingleOrder = () => {
       `/api/order/cancel/${params?.id}`,
       {},
       context?.token,
-      (res) => {
+      () => {
         ToastAndroid.show("Order canceled", ToastAndroid.SHORT);
         return navigation.goBack();
       },
@@ -122,7 +124,7 @@ const SingleOrder = () => {
       `/api/order/confirm-delivery-rate`,
       { rating: rating, orderId: order?.orderId },
       context?.token,
-      (res) => {
+      () => {
         ToastAndroid.show("Order validated", ToastAndroid.SHORT);
         return navigation.goBack();
       },
@@ -141,7 +143,7 @@ const SingleOrder = () => {
       `/api/conversations/create`,
       convBody,
       context?.token,
-      (res) => {
+      (res: any) => {
         if (res?.data?.convId) {
           navigation.navigate('single_conversation', {
             name: params?.buy ? order?.sellerName : order?.buyerName,
@@ -219,7 +221,13 @@ const SingleOrder = () => {
       />
 
       <ScrollView
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={getOrder} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={getOrder}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />}
         contentContainerStyle={flex1}
       >
 
@@ -229,26 +237,25 @@ const SingleOrder = () => {
             <Title
               size={22}
               bold={false}
-              style={[mb8, flex1]}
+              style={[mb4, flex1]}
             >{ formatName(order?.artPublicationName) }</Title>
             <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
           </View>
 
           <TouchableOpacity
-            style={[flexRow, aiCenter]}
-            /* navigate to user profile */
+            style={[flexRow, aiCenter, mb4]}
             onPress={() => navigation.navigate('single_profile', {
               id: params?.buy ? order?.sellerId : order?.buyerId
             })}
           >
-            <Text>{
-              'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
+            <Text style={cTextDark}>{
+              formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
             }</Text>
           </TouchableOpacity>
         </Card>
 
         <Card style={{ marginHorizontal: 0, flex: 1 }}>
-          <Text>{ order?.artPublicationDescription }</Text>
+          <Text style={cTextDark}>{ order?.artPublicationDescription }</Text>
         </Card>
 
       </ScrollView>

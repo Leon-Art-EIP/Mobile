@@ -15,6 +15,7 @@ const colors = {
 
   title: '#2C2C2C',
   text: '#D6D6D6',
+  textDark: '#5E5E5E',
   primaryText: '#FFFF',
   secondaryText: '#000',
   tertiaryText: '#eeeeee',

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {Image, RefreshControl, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import colors from '../../constants/colors';
-import { bgGrey, fwBold } from '../../constants/styles';
+import { bgGrey, cBlack, cText, cTextDark, fwBold } from '../../constants/styles';
 import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
@@ -12,7 +12,6 @@ const CommandsComponent = () => {
   const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
-  const [publicationNames, setPublicationNames] = useState({});
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
 
@@ -61,7 +60,10 @@ const CommandsComponent = () => {
       { orders.map((order, index) => (
         <TouchableOpacity
           key={order.orderId + Math.random().toString()}
-          onPress={() => navigation.navigate('single_order', { id: order.orderId, buy: true })}
+          onPress={() => navigation.navigate('single_order', {
+            id: order?.orderId,
+            buy: true
+          })}
         >
         <View key={order._id || index} style={styles.orderItem}>
           <Image
@@ -70,8 +72,8 @@ const CommandsComponent = () => {
             testID="command-img"
           />
           <View style={styles.textContainer}>
-            <Text style={fwBold}>{order?.artPublicationName}</Text>
-            <Text>{order?.orderPrice} €</Text>
+            <Text style={[fwBold, cBlack]}>{order?.artPublicationName}</Text>
+            <Text style={cTextDark}>{order?.orderPrice} €</Text>
           </View>
         </View>
         </TouchableOpacity>
@@ -82,7 +84,10 @@ const CommandsComponent = () => {
       { sales.map((sales, index) => (
         <TouchableOpacity
           key={sales._id}
-          onPress={() => navigation.navigate('single_order', { id: sales?.orderId, buy: false })}
+          onPress={() => navigation.navigate('single_order', {
+            id: sales?.orderId,
+            buy: false
+          })}
         >
           <View key={sales._id || index} style={styles.orderItem}>
             <Image
@@ -91,8 +96,8 @@ const CommandsComponent = () => {
               testID="command-img"
             />
             <View style={styles.textContainer}>
-              <Text style={fwBold}>{sales?.artPublicationName}</Text>
-              <Text>{sales?.orderPrice} €</Text>
+              <Text style={[fwBold, cBlack]}>{sales?.artPublicationName}</Text>
+              <Text style={cTextDark}>{sales?.orderPrice} €</Text>
             </View>
           </View>
         </TouchableOpacity>

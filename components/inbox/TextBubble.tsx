@@ -2,7 +2,7 @@ import React, { memo, useContext, useState } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import colors from '../../constants/colors';
 import { MessageType } from '../../constants/conversations';
-import { flex1, flexRow, fwBold, mlAuto, mrAuto, noVMargin } from '../../constants/styles';
+import { cText, flex1, flexRow, fwBold, mlAuto, mrAuto, noVMargin } from '../../constants/styles';
 import { MainContext } from '../../context/MainContext';
 import { dateToHour } from '../../helpers/DateHelper';
 import Button from '../Button';
@@ -48,7 +48,10 @@ const TextBubble = memo(
             }>{ message.content }</Text>
           </View>
           { isHourDisplayed && (
-            <Text style={message.senderId !== context?.userId ? mrAuto : mlAuto}>
+            <Text style={[
+              message.senderId !== context?.userId ? mrAuto : mlAuto,
+              cText
+            ]}>
               { dateToHour(message.dateTime) }
             </Text>
           ) }

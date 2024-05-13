@@ -1,4 +1,4 @@
-import { TextInput, View, StyleSheet, Text, Image, ScrollView } from 'react-native';
+import { TextInput, View, StyleSheet, Text, Image, ScrollView, ToastAndroid } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -9,6 +9,9 @@ import Button from '../components/Button';
 import { MainContext } from '../context/MainContext';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { bgColor, bgPlatinium, flex1, mv24, mv8 } from '../constants/styles';
+import Input from '../components/Input';
 
 
 const AddPublication = ({ navigation } : any) => {
@@ -54,15 +57,11 @@ const AddPublication = ({ navigation } : any) => {
       '/api/art-publication',
       formData,
       context?.token,
-      () => navigation.navigate('main'),
-      (error) => {
-        console.error('Error publishing:', error);
-        if (error.response && error.response.data && error.response.data.errors) {
-          error.response.data.errors.forEach(err => {
-            console.error(`Validation error - ${err.param}: ${err.msg}`);
-          });
-        }
-      }
+      () => {
+        ToastAndroid.show("Nouveau post créé avec succès !", ToastAndroid.SHORT);
+        return navigation.navigate('profile')
+      },
+      (error) => console.error('Error publishing:', error)
     );
   };
 
@@ -107,93 +106,95 @@ const AddPublication = ({ navigation } : any) => {
   };
 
 return (
-  <ScrollView style={styles.container}>
+  <SafeAreaView style={[ flex1, bgColor ]}>
+
+    {/* Title */}
     <View style={styles.logo}>
       <Title style={{ color: colors.primary }}>Leon</Title>
       <Title>'Art</Title>
     </View>
-    <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-      <Text style={styles.artTitle}>Add Publication</Text>
-    </View>
-    <Button
-      style={{ backgroundColor: colors.platinium }}
-      textStyle={{ color: colors.black }}
-      value="+"
-      onPress={selectImage}
-    />
-    {selectedImage && (
-      <Image source={{ uri: selectedImage }} style={styles.img} />
-    )}
+
+    {/* Actual Screen */}
+    <ScrollView style={styles.container}>
+      <Text style={styles.artTitle}>Nouveau post</Text>
+
+
+      {selectedImage && (
+        <Image source={{ uri: selectedImage }} style={styles.img} />
+      )}
+
+      <Button
+        style={[ bgPlatinium, mv24 ]}
+        textStyle={{ color: colors.black, fontSize: 16 }}
+        value={!!selectImage ? "Modifier l'image" : "Ajouter une image"}
+        onPress={selectImage}
+      />
+
+      {/* Form */}
       <View>
-        <TextInput
+        <Input
           placeholder="Titre"
-          onChangeText={handleName}
+          onTextChanged={handleName}
           value={name}
           style={styles.textInput}
         />
-        <TextInput
+        <Input
           placeholder="Description"
-          onChangeText={handleDescription}
+          onTextChanged={handleDescription}
           value={description}
           style={styles.textInput}
         />
-        <TextInput
+        <Input
           placeholder="Prix (€)"
-          onChangeText={handlePrice}
+          onTextChanged={handlePrice}
           value={price}
           style={styles.textInput}
         />
-        <TextInput
+        <Input
           placeholder="Genre"
-          onChangeText={handleType}
+          onTextChanged={handleType}
           value={artType}
           style={styles.textInput}
         />
       </View>
-    <View style={{ marginTop: 20 }}>
+
+      {/* Submit button */}
       <Button
         value="Ajouter"
         onPress={publish}
-        />
-      <Button
-        style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
-        textStyle={{ color: colors.black }}
-        value="Annuler"
-        onPress={previous}
-        />
-      </View>
-    </ScrollView>
+      />
+
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-      padding: 16,
+      paddingHorizontal: 16,
       backgroundColor: colors.white,
     },
     logo: {
       flexDirection: 'row',
-      height: 100,
-      paddingLeft: 20,
-      padding: 20,
-      borderRadius: 5,
+      paddingHorizontal: 36,
+      paddingVertical: 12
     },
     img: {
-      margin: 13,
+      marginTop: 12,
+      marginHorizontal: 16,
       height: 300,
-      borderRadius: 4.5,
+      borderRadius: 20,
       backgroundColor: colors.placeholder,
     },
     artTitle: {
-      marginTop: 25,
       fontWeight: 'bold',
       textAlign: 'center',
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 0,
       fontSize: 30,
-      color: '#000',
+      color: colors.black,
     },
     artText: {
       fontSize: 55,
@@ -219,11 +220,11 @@ const styles = StyleSheet.create({
       height: 31,
     },
     textInput: {
+      color: colors.black,
       fontSize: 15,
-      marginLeft: 20,
-      marginRight: 20,
+      /* marginLeft: 20, */
+      /* marginRight: 20, */
       backgroundColor: colors.secondary,
-      borderRadius: 10,
       marginBottom: 20,
       paddingLeft: 20,
       overlayColor: colors.black,
