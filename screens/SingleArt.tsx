@@ -87,22 +87,7 @@ const SingleArt = ({ navigation, route } : any) => {
   }, [id]);
 
   useEffect(() => {
-    // if (publication && publication.userId) {
-    //   fetchArtistDetails();
-    // }
   }, [publication]);
-
-
-  const fetchArtistDetails = async () => {
-    try {
-      const response = await get(`/api/user/profile/${publication.userId}`,
-      context?.token);
-      setArtist(response.data);
-    }
-    catch (error) {
-      console.error("Error fetching artist details:", error);
-    }
-  };
 
   const handleToArtistProfile = (artist: ArtistType) => {
     console.log('artist id: ', artist._id);
@@ -153,7 +138,6 @@ const SingleArt = ({ navigation, route } : any) => {
       artPublicationId: id,
     };
 
-  console.log('In fetchedpayebrlgvweblrfvbweijvbofvbe');
   post(
     '/api/order/create',
     requestData,
@@ -282,26 +266,20 @@ console.log('Request to /api/order/create sent with payload:', requestData);
           const onErrorCallback = (error) => {
             console.error('Erreur de like :', error);
             if (error.response) {
-              // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
               console.error('Server responded with non-2xx status:', error.response.data);
             } else if (error.request) {
-              // La requête a été effectuée mais aucune réponse n'a été reçue
               console.error('No response received from server');
             } else {
-              // Une erreur s'est produite lors de la configuration de la requête
               console.error('Error setting up the request:', error.message);
             }
-            // Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
           };
 
           post(url, body, token, callback, onErrorCallback);
         } else {
           console.error('Token JWT not found. Make sure the user is logged in.');
-          // Alert.alert('Token JWT not found. Make sure the user is logged in.');
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
       }
     };
 
@@ -310,26 +288,27 @@ console.log('Request to /api/order/create sent with payload:', requestData);
 
     const checkIsLiked = async () => {
       try {
-        if (token) {
-          const url = `/api/art-publication/users-who-liked/${id}`;
-          const callback = (response) => {
-            const responseData = response.data;
-            const usersWhoLiked = responseData.users;
-            const currentUserUsername = "";
-            const isArtLiked = usersWhoLiked.some((user) => user.username === currentUserUsername);
-
-            setIsLiked(isArtLiked);
-            console.log(isLiked);
-          };
-          const onErrorCallback = (error) => {
-            console.error('Error fetching like:', error);
-            Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
-          };
-          get(url, token, callback, onErrorCallback);
-        } else {
+        if (!token) {
           console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
           Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+          return;
         }
+  
+        const url = `/api/art-publication/users-who-liked/${id}`;
+  
+        const callback = (response) => {
+          const usersWhoLiked = response.data?.users;
+          const isArtLiked = usersWhoLiked.some((user) => user?.username === context?.username);
+  
+          return setIsLiked(!!isArtLiked);
+        };
+  
+        const onErrorCallback = (error) => {
+          console.error('Error fetching like:', error);
+          Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+        };
+  
+        return get(url, token, callback, onErrorCallback);
       } catch (error) {
         console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
         Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
@@ -421,7 +400,6 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       )}
       </View>
 
-
       {/* Informations */}
       <View style={styles.rowContainer}>
     {author && (
@@ -436,20 +414,12 @@ console.log('Request to /api/order/create sent with payload:', requestData);
     <Text style={styles.userIdText}>
         {author ? author.username : 'Loading...'}
     </Text>
-    <TouchableOpacity
-        onPress={() => handleSavedButtonClick()} // Save action for the bookmark icon
-    >
+    <TouchableOpacity onPress={() => handleSavedButtonClick()}>
         <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} color={colors.black} size={32} />
     </TouchableOpacity>
-    <TouchableOpacity
-        onPress={() => likePublication()}
-    >
-        <Ionicons name={isLiked ? "heart" : "heart-outline"} color={colors.black} size={32}/>
+    <TouchableOpacity onPress={() => likePublication()}>
+      <Ionicons name={isLiked ? "heart" : "heart-outline"} color={colors.black} size={32}/>
     </TouchableOpacity>
-</View>
-
-      <View>
-
     </View>
     <CommentsList id={ id }></CommentsList>
 
@@ -486,7 +456,7 @@ console.log('Request to /api/order/create sent with payload:', requestData);
       </Modal>
       <SlidingUpPanel
         ref={_slidingPanel}
-        height={200} // Adjust as needed 
+        height={200}
         draggableRange={{ top: 200, bottom: 0 }}
         allowDragging={false}
       >
@@ -544,6 +514,11 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     artistCardStyle: {
+      // borderRadius: 30,
+      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
+      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
+    },
+    artistCardComment: {
       // borderRadius: 30,
       container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
       image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },

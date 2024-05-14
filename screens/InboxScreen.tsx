@@ -22,7 +22,7 @@ const InboxScreen = ({ navigation }: any) => {
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      {/* <StatusBar backgroundColor={colors.white} barStyle='dark-content' /> */}
+      <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
       <View style={[ flexRow, mv24, aiCenter, mh8 ]}>
       <TouchableOpacity
           onPress={() => navigation.goBack()}

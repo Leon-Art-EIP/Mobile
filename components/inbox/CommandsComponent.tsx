@@ -65,7 +65,7 @@ const CommandsComponent = () => {
       refreshControl={<RefreshControl
         refreshing={isRefreshing}
         colors={[colors.primary]}
-        // onRefresh={getCommands}
+        onRefresh={getCommands}
       />}
       contentContainerStyle={styles.container}
     >
