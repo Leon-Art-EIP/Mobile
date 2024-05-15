@@ -258,10 +258,6 @@ const SingleArt = ({ navigation, route } : any) => {
     const onPost = () => {
       /* setIsLiked(prevIsLiked => !prevIsLiked); */
       checkIsLiked();
-
-      if (!isLiked && userCollections && userCollections.length > 0) {
-        addToCollection(userCollections[0].name);
-      }
     };
 
     const onPostError = (error) => {
