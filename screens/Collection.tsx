@@ -8,9 +8,9 @@ import { MainContext } from '../context/MainContext';
 import DeleteButtonImage from '../assets/icons/delete_red.png'
 import { del, get } from '../constants/fetch';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { cTextDark, flex1, mbAuto, mlAuto, mrAuto, mtAuto } from '../constants/styles';
+import { cTextDark, mbAuto, mlAuto, mrAuto, mtAuto } from '../constants/styles';
 import { CollectionType } from '../constants/artTypes';
-import { getImageFromPostId, getImageUrl } from '../helpers/ImageHelper';
+import { getImageUrl } from '../helpers/ImageHelper';
 import Button from '../components/Button';
 
 
@@ -21,16 +21,6 @@ const Collection = ({ navigation, route }: any) => {
   const arts: string[] = collection?.artPublications;
   const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
   const [artworks, setArtworks] = useState<any[]>([]);
-
-
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
-
-
-  const handleDeleteButtonClick = () => {
-    setDeleteModalVisible(true);
-  };
 
 
   const handleDeleteConfirmed = () => {
@@ -52,16 +42,6 @@ const Collection = ({ navigation, route }: any) => {
     };
 
     del(url, token, callback, onErrorCallback);
-  };
-
-
-  const handleCancelDelete = () => {
-    setDeleteModalVisible(false);
-  };
-
-
-  const handleArtworkClick = (id: string) => {
-    navigation.navigate('singleart', { id: id });
   };
 
 
@@ -95,7 +75,7 @@ const Collection = ({ navigation, route }: any) => {
 
         {/* Back button */}
         <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Ionicons
@@ -107,7 +87,7 @@ const Collection = ({ navigation, route }: any) => {
         </TouchableOpacity>
         {/* Delete button */}
         <TouchableOpacity
-          onPress={() => handleDeleteButtonClick()}
+          onPress={() => setDeleteModalVisible(true)}
           style={styles.deleteButton}
         >
           <Image source={DeleteButtonImage} style={{ width: 28, height: 30 }} />
@@ -125,7 +105,7 @@ const Collection = ({ navigation, route }: any) => {
           <TouchableOpacity
             key={index.toString()}
             style={styles.squareFrame}
-            onPress={() => handleArtworkClick(item)}
+            onPress={() => navigation.navigate('singleart', { id: item?._id })}
           >
             <Image
               source={{ uri: getImageUrl(item?.image) }}
@@ -143,16 +123,14 @@ const Collection = ({ navigation, route }: any) => {
         animationType="slide"
         transparent={true}
         visible={deleteModalVisible}
-        onRequestClose={() => {
-          setDeleteModalVisible(!deleteModalVisible);
-        }}
+        onRequestClose={() => setDeleteModalVisible(!deleteModalVisible)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={cTextDark}>Êtes-vous sûr de vouloir supprimer cette collection ?</Text>
             <View style={styles.modalButtons}>
               <Button
-                onPress={handleCancelDelete}
+                onPress={() => setDeleteModalVisible(false)}
                 value="Annuler"
                 secondary
               />

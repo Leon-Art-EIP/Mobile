@@ -17,7 +17,6 @@ import colors from '../constants/colors';
 import Title from '../components/Title';
 import Button from '../components/Button';
 import {MainContext} from '../context/MainContext';
-import {useStripe} from '@stripe/stripe-react-native';
 import {getImageUrl} from '../helpers/ImageHelper';
 import {ArtistType, PostType} from '../constants/homeValues';
 import Modal from 'react-native-modal';
@@ -82,10 +81,11 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   useEffect(() => {
-    // if (publication && publication.userId) {
-    //   fetchArtistDetails();
-    // }
+    if (publication && publication.userId) {
+      fetchArtistDetails();
+    }
   }, [publication]);
+
 
   useEffect(() => {
     getPublications();
@@ -95,24 +95,25 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   const fetchArtistDetails = async () => {
-    get(
-      `/api/user/profile/${publication.userId}`,
+    const onErrorCallback = (error: any) => {
+      ToastAndroid.show("Could not get artist data. Try again later", ToastAndroid.LONG);
+      return console.error("Error getting profile data: ", error);
+    }
+
+    if (!publication?.userId) {
+      return onErrorCallback("publication.userId is undefined");
+    }
+
+    return get(
+      `/api/user/profile/${publication?.userId}`,
       context?.token,
       (response) => setArtist(response?.data),
-      (error) => {
-        ToastAndroid.show("Could not get artist data. Try again later", ToastAndroid.LONG);
-        return console.error("Error getting profile data: ", error);
-      }
+      onErrorCallback
     );
   };
 
 
-  const handleToArtistProfile = (artistId: string) => {
-    navigation.navigate('other_profile', { id: artistId });
-  };
-
-
-  const getArtistName = (userId) => {
+  const getArtistName = (userId: string) => {
     get(
       `/api/user/profile/${userId}`,
       context?.token,
@@ -231,7 +232,6 @@ const SingleArt = ({ navigation, route } : any) => {
     };
 
     const callback = (response: any) => {
-      console.log('Saved to collection successfully');
       Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
       setIsSaved(true);
       checkIsSaved();
@@ -258,7 +258,6 @@ const SingleArt = ({ navigation, route } : any) => {
     const onPost = () => {
       /* setIsLiked(prevIsLiked => !prevIsLiked); */
       checkIsLiked();
-      console.log(isLiked);
 
       if (!isLiked && userCollections && userCollections.length > 0) {
         addToCollection(userCollections[0].name);
