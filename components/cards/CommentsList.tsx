@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal } from 'react-native';
 import { get, del } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
-import SlidingUpPanel from 'rn-sliding-up-panel';
 import Button from '../buttons/Button';
 import { ArtistType } from '../../constants/homeValues';
 
@@ -16,20 +15,11 @@ const CommentsList = ({ id }) => {
   const [userProfiles, setUserProfiles] = useState({});
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
-  const _slidingPanel = useRef<SlidingUpPanel>(null);
   const navigation = useNavigation();
 
   useEffect(() => {
     fetchComments();
   }, [id]);
-
-  useEffect(() => {
-    if (isDeleteModalShown) {
-      _slidingPanel.current?.show();
-    } else {
-      _slidingPanel.current?.hide();
-    }
-  }, [isDeleteModalShown]);
 
   const getUsername = (userId) => {
     if (!context?.token) {
@@ -87,7 +77,7 @@ const CommentsList = ({ id }) => {
       context?.token,
       () => {
         setComments((prevComments) => prevComments.filter(comment => comment.id !== commentToDelete));
-        ToastAndroid.show("Commentaire supprimer", ToastAndroid.SHORT);
+        ToastAndroid.show("Commentaire supprimé", ToastAndroid.SHORT);
         setIsDeleteModalShown(false);
       },
       (error) => {
@@ -151,29 +141,29 @@ const CommentsList = ({ id }) => {
           </View>
           <View style={styles.commentMeta}>
             <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
-            {context.userId === comment.userId && (
               <TouchableOpacity
                 onPress={() => handleDeletePress(comment.id)}
                 style={styles.deleteButton}
               >
                 <Text style={styles.deleteButtonText}>Supprimer</Text>
               </TouchableOpacity>
-            )}
           </View>
         </View>
       ))}
-      <SlidingUpPanel
-        ref={_slidingPanel}
-        height={200}
-        draggableRange={{ top: 200, bottom: 0 }}
-        allowDragging={false}
+      <Modal
+        visible={isDeleteModalShown}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsDeleteModalShown(false)}
       >
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white }}>
-          <Text style={{ color: colors.darkGreyBg, marginTop: 40 }}></Text>
-          <Button style={{ backgroundColor: colors.primary, marginTop: 40, width: '60%' }} value="Supprimer" onPress={deleteComment} />
-          <Button style={{ backgroundColor: colors.darkGreyBg, marginTop: 7, width: '60%' }} value="Annuler" onPress={() => setIsDeleteModalShown(false)} />
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={{ color: colors.darkGreyBg, marginBottom: 20 }}>Are you sure you want to delete this comment?</Text>
+            <Button style={{ backgroundColor: colors.primary, marginBottom: 10, width: '60%' }} value="Supprimer" onPress={deleteComment} />
+            <Button style={{ backgroundColor: colors.darkGreyBg, width: '60%' }} value="Annuler" onPress={() => setIsDeleteModalShown(false)} />
+          </View>
         </View>
-      </SlidingUpPanel>
+      </Modal>
     </View>
   );
 };
@@ -231,6 +221,20 @@ const styles = StyleSheet.create({
       color: 'white',
       fontWeight: 'bold',
     },
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: colors.white,
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
