@@ -1,34 +1,34 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 // Local imports
 import SettingsButtonImage from '../assets/images/settings_logo.png'
 import EditButtonImage from '../assets/images/edit_logo.png'
 import BackArrow from '../assets/images/back_arrow.png'
 import emptyCollectionImage from '../assets/icons/hamburger.png'
 import Button from '../components/buttons/Button';
+
 import colors from '../constants/colors';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Pen from 'react-native-vector-icons/pen';
 
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
-import { getImageUrl } from '../helpers/ImageHelper';
-import { mh4, mv4 } from '../constants/styles';
+import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
+import { cTextDark, mh4, mv4 } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Card from "../components/cards/Card";
-
-
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+import { CollectionType } from '../constants/artTypes';
+import { formatName } from '../helpers/NamesHelper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const Profile = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Artwork');
-  const [userCollections, setUserCollections] = useState([]);
+  const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -64,8 +64,8 @@ const Profile = () => {
   };
 
 
-  const handleCollectionClick = (collction) => {
-    navigation.navigate('collection', { collection: collction});
+  const handleCollectionClick = (collection: CollectionType) => {
+    navigation.navigate('collection', { collection: collection });
   };
 
 
@@ -104,71 +104,68 @@ const Profile = () => {
   }
 
   const fetchUserArtworks = async () => {
-    try {
-      if (token) {
-        const url = `/api/art-publication/user/${userID}`;
-        const callback = (response) => {
-          setUserArtworks(response.data);
-          setUserArtworksCount(response.data.length);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user artworks:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
+      if (!token) {
         console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
         Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+        return;
       }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
-    }
-  };
+
+      const url = `/api/art-publication/user/${userID}`;
+
+      const callback = (response: any) => {
+        setUserArtworks(response.data);
+        setUserArtworksCount(response.data.length);
+      }
+
+      const onErrorCallback = (error: any) => {
+        Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
+        return console.error('Error fetching user artworks:', error);
+      }
+
+      get(url, token, callback, onErrorCallback);
+  }
+
 
   const fetchUserData = async () => {
-        try {
-      if (token) {
-        const url = `/api/user/profile/${userID}`;
-        const callback = (response) => {
-          setUserData(response.data);
-          fetchUserArtworks();
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user data:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-        };
-
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    if (!token) {
+      Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      return;
     }
-  };
+
+    const url = `/api/user/profile/${userID}`;
+
+    const callback = (response: any) => {
+      setUserData(response.data);
+      fetchUserArtworks();
+    }
+
+    const onErrorCallback = (error: any) => {
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      return console.error('Error fetching user data:', error);
+    }
+
+    get(url, token, callback, onErrorCallback);
+  }
+
+
+  const updateCollections = async () => {
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      Alert.alert("Erreur", "Veuillez vous reconnecter");
+      return;
+    }
+
+    get(
+      `/api/collection/my-collections`,
+      token,
+      (response: any) => {
+        setUserCollections(response.data);
+        setIsRefreshing(false);
+      },
+      (error: any) => console.error({ ...error })
+    );
+  }
 
 
   const reloadProfile = () => {
@@ -186,32 +183,11 @@ const Profile = () => {
   useEffect(reloadProfile, []);
 
 
-  const updateCollections = async () => {
-    try {
-      const token = context?.token;
-      if (token) {
-        get(
-          `/api/collection/my-collections`,
-          token,
-          (response: any) => {
-            setUserCollections(response.data);
-            setIsRefreshing(false);
-          },
-          (error: any) => console.error({ ...error })
-        )
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert("Erreur", "Veuillez vous reconnecter");
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des collections de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des collections', 'Une erreur s\'est produite.');
-    }
-  }
-
-
   return (
-    <ScrollView nestedScrollEnabled>
+    <SafeAreaView>
+
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       <View>
         {/* Buttons : Back, Edit profile and Settings */}
         <View style={{ flexDirection: 'row', marginRight: 20, zIndex: 10 }}>
@@ -339,11 +315,7 @@ const Profile = () => {
                 <RefreshControl
                   colors={[ colors.primary ]}
                   refreshing={isRefreshing}
-                  onRefresh={() => {
-                    setIsRefreshing(true);
-                    fetchUserData();
-                    updateCollections();
-                  }}
+                  onRefresh={reloadProfile}
                 />
               )}
             />
@@ -351,46 +323,43 @@ const Profile = () => {
         ) }
 
         {/* Collections tab */}
-        {activeTab === 'Collections' && userCollections.length > 0 && (
-          <View style={styles.squareContainer}>
-  {userCollections.map((collection, index) => (
+        { activeTab === 'Collections' && userCollections.length !== 0 && (
+          <FlatList
+            data={userCollections}
+            numColumns={2}
+            renderItem={({ item }: any) => (
               <TouchableOpacity
-                key={collection._id}
+                key={item?._id.toString()}
                 style={[
                   styles.squareFrame,
-                  {
-                    width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
-                    marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
-                    marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
-                    marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
-                  },
+                  { backgroundColor: getRandomBgColor() }
                 ]}
-                onPress={() => handleCollectionClick(collection)}
+                onPress={() => handleCollectionClick(item)}
               >
-                <Image
-                  source={
-                    collection.artPublications.length > 0
-                      ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
-                      : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
-                  }
-                  style={{ flex: 1, borderRadius: 10 }}
-                  resizeMode="cover"
-                  onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
-                />
-                <Text style={styles.collectionName}>{collection.name}</Text>
+                <Text style={styles.collectionName}>{
+                  formatName(item?.name ?? "Collection", 10)
+                }</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        )}
-        {activeTab === 'A propos' && (
+            )}
+            refreshControl={(
+              <RefreshControl
+                colors={[ colors.primary ]}
+                refreshing={isRefreshing}
+                onRefresh={reloadProfile}
+              />
+            )}
+          />
+        ) }
+
+        { activeTab === 'A propos' && (
           <Card style={styles.biographyContainer}>
-            <Text style={[styles.biography, { paddingLeft: 15 }]}>
-              {userData?.biography}
+            <Text style={[styles.biography, { paddingLeft: 15 }, cTextDark]}>
+              { userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
             </Text>
           </Card>
-        )}
+        ) }
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -500,11 +469,12 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrame: {
-    width: 115,
+    maxWidth: '33%',
     height: 115,
-    backgroundColor: 'lightgray',
+    backgroundColor: colors.platinium,
     borderRadius: 10,
     margin: 5,
+    marginBottom: 10
   },
   squareContainer: {
     flexDirection: 'row',
@@ -549,7 +519,7 @@ const styles = StyleSheet.create({
     marginTop: 5
   },
   biography: {
-    fontSize: 18,
+    fontSize: 14,
     color: colors.black,
   },
   artworkImage: {

@@ -13,6 +13,9 @@ import { MainContext } from '../context/MainContext';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
 import Logo from '../components/assets/logo';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { bgColor, bgPlatinium, flex1, mv24, mv8 } from '../constants/styles';
+import Input from '../components/Input';
 
 const AddPublication = ({ navigation }: any) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -121,15 +124,11 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       '/api/art-publication',
       formData,
       context?.token,
-      () => navigation.navigate('main'),
-      (error) => {
-        console.error('Error publishing:', error);
-        if (error.response && error.response.data && error.response.data.errors) {
-          error.response.data.errors.forEach(err => {
-            console.error(`Validation error - ${err.param}: ${err.msg}`);
-          });
-        }
-      }
+      () => {
+        ToastAndroid.show("Nouveau post créé avec succès !", ToastAndroid.SHORT);
+        return navigation.navigate('profile')
+      },
+      (error) => console.error('Error publishing:', error)
     );
     setModalType('success');
     setModalMessage("Votre œuvre a bien été publiée.");
@@ -269,94 +268,104 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
   
   
 
-  return (
+return (
+  <SafeAreaView style={[ flex1, bgColor ]}>
+
+    {/* Title */}
+    <View style={styles.logo}>
+      <Title style={{ color: colors.primary }}>Leon</Title>
+      <Title>'Art</Title>
+    </View>
+
+    {/* Actual Screen */}
     <ScrollView style={styles.container}>
-      <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
-      </View>
-      <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <Title style={styles.artTitle}>Nouvelle publication</Title>
-      </View>
-      <Button
-        style={{ backgroundColor: colors.whitesmoke }}
-        textStyle={{ color: colors.darkGreyBg }}
-        value="Choisir une image"
-        onPress={selectImage}
-      />
+      <Text style={styles.artTitle}>Nouveau post</Text>
+
+
       {selectedImage && (
         <Image source={{ uri: selectedImage }} style={styles.img} />
       )}
+
+      <Button
+        style={[ bgPlatinium, mv24 ]}
+        textStyle={{ color: colors.black, fontSize: 16 }}
+        value={!!selectImage ? "Modifier l'image" : "Ajouter une image"}
+        onPress={selectImage}
+      />
+
+      {/* Form */}
       <View>
-        <TextInput
+        <Input
           placeholder="Titre"
-          onChangeText={handleName}
+          onTextChanged={handleName}
           value={name}
           style={styles.textInput}
         />
-        <TextInput
+        <Input
           placeholder="Description"
-          onChangeText={handleDescription}
+          onTextChanged={handleDescription}
           value={description}
           style={styles.textInput}
         />
-        <TextInput
+        <Input
           placeholder="Prix (€)"
-          onChangeText={handlePrice}
+          onTextChanged={handlePrice}
           value={price}
           style={styles.textInput}
         />
-<TouchableOpacity
-  style={[styles.filterTouchableOpacity, { flexDirection: 'row' }]}
-  onPress={() => setIsArtTypeDisplayed(e => !e)}
->
-  <Text style={[styles.filterText, { fontWeight: 'bold', flex: 1 }]}>
-    Genre
-  </Text>
-  <Entypo
-    name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
-    size={24}
-    color={colors.black}
-  />
-</TouchableOpacity>
-{isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
-  <View key={filter.category.toString()}>
-    <TouchableOpacity
-      style={styles.filterTouchableOpacity}
-      onPress={() => selectOrDeselect(filter.category)}
-    >
-      <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
-        {filter.category}
-      </Text>
-    </TouchableOpacity>
 
-    {/* Display sub-filters if main filter is selected */}
-    {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
-      <TouchableOpacity
-        key={subFilter}
-        style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
-        onPress={() => selectOrDeselect(subFilter, true)}
-      >
-        <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
-          {subFilter}
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-))}
+        <TouchableOpacity
+          style={[styles.filterTouchableOpacity, { flexDirection: 'row' }]}
+          onPress={() => setIsArtTypeDisplayed(e => !e)}
+        >
+          <Text style={[styles.filterText, { fontWeight: 'bold', flex: 1 }]}>
+            Genre
+          </Text>
+          <Entypo
+            name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
+            size={24}
+            color={colors.black}
+          />
+        </TouchableOpacity>
+        {isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
+          <View key={filter.category.toString()}>
+            <TouchableOpacity
+              style={styles.filterTouchableOpacity}
+              onPress={() => selectOrDeselect(filter.category)}
+            >
+              <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
+                {filter.category}
+              </Text>
+            </TouchableOpacity>
 
-        {/* <TextInput
+            {/* Display sub-filters if main filter is selected */}
+            {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
+              <TouchableOpacity
+                key={subFilter}
+                style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
+                onPress={() => selectOrDeselect(subFilter, true)}
+              >
+                <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
+                  {subFilter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+
+        <Input
           placeholder="Genre"
-          onChangeText={handleType}
+          onTextChanged={handleType}
           value={artType}
           style={styles.textInput}
-        /> */}
-      <Button
-        value="Publier et mettre à la vente"
-        onPress={sellWithAccount}
-        // disabled={!isAccountLinked} // Disable button if account is not linked
-        style={styles.saleButton}
-      />
+        />
+        
+        <Button
+          value="Publier et mettre à la vente"
+          onPress={sellWithAccount}
+          // disabled={!isAccountLinked} // Disable button if account is not linked
+          style={styles.saleButton}
+        />
       </View>
       <View style={{ marginTop: 5 }}>
         <Button
@@ -377,7 +386,17 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
           messageType="error"
         />
       </View>
-    </ScrollView>
+
+      </View>
+
+      {/* Submit button */}
+      <Button
+        value="Ajouter"
+        onPress={publish}
+      />
+
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -386,40 +405,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: colors.white,
-  },
-  logo: {
-    flexDirection: 'row',
-    height: 100,
-    paddingLeft: 20,
-    padding: 20,
-    borderRadius: 5,
-  },
-  img: {
-    margin: 13,
-    height: 300,
-    borderRadius: 4.5,
-    backgroundColor: colors.placeholder,
-  },
-  artTitle: {
-    marginTop: 25,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 0,
-    fontSize: 30,
-    color: '#000',
-  },
-  textInput: {
-    fontSize: 15,
-    marginLeft: 20,
-    marginRight: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-    paddingLeft: 20,
-    overlayColor: colors.black,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.platinium,
   },
   saleButton: {
     backgroundColor: colors.primary,
@@ -444,6 +429,59 @@ const styles = StyleSheet.create({
     paddingLeft: 30, // Adds padding to align sub-filters with the genre text
     marginLeft: 50, // Further indentation relative to the main filter
     marginTop: 10,
+  }
+  logo: {
+    flexDirection: 'row',
+    paddingHorizontal: 36,
+    paddingVertical: 12
+  },
+  img: {
+    marginTop: 12,
+    marginHorizontal: 16,
+    height: 300,
+    borderRadius: 20,
+    backgroundColor: colors.placeholder,
+  },
+  artTitle: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 0,
+    fontSize: 30,
+    color: colors.black,
+  },
+  artText: {
+    fontSize: 55,
+    color: '#000',
+  },
+  Tags: {
+    justifyContent: 'space-between',
+    margin: 50,
+    flex: 1,
+  },
+  TagButton: {
+    backgroundColor: '#F4F4F4',
+  },
+  TagButtonText: {
+    color: '#000'
+  },
+  favorite: {
+    margin: 10,
+  },
+  vector: {
+    width: 25,
+    height: 31,
+  },
+  textInput: {
+    color: colors.black,
+    fontSize: 15,
+    /* marginLeft: 20, */
+    /* marginRight: 20, */
+    backgroundColor: colors.secondary,
+    marginBottom: 20,
+    paddingLeft: 20
+    overlayColor: colors.black,
   }
 });
 

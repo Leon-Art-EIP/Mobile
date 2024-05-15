@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar } from 'react-native'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList, TextInput } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import profilePicture from '../assets/images/user.png'
@@ -7,12 +7,16 @@ import bannerImage from '../assets/images/banner.jpg'
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
-import { get, post } from '../constants/fetch';
-import { getImageUrl } from '../helpers/ImageHelper';
+import { get, post, put } from '../constants/fetch';
+import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Ionicons from "react-native-vector-icons/Ionicons";
 
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh24, mh4, mh8, mlAuto, mrAuto, mtAuto, mv4, mv8, pt8 } from '../constants/styles';
+import { CollectionType } from '../constants/artTypes';
+import { formatName } from '../helpers/NamesHelper';
+import Card from '../components/Card';
+
 
 const OtherProfile = ({ route }: any) => {
   const navigation = useNavigation();
@@ -23,85 +27,83 @@ const OtherProfile = ({ route }: any) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [activeTab, setActiveTab] = useState('Artwork');
+  const [userData, setUserData] = useState<any | null>(null);
+  const [activeTab, setActiveTab] = useState<'Artwork' | 'Collection' | 'A propos'>('Artwork');
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [collections, setCollections] = useState<CollectionType[]>([]);
 
   const handleArtworkClick = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
-    
-  };
+  }
 
   const handleBackButtonClick = () => {
     navigation.goBack();
-  };
+  }
 
   const handleContactButtonClick = () => {
-    // navigation.navigate('single_conversation', { id: id, name: userData?.username });
-    // navigation?.navigate(
-    //   'single_conversation',
-    //   {
-    //     name: conversation?.UserOneId === context?.userId ? conversation['UserTwoName'] : conversation['UserOneName'],
-    //     // ids: conversation ID, your ID, the correspondant ID
-    //     ids: [
-    //       conversation['_id'],
-    //       conversation['UserOneId'],
-    //       conversation['UserTwoId']
-    //     ]
-    //   }
-    // )
-  };
+    return put(
+      "/api/conversations/create",
+      { UserOneId: context?.userId, UserTwoId: id },
+      context?.token,
+      (resp: any) => {
+        navigation.navigate('single_conversation', {
+          name: userData.username,
+          ids: [
+            resp.data.convId,
+            context?.userId,
+            id
+          ]
+        });
+      },
+      (error: any) => console.error(error)
+    );
+  }
 
   const handleFollowButtonClick = async () => {
-    try {
-      if (token) {
-        const url = `/api/follow/${id}`;
-        const body = undefined;
-        const callback = () => {
-          setIsFollowing(!isFollowing);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Erreur de follow :', error);
-          if (error.response) {
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            console.error('No response received from server');
-          } else {
-            console.error('Error setting up the request:', error.message);
-          }
-        };
-
-        post(url, body, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
+    if (!token) {
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      // Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      return;
     }
+
+    const url = `/api/follow/${id}`;
+
+    const callback = () => {
+      /* setIsFollowing(current => !current); */
+      return fetchInfos();
+    }
+
+    const onErrorCallback = (error: any) => {
+      console.error('Erreur de follow :', error);
+      return Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+    }
+
+    post(url, {}, token, callback, onErrorCallback);
     fetchUserData();
-  };
+  }
 
 
   const checkIsFollowing = async () => {
-    try {
-      if (token) {
-        get(
-          "/api/follow/following",
-          token,
-          (response: any) => setIsFollowing(
-            response.data?.subscriptions.some(
-              (subscription: { _id: string }) => subscription._id === id
-            )
-          ),
-          (error: any) => console.error({ ...error })
-        );
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Erreur', 'Veuillez vous reconnecter');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la vérification du suivi :', error);
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return Alert.alert('Erreur', 'Veuillez vous reconnecter');
     }
-  };
+
+    get(
+      "/api/follow/following",
+      token,
+      (response: any) => {
+        console.log(response.data);
+        setIsFollowing(
+          !!(response.data?.subscriptions.some(
+            (subscription: { _id: string }) => subscription._id === id
+          ))
+        );
+        console.log("is following: ", isFollowing);
+      },
+      (error: any) => console.error({ ...error })
+    );
+  }
 
   interface Artwork {
     _id: string;
@@ -137,41 +139,58 @@ const OtherProfile = ({ route }: any) => {
       console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
       Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
-  };
+  }
 
-  const fetchUserData = async () => {
-    try {
-      if (token) {
-        const url = `/api/user/profile/${id}`;
-        const callback = (response) => {
-          setUserData(response.data);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user data:', error);
-          if (error.response) {
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            console.error('No response received from server');
-          } else {
-            console.error('Error setting up the request:', error.message);
-          }
-        };
 
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
+  const fetchUserData = () => {
+    if (!token) {
+      return console.error('Token JWT not found. Make sure the user is logged in.');
+    }
+
+    const url = `/api/user/profile/${id}`;
+
+    const callback = (response: any) => {
+      setUserData(response.data);
+    }
+
+    const onErrorCallback = (error: any) => {
       console.error('Error fetching user data:', error);
     }
-  };
+
+    get(url, token, callback, onErrorCallback);
+  }
 
 
-  useEffect(() => {
+  const getCollections = () => {
+    return get(
+      `/api/collection/user/${id}/collections`,
+      context?.token,
+      (res: any) => {
+        setCollections(res.data)
+      },
+      (err: any) => {
+        console.error("Error getting collections: ", err);
+        return ToastAndroid.show(
+          "Nous n'avons pas réussi à avoir les collections de cet utilisateur.",
+          ToastAndroid.LONG
+        );
+      }
+    );
+  }
+
+
+  const fetchInfos = () => {
+    setIsRefreshing(true);
     fetchUserData();
     fetchUserArtworks();
+    getCollections();
     checkIsFollowing();
-  }, []);
+    setIsRefreshing(false);
+  }
+
+
+  useEffect(fetchInfos, []);
+
 
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
@@ -180,14 +199,25 @@ const OtherProfile = ({ route }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView nestedScrollEnabled>
-      <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
+      <StatusBar
+        backgroundColor={colors.white}
+        barStyle='dark-content'
+      />
+
+      {/* Bouton de retour en haut à gauche */}
       <TouchableOpacity
-            onPress={() => handleBackButtonClick()}
-            style={styles.backButton}
-          >
-            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
-          </TouchableOpacity>
+        onPress={() => handleBackButtonClick()}
+        style={styles.backButton}
+      >
+        <AntDesign
+          name="left"
+          color={colors.white}
+          onPress={() => navigation.goBack()}
+          size={24}
+        />
+      </TouchableOpacity>
+
+      {/* Bannière */}
       <View style={styles.banner}>
         <Image
           source={{ uri: getImageUrl(userData?.bannerImage) }}
@@ -195,6 +225,8 @@ const OtherProfile = ({ route }: any) => {
           resizeMode="cover"
         />
       </View>
+
+      {/* Photo de profil */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
@@ -204,6 +236,8 @@ const OtherProfile = ({ route }: any) => {
           />
         </View>
       </View>
+
+      {/* Blocs de texte */}
       <View style={styles.textBlocks}>
         <View style={styles.textBlock}>
           <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
@@ -216,29 +250,35 @@ const OtherProfile = ({ route }: any) => {
           )}
         </View>
         <View style={styles.textBlock}>
-          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
+          <Text style={styles.value}>{
+            userData ? Math.max(userArtworksCount, 0) : 0
+          }</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
+
+      {/* Boutons "Suivre" et "Ecrire" */}
       <View style={styles.contactAndFollow}>
+
         <Button
-          value={isFollowing ? "Suivi" : "Suivre"}
-          secondary= {isFollowing ? true : false}
+          value={!isFollowing ? "Suivi" : "Suivre"}
+          secondary={!isFollowing}
           style={{
             width: 150,
             height: 38,
             borderRadius: 10,
             justifyContent: 'center',
           }}
-          textStyle={{fontSize: 14, textAlign: 'center', paddingTop: -100}}
-          onPress={() => handleFollowButtonClick()}
-          />
+          textStyle={{ fontSize: 14, textAlign: 'center' }}
+          onPress={handleFollowButtonClick}
+        />
+
         <Button
           value="Ecrire"
           secondary
-          style={{width: 150, height: 38, borderRadius: 10,}}
-          textStyle={{fontSize: 14}}
-          onPress={() => handleContactButtonClick()}
+          style={{ width: 150, height: 38, borderRadius: 10 }}
+          textStyle={{ fontSize: 14 }}
+          onPress={handleContactButtonClick}
           />
       </View>
       <View style={styles.decorativeLine} />
@@ -268,7 +308,9 @@ const OtherProfile = ({ route }: any) => {
           onPress={() => setActiveTab('A propos')}
           />
       </View>
-      {activeTab === 'Artwork' &&
+
+      {/* Ensembles de cadres carrés */}
+      { activeTab === 'Artwork' && (
         <View style={styles.squareContainer}>
           {userArtworks.map((artwork, index) => (
             <TouchableOpacity
@@ -284,8 +326,66 @@ const OtherProfile = ({ route }: any) => {
             </TouchableOpacity>
           ))}
         </View>
-      }
-    </ScrollView>
+      ) }
+
+      { activeTab === 'Collection' && (
+        <View style={styles.squareContainer}>
+          { collections.length === 0 ? (
+            <View style={[flex1, pt8]}>
+              <Image
+                source={require("../assets/icons/box.png")}
+                style={[
+                  { width: 100, height: 100 },
+                  mlAuto,
+                  mrAuto
+                ]}
+              />
+              <Text style={[ cTextDark, mlAuto, mrAuto ]}>
+                Cet utilisateur n'a pas de collections publiques !
+              </Text>
+            </View>
+          ) : (
+          <FlatList
+              data={collections}
+              numColumns={2}
+              renderItem={({ item }: any) => (
+                <TouchableOpacity
+                  key={item?._id.toString()}
+                  style={[
+                    styles.squareFrame,
+                    { backgroundColor: getRandomBgColor() }
+                  ]}
+                  onPress={() => navigation.navigate(
+                    'collection',
+                    { collection: item }
+                  )}
+                >
+                  <Text style={[cBlack, mh8, mv4]}>{
+                    formatName(item?.name ?? "Collection", 10)
+                  }</Text>
+                </TouchableOpacity>
+              )}
+              refreshControl={(
+                <RefreshControl
+                  colors={[ colors.primary ]}
+                  refreshing={isRefreshing}
+                  onRefresh={fetchInfos}
+                />
+              )}
+            />
+          ) }
+        </View>
+      ) }
+
+      { activeTab === "A propos" && (
+        <Card>
+          <ScrollView>
+            <Text style={cTextDark}>{
+              userData?.biography ?? "Cet personne utilise Leon'art pour redécouvrir l'art !"
+            }</Text>
+          </ScrollView>
+        </Card>
+      ) }
     </SafeAreaView>
   );
 }
@@ -308,9 +408,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   overlayImage: {
-    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   profilePicture: {
     backgroundColor: colors.white,
