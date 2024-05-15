@@ -3,8 +3,8 @@ import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimen
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import Button from '../components/Button';
-import Title from '../components/Title';
+import Button from '../components/buttons/Button';
+import Title from '../components/text/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
@@ -172,7 +172,7 @@ const Login = ({ navigation }: any) => {
         <Button
           onPress={() => navigation.navigate('google')}
           value="Se connecter avec Google"
-          style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
+          style={[styles.googleButton, { backgroundColor: colors.platinium }]}
           textStyle={styles.googleButtonText}
         />
 
@@ -233,16 +233,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'white',
+    color: 'black',
   },
   registerButton: {
-    backgroundColor: 'gray',
+    backgroundColor: colors.deepyellow,
   },
   registerButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'white',
+    color: colors.black,
   },
   titleView: {
     display: 'flex',

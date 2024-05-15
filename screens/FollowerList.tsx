@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
+import axios from 'axios';
+import React, { useContext, useEffect, useState } from 'react';
+import { SafeAreaView, StyleSheet, StatusBar, Text, TouchableOpacity, Alert, View } from 'react-native';
+import CartComponent from '../components/inbox/CartComponent';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 // Local imports
 import FollowersTabs from '../components/followers/FollowsTabs';
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import FollowersComponent from '../components/followers/FollowersComponent';
 import FollowedComponent from '../components/followers/FollowedComponent';
+import { flexRow, mv24, aiCenter, mh8 } from '../constants/styles';
 import { useBackHandler } from '@react-native-community/hooks';
 
 
@@ -20,7 +24,9 @@ const FollowerList = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.white} />
+
       <Title style={styles.mainTitle}>Follows</Title>
+      </View>
       <FollowersTabs
         active={selectedTab}
         setActive={setSelectedTab}

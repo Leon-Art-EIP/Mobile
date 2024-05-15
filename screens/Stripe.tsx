@@ -7,8 +7,8 @@ import colors from '../constants/colors';
 import { get, post } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 
-import Title from '../components/Title';
-import Button from '../components/Button';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
 
 const Stripe = ({ navigation, route }) => {
   const [article, setArticle] = useState([]);

@@ -7,7 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //* Local imports
 import colors from '../../constants/colors';
-import Title from '../Title';
+
+import Title from '../text/Title';
 import { MainContext } from '../../context/MainContext';
 import { get, getAsync } from '../../constants/fetch';
 import { getImageUrl } from '../../helpers/ImageHelper';

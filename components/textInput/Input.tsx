@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
-import colors from '../constants/colors';
+import colors from '../../constants/colors';
 
 interface InputProps {
   placeholder?: string;

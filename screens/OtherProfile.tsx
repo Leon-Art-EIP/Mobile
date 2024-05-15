@@ -2,12 +2,16 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList, TextInput } from 'react-native'
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign'
-import Button from '../components/Button';
+import profilePicture from '../assets/images/user.png'
+import bannerImage from '../assets/images/banner.jpg'
+import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh24, mh4, mh8, mlAuto, mrAuto, mtAuto, mv4, mv8, pt8 } from '../constants/styles';
 import { CollectionType } from '../constants/artTypes';
 import { formatName } from '../helpers/NamesHelper';
@@ -59,6 +63,7 @@ const OtherProfile = ({ route }: any) => {
     if (!token) {
       console.error('Token JWT not found. Make sure the user is logged in.');
       // Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      return;
     }
 
     const url = `/api/follow/${id}`;
@@ -135,6 +140,7 @@ const OtherProfile = ({ route }: any) => {
       Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
     }
   }
+
 
   const fetchUserData = () => {
     if (!token) {
@@ -233,21 +239,16 @@ const OtherProfile = ({ route }: any) => {
 
       {/* Blocs de texte */}
       <View style={styles.textBlocks}>
-        {/* Bloc de texte follower */}
         <View style={styles.textBlock}>
           <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
           <Text style={styles.title}>followers</Text>
         </View>
-
-        {/* Bloc de texte au centre */}
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
           {userData && userData.availability !== "unavailable" && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
           )}
         </View>
-
-        {/* Bloc de texte posts */}
         <View style={styles.textBlock}>
           <Text style={styles.value}>{
             userData ? Math.max(userArtworksCount, 0) : 0
@@ -280,14 +281,12 @@ const OtherProfile = ({ route }: any) => {
           onPress={handleContactButtonClick}
           />
       </View>
-      {/* Trait décoratif de séparation */}
       <View style={styles.decorativeLine} />
-      {/* Boutons d'onglet, "Artwork", "Collections" et "A propos" */}
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
           secondary={activeTab !== 'Artwork'}
-          tertiary={activeTab === 'Artwork'}
+          primary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Artwork')}
@@ -295,7 +294,7 @@ const OtherProfile = ({ route }: any) => {
         <Button
           value="Collection"
           secondary={activeTab !== 'Collection'}
-          tertiary={activeTab === 'Collection'}
+          primary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Collection')}
@@ -303,7 +302,7 @@ const OtherProfile = ({ route }: any) => {
         <Button
           value="A propos"
           secondary={activeTab !== 'A propos'}
-          tertiary={activeTab === 'A propos'}
+          primary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('A propos')}
@@ -398,7 +397,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   banner: {
-    backgroundColor: 'lightblue',
+    backgroundColor: colors.whitesmoke,
     height: 180,
     width: '100%',
     justifyContent: 'center',
@@ -511,12 +510,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   backButton: {
-    backgroundColor: colors.darkGreyBg,
-    padding: 12,
-    borderRadius: 50,
+    padding: 15,
     position: 'absolute',
-    top: 16,
-    left: 16,
     zIndex: 1,
   },
   artworkImage: {

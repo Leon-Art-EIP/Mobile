@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { View } from 'react-native'
 
 
-import Card from '../components/Card';
-import Title from '../components/Title';
-import Button from '../components/Button';
-import Input from '../components/Input';
+import Card from '../components/cards/Card';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
+import Input from '../components/textInput/Input';
 
 
 const ComponentsShow = () => {

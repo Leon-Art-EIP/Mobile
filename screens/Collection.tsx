@@ -2,9 +2,10 @@ import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Imag
 import React, { useState, useContext, useEffect } from 'react';
 
 // Local imports
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
+import Button from '../components/buttons/Button';
 import DeleteButtonImage from '../assets/icons/delete_red.png'
 import { del, get } from '../constants/fetch';
 import Ionicons from 'react-native-vector-icons/Ionicons';

@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import {del, get, post} from '../constants/fetch';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
 import {MainContext} from '../context/MainContext';
 import {getImageUrl} from '../helpers/ImageHelper';
 import {ArtistType, PostType} from '../constants/homeValues';
@@ -31,6 +31,8 @@ import {
   mh8,
   mlAuto,
   mr8,
+  mr20,
+  mrAuto,
   mtAuto,
   mv8,
   ph24,
@@ -40,6 +42,11 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import CommentInput from '../components/CommentInput';
+import CommentsList from '../components/cards/CommentsList';
+import Content from '../components/text/Content';
+import Subtitle from '../components/text/Subtitle';
+import InfoModal from '../components/infos/InfoModal';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Input from '../components/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,30 +54,42 @@ import { CollectionType } from '../constants/artTypes';
 
 
 const SingleArt = ({ navigation, route } : any) => {
+
+  const { id } = route.params;
   const context = useContext(MainContext);
   const token = context?.token;
+
   const [artist, setArtist] = useState<ArtistType | undefined>(undefined);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [isSold, setSoldState] = useState(false);
+  const [isForSale, setSaleState] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState<PostType | undefined>(undefined);
   const { id } = route.params;
+  const [modalMessage, setModalMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
+  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
+  const [infoModalMessage, setInfoModalMessage] = useState('');
   const [newCollectionName, setNewCollectionName] = useState('');
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   // In case we use more than one currency for different countries
   const [currency, setCurrency] = useState<string>("€");
-
+  
 
   useEffect(() => {
     if (isDeleteModalShown) {
-      return _slidingPanel?.current.show();
+      _slidingPanel.current?.show();
+    } else {
+      _slidingPanel.current?.hide();
     }
-    return _slidingPanel?.current.hide();
   }, [isDeleteModalShown]);
+  
+  
 
 
   useEffect(() => {
@@ -78,7 +97,6 @@ const SingleArt = ({ navigation, route } : any) => {
     checkIsLiked();
     checkIsSaved();
   }, [id]);
-
 
   useEffect(() => {
     if (publication && publication.userId) {
@@ -112,6 +130,29 @@ const SingleArt = ({ navigation, route } : any) => {
     );
   };
 
+  const deletePost = () => {
+    const callback = () => {
+      const msg = "Post supprimé avec succès !";
+      ToastAndroid.show(msg, ToastAndroid.SHORT);
+      setIsDeleteModalShown(false);
+      return navigation.goBack();
+    };
+
+    const onErrorCallback = (err: any) => {
+      const errorMsg: string = err?.response?.data?.msg;
+
+      console.error("Delete post ", err?.response?.status, ' : ', errorMsg);
+      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+      return setIsDeleteModalShown(false);
+    };
+
+    del(
+      `/api/art-publication/${id}`,
+      context?.token,
+      callback,
+      onErrorCallback
+    );
+  };
 
   const getArtistName = (userId: string) => {
     get(
@@ -128,9 +169,12 @@ const SingleArt = ({ navigation, route } : any) => {
 
 
   const fetchPaymentSheetParams = () => {
+    console.log('In fetchPaymentSheetParams, sending id:', id);
+
     const requestData = {
       artPublicationId: id,
     };
+
 
     post(
       '/api/order/create',
@@ -152,36 +196,25 @@ const SingleArt = ({ navigation, route } : any) => {
     );
   }
 
-
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
+  };
+
+  const handleArtistButtonClick = async () => {
+    navigation.navigate('other_profile');
+
   }
 
+  const previous = async () => {
+    navigation.navigate('homemain');
+  }
 
-  const deletePost = () => {
-    const callback = () => {
-      const msg = "Post supprimé avec succès !";
-      ToastAndroid.show(msg, ToastAndroid.SHORT);
-      setIsDeleteModalShown(false);
-      return navigation.goBack();
-    };
-
-    const onErrorCallback = (err: any) => {
-      const errorMsg: string = err?.response?.data?.msg;
-
-      console.error("Delete post ", err?.response?.status, ' : ', errorMsg);
-      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
-      return setIsDeleteModalShown(false);
-    }
-
-    del(
-      `/api/art-publication/${id}`,
-      context?.token,
-      callback,
-      onErrorCallback
+  const showAlert = (message) => {
+    Alert.alert(
+      "Art Publication",
+      message,
     );
   }
-
 
   const getPublications = () => {
     setIsRefreshing(true);
@@ -189,8 +222,11 @@ const SingleArt = ({ navigation, route } : any) => {
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
+        console.log('🎨 Publications:', response.data)
         setPublication(response?.data || []);
         getArtistName(response?.data.userId);
+        setSoldState(response?.data.isSold);
+        setSaleState(response?.data.isForSale)
         setIsRefreshing(false);
       },
       (error) => {
@@ -336,24 +372,20 @@ const SingleArt = ({ navigation, route } : any) => {
       <StatusBar barStyle='dark-content' backgroundColor={colors.bg} />
 
       <View style={styles.container}>
-        <View style={styles.logo}>
 
-          {/* Go back button */}
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={[ aiCenter, mr8, mtAuto, mbAuto ]}
-          >
-            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
-          </TouchableOpacity>
+      <ScrollView>
+      <View style={styles.container}>
 
-          {/* Title */}
-          <Title style={[ cPrimary, mtAuto, mbAuto ]}>Leon</Title>
-          <Title style={[ cBlack, mtAuto, mbAuto ]}>'Art</Title>
-
-          {/* Delete post (if artist) */}
-          { context?.userId === publication?.userId && (
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
+      </View>
+      <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
+        <Text style={styles.artTitle}>{publication.name}</Text>
+        <Text style={{fontSize: 23, color: 'black' }}>, {publication.price} €</Text>
+        { context?.userId === publication?.userId && (
             <TouchableOpacity
-              style={[mtAuto, mbAuto, mlAuto]}
+              style={[mtAuto, mbAuto, mlAuto, mr20]}
               onPress={() => setIsDeleteModalShown(true)}
             >
               <MaterialCommunityIcons
@@ -393,6 +425,18 @@ const SingleArt = ({ navigation, route } : any) => {
         ) : (
           <View style={styles.img} />
         ) }
+      </View>
+        
+      <View>
+        {isForSale && (
+          <Button
+            style={[styles.actionButton, isSold ? styles.soldButton : styles.availableButton, { width: '80%' }]}
+            textStyle={{ fontSize: 20, textAlign: 'center', color: isSold ? colors.disabledText : 'white' }}
+            value={isSold ? "Vendu" : "Acheter"}
+            onPress={openPaymentSheet}
+            disabled={isSold}
+          />
+        )}
       </View>
 
       <View style={flex1}>
@@ -473,7 +517,12 @@ const SingleArt = ({ navigation, route } : any) => {
         style={styles.modal}
       >
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Enregistrer dans...</Text>
+          <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
+          <TextInput
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onChangeText={(text) => setNewCollectionName(text)}
+          />
           <FlatList
             data={userCollections}
             keyExtractor={(item) => item._id}
@@ -511,21 +560,11 @@ const SingleArt = ({ navigation, route } : any) => {
           </View>
         </View>
       </Modal>
-
-      {/* This is commented for now because it does not work */}
-      {/* <CommentInput id={ id }></CommentInput> */}
-
-      {/* Modal to confirm deleting the post */}
       <SlidingUpPanel
         ref={_slidingPanel}
-        height={Dimensions.get('window').height / 5}
-        containerStyle={styles.deleteModal}
-        draggableRange={{ top: Dimensions.get('window').height / 5, bottom: 0 }}
-        onBackButtonPress={() => {
-          setIsDeleteModalShown(false);
-          return true;
-        }}
-        onBottomReached={() => setIsDeleteModalShown(false)}
+        height={200}
+        draggableRange={{ top: 200, bottom: 0 }}
+        allowDragging={false}
       >
         <>
           <Text style={{
@@ -555,8 +594,23 @@ const SingleArt = ({ navigation, route } : any) => {
   );
 };
 
-
 const styles = StyleSheet.create({
+  // Comments :
+
+  commentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+
+  commentContent: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+
+  publishedTime: {
+    color: '#888',
+  },
   container: {
     flex: 1,
     backgroundColor: colors.white,
@@ -572,20 +626,80 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 5,
   },
-  artistCardStyle: {
-    borderRadius: 30,
+
+  // MAIN :
+
     container: {
-      width: 45,
-      height: 45,
-      borderRadius: 30,
-      marginTop: 0,
-      color: colors.white
+        flex: 1,
+        backgroundColor: colors.white,
     },
-    image: {
-      width: 45,
-      height: 45,
+    logo: {
+        flexDirection: 'row',
+        height: 100,
+        paddingLeft: 20,
+        padding: 20,
+        borderRadius: 5,
+    },
+    artistCardStyle: {
+      // borderRadius: 30,
+      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
+      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
+    },
+    artistCardComment: {
+      // borderRadius: 30,
+      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
+      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
+    },
+    img: {
+      alignSelf: 'center',
+      resizeMode: 'contain',
+      marginTop: 10,
+      height: 345,
+      width: 345,
+      borderRadius: 5,
+    },
+    artTitle: {
+      marginLeft: 30,
+      fontWeight: 'bold',
+      fontSize: 25,
+      color: '#000',
+    },
+    rowContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingHorizontal: 0,
+      alignItems: 'center',
+      marginRight: 20,
+    },
+    actionButton: {
+      // borderRadius: 30,
+      justifyContent: 'center',
+      alignSelf: 'center',
+      // marginLeft: 'auto',
+    },
+    primaryButton: {
+      backgroundColor: colors.primary,
+    },
+    secondaryButton: {
+      backgroundColor: colors.secondary,
+    },
+    buttonText: {
+      fontSize: 14,
+      color: colors.black,
+    },
+    userIdText: {
+      marginLeft: 0,
+      fontSize: 18,
+      flex: 1,
+      color: 'black',
+    },
+    saveButton: {
+      backgroundColor: colors.secondary,
+      width: '70%',
+      height: 38,
       borderRadius: 30,
-      marginTop: 25
+      justifyContent: 'center',
+      flex: 1,
     },
   },
   img: {
@@ -753,8 +867,78 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     zIndex: 2
-  }
-});
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 30,
+      borderRadius: 12,
+      alignSelf: 'center',
+      width: '70%',
+      maxHeight: '70%',
+    },
+    modalTitle: {
+      fontSize: 18,
+      marginBottom: 15,
+    },
+    collectionButton: {
+      padding: 10,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.platinium,
+      marginBottom: 15,
+      alignItems: 'center',
+    },
+    collectionButtonText: {
+      color: colors.darkGreyFg,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.darkGreyBg,
+      borderRadius: 12,
+      paddingLeft: 15,
+      padding: 8,
+      marginBottom: 10,
+      marginTop: 10,
+    },
 
+    // Buttons
+
+    soldButton: {
+      backgroundColor: colors.disabledBg,
+    },
+    availableButton: {
+      // Styles specific to the button when it's available
+      backgroundColor: colors.primary,
+    },
+    createButton: {
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+    },
+    createButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    cancelButton: {
+      // padding: 10,
+      borderRadius: 18,
+      backgroundColor: colors.white,
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    cancelButtonText: {
+      color: 'black',
+      // fontWeight: 'bold',
+    },
+    deleteBtn: {
+      backgroundColor: colors.disabledBg,
+      borderRadius: 50,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      marginTop: 'auto',
+      marginBottom: 'auto'
+    },
+});
 
 export default SingleArt;

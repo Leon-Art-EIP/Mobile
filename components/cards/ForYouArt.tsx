@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from "react-native";
-import colors from "../constants/colors";
+import colors from "../../constants/colors";
 
 const ForYouArt = (index: number) => (
   <View style={styles.container} key={index.toString() + Math.random()} />

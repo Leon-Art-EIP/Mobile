@@ -39,6 +39,7 @@ const ml4: StyleProp<any> = { marginLeft: 4 };
 const ml8: StyleProp<any> = { marginLeft: 8 };
 const mr4: StyleProp<any> = { marginRight: 4 };
 const mr8: StyleProp<any> = { marginRight: 8 };
+const mr20: StyleProp<any> = { marginRight: 20 };
 const mh4: StyleProp<any> = { marginHorizontal: 4 };
 const mh8: StyleProp<any> = { marginHorizontal: 8 };
 const mh24: StyleProp<any> = { marginHorizontal: 24 };
@@ -108,7 +109,7 @@ export {
   noHPadding, noVPadding, noPadding,
   p4, p8, pt4, pt8, pb4, pb8, pl4, pl8, pr4, pr8,
   pv4, pv8, pv24, ph4, ph8, ph24,
-  m4, m8, mt4, mt8, mb4, mb8, ml4, ml8, mr4, mr8,
+  m4, m8, mt4, mt8, mb4, mb8, ml4, ml8, mr4, mr8, mr20,
   mv4, mv8, mv24, mh4, mh8, mh24,
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft,
   bgColor, bgRed, bgGrey, bgPlatinium,

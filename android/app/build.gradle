@@ -134,6 +134,10 @@ android {
     }
   }
 
+  // plugins {
+  //   id 'org.jetbrains.kotlin.jvm'
+  // }
+
   splits {
     abi {
       reset()

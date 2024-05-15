@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
-import TagButton from '../components/TagButton';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
+import TagButton from '../components/tags/TagButton';
 
 const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
   const { objective, artInterestType } = route.params;  

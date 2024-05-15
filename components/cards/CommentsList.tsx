@@ -1,11 +1,11 @@
 // CommentSection.js
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { get } from '../constants/fetch';
+import { get } from '../../constants/fetch';
 import { StyleSheet } from 'react-native';
 import { useContext } from 'react';
-import { MainContext } from '../context/MainContext';
-import colors from '../constants/colors';
+import { MainContext } from '../../context/MainContext';
+import colors from '../../constants/colors';
 
 const CommentsList = ({ id }) => {
   const context = useContext(MainContext);

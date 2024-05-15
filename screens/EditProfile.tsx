@@ -12,20 +12,20 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, {useState, useContext, useEffect} from 'react';
 import {ImageLibraryOptions, launchImageLibrary} from 'react-native-image-picker';
-// Local imports
 
+// Local imports
 import { getImageUrl } from '../helpers/ImageHelper';
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {bgRed, cPrimary} from "../constants/styles";
-// import bannerImage from '../assets/images/banner.jpg'
-// import profilePicture from '../assets/images/user.png'
+import {bgRed, cPrimary, cBlack} from "../constants/styles";
+import ModifyTag from '../components/tags/ModifyTag';
+import Subtitle from '../components/text/Subtitle';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -185,12 +185,8 @@ const EditProfile = () => {
 
   const handleSaveModifications = () => {
     console.log("Modifications saved.");
-    // Save new biography
     saveBiography();
-    // Save availability
     saveIsAvailable();
-    // Save new banner
-    // Save new Profile picture
     navigation.goBack();
   };
 
@@ -208,26 +204,20 @@ const EditProfile = () => {
         const onErrorCallback = (error) => {
           console.error('Error saving modifications:', error);
           if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
             console.error('Server responded with non-2xx status:', error.response.data);
           } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
             console.error('No response received from server');
           } else {
-            // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          // Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
         };
 
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -245,26 +235,20 @@ const EditProfile = () => {
         const onErrorCallback = (error) => {
           console.error('Error saving modifications:', error);
           if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
             console.error('Server responded with non-2xx status:', error.response.data);
           } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
             console.error('No response received from server');
           } else {
-            // Une erreur s'est produite lors de la configuration de la requête
             console.error('Error setting up the request:', error.message);
           }
-          // Alert.alert('Error saving modifications', 'An error occurred while saving modifications.');
         };
 
         post(url, body, token, callback, onErrorCallback);
       } else {
         console.error('Token JWT not found. Make sure the user is logged in.');
-        // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      // Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
     }
   };
 
@@ -354,13 +338,13 @@ const EditProfile = () => {
           style={styles.banner}
           resizeMode="cover"
         >
-          <TouchableOpacity
-            style={[bgRed, styles.bannerTouchable]}
-            onPress={selectBanner}
-          >
-            <Text style={cPrimary}>Modifier la bannière</Text>
-          </TouchableOpacity>
-        </ImageBackground>
+      <ModifyTag
+        onPress={selectBanner}
+        title="Modifier la bannière"
+        style={[ cBlack, styles.bannerTouchable]}
+        textStyle={{ cBlack }}
+      />
+      </ImageBackground>
 
         {/* Profile picture */}
         <View style={styles.overlayImage}>
@@ -381,35 +365,35 @@ const EditProfile = () => {
         <View>
           {/* Name */}
           <View style={styles.infoBlock}>
-            <Title style={styles.infoTitle}>Nom</Title>
+            <Subtitle>Nom</Subtitle>
             <Text style={styles.infoValue}>{userData?.username}</Text>
           </View>
           {/* Biography */}
           <View style={styles.infoBlock}>
-            <Title style={styles.infoTitle}>Description</Title>
+            <Subtitle>Description</Subtitle>
             <TextInput
                 placeholder="Parlez nous de vous..."
                 onChangeText={handleBiographyChange}
-                style={[styles.biographyInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
                 value={biography}
               />
           </View>
 
           {/* Availability */}
           <View style={styles.infoBlock}>
-            <Title style={styles.infoTitle}>Ouvert au commandes</Title>
+            <Subtitle>Ouvert au commandes</Subtitle>
             <View style={styles.buttonContainer}>
               <Button
                 value="Oui"
-                style={styles.availableButton}
-                textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                // style={styles.availableButton}
+                textStyle={{ fontSize: 16 }}
                 onPress={() => setIsAvailable("available")}
                 secondary={isAvailable === "unavailable"}
               />
               <Button
                 value="Non"
-                style={styles.availableButton}
-                textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                // style={styles.notAvailableButton}
+                textStyle={{ fontSize: 16 }}
                 onPress={() => setIsAvailable("unavailable")}
                 secondary={isAvailable === "available"}
               />
@@ -417,8 +401,8 @@ const EditProfile = () => {
           </View>
           <Button
             value="Enregistrer les modifications"
-            style={styles.disconnectButton}
-            textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+            // style={styles.disconnectButton}
+            textStyle={{ fontSize: 17 }}
             onPress={() => handleSaveModifications()}
             />
         </View>
@@ -443,7 +427,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     borderRadius: 50,
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.darkGreyFg,
     paddingVertical: 8,
     paddingHorizontal: 12
   },
@@ -575,20 +559,20 @@ const styles = StyleSheet.create({
     color: colors.white
   },
   settingsButton: {
-    width: '95%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    width: '95%',
     height: 50,
     borderRadius: 10,
     justifyContent: 'center',
-    alignSelf: 'center', // Centre le bouton horizontalement
-    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
+    alignSelf: 'center',
+    marginHorizontal: '10%',
   },
   disconnectButton: {
-    width: '80%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    width: '80%',
     height: 40,
     borderRadius: 100,
     justifyContent: 'center',
-    alignSelf: 'center', // Centre le bouton horizontalement
-    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
+    alignSelf: 'center',
+    marginHorizontal: '10%',
   },
   infoBlock: {
     marginLeft: 25,
@@ -605,13 +589,20 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: 0, // Ajustez la marge en fonction de vos besoins
+    marginTop: 0,
   },
   availableButton: {
-    width: '25%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    width: '25%',
     height: 40,
     borderRadius: 100,
     justifyContent: 'center',
+  },
+  notAvailableButton: {
+    width: '25%',
+    height: 40,
+    borderRadius: 100,
+    justifyContent: 'center',
+    color: colors.darkGreyFg,
   },
   inputContainer: {
     flexDirection: 'row',

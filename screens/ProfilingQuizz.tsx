@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 

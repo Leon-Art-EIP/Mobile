@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet, Text, Alert, TouchableOpacity } from 'react-native'
 import { post } from '../constants/fetch';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 
 

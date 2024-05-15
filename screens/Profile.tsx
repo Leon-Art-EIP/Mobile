@@ -2,8 +2,16 @@ import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Refre
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 // Local imports
-import Button from '../components/Button';
+import SettingsButtonImage from '../assets/images/settings_logo.png'
+import EditButtonImage from '../assets/images/edit_logo.png'
+import BackArrow from '../assets/images/back_arrow.png'
+import emptyCollectionImage from '../assets/icons/hamburger.png'
+import Button from '../components/buttons/Button';
+
 import colors from '../constants/colors';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Pen from 'react-native-vector-icons/pen';
+
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
@@ -11,7 +19,7 @@ import { cTextDark, mh4, mv4 } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Card from "../components/Card";
+import Card from "../components/cards/Card";
 import { CollectionType } from '../constants/artTypes';
 import { formatName } from '../helpers/NamesHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -257,31 +265,31 @@ const Profile = () => {
         {/* Decorative line */}
         <View style={styles.decorativeLine} />
 
-        {/* Tab selections button : Artwork, Collections and About */}
-        <View style={styles.tabsNavigation}>
-          <Button
-            value="Artwork"
-            secondary={activeTab !== 'Artwork'}
-            tertiary={activeTab === 'Artwork'}
-            style={[styles.navigationTabButton, styles.marginRightForTabs]}
-            textStyle={styles.navigationTabButtonText}
-            onPress={() => setActiveTab('Artwork')}
+      {/* Tab selections button : Artwork, Collections and About */}
+      <View style={styles.tabsNavigation}>
+        <Button
+          value="Artwork"
+          secondary={activeTab !== 'Artwork'}
+          primary={activeTab === 'Artwork'}
+          style={[styles.navigationTabButton, styles.marginRightForTabs]}
+          textStyle={styles.navigationTabButtonText}
+          onPress={() => setActiveTab('Artwork')}
           />
-          <Button
-            value="Collections"
-            secondary={activeTab !== 'Collections'}
-            tertiary={activeTab === 'Collections'}
-            style={[styles.navigationTabButton, styles.marginRightForTabs]}
-            textStyle={styles.navigationTabButtonText}
-            onPress={() => setActiveTab('Collections')}
+        <Button
+          value="Collections"
+          secondary={activeTab !== 'Collections'}
+          primary={activeTab === 'Collections'}
+          style={[styles.navigationTabButton, styles.marginRightForTabs]}
+          textStyle={styles.navigationTabButtonText}
+          onPress={() => setActiveTab('Collections')}
           />
-          <Button
-            value="A propos"
-            secondary={activeTab !== 'A propos'}
-            tertiary={activeTab === 'A propos'}
-            style={styles.navigationTabButton}
-            textStyle={styles.navigationTabButtonText}
-            onPress={() => setActiveTab('A propos')}
+        <Button
+          value="A propos"
+          secondary={activeTab !== 'A propos'}
+          primary={activeTab === 'A propos'}
+          style={styles.navigationTabButton}
+          textStyle={styles.navigationTabButtonText}
+          onPress={() => setActiveTab('A propos')}
           />
         </View>
 
@@ -358,10 +366,10 @@ const Profile = () => {
 const styles = StyleSheet.create({
   centeredText: {
     justifyContent: 'center',
-    alignItems: 'center', // Ajoutez cette ligne
+    alignItems: 'center',
   },
   banner: {
-    backgroundColor: 'lightblue',
+    backgroundColor: colors.platinium,
     height: 180,
     width: '100%',
     justifyContent: 'center',

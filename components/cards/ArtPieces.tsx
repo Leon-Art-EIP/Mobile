@@ -1,9 +1,9 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native'
-import colors from '../constants/colors';
-import { NewsType } from "../constants/homeValues";
+import colors from '../../constants/colors';
+import { NewsType } from "../../constants/homeValues";
 import Card from "./Card";
-import Title from "./Title";
+import Title from "../text/Title";
 
 interface ArtPiecesProps {
   onPress?: () => void;

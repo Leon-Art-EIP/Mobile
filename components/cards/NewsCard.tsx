@@ -1,9 +1,9 @@
-import {NewsType} from "../constants/homeValues";
+import {NewsType} from "../../constants/homeValues";
 import Card from "./Card";
 import {Dimensions, Image, StyleSheet, Text, View} from "react-native";
 import React from "react";
-import colors from "../constants/colors";
-import Button from "./Button";
+import colors from "../../constants/colors";
+import Button from "../buttons/Button";
 
 
 const NewsCard = ({news}) => (

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
 
 const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
   const { objective, artSellingType } = route.params;

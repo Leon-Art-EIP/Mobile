@@ -21,12 +21,14 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from "../constants/colors";
 import { ArtistType, ArticleType } from "../constants/homeValues";
 import { get } from '../constants/fetch';
+import { useFocusEffect } from '@react-navigation/native';
 
-import Title from "../components/Title";
-import ArtistCard from "../components/ArtistCard";
-import ArticleCard from '../components/ArticleCard';
+import Title from "../components/text/Title";
+import ArtistCard from "../components/cards/ArtistCard";
+import ArticleCard from '../components/cards/ArticleCard';
 import {useFocusEffect} from "@react-navigation/native";
 import { setupNotifications, getUnreadNotifCount } from '../constants/notifications';
+
 
 const HomeScreen = ({ navigation }: any) => {
   const context = useContext(MainContext);
@@ -165,7 +167,7 @@ const HomeScreen = ({ navigation }: any) => {
 
         {/* Actuality */}
 
-          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+          <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
             Actualités
           </Title>
           {articles.length === 0 ? (
@@ -207,7 +209,7 @@ const HomeScreen = ({ navigation }: any) => {
         <View>
           <Title
             size={24}
-            style={{ margin: 32, marginBottom: 4 }}
+            style={{ margin: 32, marginBottom: 8 }}
           >
             Artistes
           </Title>
@@ -248,7 +250,7 @@ const HomeScreen = ({ navigation }: any) => {
         {/* Pour Vous */}
 
       <View>
-        <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+        <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
           Publications
         </Title>
 
@@ -309,7 +311,7 @@ const styles = StyleSheet.create({
   },
   articleContainer: {
     marginHorizontal: 8,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   articleTitle: {
     fontSize: 18,

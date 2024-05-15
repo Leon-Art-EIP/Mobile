@@ -4,6 +4,7 @@ const colors = {
   disabledBg: '#F5F5F5',
   disabledFg: '#afafaf',
   error: '#F16565',
+  success: '#98e69d',
 
   transparent: '#00000000',
   black: '#000',
@@ -22,7 +23,7 @@ const colors = {
 
   sampleBg: '#D3A1A1',
   darkGreyBg: '#3E3E3E',
-  darkGreyFg: '#251A00',
+  darkGreyFg: '#2D2F2E',
 
   tag: '#FF7F74',
   pressedTag: '#FF7F74',
@@ -31,7 +32,7 @@ const colors = {
   articlePlHolder: '#a6c8ff',
   artistPlHolder: '#FF7F74',
   forYouPlHolder: '#ededed',
-  publicationPlHolder: '#FFCF70',
+  deepyellow: '#FFC043',
 
   platinium: '#E0E0E0',
   vermilion: '#F64C3C',
@@ -41,6 +42,13 @@ const colors = {
   //buttons
   cancel: '#E68275',
   confirm: '#6DC592',
+
+  // Tags
+  paid: 'rgba(93, 144, 255, 0.7)',
+  completed: 'rgba(208, 236, 83, 0.7)',
+  shipping: 'rgba(173, 118, 255, 0.7)',
+  default: 'rgba(235, 238, 243, 0.7)',
+  stripe: '#6579E7',
 
   // inbox
   offerFg: '#6C0F7B',

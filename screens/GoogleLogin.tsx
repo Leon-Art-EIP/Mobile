@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-import Button from '../components/Button';
-import Title from '../components/Title';
+import Button from '../components/buttons/Button';
+import Title from '../components/text/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';

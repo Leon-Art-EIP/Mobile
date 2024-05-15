@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, StyleSheet, } from 'react-native'
-import colors from '../constants/colors';
+import colors from '../../constants/colors';
 
 interface ButtonProps {
   onPress?: () => void;
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   primaryContainerStyle: {
     backgroundColor: colors.primary,
     margin: 16,
-    borderRadius: 50,
+    borderRadius: 17,
     alignItems: 'center',
     elevation: 0,
     paddingHorizontal: 20,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
     fontFamily: 'Manrope',
     fontStyle: 'normal',
-    fontSize: 20,
+    fontSize: 16,
   },
   secondaryTextStyle: {
     color: colors.secondaryText,
