@@ -65,7 +65,6 @@ const CommandsComponent = () => {
       refreshControl={<RefreshControl
         refreshing={isRefreshing}
         colors={[colors.primary]}
-        onRefresh={getCommands}
       />}
       contentContainerStyle={styles.container}
     >
@@ -88,11 +87,10 @@ const CommandsComponent = () => {
             </View>
             <View style={styles.buttonContainer}>
               <Button
-                value={order.orderState} // Setting the button text to orderState
-                style={[styles.default, getButtonStyle(order.orderState)]}                textStyle={styles.buttonText}
-                // disabled={false}
+                value={order.orderState}
+                style={[styles.default, getButtonStyle(order.orderState)]}
+                textStyle={styles.buttonText}
                 disabled={true}
-                // onPress={cDisabled}
               />
             </View>
           </View>
@@ -118,12 +116,10 @@ const CommandsComponent = () => {
             </View>
             <View style={styles.buttonContainer}>
               <Button
-                value={sale.orderState} // Setting the button text to orderState
-                // style={[styles.tag, getButtonStyle(order.orderState)]}
+                value={sale.orderState}
                 style={[styles.default, getButtonStyle(sale.orderState)]}                textStyle={styles.buttonText}
                 textStyle={styles.buttonText}
                 disabled={true}
-                // onPress={cDisabled}
               />
             </View>
           </View>

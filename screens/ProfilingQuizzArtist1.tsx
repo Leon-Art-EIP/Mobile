@@ -108,15 +108,7 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
           onPress={selectTag}
           />
       </ScrollView>
-      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}>
-          <TagButton 
-              style={ styles.toggle }
-              value="Oui"
-          />
-          <Text style={{paddingRight: 20}}>
-          Localiser ma position et optimiser mon référencement sur l’application
-          </Text>
-      </View>
+      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}/>
       <Button value="Suivant" onPress={next} />
       <Button
         style={{ backgroundColor: colors.secondary }}

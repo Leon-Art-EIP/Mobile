@@ -17,8 +17,7 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       return;
     Alert.alert('Your preferences have been saved !');
     postQuizDatas();
-    navigation.navigate('profiling');
-    navigation.navigate('homemain');
+    navigation.navigate('tutorial');
     
   };
   
@@ -126,7 +125,7 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
         </TouchableOpacity>
       </View>
       <Button
-        value="Terminé"
+        value="Tutoriel de présentation"
         onPress={next}
       />
       <Button

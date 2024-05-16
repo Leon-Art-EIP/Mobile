@@ -514,12 +514,12 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     artistCardStyle: {
-      // borderRadius: 30,
+      borderRadius: 30,
       container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
       image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
     },
     artistCardComment: {
-      // borderRadius: 30,
+      borderRadius: 30,
       container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
       image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
     },

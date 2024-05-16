@@ -21,19 +21,19 @@ const ArtistCard = ({
   showTitle = true,
 }: ArtistCardProps) => (
   <TouchableOpacity onPress={onPress}>
-     <Card style={[styles.container, style?.container]}>
-       { item?.profilePicture && (
-         <Image
-           style={[styles.image, style?.image]}
-           source={{ uri: getImageUrl(item?.profilePicture) }}
-         />
-       ) }
-     </Card>
-     {showTitle && (
-       <Title size={16} style={[styles.title, style.title]}>
-         { item?.username }
-       </Title>
-     )}
+    <Card style={[styles.container, style?.container]}>
+      {item?.profilePicture && (
+        <Image
+          style={[styles.image, style?.image]}
+          source={{ uri: getImageUrl(item?.profilePicture) }}
+        />
+      )}
+    </Card>
+    {showTitle && (
+      <Title size={16} style={[styles.title, style.title]}>
+        {item?.username}
+      </Title>
+    )}
   </TouchableOpacity>
 );
 
@@ -41,32 +41,30 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
     marginRight: 5,
-    marginBottom: 60,
-    textAlign: 'center',
-    width: 80,  // Reduced from 120 to 80
-    height: 80,  // Reduced from 120 to 80
+    marginBottom: 10,
+    width: 80,
+    height: 80,
     position: 'relative',
-    borderRadius: 40,  // Adjusted for perfect circle
+    borderRadius: 40,
   },
   image: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: 80,  // Match container size
-    height: 80,  // Match container size
-    borderRadius: 40,  // Adjusted for perfect circle
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   title: {
     transform: [{ translateX: -50 }],
     position: 'absolute',
-    bottom: -20,  // Adjust position to be visible (outside the card if needed)
+    bottom: -20,
     left: '50%',
     color: colors.darkGreyBg,
-    fontSize: 12,  // Optionally reduce font size
+    fontSize: 12,
     disabled: false,
   },
 });
-
 
 export default ArtistCard;
 export type { ArtistCardProps };

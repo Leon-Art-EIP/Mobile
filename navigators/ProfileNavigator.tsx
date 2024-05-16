@@ -16,6 +16,9 @@ import ProfilingLast from '../screens/ProfilingQuizzFinal';
 import EditProfile from '../screens/EditProfile';
 import Collection from '../screens/Collection';
 import SingleArt from '../screens/SingleArt';
+import Tutorial from '../screens/Tutorial'
+import Tutorial2 from '../screens/Tutorial_2'
+import Tutorial3 from '../screens/Tutorial_3'
 
 const ProfileNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -40,6 +43,9 @@ const ProfileNavigator = () => {
       <Stack.Screen name="profilingLast" component={ProfilingLast} options={options}/>
       <Stack.Screen name="collection" component={Collection} options={options}/>
       <Stack.Screen name="singleArt" component={SingleArt} options={options} />
+      <Stack.Screen name="tutorial" component={Tutorial} options={options} />
+      <Stack.Screen name="tutorial2" component={Tutorial2} options={options} />
+      <Stack.Screen name="tutorial3" component={Tutorial3} options={options} />
     </Stack.Navigator>
   );
 }

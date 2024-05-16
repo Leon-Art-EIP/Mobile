@@ -10,6 +10,9 @@ import ProfilingAmateur1 from '../screens/ProfilingQuizzAmateur1'
 import ProfilingAmateur2 from '../screens/ProfilingQuizzAmateur2'
 import ProfilingLast from '../screens/ProfilingQuizzFinal';
 import BottomNavigator from './BottomNavigator';
+import Tutorial from '../screens/Tutorial'
+import Tutorial2 from '../screens/Tutorial_2'
+import Tutorial3 from '../screens/Tutorial_3'
 
 const ProfilingQuizzNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -24,6 +27,9 @@ const ProfilingQuizzNavigator = () => {
             <Stack.Screen name="profilingAmateur2" component={ProfilingAmateur2} options={options}/>
             <Stack.Screen name="profilingLast" component={ProfilingLast} options={options}/>
             <Stack.Screen name="mainNav" component={BottomNavigator} options={options} />
+            <Stack.Screen name="tutorial" component={Tutorial} options={options} />
+            <Stack.Screen name="tutorial2" component={Tutorial2} options={options} />
+            <Stack.Screen name="tutorial3" component={Tutorial3} options={options} />
         </Stack.Navigator>
     );
 }

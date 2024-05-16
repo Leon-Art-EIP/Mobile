@@ -42,24 +42,18 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
   if (array.includes(filterName)) {
     newFilterArray = array.filter(f => f !== filterName);
+    if (!isSubFilter) {
+      handleType('');
+    }
   } else {
     newFilterArray = [...array, filterName];
+    if (!isSubFilter) {
+      handleType(filterName);
+    }
   }
 
   isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
 };
-
-
-  // Fonction pour sélectionner/désélectionner les filtres
-  // const selectOrDeselect = (filterName: string) => {
-  //   let newFilterArray: string[] = [];
-  //   if (selectedFilters.includes(filterName)) {
-  //     newFilterArray = selectedFilters.filter(f => f !== filterName);
-  //   } else {
-  //     newFilterArray = [...selectedFilters, filterName];
-  //   }
-  //   setSelectedFilters(newFilterArray);
-  // };
 
   useEffect(() => {
     checkAccountLinkStatus();
@@ -224,7 +218,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       formData.append('artType', artType !== '' ? artType : 'empty');
       formData.append('description', description !== '' ? description : 'empty');
       formData.append('dimension', dimension !== '' ? dimension : 'empty');
-      formData.append('isForSale', isForSale); // Set isForSale to true
+      formData.append('isForSale', isForSale);
       formData.append('price', isPriceValid ? parsedPrice : 0);
       formData.append('location', location !== '' ? location : 'empty');
   
@@ -345,16 +339,9 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
   </View>
 ))}
 
-        {/* <TextInput
-          placeholder="Genre"
-          onChangeText={handleType}
-          value={artType}
-          style={styles.textInput}
-        /> */}
       <Button
         value="Publier et mettre à la vente"
         onPress={sellWithAccount}
-        // disabled={!isAccountLinked} // Disable button if account is not linked
         style={styles.saleButton}
       />
       </View>
@@ -432,17 +419,17 @@ const styles = StyleSheet.create({
   },
   filterTouchableOpacity: {
     flexDirection: 'row',
-    alignItems: 'center', // Align items in a row horizontally
+    alignItems: 'center',
     marginLeft: 30,
     marginTop: 20,
   },
   filterText: {
-    flex: 1, // Allows the text to take up the space and pushes the icon to the right
+    flex: 1,
     fontSize: 18,
   },
   subFilterTouchableOpacity: {
-    paddingLeft: 30, // Adds padding to align sub-filters with the genre text
-    marginLeft: 50, // Further indentation relative to the main filter
+    paddingLeft: 30,
+    marginLeft: 50,
     marginTop: 10,
   }
 });
