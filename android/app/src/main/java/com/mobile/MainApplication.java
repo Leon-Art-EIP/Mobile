@@ -12,6 +12,8 @@ import com.facebook.soloader.SoLoader;
 import com.mobile.newarchitecture.MainApplicationReactNativeHost;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import com.wix.reactnativenotifications.RNNotificationsPackage;
+
 
 public class MainApplication extends Application implements ReactApplication {
 

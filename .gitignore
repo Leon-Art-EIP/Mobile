@@ -1,3 +1,4 @@
+start.sh
 yarn.lock
 .env
 *.apk

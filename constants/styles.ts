@@ -81,12 +81,14 @@ const taRight: StyleProp<TextStyle> = { textAlign: 'right' };
 const bgColor: StyleProp<any> = { backgroundColor: colors.bg };
 const bgRed: StyleProp<any> = { backgroundColor: '#f00' };
 const bgGrey: StyleProp<any> = { backgroundColor: colors.disabledBg };
+const bgPlatinium: StyleProp<any> = { backgroundColor: colors.platinium };
 
 // color
 const cBlack: StyleProp<any> = { color: colors.black };
 const cPrimary: StyleProp<any> = { color: colors.primary };
 const cWhite: StyleProp<any> = { color: colors.white };
 const cText: StyleProp<any> = { color: colors.text };
+const cTextDark: StyleProp<any> = { color: colors.textDark };
 const cDisabled: StyleProp<any> = { color: colors.disabledFg };
 
 // border radius
@@ -110,7 +112,7 @@ export {
   m4, m8, mt4, mt8, mb4, mb8, ml4, ml8, mr4, mr8, mr20,
   mv4, mv8, mv24, mh4, mh8, mh24,
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft,
-  bgColor, bgRed, bgGrey,
+  bgColor, bgRed, bgGrey, bgPlatinium,
   br5, br7, br12, br20, br50,
-  cBlack, cWhite, cPrimary, cDisabled, cText
+  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark
 };

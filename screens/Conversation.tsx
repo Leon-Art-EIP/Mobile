@@ -213,23 +213,24 @@ const Conversation = () => {
         <View style={styles.messageView}>
 
           {/* Add image */}
-          <TouchableOpacity
-            onPress={selectPicture}
-            style={styles.micView}
-          >
-            <Ionicons
-              name='image-outline'
-              size={24}
-              color="#E95DAD"
-              style={styles.micImage}
-            />
-          </TouchableOpacity>
+          {/* <TouchableOpacity */}
+          {/*   onPress={selectPicture} */}
+          {/*   style={styles.micView} */}
+          {/* > */}
+          {/*   <Ionicons */}
+          {/*     name='image-outline' */}
+          {/*     size={24} */}
+          {/*     color="#E95DAD" */}
+          {/*     style={styles.micImage} */}
+          {/*   /> */}
+          {/* </TouchableOpacity> */}
 
 
           {/* Input message */}
           <TextInput
             style={styles.messageInput}
             placeholder="Message ..."
+            placeholderTextColor={colors.disabledFg}
             onChangeText={(newMsg: string) => setNewMessage(newMsg)}
             value={newMessage}
           />
@@ -287,7 +288,6 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   arrowView: {
-    /* backgroundColor: '#302D2B', */
     backgroundColor: colors.disabledBg,
     borderRadius: 50,
     paddingHorizontal: 8,
@@ -326,6 +326,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   messageInput: {
+    color: colors.black,
     paddingHorizontal: 12,
     backgroundColor: colors.transparent,
     shadowColor: colors.transparent,

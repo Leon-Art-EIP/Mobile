@@ -1,4 +1,6 @@
 import React from 'react';
+import colors from '../constants/colors';
+import { get } from '../constants/fetch';
 
 
 const getImageUrl = (urlFromBack: string | undefined) => {
@@ -11,6 +13,25 @@ const getImageUrl = (urlFromBack: string | undefined) => {
 }
 
 
+const getRandomBgColor = () => {
+  const rdColors = [
+    colors.platinium,
+    colors.oldrose,
+    colors.tag,
+    colors.offerBg,
+    "#cefbff",
+    "#cfffc6",
+    "#f3d5ff",
+    "#cbd5ff",
+    "#ffebd3",
+    "#f7ffdb"
+  ];
+
+  return rdColors[Math.floor(Math.random() * rdColors.length)];
+}
+
+
 export {
-  getImageUrl
+  getImageUrl,
+  getRandomBgColor
 };

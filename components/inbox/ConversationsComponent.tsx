@@ -132,7 +132,8 @@ const ConversationsComponent = () => {
               }</Title>
               <Text numberOfLines={1} style={{
                 fontWeight: item.unreadMessages ? 'bold' : 'normal',
-                flexShrink: 1
+                flexShrink: 1,
+                color: colors.textDark
               }}>{ item.lastMessage }</Text>
             </View>
           </View>

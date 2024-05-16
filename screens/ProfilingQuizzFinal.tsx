@@ -17,10 +17,11 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       return;
     Alert.alert('Your preferences have been saved !');
     postQuizDatas();
+    navigation.navigate('profiling');
     navigation.navigate('tutorial');
     
   };
-  
+
   const postQuizDatas = () => {
     const quizDatas = {
       artInterestType,
@@ -72,15 +73,15 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
     console.log('selectedTag:', discoveryMethod);
     console.log('customcommands:', customCommands);
     },
-  ); 
+  );
 
   const selectTag = (tag: string) => {
     setSelectedTag(discoveryMethod === tag ? null : tag);
   };
 
   const getButtonStyle = (choice) => (
-    discoveryMethod === choice ? 
-      { ...styles.TagButton, backgroundColor: colors.primary } : 
+    discoveryMethod === choice ?
+      { ...styles.TagButton, backgroundColor: colors.primary } :
       styles.TagButton
   );
 

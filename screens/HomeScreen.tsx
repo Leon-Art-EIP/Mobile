@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import colors from "../constants/colors";
 import { ArtistType, ArticleType } from "../constants/homeValues";
@@ -25,6 +26,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import Title from "../components/text/Title";
 import ArtistCard from "../components/cards/ArtistCard";
 import ArticleCard from '../components/cards/ArticleCard';
+import {useFocusEffect} from "@react-navigation/native";
+import { setupNotifications, getUnreadNotifCount } from '../constants/notifications';
+
 
 const HomeScreen = ({ navigation }: any) => {
   const context = useContext(MainContext);
@@ -32,10 +36,10 @@ const HomeScreen = ({ navigation }: any) => {
   const [articles, setArticles] = useState<ArticleType[]>([]);
   const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(false);
 
 
   const handleToArtistProfile = (artist: ArtistType) => {
-    console.log('artist id: ', artist._id);
     navigation.navigate('other_profile', { id: artist._id });
   };
 
@@ -84,30 +88,33 @@ const HomeScreen = ({ navigation }: any) => {
 
 
   const getPublications = () => {
-    console.log('Token:', context?.token);
     if (!context?.token) {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
+
     get(
       "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
-      (response) => {
-        console.log('🎨 Publications:', response.data);
-        setPublications(response?.data || []);
-      },
+      (response) => setPublications(response?.data || []),
       (error) => {
-        console.error("Error fetching publications:", error);
         ToastAndroid.show("Error fetching publications", ToastAndroid.SHORT);
+        return console.error("Error fetching publications:", error);
       }
-      );
-      console.log('LOG');
+    );
   };
+
+
+  const getHasUnreadNotifications = async () => {
+    let unreadNumber: number = await getUnreadNotifCount(context?.token);
+    setHasUnreadNotifications(unreadNumber !== 0 && unreadNumber !== -1);
+  }
 
 
   const refreshData = () => {
     getArticles();
     getArtists();
     getPublications();
+    getHasUnreadNotifications();
   };
 
 
@@ -122,6 +129,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     refreshData();
+    setupNotifications(context?.token);
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
@@ -144,6 +152,16 @@ const HomeScreen = ({ navigation }: any) => {
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('notifications')}
+            style={styles.notifIconTouchable}
+          >
+            <MaterialIcons
+              name={hasUnreadNotifications ? "notification-important" : "notifications"}
+              size={32}
+              color={hasUnreadNotifications ? colors.primary : colors.black}
+            />
+          </TouchableOpacity>
         </View>
         <View>
 
@@ -299,6 +317,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  notifIconTouchable: {
+    marginLeft: 'auto',
+    marginTop: 'auto',
+    marginRight: 12
   },
   articleImage: {
     width: '100%',

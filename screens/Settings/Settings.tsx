@@ -1,17 +1,15 @@
-import React, { useState, useContext } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Linking } from 'react-native';
-import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import React, { useContext } from 'react';
+import { SafeAreaView, StyleSheet, StatusBar, View, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 // Local imports
 import { post } from '../../constants/fetch';
 import Title from '../../components/text/Title';
 import colors from '../../constants/colors';
 import Button from '../../components/buttons/Button';
-import BackArrow from '../../assets/images/back_arrow_black.png'
 import { MainContext } from '../../context/MainContext';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {aiCenter, flexRow, mh8, mv24} from "../../constants/styles";
+import { aiCenter, flexRow, mh8, mv24 } from "../../constants/styles";
 
 const Settings = () => {
   const navigation = useNavigation();

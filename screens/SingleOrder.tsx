@@ -7,7 +7,24 @@ import Card from '../components/cards/Card';
 import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { get, post, put } from '../constants/fetch';
-import { acCenter, aiCenter, asCenter, bgGrey, displayFlex, flex1, flexRow, mb8, mh8, ml4, mr4, mr8, mtAuto, mv4, mv8, noHMargin, noMargin } from '../constants/styles';
+import {
+  aiCenter,
+  asCenter,
+  cTextDark,
+  flex1,
+  flexRow,
+  mb4,
+  mb8,
+  mbAuto,
+  ml4, mlAuto,
+  mr4,
+  mr8, mrAuto,
+  mtAuto,
+  mv4,
+  mv8,
+  noHMargin,
+  noMargin
+} from '../constants/styles';
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { formatName } from '../helpers/NamesHelper';
@@ -79,7 +96,7 @@ const SingleOrder = () => {
       `/api/order/cancel/${params?.id}`,
       {},
       context?.token,
-      (res) => {
+      () => {
         ToastAndroid.show("Order canceled", ToastAndroid.SHORT);
         return navigation.goBack();
       },
@@ -94,7 +111,7 @@ const SingleOrder = () => {
       `/api/order/confirm-delivery-rate`,
       { rating: rating, orderId: order?.orderId },
       context?.token,
-      (res) => {
+      () => {
         ToastAndroid.show("Order validated", ToastAndroid.SHORT);
         return navigation.goBack();
       },
@@ -113,7 +130,7 @@ const SingleOrder = () => {
       `/api/conversations/create`,
       convBody,
       context?.token,
-      (res) => {
+      (res: any) => {
         if (res?.data?.convId) {
           navigation.navigate('single_conversation', {
             name: params?.buy ? order?.sellerName : order?.buyerName,
@@ -167,16 +184,45 @@ const SingleOrder = () => {
         style={styles.orderImage}
       />
 
-      {/* Title and artist */}
-      <Card style={{ marginHorizontal: 0 }}>
-        <View style={[flexRow, aiCenter]}>
-          <Title
-            size={22}
-            bold={false}
-            style={[mb8, flex1]}
-          >{formatName(order?.artPublicationName)}</Title>
-          <Text style={mr8}>{order?.orderPrice.toString()} €</Text>
-        </View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={getOrder}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />}
+        contentContainerStyle={flex1}
+      >
+
+        {/* Title and artist */}
+        <Card style={{ marginHorizontal: 0 }}>
+          <View style={[flexRow, aiCenter]}>
+            <Title
+              size={22}
+              bold={false}
+              style={[mb4, flex1]}
+            >{ formatName(order?.artPublicationName) }</Title>
+            <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
+          </View>
+
+          <TouchableOpacity
+            style={[flexRow, aiCenter, mb4]}
+            onPress={() => navigation.navigate('single_profile', {
+              id: params?.buy ? order?.sellerId : order?.buyerId
+            })}
+          >
+            <Text style={cTextDark}>{
+              formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
+            }</Text>
+          </TouchableOpacity>
+        </Card>
+
+        <Card style={{ marginHorizontal: 0, flex: 1 }}>
+          <Text style={cTextDark}>{ order?.artPublicationDescription }</Text>
+        </Card>
+
+      </ScrollView>
 
         <TouchableOpacity
           style={[flexRow, aiCenter]}
