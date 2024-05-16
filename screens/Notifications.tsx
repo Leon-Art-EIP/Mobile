@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Title from '../components/Title';
 import colors from '../constants/colors';
 import { acCenter, aiCenter, asCenter, bgRed, flex1, flexRow, jcCenter, mb8, mbAuto, mh4, mr8, mtAuto, mv4, mv8, taCenter } from '../constants/styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,6 +9,7 @@ import { getNotifications, NotificationsType } from '../constants/notifications'
 import { MainContext } from '../context/MainContext';
 import Card from '../components/Card';
 import NotificationCard from '../components/NotificationCard';
+import Title from '../components/text/Title';
 
 
 const Notifications = () => {

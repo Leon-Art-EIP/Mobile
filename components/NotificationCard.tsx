@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Card from './Card';
+import Card from './cards/Card';
 import { NotificationsType } from '../constants/notifications';
 import { Text } from 'react-native';
 import { cBlack, cText, mh4, mv4 } from '../constants/styles';

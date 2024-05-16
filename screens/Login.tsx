@@ -179,8 +179,7 @@ const Login = ({ navigation }: any) => {
         <Button
           onPress={() => navigation.navigate('signup')}
           value="S'inscrire"
-          style={styles.registerButton}
-          textStyle={styles.registerButtonText}
+          tertiary
         />
       </SafeAreaView>
     </View>

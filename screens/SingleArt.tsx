@@ -48,9 +48,10 @@ import Content from '../components/text/Content';
 import Subtitle from '../components/text/Subtitle';
 import InfoModal from '../components/infos/InfoModal';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import Input from '../components/Input';
+import Input from '../components/textInput/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionType } from '../constants/artTypes';
+import { useStripe } from '@stripe/stripe-react-native';
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -66,20 +67,15 @@ const SingleArt = ({ navigation, route } : any) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [publication, setPublication] = useState<PostType | undefined>(undefined);
-  const { id } = route.params;
-  const [modalMessage, setModalMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
-  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
-  const [infoModalMessage, setInfoModalMessage] = useState('');
   const [newCollectionName, setNewCollectionName] = useState('');
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   // In case we use more than one currency for different countries
   const [currency, setCurrency] = useState<string>("€");
-  
+
 
   useEffect(() => {
     if (isDeleteModalShown) {
@@ -88,8 +84,8 @@ const SingleArt = ({ navigation, route } : any) => {
       _slidingPanel.current?.hide();
     }
   }, [isDeleteModalShown]);
-  
-  
+
+
 
 
   useEffect(() => {
@@ -209,7 +205,7 @@ const SingleArt = ({ navigation, route } : any) => {
     navigation.navigate('homemain');
   }
 
-  const showAlert = (message) => {
+  const showAlert = (message: string) => {
     Alert.alert(
       "Art Publication",
       message,
@@ -373,16 +369,14 @@ const SingleArt = ({ navigation, route } : any) => {
 
       <View style={styles.container}>
 
-      <ScrollView>
-      <View style={styles.container}>
-
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
+
       <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
-        <Text style={styles.artTitle}>{publication.name}</Text>
-        <Text style={{fontSize: 23, color: 'black' }}>, {publication.price} €</Text>
+        <Text style={styles.artTitle}>{publication?.name}</Text>
+        <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text>
         { context?.userId === publication?.userId && (
             <TouchableOpacity
               style={[mtAuto, mbAuto, mlAuto, mr20]}
@@ -426,18 +420,6 @@ const SingleArt = ({ navigation, route } : any) => {
           <View style={styles.img} />
         ) }
       </View>
-        
-      <View>
-        {isForSale && (
-          <Button
-            style={[styles.actionButton, isSold ? styles.soldButton : styles.availableButton, { width: '80%' }]}
-            textStyle={{ fontSize: 20, textAlign: 'center', color: isSold ? colors.disabledText : 'white' }}
-            value={isSold ? "Vendu" : "Acheter"}
-            onPress={openPaymentSheet}
-            disabled={isSold}
-          />
-        )}
-      </View>
 
       <View style={flex1}>
         {/* price + description */}
@@ -445,7 +427,7 @@ const SingleArt = ({ navigation, route } : any) => {
 
           {/* price, like, save */}
           <View style={[ flexRow, mv8 ]}>
-            <Text style={styles.priceText}>
+            <Text style={{ color: colors.black, fontSize: 14 }}>
               { publication?.price ?? "0" } { currency }
             </Text>
 
@@ -518,10 +500,10 @@ const SingleArt = ({ navigation, route } : any) => {
       >
         <View style={styles.modalContent}>
           <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
-          <TextInput
+          <Input
             style={styles.input}
             placeholder="Nouvelle collection"
-            onChangeText={(text) => setNewCollectionName(text)}
+            onTextChanged={(text: string) => setNewCollectionName(text)}
           />
           <FlatList
             data={userCollections}
@@ -629,118 +611,32 @@ const styles = StyleSheet.create({
 
   // MAIN :
 
-    container: {
-        flex: 1,
-        backgroundColor: colors.white,
-    },
-    logo: {
-        flexDirection: 'row',
-        height: 100,
-        paddingLeft: 20,
-        padding: 20,
-        borderRadius: 5,
-    },
-    artistCardStyle: {
-      // borderRadius: 30,
-      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
-      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
-    },
-    artistCardComment: {
-      // borderRadius: 30,
-      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
-      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
-    },
-    img: {
-      alignSelf: 'center',
-      resizeMode: 'contain',
-      marginTop: 10,
-      height: 345,
-      width: 345,
-      borderRadius: 5,
-    },
-    artTitle: {
-      marginLeft: 30,
-      fontWeight: 'bold',
-      fontSize: 25,
-      color: '#000',
-    },
-    rowContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingHorizontal: 0,
-      alignItems: 'center',
-      marginRight: 20,
-    },
-    actionButton: {
-      // borderRadius: 30,
-      justifyContent: 'center',
-      alignSelf: 'center',
-      // marginLeft: 'auto',
-    },
-    primaryButton: {
-      backgroundColor: colors.primary,
-    },
-    secondaryButton: {
-      backgroundColor: colors.secondary,
-    },
-    buttonText: {
-      fontSize: 14,
-      color: colors.black,
-    },
-    userIdText: {
-      marginLeft: 0,
-      fontSize: 18,
-      flex: 1,
-      color: 'black',
-    },
-    saveButton: {
-      backgroundColor: colors.secondary,
-      width: '70%',
-      height: 38,
-      borderRadius: 30,
-      justifyContent: 'center',
-      flex: 1,
-    },
-  },
   img: {
     alignSelf: 'center',
-    backgroundColor: colors.bg,
-    marginTop: 20,
-    width: '100%',
+    resizeMode: 'contain',
+    marginTop: 10,
+    height: 345,
+    width: 345,
     borderRadius: 5,
   },
-  priceText: {
-    fontSize: 18,
-    color: colors.black,
-    marginRight: 'auto',
-    backgroundColor: colors.disabledBg,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 50
-  },
   artTitle: {
-    alignSelf: 'center',
-    marginTop: 15,
-    textAlign: 'center',
+    marginLeft: 30,
     fontWeight: 'bold',
     fontSize: 25,
-    color: colors.black,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    color: '#000',
   },
   rowContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
     justifyContent: 'space-between',
+    paddingHorizontal: 0,
+    alignItems: 'center',
+    marginRight: 20,
   },
   actionButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 30,
+    // borderRadius: 30,
     justifyContent: 'center',
-    marginLeft: 'auto',
+    alignSelf: 'center',
+    // marginLeft: 'auto',
   },
   primaryButton: {
     backgroundColor: colors.primary,
@@ -753,18 +649,27 @@ const styles = StyleSheet.create({
     color: colors.black,
   },
   userIdText: {
-    marginLeft: 6,
-    fontSize: 16,
+    marginLeft: 0,
+    fontSize: 18,
     flex: 1,
-    color: colors.black
+    color: 'black',
   },
   saveButton: {
     backgroundColor: colors.secondary,
-    width: 75,
+    width: '70%',
     height: 38,
     borderRadius: 30,
     justifyContent: 'center',
     flex: 1,
+  },
+  priceText: {
+    fontSize: 18,
+    color: colors.black,
+    marginRight: 'auto',
+    backgroundColor: colors.disabledBg,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 50
   },
   likeButton: {
     color: colors.white,
@@ -867,78 +772,17 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     zIndex: 2
-    },
-    modalContent: {
-      backgroundColor: 'white',
-      padding: 30,
-      borderRadius: 12,
-      alignSelf: 'center',
-      width: '70%',
-      maxHeight: '70%',
-    },
-    modalTitle: {
-      fontSize: 18,
-      marginBottom: 15,
-    },
-    collectionButton: {
-      padding: 10,
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: colors.platinium,
-      marginBottom: 15,
-      alignItems: 'center',
-    },
-    collectionButtonText: {
-      color: colors.darkGreyFg,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.darkGreyBg,
-      borderRadius: 12,
-      paddingLeft: 15,
-      padding: 8,
-      marginBottom: 10,
-      marginTop: 10,
-    },
+  },
 
-    // Buttons
+  // Buttons
 
-    soldButton: {
-      backgroundColor: colors.disabledBg,
-    },
-    availableButton: {
-      // Styles specific to the button when it's available
-      backgroundColor: colors.primary,
-    },
-    createButton: {
-      padding: 10,
-      borderRadius: 5,
-      backgroundColor: colors.primary,
-      alignItems: 'center',
-    },
-    createButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    cancelButton: {
-      // padding: 10,
-      borderRadius: 18,
-      backgroundColor: colors.white,
-      alignItems: 'center',
-      marginTop: 10,
-    },
-    cancelButtonText: {
-      color: 'black',
-      // fontWeight: 'bold',
-    },
-    deleteBtn: {
-      backgroundColor: colors.disabledBg,
-      borderRadius: 50,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      marginTop: 'auto',
-      marginBottom: 'auto'
-    },
+  soldButton: {
+    backgroundColor: colors.disabledBg,
+  },
+  availableButton: {
+    // Styles specific to the button when it's available
+    backgroundColor: colors.primary,
+  },
 });
 
 export default SingleArt;

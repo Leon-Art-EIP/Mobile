@@ -26,7 +26,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import Title from "../components/text/Title";
 import ArtistCard from "../components/cards/ArtistCard";
 import ArticleCard from '../components/cards/ArticleCard';
-import {useFocusEffect} from "@react-navigation/native";
 import { setupNotifications, getUnreadNotifCount } from '../constants/notifications';
 
 

@@ -1,6 +1,6 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, Image, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid, Alert } from 'react-native';
+import { StatusBar, StyleSheet, Image, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/buttons/Button';
 import Card from '../components/cards/Card';
@@ -10,6 +10,7 @@ import { get, post, put } from '../constants/fetch';
 import {
   aiCenter,
   asCenter,
+  bgGrey,
   cTextDark,
   flex1,
   flexRow,
@@ -68,6 +69,7 @@ const SingleOrder = () => {
   const [order, setOrder] = useState<OrderType | undefined>(undefined);
   const [displayModal, setDisplayModal] = useState<boolean>(false);
   const [rating, setRating] = useState<number | undefined>(undefined);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
   const setOrderAsSent = () => {
@@ -147,14 +149,17 @@ const SingleOrder = () => {
   }
 
 
-  useEffect(() => {
+  const refreshData = () => {
     get(
       `/api/order/${params?.buy ? "buy" : "sell"}/${params.id}`,
       context?.token,
       (res: any) => setOrder(res?.data),
       (err: any) => console.error(err)
     );
-  }, [])
+  }
+
+
+  useEffect(refreshData, []);
 
 
   return (
@@ -188,7 +193,7 @@ const SingleOrder = () => {
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
-            onRefresh={getOrder}
+            onRefresh={refreshData}
             tintColor={colors.primary}
             colors={[colors.primary]}
           />}
@@ -224,25 +229,24 @@ const SingleOrder = () => {
 
       </ScrollView>
 
-        <TouchableOpacity
-          style={[flexRow, aiCenter]}
-          /* navigate to user profile */
-          onPress={() => navigation.navigate('single_profile', {
-            id: params?.buy ? order?.sellerId : order?.buyerId
-          })}
-        >
-          <Text>{
-            'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
-          }</Text>
-        </TouchableOpacity>
-      </Card>
+      <TouchableOpacity
+        style={[flexRow, aiCenter]}
+        /* navigate to user profile */
+        onPress={() => navigation.navigate('single_profile', {
+          id: params?.buy ? order?.sellerId : order?.buyerId
+        })}
+      >
+        <Text>{
+          'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
+        }</Text>
+      </TouchableOpacity>
+
       <Card style={{ marginHorizontal: 0, flex: 1 }}>
         <ScrollView>
           <Text>{order?.artPublicationDescription}</Text>
         </ScrollView>
       </Card>
       <View style={{
-        margincenter: 'auto',
         backgroundColor: colors.deepyellow,
         padding: 0,
         borderRadius: 30,
@@ -252,7 +256,6 @@ const SingleOrder = () => {
         <TouchableOpacity
           onPress={navigateToConversation}
           style={{
-            margincenter: 'auto',
             backgroundColor: colors.deepyellow,
             borderRadius: 20,
             padding: 12,
@@ -269,6 +272,7 @@ const SingleOrder = () => {
           <Text style={{ marginLeft: 5, backgroundColor: bgGrey, fontSize: 16 }}>Contacter le vendeur</Text>
         </TouchableOpacity>
       </View>
+
       {!params?.buy ? (
         <Card style={{
           marginHorizontal: 0,

@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   primaryContainerStyle: {
     backgroundColor: colors.primary,
     margin: 16,
-    borderRadius: 17,
+    borderRadius: 50,
     alignItems: 'center',
     elevation: 0,
     paddingHorizontal: 20,

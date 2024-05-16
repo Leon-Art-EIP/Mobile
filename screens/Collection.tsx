@@ -5,14 +5,13 @@ import React, { useState, useContext, useEffect } from 'react';
 import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
-import Button from '../components/buttons/Button';
 import DeleteButtonImage from '../assets/icons/delete_red.png'
 import { del, get } from '../constants/fetch';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { cTextDark, mbAuto, mlAuto, mrAuto, mtAuto } from '../constants/styles';
 import { CollectionType } from '../constants/artTypes';
 import { getImageUrl } from '../helpers/ImageHelper';
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 
 
 const Collection = ({ navigation, route }: any) => {
