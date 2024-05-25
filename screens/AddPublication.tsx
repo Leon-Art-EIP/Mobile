@@ -284,7 +284,7 @@ return (
       <Button
         style={[ bgPlatinium, mv24 ]}
         textStyle={{ color: colors.black, fontSize: 16 }}
-        value={!!selectImage ? "Modifier l'image" : "Ajouter une image"}
+        value={!selectImage ? "Ajouter une image" : "Modifier l'image"}
         onPress={selectImage}
       />
 
