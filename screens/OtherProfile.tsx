@@ -11,6 +11,7 @@ import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh24, mh4, mh8, mlAuto, mrAuto, mtAuto, mv4, mv8, pt8 } from '../constants/styles';
 import { CollectionType } from '../constants/artTypes';
 import { formatName } from '../helpers/NamesHelper';
@@ -260,8 +261,8 @@ const OtherProfile = ({ route }: any) => {
       <View style={styles.contactAndFollow}>
 
         <Button
-          value={!isFollowing ? "Suivi" : "Suivre"}
-          secondary={!isFollowing}
+          value={isFollowing ? "Suivi" : "Suivre"}
+          secondary={isFollowing}
           style={{
             width: 150,
             height: 38,
