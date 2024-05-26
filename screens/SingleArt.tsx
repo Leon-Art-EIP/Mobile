@@ -4,10 +4,10 @@ import {
   FlatList,
   Image,
   Linking,
+  RefreshControl,
   ScrollView, StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   ToastAndroid,
   TouchableOpacity,
   View
@@ -17,27 +17,28 @@ import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
 import {MainContext} from '../context/MainContext';
-import {useStripe} from '@stripe/stripe-react-native';
 import {getImageUrl} from '../helpers/ImageHelper';
-import ArtistCard from '../components/ArtistCard';
 import {ArtistType, PostType} from '../constants/homeValues';
 import Modal from 'react-native-modal';
 import {
   acCenter,
   aiCenter,
-  bgColor, bgGrey, bgRed, br20, cBlack,
+  bgColor, bgGrey, cBlack,
   cPrimary,
   flex1,
   flexRow,
   mbAuto,
-  mh24, mh8,
-  ml8, mlAuto,
+  mh8,
+  mlAuto,
   mr8,
   mr20,
   mrAuto,
-  mtAuto
+  mtAuto,
+  mv8,
+  ph24,
+  pv4
 } from "../constants/styles";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -46,29 +47,35 @@ import CommentsList from '../components/cards/CommentsList';
 import Content from '../components/text/Content';
 import Subtitle from '../components/text/Subtitle';
 import InfoModal from '../components/infos/InfoModal';
+import ImageViewer from 'react-native-image-zoom-viewer';
+import Input from '../components/textInput/Input';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CollectionType } from '../constants/artTypes';
+import { useStripe } from '@stripe/stripe-react-native';
+
+
 const SingleArt = ({ navigation, route } : any) => {
 
   const { id } = route.params;
   const context = useContext(MainContext);
   const token = context?.token;
-  const [artist, setArtist] = useState(null);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [publication, setPublication] = useState(false);
+
+  const [artist, setArtist] = useState<ArtistType | undefined>(undefined);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isSold, setSoldState] = useState(false);
   const [isForSale, setSaleState] = useState(false);
-  const [author, setAuthor] = useState(false);
-  const [artists, setArtists] = useState<ArtistType[]>([]);
-  const [modalMessage, setModalMessage] = useState('');
-  const [infoModalMessage, setInfoModalMessage] = useState('');
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [publication, setPublication] = useState<PostType | undefined>(undefined);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
-  const [userCollections, setUserCollections] = useState<Collection | null>(null);
+  const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
   const [newCollectionName, setNewCollectionName] = useState('');
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const [loading, setLoading] = useState(false);
+
+  // In case we use more than one currency for different countries
+  const [currency, setCurrency] = useState<string>("€");
+
 
   useEffect(() => {
     if (isDeleteModalShown) {
@@ -77,8 +84,9 @@ const SingleArt = ({ navigation, route } : any) => {
       _slidingPanel.current?.hide();
     }
   }, [isDeleteModalShown]);
-  
-  
+
+
+
 
   useEffect(() => {
     getPublications();
@@ -87,11 +95,35 @@ const SingleArt = ({ navigation, route } : any) => {
   }, [id]);
 
   useEffect(() => {
+    if (publication && publication.userId) {
+      fetchArtistDetails();
+    }
   }, [publication]);
 
-  const handleToArtistProfile = (artist: ArtistType) => {
-    console.log('artist id: ', artist._id);
-    navigation.navigate('other_profile', { id: artist._id });
+
+  useEffect(() => {
+    getPublications();
+    checkIsLiked();
+    checkIsSaved();
+  }, []);
+
+
+  const fetchArtistDetails = async () => {
+    const onErrorCallback = (error: any) => {
+      ToastAndroid.show("Could not get artist data. Try again later", ToastAndroid.LONG);
+      return console.error("Error getting profile data: ", error);
+    }
+
+    if (!publication?.userId) {
+      return onErrorCallback("publication.userId is undefined");
+    }
+
+    return get(
+      `/api/user/profile/${publication?.userId}`,
+      context?.token,
+      (response) => setArtist(response?.data),
+      onErrorCallback
+    );
   };
 
   const deletePost = () => {
@@ -117,19 +149,20 @@ const SingleArt = ({ navigation, route } : any) => {
       onErrorCallback
     );
   };
-  
-  const getAuthorName = (userId) => {
+
+  const getArtistName = (userId: string) => {
     get(
       `/api/user/profile/${userId}`,
       context?.token,
       (response) => {
-        setAuthor(response.data);
+        setArtist(response.data);
       },
       (error) => {
         console.error("Error fetching Artist Name:", error);
       }
     );
   };
+
 
   const fetchPaymentSheetParams = () => {
     console.log('In fetchPaymentSheetParams, sending id:', id);
@@ -138,38 +171,26 @@ const SingleArt = ({ navigation, route } : any) => {
       artPublicationId: id,
     };
 
-  post(
-    '/api/order/create',
-    requestData,
-    context?.token,
-    (response) => {
-      console.log('Payment Sheet Params:', response);
 
-      if (response && response.data && response.data.url) {
-        const paymentUrl = response.data.url;
-        Linking.openURL(paymentUrl)
+    post(
+      '/api/order/create',
+      requestData,
+      context?.token,
+      (response: any) => {
+        if (response && response.data && response.data.url) {
+          const paymentUrl = response.data.url;
+          Linking.openURL(paymentUrl)
           .catch(err => {
             console.error('Failed to open URL:', err);
             Alert.alert('Error', 'Failed to open the payment page.');
           });
-      } else {
-        console.error('No URL found in the response');
-        Alert.alert('Error', 'Payment URL not found.');
+        }
+      },
+      (error: any) => {
+        console.error('Error fetching payment sheet parameters:', error);
       }
-    },
-  (error) => {
-    console.error('Error fetching payment sheet parameters:', error);
-    if (error.response && error.response.data && error.response.data.errors) {
-      error.response.data.errors.forEach(err => {
-        console.error(`API error - ${err.param}: ${err.msg}`);
-        Alert.alert('This publication is not for sale');
-      });
-    }
+    );
   }
-);
-
-console.log('Request to /api/order/create sent with payload:', requestData);
-};
 
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
@@ -184,187 +205,178 @@ console.log('Request to /api/order/create sent with payload:', requestData);
     navigation.navigate('homemain');
   }
 
-
-  const showAlert = (message) => {
+  const showAlert = (message: string) => {
     Alert.alert(
       "Art Publication",
       message,
     );
-  };
+  }
 
   const getPublications = () => {
+    setIsRefreshing(true);
     get(
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
         console.log('🎨 Publications:', response.data)
         setPublication(response?.data || []);
-        getAuthorName(response?.data.userId);
+        getArtistName(response?.data.userId);
         setSoldState(response?.data.isSold);
         setSaleState(response?.data.isForSale)
-        console.log('🤑💵 Is Sooooold', isSold);
-        console.log('💵 !! Is FOR SALE', isForSale);
+        setIsRefreshing(false);
       },
       (error) => {
         console.error("Error fetching publications:", error);
       }
+    );
+  }
+
+
+  const handleSavedButtonClick = async () => {
+    setModalVisible(true);
+  }
+
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setNewCollectionName('');
+  }
+
+
+  const addToCollection = async (collectionName: string) => {
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+    }
+
+    if (!collectionName) {
+      return ToastAndroid.show(
+        "Veuillez nommer votre collection",
+        ToastAndroid.SHORT
       );
+    }
+
+    const url = `/api/collection`;
+    const body = {
+      artPublicationId: id,
+      collectionName: collectionName,
+      isPublic: true
     };
 
-    const handleSavedButtonClick = async () => {
-      setModalVisible(true);
+    const callback = (response: any) => {
+      Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
+      setIsSaved(true);
+      checkIsSaved();
     };
 
-    const closeModal = () => {
-      setModalVisible(false);
-      setNewCollectionName('');
+    const onErrorCallback = (error: any) => {
+      console.error('Error while saving to collection:', error);
+      Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
     };
 
-    const addToCollection = async (collectionName: string) => {
-      try {
-        if (token) {
-          const url = `/api/collection`;
-          const body = {
-            artPublicationId: id,
-            collectionName: collectionName,
-            isPublic: true
-          };
-          const callback = (response) => {
-            console.log('Saved to collection successfully');
-            setIsSaved(true);
-            setInfoModalMessage(`Oeuvre ajoutée à la collection "${collectionName}".`);
-            setInfoModalVisible(true);
-          };
-          const onErrorCallback = (error) => {
-            console.error('Error while saving to collection:', error);
-            Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
-          };
-          post(url, body, token, callback, onErrorCallback);
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération du token JWT :', error);
-        Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+    post(url, body, token, callback, onErrorCallback);
+    closeModal();
+  }
+
+
+  const likePublication = async () => {
+    if (!token) {
+      return console.error('Token JWT not found. Make sure the user is logged in.');
+    }
+
+    const url = `/api/art-publication/like/${id}`;
+    const body = undefined;
+
+    const onPost = () => {
+      /* setIsLiked(prevIsLiked => !prevIsLiked); */
+      checkIsLiked();
+    };
+
+    const onPostError = (error) => {
+      console.error('Erreur de like :', error);
+    };
+
+    post(url, body, token, onPost, onPostError);
+  }
+
+
+  const checkIsLiked = async () => {
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+    }
+
+    const url = `/api/art-publication/users-who-liked/${id}`;
+
+    const callback = (response: any) => {
+      const usersWhoLiked: any[] = response.data?.users;
+      const isArtLiked = usersWhoLiked.some((user: any) => user?._id === context?.userId);
+
+      return setIsLiked(isArtLiked);
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error fetching like:', error);
+      Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+    };
+
+    return get(url, token, callback, onErrorCallback);
+  }
+
+
+  const checkIsSaved = async () => {
+      if (!token) {
+        return console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
       }
-      closeModal();
-    };
 
-    const likePublication = async () => {
-      try {
-        if (token) {
-          const url = `/api/art-publication/like/${id}`;
-          const body = undefined;
-          const callback = () => {
-            setIsLiked(prevIsLiked => !prevIsLiked);
-            console.log(isLiked);
-            // if (!isLiked && userCollections && userCollections.length > 0) {
-            //   addToCollection(userCollections[0].name);
-            // }
-          };
-          const onErrorCallback = (error) => {
-            console.error('Erreur de like :', error);
-            if (error.response) {
-              console.error('Server responded with non-2xx status:', error.response.data);
-            } else if (error.request) {
-              console.error('No response received from server');
-            } else {
-              console.error('Error setting up the request:', error.message);
+      const url = `/api/collection/my-collections`;
+
+      const callback = (response: any) => {
+        setUserCollections(response?.data);
+        if (!response?.data) {
+          return
+        }
+
+        for (const collection of response.data) {
+          const collectionId = collection._id;
+
+          const collectionCallBack = (collectionResponse: any) => {
+            const collection: any[] = collectionResponse.data;
+            if (collection.some((publication) => publication._id === id)) {
+              setIsSaved(true);
+              return;
             }
           };
 
-          post(url, body, token, callback, onErrorCallback);
-        } else {
-          console.error('Token JWT not found. Make sure the user is logged in.');
+          get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
+        setIsSaved(false);
+      };
 
-    const selectTag = () => {
-    };
+      const onErrorCallback = (error: any) => {
+        console.error('Error fetching collection:', error);
+      };
 
-    const checkIsLiked = async () => {
-      try {
-        if (!token) {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          return;
-        }
-  
-        const url = `/api/art-publication/users-who-liked/${id}`;
-  
-        const callback = (response) => {
-          const usersWhoLiked = response.data?.users;
-          const isArtLiked = usersWhoLiked.some((user) => user?.username === context?.username);
-  
-          return setIsLiked(!!isArtLiked);
-        };
-  
-        const onErrorCallback = (error) => {
-          console.error('Error fetching like:', error);
-          Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
-        };
-  
-        return get(url, token, callback, onErrorCallback);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-        Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
-      }
-    };
+      get(url, token, callback, onErrorCallback);
+  };
 
-    const checkIsSaved = async () => {
-      try {
-        if (token) {
-          const url = `/api/collection/my-collections`;
-          const callback = (response) => {
-            setUserCollections(response.data);
-            if (response.data) {
-              for (const collection of response.data) {
-                const collectionId = collection._id;
-                try {
-                  const collectionCallBack = (collectionResponse) => {
-                    const collection = collectionResponse.data;
-                    if (collection.some((publication) => publication._id === id)) {
-                      setIsSaved(true);
-                      return;
-                    }
-                  }
-                  get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
-                } catch (error) {
-                  console.error(`Erreur lors de la récupération des détails de la collection ${collectionId}:`, error);
-                }
-              }
-            }
-            setIsSaved(false);
-          };
-          const onErrorCallback = (error) => {
-            console.error('Error fetching collection:', error);
-          };
-          get(url, token, callback, onErrorCallback);
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      }
-    };
 
-    return (
-      <View style={styles.container}>
+  return (
+    <SafeAreaView
+      style={[ bgColor, flex1, ph24, pv4 ]}
+    >
+      <StatusBar barStyle='dark-content' backgroundColor={colors.bg} />
 
-      <ScrollView>
       <View style={styles.container}>
 
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
+
       <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
-        <Text style={styles.artTitle}>{publication.name}</Text>
-        <Text style={{fontSize: 23, color: 'black' }}>, {publication.price} €</Text>
+        <Text style={styles.artTitle}>{publication?.name}</Text>
+        <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text>
         { context?.userId === publication?.userId && (
             <TouchableOpacity
               style={[mtAuto, mbAuto, mlAuto, mr20]}
@@ -376,62 +388,122 @@ console.log('Request to /api/order/create sent with payload:', requestData);
                 size={32}
               />
             </TouchableOpacity>
-          )}
-      </View>
-      <Content style={{ marginLeft: 30, marginBottom: 10, marginTop: 15, color: colors.darkGreyBg }}>
-        {publication.description} ... Afficher plus
-      </Content>
-      <View>
-        <Image
-          style={styles.img}
-          source={{ uri: getImageUrl(publication.image) }}
-          onError={() => console.log("Image loading error")}
-        />
-      </View>
-      <View>
-      {isForSale && (
-        <Button
-          style={[styles.actionButton, isSold ? styles.soldButton : styles.availableButton, { width: '80%' }]}
-          textStyle={{ fontSize: 20, textAlign: 'center', color: isSold ? colors.disabledText : 'white' }}
-          value={isSold ? "Vendu" : "Acheter"}
-          onPress={openPaymentSheet}
-          disabled={isSold}
-        />
-      )}
+          ) }
+        </View>
+
+        <View style={[ flexRow, acCenter ]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
+            style={[bgGrey, { borderRadius: 50, height: 50 }]}
+          >
+            <Image
+              source={{ uri: getImageUrl(artist?.profilePicture) }}
+              style={{ height: 50, width: 50, borderRadius: 50 }}
+            />
+          </TouchableOpacity>
+
+          <ScrollView horizontal style={{ marginLeft: 24 }}>
+            <Text style={styles.artTitle}>{publication?.name}</Text>
+          </ScrollView>
+
+        </View>
+
+        {/* Main picture */}
+        { getImageUrl(publication?.image) ? (
+          <ImageViewer
+            style={styles.img}
+            backgroundColor={colors.disabledBg}
+            imageUrls={[{ url: getImageUrl(publication?.image) ?? "" }]}
+            renderIndicator={() => <></>}
+          />
+        ) : (
+          <View style={styles.img} />
+        ) }
       </View>
 
-      {/* Informations */}
-      <View style={styles.rowContainer}>
-    {author && (
-        <ArtistCard
-            showTitle={false}
-            onPress={() => handleToArtistProfile(author)}
-            item={author}
-            path="other_profile"
-            style={styles.artistCardStyle}
-        />
-    )}
-    <Text style={styles.userIdText}>
-        {author ? author.username : 'Loading...'}
-    </Text>
-    <TouchableOpacity onPress={() => handleSavedButtonClick()}>
-        <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} color={colors.black} size={32} />
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => likePublication()}>
-      <Ionicons name={isLiked ? "heart" : "heart-outline"} color={colors.black} size={32}/>
-    </TouchableOpacity>
-    </View>
-    <CommentsList id={ id }></CommentsList>
+      <View style={flex1}>
+        {/* price + description */}
+        <View style={flex1}>
 
-      {/*  MODAL */}
+          {/* price, like, save */}
+          <View style={[ flexRow, mv8 ]}>
+            <Text style={{ color: colors.black, fontSize: 14 }}>
+              { publication?.price ?? "0" } { currency }
+            </Text>
 
-      <Modal isVisible={isModalVisible} style={styles.modal}>
+            <TouchableOpacity
+              onPress={likePublication}
+              style={mh8}
+            >
+              <AntDesign
+                name={isLiked ? "heart" : "hearto"}
+                size={32}
+                color={isLiked ? colors.primary : colors.black}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleSavedButtonClick}
+              style={mh8}
+            >
+              <Ionicons
+                name={isSaved ? "checkmark-circle" : "add-circle-outline"}
+                color={isSaved ? colors.primary : colors.black}
+                size={32}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* description */}
+          <ScrollView
+            style={{ flexGrow: 1 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={getPublications}
+                tintColor={colors.primary}
+                colors={[ colors.primary ]}
+              />
+            }
+          >
+            <Text style={{ fontSize: 15 }}>
+              { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
+            </Text>
+          </ScrollView>
+        </View>
+
+        {/* Go back + buy button */}
+        <View style={flexRow}>
+
+          {/* Go back button */}
+          <Button
+            style={[ flex1, { marginLeft: 0 } ]}
+            textStyle={{ color: colors.black }}
+            value="Retour"
+            onPress={() => navigation.goBack()}
+            secondary
+          />
+
+          {/* Buy button */}
+          <Button
+            value="Acheter"
+            onPress={openPaymentSheet}
+            style={[ flex1, { marginRight: 0 } ]}
+          />
+        </View>
+      </View>
+
+      {/* Modal to save in collection */}
+      <Modal
+        isVisible={isModalVisible}
+        style={styles.modal}
+      >
         <View style={styles.modalContent}>
           <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
-          <TextInput
+          <Input
             style={styles.input}
             placeholder="Nouvelle collection"
-            onChangeText={(text) => setNewCollectionName(text)}
+            onTextChanged={(text: string) => setNewCollectionName(text)}
           />
           <FlatList
             data={userCollections}
@@ -441,17 +513,33 @@ console.log('Request to /api/order/create sent with payload:', requestData);
                 style={styles.collectionButton}
                 onPress={() => addToCollection(item.name)}
               >
-                <Text style={styles.collectionButtonText}>{item.name}</Text>
+                <Text style={styles.collectionButtonText}>{ item.name }</Text>
               </TouchableOpacity>
             )}
           />
 
-          <TouchableOpacity style={styles.createButton} onPress={() => addToCollection(newCollectionName)}>
-            <Text style={styles.createButtonText}>Créer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
-            <Text style={styles.cancelButtonText}>Annuler</Text>
-          </TouchableOpacity>
+          {/* Add new collection */}
+          <Input
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onTextChanged={(text: string) => setNewCollectionName(text)}
+          />
+
+          <View style={flexRow}>
+            <Button
+              value="Annuler"
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+              onPress={closeModal}
+              secondary
+            />
+            <Button
+              value="Créer"
+              onPress={() => addToCollection(newCollectionName)}
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+            />
+          </View>
         </View>
       </Modal>
       <SlidingUpPanel
@@ -460,29 +548,35 @@ console.log('Request to /api/order/create sent with payload:', requestData);
         draggableRange={{ top: 200, bottom: 0 }}
         allowDragging={false}
       >
-  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white }}>
-    <Text style={{ color: colors.darkGreyBg, marginTop: 40 }}>Are you sure you want to delete this post?</Text>
-    <Button style={{ backgroundColor: colors.primary, marginTop: 40, width: '60%' }} value="Supprimer" onPress={deletePost} />
-    <Button style={{ backgroundColor: colors.darkGreyBg, marginTop: 7, width: '60%' }} value="Annuler" onPress={() => setIsDeleteModalShown(false)} />
-  </View>
+        <>
+          <Text style={{
+            marginHorizontal: 24,
+            marginTop: 24,
+            color: colors.textDark,
+            fontSize: 16
+          }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
 
-</SlidingUpPanel>
+          <View style={flexRow}>
+            <Button
+              value="Oui"
+              onPress={deletePost}
+              style={flex1}
+            />
+            <Button
+              secondary
+              value="Non"
+              style={flex1}
+              onPress={() => setIsDeleteModalShown(false)}
+            />
+          </View>
 
-    </View>
-    </ScrollView>
-      <CommentInput id={ id }></CommentInput>
-      <InfoModal 
-        isVisible={isInfoModalVisible}
-        message={infoModalMessage}
-        onClose={() => setInfoModalVisible(false)}
-        messageType="success"
-      />
-    </View>
+        </>
+      </SlidingUpPanel>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-
   // Comments :
 
   commentContainer: {
@@ -499,193 +593,196 @@ const styles = StyleSheet.create({
   publishedTime: {
     color: '#888',
   },
+  container: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  collectionBtn: {
+    marginHorizontal: 2,
+    height: 40,
+    marginVertical: 0,
+    flex: 1
+  },
+  logo: {
+    flexDirection: 'row',
+    height: 100,
+    borderRadius: 5,
+  },
 
   // MAIN :
 
-    container: {
-        flex: 1,
-        backgroundColor: colors.white,
-    },
-    logo: {
-        flexDirection: 'row',
-        height: 100,
-        paddingLeft: 20,
-        padding: 20,
-        borderRadius: 5,
-    },
-    artistCardStyle: {
-      borderRadius: 30,
-      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
-      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
-    },
-    artistCardComment: {
-      borderRadius: 30,
-      container: { width: 40, height: 40, borderRadius: 30, marginTop: 0, color: 'white'},
-      image: { width: 40, height: 40, borderRadius: 30, marginTop: 30 },
-    },
-    img: {
-      alignSelf: 'center',
-      resizeMode: 'contain',
-      marginTop: 10,
-      height: 345,
-      width: 345,
-      borderRadius: 5,
-    },
-    artTitle: {
-      marginLeft: 30,
-      fontWeight: 'bold',
-      fontSize: 25,
-      color: '#000',
-    },
-    rowContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingHorizontal: 0,
-      alignItems: 'center',
-      marginRight: 20,
-    },
-    actionButton: {
-      // borderRadius: 30,
-      justifyContent: 'center',
-      alignSelf: 'center',
-      // marginLeft: 'auto',
-    },
-    primaryButton: {
-      backgroundColor: colors.primary,
-    },
-    secondaryButton: {
-      backgroundColor: colors.secondary,
-    },
-    buttonText: {
-      fontSize: 14,
-      color: colors.black,
-    },
-    userIdText: {
-      marginLeft: 0,
-      fontSize: 18,
-      flex: 1,
-      color: 'black',
-    },
-    saveButton: {
-      backgroundColor: colors.secondary,
-      width: '70%',
-      height: 38,
-      borderRadius: 30,
-      justifyContent: 'center',
-      flex: 1,
-    },
-    likeButton: {
-      color: 'white',
-      flex: 1,
-    },
-    artText: {
-        fontSize: 55,
-        color: '#000',
-    },
-    Tags: {
-        justifyContent: 'space-between',
-        margin: 50,
-        flex: 1,
-    },
-    TagButton: {
-        backgroundColor: '#F4F4F4',
-    },
-    TagButtonText: {
-        color: '#000',
-    },
-    favorite: {
+  img: {
+    alignSelf: 'center',
+    resizeMode: 'contain',
+    marginTop: 10,
+    height: 345,
+    width: 345,
+    borderRadius: 5,
+  },
+  artTitle: {
+    marginLeft: 30,
+    fontWeight: 'bold',
+    fontSize: 25,
+    color: '#000',
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 0,
+    alignItems: 'center',
+    marginRight: 20,
+  },
+  actionButton: {
+    // borderRadius: 30,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    // marginLeft: 'auto',
+  },
+  primaryButton: {
+    backgroundColor: colors.primary,
+  },
+  secondaryButton: {
+    backgroundColor: colors.secondary,
+  },
+  buttonText: {
+    fontSize: 14,
+    color: colors.black,
+  },
+  userIdText: {
+    marginLeft: 0,
+    fontSize: 18,
+    flex: 1,
+    color: 'black',
+  },
+  saveButton: {
+    backgroundColor: colors.secondary,
+    width: '70%',
+    height: 38,
+    borderRadius: 30,
+    justifyContent: 'center',
+    flex: 1,
+  },
+  priceText: {
+    fontSize: 18,
+    color: colors.black,
+    marginRight: 'auto',
+    backgroundColor: colors.disabledBg,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 50
+  },
+  likeButton: {
+    color: colors.white,
+    flex: 1,
+  },
+  artText: {
+    fontSize: 55,
+    color: colors.black,
+  },
+  Tags: {
+    justifyContent: 'space-between',
+    margin: 50,
+    flex: 1,
+  },
+  TagButton: {
+    backgroundColor: '#F4F4F4',
+  },
+  TagButtonText: {
+    color: colors.black,
+  },
+  favorite: {
     margin: 10,
-    },
-    vector: {
-        width: 25,
-        height: 31,
-    },
-    button:
-    {
-      width: '70%',
-      height: 38,
-      borderRadius: 30,
-      marginLeft: 0,
-      justifyContent: 'center',
-      backgroundColor: colors.black
-    },
-    modal: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 20,
+  },
+  vector: {
+    width: 25,
+    height: 31,
+  },
+  button: {
+    width: 70,
+    height: 38,
+    borderRadius: 30,
+    marginLeft: 0,
+    justifyContent: 'center',
+    backgroundColor: colors.black
+  },
+  modal: {
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: Dimensions.get('window').width - 24,
+    height: Dimensions.get('window').height - 24,
+    backgroundColor: colors.white,
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    color: colors.textDark,
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  collectionButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  collectionButtonText: {
+    color: '#3498db',
+  },
+  input: {
+    backgroundColor: colors.disabledBg,
+    marginHorizontal: 4,
+    marginVertical: 8
+  },
+  createButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#3498db',
+    alignItems: 'center',
+  },
+  createButtonText: {
+    color: colors.white,
+    fontWeight: 'bold',
+  },
+  cancelButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#ccc',
+    alignItems: 'center'
+  },
+  cancelButtonText: {
+    color: colors.white,
+    fontWeight: 'bold',
+  },
+  deleteBtn: {
+    backgroundColor: colors.disabledBg,
+    borderRadius: 50,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginTop: 'auto',
+    marginBottom: 'auto'
+  },
+  deleteModal: {
+    backgroundColor: colors.bg,
+    borderRadius: 12,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    zIndex: 2
+  },
 
-    },
-    modalContent: {
-      backgroundColor: 'white',
-      padding: 30,
-      borderRadius: 12,
-      alignSelf: 'center',
-      width: '70%',
-      maxHeight: '70%',
-    },
-    modalTitle: {
-      fontSize: 18,
-      marginBottom: 15,
-    },
-    collectionButton: {
-      padding: 10,
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: colors.platinium,
-      marginBottom: 15,
-      alignItems: 'center',
-    },
-    collectionButtonText: {
-      color: colors.darkGreyFg,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.darkGreyBg,
-      borderRadius: 12,
-      paddingLeft: 15,
-      padding: 8,
-      marginBottom: 10,
-      marginTop: 10,
-    },
+  // Buttons
 
-    // Buttons
-
-    soldButton: {
-      backgroundColor: colors.disabledBg,
-    },
-    availableButton: {
-      // Styles specific to the button when it's available
-      backgroundColor: colors.primary,
-    },
-    createButton: {
-      padding: 10,
-      borderRadius: 5,
-      backgroundColor: colors.primary,
-      alignItems: 'center',
-    },
-    createButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    cancelButton: {
-      // padding: 10,
-      borderRadius: 18,
-      backgroundColor: colors.white,
-      alignItems: 'center',
-      marginTop: 10,
-    },
-    cancelButtonText: {
-      color: 'black',
-      // fontWeight: 'bold',
-    },
-    deleteBtn: {
-      backgroundColor: colors.disabledBg,
-      borderRadius: 50,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      marginTop: 'auto',
-      marginBottom: 'auto'
-    },
+  soldButton: {
+    backgroundColor: colors.disabledBg,
+  },
+  availableButton: {
+    // Styles specific to the button when it's available
+    backgroundColor: colors.primary,
+  },
 });
 
 export default SingleArt;

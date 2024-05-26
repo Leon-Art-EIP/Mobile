@@ -1,32 +1,26 @@
-import axios from 'axios';
-import React, { useContext, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, Text, TouchableOpacity, Alert, View } from 'react-native';
-import CartComponent from '../components/inbox/CartComponent';
-import Ionicons from "react-native-vector-icons/Ionicons";
+import React, {  useState } from 'react';
+import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
 
 // Local imports
 import FollowersTabs from '../components/followers/FollowsTabs';
 import Title from '../components/text/Title';
 import colors from '../constants/colors';
-import { MainContext } from '../context/MainContext';
 import FollowersComponent from '../components/followers/FollowersComponent';
-import FollowedComponent from '../components/followers/FollowedComponent';
-import { flexRow, mv24, aiCenter, mh8 } from '../constants/styles';
+import { useBackHandler } from '@react-native-community/hooks';
+
 
 const FollowerList = ({ navigation }: any) => {
   const [selectedTab, setSelectedTab] = useState<string>('followers');
 
+
+  useBackHandler(() => navigation.goBack());
+
+
   return (
-    <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
-      {/* <StatusBar backgroundColor={colors.white} /> */}
-      <View style={[ flexRow, mv24, aiCenter, mh8 ]}>
-      <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          >
-          <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
-        </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={colors.white} />
+
       <Title style={styles.mainTitle}>Follows</Title>
-      </View>
       <FollowersTabs
         active={selectedTab}
         setActive={setSelectedTab}
@@ -35,10 +29,10 @@ const FollowerList = ({ navigation }: any) => {
       {(() => {
         switch (selectedTab) {
           case ('followers'): return (
-            <FollowersComponent navigation={navigation} />
+            <FollowersComponent isFollower={true} listener={selectedTab} />
           );
           case ('followed'): return (
-            <FollowedComponent navigation={navigation} />
+            <FollowersComponent isFollower={false} listener={selectedTab} />
           );
         }
       })() }
@@ -47,6 +41,12 @@ const FollowerList = ({ navigation }: any) => {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.white,
+    paddingHorizontal: 12,
+    paddingBottom: 80,
+    flex: 1
+  },
   mainTitle: {
     marginHorizontal: 12,
     marginVertical: 32,

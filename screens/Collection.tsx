@@ -1,86 +1,93 @@
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Modal, Pressable, Alert } from 'react-native';
-import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import React, { useState, useEffect, useContext } from 'react';
+import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Modal, Pressable, Alert, FlatList } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
 
 // Local imports
 import Title from '../components/text/Title';
 import colors from '../constants/colors';
-import BackArrow from '../assets/images/back_arrow_black.png'
 import { MainContext } from '../context/MainContext';
-import Button from '../components/buttons/Button';
 import DeleteButtonImage from '../assets/icons/delete_red.png'
-import { get, post, del } from '../constants/fetch';
+import { del, get } from '../constants/fetch';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { cTextDark, mbAuto, mlAuto, mrAuto, mtAuto } from '../constants/styles';
+import { CollectionType } from '../constants/artTypes';
+import { getImageUrl } from '../helpers/ImageHelper';
+import Button from '../components/buttons/Button';
 
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const Collection = ({ navigation, route }: any) => {
   const context = useContext(MainContext);
   const token = context?.token;
-  const collection = route?.params?.collection;
-  const collectionName = collection.name;
-  const collectionId = collection._id;
-  const artworks = collection.artPublications;
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const collection: CollectionType = route?.params?.collection;
+  const arts: string[] = collection?.artPublications;
+  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+  const [artworks, setArtworks] = useState<any[]>([]);
 
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
-
-  const handleDeleteButtonClick = () => {
-    setDeleteModalVisible(true);
-  };
 
   const handleDeleteConfirmed = () => {
-    try {
-      if (token) {
-        const url = `/api/collection/${collectionId}`;
-        const body = {
-          collectionId: collectionId,
-        };
-        const callback = (response) => {
-          console.log('Collection : \"' + collectionName + '\" deleted.');
-          navigation.goBack();
-          Alert.alert('Collection supprimée', 'collectionName');
-        };
-        const onErrorCallback = (error) => {
-          console.error('Une erreur s\'est produite lors de la supprésion de la collection.:', error);
-          // Alert.alert('Erreur', 'Une erreur s\'est produite lors de la supprésion de la collection.');
-        };
-        del(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        // Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du token JWT :', error);
-      // Alert.alert('Erreur lors de la récupération du token JWT', 'Une erreur s\'est produite.');
+    if (!token) {
+      return navigation.navigate('login');
     }
-    // Ferme la modal après la suppression
-    setDeleteModalVisible(false);
+
+    const url = `/api/collection/${collection._id}`;
+
+    const callback = () => {
+      console.log('Collection : \"' + collection.name + '\" deleted.');
+      navigation.goBack();
+      setDeleteModalVisible(false);
+      Alert.alert('Collection supprimée', 'collectionName');
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error del collection: ', error);
+    };
+
+    del(url, token, callback, onErrorCallback);
   };
 
-  const handleCancelDelete = () => {
-    setDeleteModalVisible(false);
-  };
 
-  const handleArtworkClick = (id: string, userId: string) => {
-    navigation.navigate('singleart', { id: id, userId: userId });
-  };
+  const getArtworks = () => {
+    console.log(collection);
+
+    if (arts?.length === 0) {
+      return;
+    }
+
+    arts?.forEach((art: string) => {
+      get(
+        `/api/art-publication/${art}`,
+        context?.token,
+        (res: any) => {
+          setArtworks((current: any[]) => [ ...current, res.data ]);
+        },
+        (err: any) => console.error(err)
+      );
+    });
+  }
+
+
+  useEffect(getArtworks, []);
+
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
-      <StatusBar backgroundColor={colors.white} />
+      <StatusBar backgroundColor={colors.bg} />
       <View style={{ flexDirection: 'row', marginRight: 20 }}>
+
         {/* Back button */}
         <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+          <Ionicons
+            name="chevron-back"
+            color={colors.black}
+            size={24}
+            style={[ mlAuto, mrAuto, mbAuto, mtAuto ]}
+          />
         </TouchableOpacity>
         {/* Delete button */}
         <TouchableOpacity
-          onPress={() => handleDeleteButtonClick()}
+          onPress={() => setDeleteModalVisible(true)}
           style={styles.deleteButton}
         >
           <Image source={DeleteButtonImage} style={{ width: 28, height: 30 }} />
@@ -88,23 +95,27 @@ const Collection = ({ navigation, route }: any) => {
       </View>
 
 
-      <Title style={styles.mainTitle}>{collectionName}</Title>
+      <Title style={styles.mainTitle}>{ collection?.name }</Title>
 
       <View style={styles.squareContainer}>
-        {artworks.map((artwork, index) => (
+      <FlatList
+       numColumns={3}
+       data={artworks}
+       renderItem={({ item, index }) => (
           <TouchableOpacity
-            key={index}
-            style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-            onPress={() => handleArtworkClick(artwork._id, "")}
+            key={index.toString()}
+            style={styles.squareFrame}
+            onPress={() => navigation.navigate('singleart', { id: item?._id })}
           >
             <Image
-              source={{ uri: `${API_URL}api/${artwork.image}` }}
+              source={{ uri: getImageUrl(item?.image) }}
               style={{ flex: 1, borderRadius: 10 }}
               resizeMode="cover"
               onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
             />
           </TouchableOpacity>
-        ))}
+        )}
+        />
       </View>
 
       {/* Modal pour la confirmation de suppression */}
@@ -112,26 +123,21 @@ const Collection = ({ navigation, route }: any) => {
         animationType="slide"
         transparent={true}
         visible={deleteModalVisible}
-        onRequestClose={() => {
-          setDeleteModalVisible(!deleteModalVisible);
-        }}
+        onRequestClose={() => setDeleteModalVisible(!deleteModalVisible)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Êtes-vous sûr de vouloir supprimer cette collection ?</Text>
+            <Text style={cTextDark}>Êtes-vous sûr de vouloir supprimer cette collection ?</Text>
             <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.modalButton, styles.modalCancelButton]}
-                onPress={() => handleCancelDelete()}
-              >
-                <Text style={{ color: 'white' }}>Annuler</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modalButton, styles.modalDeleteButton]}
-                onPress={() => handleDeleteConfirmed()}
-              >
-                <Text style={{ color: 'white' }}>Supprimer</Text>
-              </Pressable>
+              <Button
+                onPress={() => setDeleteModalVisible(false)}
+                value="Annuler"
+                secondary
+              />
+              <Button
+                onPress={handleDeleteConfirmed}
+                value="Supprimer"
+              />
             </View>
           </View>
         </View>
@@ -164,7 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
     borderRadius: 10,
     margin: 5,
-  },  
+  },
   squareContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',

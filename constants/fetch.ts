@@ -2,6 +2,37 @@ import axios from "axios";
 
 const BACKEND: string | undefined = process.env.REACT_APP_API_URL;
 
+
+const getAsync = async (
+  url: string = "/",
+  token: string | undefined = undefined
+) => {
+  if (!token) {
+    console.warn("Token is empty");
+  }
+
+  if (!BACKEND) {
+    return console.warn("Backend url is empty");
+  }
+
+  const requestUrl = BACKEND + url;
+  console.log(requestUrl);
+
+  return new Promise((resolve, reject) => {
+    try {
+      axios.get(
+        requestUrl,
+        { 'headers': { 'Authorization': 'Bearer ' + token } }
+      ).then((response: any) => {
+        resolve(response);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+
 const get = (
   url: string = "/",
   token: string | undefined = undefined,
@@ -25,12 +56,13 @@ const get = (
   .catch(onErrorCallback);
 }
 
+
 const post = (
-  url = '/',
-  body = undefined,
-  token = undefined,
-  callback = () => {},
-  onErrorCallback = (e) => {
+  url: string = '/',
+  body: any | undefined = undefined,
+  token: string | undefined = undefined,
+  callback = (resp: any) => {},
+  onErrorCallback = (e: any) => {
     console.error('post failed with code ', e.response ? e.response.status : e);
   }
 ) => {
@@ -59,7 +91,8 @@ const post = (
   })
   .then(callback)
   .catch(onErrorCallback);
-};
+}
+
 
 const put = (
   url = '/',
@@ -90,7 +123,7 @@ const put = (
   })
   .then(callback)
   .catch(onErrorCallback);
-};
+}
 
 
 const del = (
@@ -118,9 +151,11 @@ const del = (
   .catch(onErrorCallback);
 }
 
+
 export {
   get,
   post,
   del,
-  put
+  put,
+  getAsync
 };

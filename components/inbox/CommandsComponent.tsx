@@ -65,6 +65,7 @@ const CommandsComponent = () => {
       refreshControl={<RefreshControl
         refreshing={isRefreshing}
         colors={[colors.primary]}
+        // onRefresh={getCommands}
       />}
       contentContainerStyle={styles.container}
     >
@@ -73,7 +74,10 @@ const CommandsComponent = () => {
       { orders.map((order, index) => (
         <TouchableOpacity
           key={order.orderId + Math.random().toString()}
-          onPress={() => navigation.navigate('single_order', { id: order.orderId, buy: true })}
+          onPress={() => navigation.navigate('single_order', {
+            id: order?.orderId,
+            buy: true
+          })}
         >
           <View key={order._id || index} style={styles.orderItem}>
             <Image
@@ -101,8 +105,11 @@ const CommandsComponent = () => {
 
       {sales.map((sale, index) => (
         <TouchableOpacity
-          key={sale._id}
-          onPress={() => navigation.navigate('single_order', { id: sale.orderId, buy: false })}
+          key={sales._id}
+          onPress={() => navigation.navigate('single_order', {
+            id: sales?.orderId,
+            buy: false
+          })}
         >
           <View key={sale._id || index} style={styles.orderItem}>
             <Image

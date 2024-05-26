@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { MainContext } from '../context/MainContext';
 
 // Navigators
@@ -11,12 +11,6 @@ import Signup from '../screens/Signup';
 import GoogleLogin from '../screens/GoogleLogin';
 import ForgotPassword from '../screens/ForgotPassword';
 import BottomNavigator from './BottomNavigator';
-import {NavigationContainer, useRoute} from '@react-navigation/native';
-
-
-type ConnexionNavigatorParams = {
-  noLogin: boolean;
-};
 
 
 const ConnexionNavigator = () => {
