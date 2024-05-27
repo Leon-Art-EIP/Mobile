@@ -375,8 +375,7 @@ const SingleArt = ({ navigation, route } : any) => {
       </View>
 
       <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
-        <Text style={styles.artTitle}>{publication?.name}</Text>
-        <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text>
+   
         { context?.userId === publication?.userId && (
             <TouchableOpacity
               style={[mtAuto, mbAuto, mlAuto, mr20]}
@@ -401,10 +400,11 @@ const SingleArt = ({ navigation, route } : any) => {
               style={{ height: 50, width: 50, borderRadius: 50 }}
             />
           </TouchableOpacity>
-
-          <ScrollView horizontal style={{ marginLeft: 24 }}>
+          <Text style={styles.artTitle}>{publication?.name}</Text>
+        <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text>
+          {/* <ScrollView horizontal style={{ marginLeft: 24 }}>
             <Text style={styles.artTitle}>{publication?.name}</Text>
-          </ScrollView>
+          </ScrollView> */}
 
         </View>
 
@@ -427,9 +427,9 @@ const SingleArt = ({ navigation, route } : any) => {
 
           {/* price, like, save */}
           <View style={[ flexRow, mv8 ]}>
-            <Text style={{ color: colors.black, fontSize: 14 }}>
+            {/* <Text style={{ color: colors.black, fontSize: 14 }}>
               { publication?.price ?? "0" } { currency }
-            </Text>
+            </Text> */}
 
             <TouchableOpacity
               onPress={likePublication}
