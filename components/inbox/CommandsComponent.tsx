@@ -124,7 +124,7 @@ const CommandsComponent = () => {
             <View style={styles.buttonContainer}>
               <Button
                 value={sale.orderState}
-                style={[styles.default, getButtonStyle(sale.orderState)]}                textStyle={styles.buttonText}
+                style={[styles.default, getButtonStyle(sale.orderState)]}
                 textStyle={styles.buttonText}
                 disabled={true}
               />

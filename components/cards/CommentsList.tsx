@@ -76,7 +76,7 @@ const CommentsList = ({ id }) => {
       `/api/art-publication/comment/${commentToDelete}`,
       context?.token,
       () => {
-        setComments((prevComments) => prevComments.filter(comment => comment.id !== commentToDelete));
+        setComments((prevComments) => prevComments.filter(comment => comment._id !== commentToDelete));
         ToastAndroid.show("Commentaire supprimé", ToastAndroid.SHORT);
         setIsDeleteModalShown(false);
       },
@@ -141,15 +141,16 @@ const CommentsList = ({ id }) => {
           </View>
           <View style={styles.commentMeta}>
             <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
-              <TouchableOpacity
-                onPress={() => handleDeletePress(comment.id)}
-                style={styles.deleteButton}
-              >
-                <Text style={styles.deleteButtonText}>Supprimer</Text>
-              </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleDeletePress(comment._id)}
+              style={styles.deleteButton}
+            >
+              <Text style={styles.deleteButtonText}>Supprimer</Text>
+            </TouchableOpacity>
           </View>
+
         </View>
-      ))}
+        ))}
       <Modal
         visible={isDeleteModalShown}
         transparent={true}
