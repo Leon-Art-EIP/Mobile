@@ -27,6 +27,7 @@ const AddPublication = ({ navigation }: any) => {
   const [location, setLocation] = useState('');
   const [dimension, setDimension] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [imageSelected, setImageSelected] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [isAccountLinked, setIsAccountLinked] = useState(false);
   const [modalType, setModalType] = useState('error');
@@ -45,18 +46,24 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
   if (array.includes(filterName)) {
     newFilterArray = array.filter(f => f !== filterName);
-    if (!isSubFilter) {
-      handleType('');
-    }
   } else {
     newFilterArray = [...array, filterName];
-    if (!isSubFilter) {
-      handleType(filterName);
-    }
   }
 
   isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
 };
+
+
+  // Fonction pour sélectionner/désélectionner les filtres
+  // const selectOrDeselect = (filterName: string) => {
+  //   let newFilterArray: string[] = [];
+  //   if (selectedFilters.includes(filterName)) {
+  //     newFilterArray = selectedFilters.filter(f => f !== filterName);
+  //   } else {
+  //     newFilterArray = [...selectedFilters, filterName];
+  //   }
+  //   setSelectedFilters(newFilterArray);
+  // };
 
   useEffect(() => {
     checkAccountLinkStatus();
@@ -153,6 +160,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
   };
 
   const selectImage = async () => {
+    setImageSelected(true);
     try {
       const options = {
         mediaType: 'photo',
@@ -212,7 +220,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       formData.append('artType', artType !== '' ? artType : 'empty');
       formData.append('description', description !== '' ? description : 'empty');
       formData.append('dimension', dimension !== '' ? dimension : 'empty');
-      formData.append('isForSale', isForSale);
+      formData.append('isForSale', isForSale); // Set isForSale to true
       formData.append('price', isPriceValid ? parsedPrice : 0);
       formData.append('location', location !== '' ? location : 'empty');
 
@@ -278,7 +286,7 @@ return (
       <Button
         style={[ bgPlatinium, mv24 ]}
         textStyle={{ color: colors.black, fontSize: 16 }}
-        value={!selectImage ? "Ajouter une image" : "Modifier l'image"}
+        value={!imageSelected ? "Ajouter une image" : "Modifier l'image"}
         onPress={selectImage}
       />
 
@@ -400,17 +408,17 @@ const styles = StyleSheet.create({
   },
   filterTouchableOpacity: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center', // Align items in a row horizontally
     marginLeft: 30,
     marginTop: 20,
   },
   filterText: {
-    flex: 1,
+    flex: 1, // Allows the text to take up the space and pushes the icon to the right
     fontSize: 18,
   },
   subFilterTouchableOpacity: {
-    paddingLeft: 30,
-    marginLeft: 50,
+    paddingLeft: 30, // Adds padding to align sub-filters with the genre text
+    marginLeft: 50, // Further indentation relative to the main filter
     marginTop: 10,
   },
   logo: {
