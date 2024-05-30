@@ -226,26 +226,7 @@ const SingleOrder = () => {
         <Card style={{ marginHorizontal: 0, flex: 1 }}>
           <Text style={cTextDark}>{ order?.artPublicationDescription }</Text>
         </Card>
-
       </ScrollView>
-
-      <TouchableOpacity
-        style={[flexRow, aiCenter]}
-        /* navigate to user profile */
-        onPress={() => navigation.navigate('single_profile', {
-          id: params?.buy ? order?.sellerId : order?.buyerId
-        })}
-      >
-        <Text>{
-          'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
-        }</Text>
-      </TouchableOpacity>
-
-      <Card style={{ marginHorizontal: 0, flex: 1 }}>
-        <ScrollView>
-          <Text>{order?.artPublicationDescription}</Text>
-        </ScrollView>
-      </Card>
       <View style={{
         backgroundColor: colors.deepyellow,
         padding: 0,
