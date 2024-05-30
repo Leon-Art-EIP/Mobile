@@ -38,6 +38,7 @@ const CommentsList = ({ id }) => {
             ...prevProfiles,
             [userId]: response.data,
           }));
+          console.log('❤️‍🩹REPOSFNLKNDFLSKNFD', response.data);
         } else {
           console.error('Invalid response:', response);
         }
@@ -61,6 +62,7 @@ const CommentsList = ({ id }) => {
           response.data.forEach((comment) => {
             getUsername(comment.userId);
           });
+          console.log('PITE:', comment.userId);
         } else {
           console.error('Invalid response:', response);
         }
@@ -112,9 +114,10 @@ const CommentsList = ({ id }) => {
     }
   };
 
-  const handleToArtistProfile = (artist: ArtistType) => {
-    console.log('artist id: ', artist._id);
-    navigation.navigate('other_profile', { id: artist._id });
+  const handleToArtistProfile = (_id) => {
+    // console.log('artist iddd: ', artist._id);
+    console.log('🌹🌹🌹🌹🌹 other_profile', _id);
+    navigation.navigate('other_profile', { id: _id});
   };
 
   const navigateToUserProfile = (userId) => {
