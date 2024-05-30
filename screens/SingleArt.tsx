@@ -345,10 +345,6 @@ const SingleArt = ({ navigation, route }: any) => {
           <Title>'Art</Title>
         </View>
 
-        {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-
-        </View> */}
-
         <View style={[flexRow, acCenter]}>
           <TouchableOpacity onPress={() => navigation.navigate('other_profile', { id: artist?._id })} style={[bgGrey, { borderRadius: 50, height: 50 }]}>
             <Image source={{ uri: getImageUrl(artist?.profilePicture) }} style={{ height: 50, width: 50, borderRadius: 50 }} />
@@ -394,10 +390,14 @@ const SingleArt = ({ navigation, route }: any) => {
         </View>
         <CommentInput id={id}></CommentInput>
 
+        {isForSale && (
+          <View style={flexRow}>
+            <Button value="Acheter" onPress={openPaymentSheet} style={[flex1, { marginRight: 0 }]} />
+          </View>
+        )}
+
         <View style={flexRow}>
           <Button style={[flex1, { marginLeft: 0 }]} textStyle={{ color: colors.black }} value="Retour" onPress={() => navigation.goBack()} secondary />
-
-          <Button value="Acheter" onPress={openPaymentSheet} style={[flex1, { marginRight: 0 }]} />
         </View>
       </View>
 
