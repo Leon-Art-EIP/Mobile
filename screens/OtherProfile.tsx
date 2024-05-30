@@ -1,87 +1,78 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList, TextInput } from 'react-native'
-import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import profilePicture from '../assets/images/user.png'
-import bannerImage from '../assets/images/banner.jpg'
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import profilePicture from '../assets/images/user.png';
+import bannerImage from '../assets/images/banner.jpg';
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import Ionicons from "react-native-vector-icons/Ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh24, mh4, mh8, mlAuto, mrAuto, mtAuto, mv4, mv8, pt8 } from '../constants/styles';
 import { CollectionType } from '../constants/artTypes';
 import { formatName } from '../helpers/NamesHelper';
 import Card from '../components/cards/Card';
 
-
-const OtherProfile = ({ route }: any) => {
+const OtherProfile = ({ route }) => {
   const navigation = useNavigation();
   const id = route?.params?.id;
   const context = useContext(MainContext);
   const token = context?.token;
 
   const [isFollowing, setIsFollowing] = useState(false);
-  const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
-  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
-  const [userData, setUserData] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<'Artwork' | 'Collection' | 'A propos'>('Artwork');
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [collections, setCollections] = useState<CollectionType[]>([]);
+  const [userArtworks, setUserArtworks] = useState([]);
+  const [userArtworksCount, setUserArtworksCount] = useState(0);
+  const [userData, setUserData] = useState(null);
+  const [activeTab, setActiveTab] = useState('Artwork');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [collections, setCollections] = useState([]);
 
-  const handleArtworkClick = (publicationId: string) => {
+  const handleArtworkClick = (publicationId) => {
     navigation.navigate('singleart', { id: publicationId });
-  }
+  };
 
   const handleBackButtonClick = () => {
     navigation.goBack();
-  }
+  };
 
   const handleContactButtonClick = () => {
     return put(
-      "/api/conversations/create",
+      '/api/conversations/create',
       { UserOneId: context?.userId, UserTwoId: id },
       context?.token,
-      (resp: any) => {
+      (resp) => {
         navigation.navigate('single_conversation', {
           name: userData.username,
-          ids: [
-            resp.data.convId,
-            context?.userId,
-            id
-          ]
+          ids: [resp.data.convId, context?.userId, id],
         });
       },
-      (error: any) => console.error(error)
+      (error) => console.error(error)
     );
-  }
+  };
 
   const handleFollowButtonClick = async () => {
     if (!token) {
       console.error('Token JWT not found. Make sure the user is logged in.');
-      // Alert.alert('Token JWT not found. Make sure the user is logged in.');
       return;
     }
 
     const url = `/api/follow/${id}`;
 
     const callback = () => {
-      /* setIsFollowing(current => !current); */
       return fetchInfos();
-    }
+    };
 
-    const onErrorCallback = (error: any) => {
+    const onErrorCallback = (error) => {
       console.error('Erreur de follow :', error);
       return Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
-    }
+    };
 
     post(url, {}, token, callback, onErrorCallback);
     fetchUserData();
-  }
-
+  };
 
   const checkIsFollowing = async () => {
     if (!token) {
@@ -90,57 +81,40 @@ const OtherProfile = ({ route }: any) => {
     }
 
     get(
-      "/api/follow/following",
+      '/api/follow/following',
       token,
-      (response: any) => {
-        console.log(response.data);
+      (response) => {
         setIsFollowing(
-          !!(response.data?.subscriptions.some(
-            (subscription: { _id: string }) => subscription._id === id
-          ))
+          !!response.data?.subscriptions.some(
+            (subscription) => subscription._id === id
+          )
         );
-        console.log("is following: ", isFollowing);
       },
-      (error: any) => console.error({ ...error })
+      (error) => console.error({ ...error })
     );
-  }
-
-  interface Artwork {
-    _id: string;
-    userId: string;
-    image: string;
-    artType: string;
-    name: string;
-    description: string;
-    dimension: string;
-    isForSale: boolean;
-    price: number;
-    location: string;
-    likes: any[];
-    comments: any[];
-    __v: number;
-  }
+  };
 
   const fetchUserArtworks = async () => {
-    try {
-      const token = context?.token;
-      if (token) {
-        get(
-          `/api/art-publication/user/${id}`,
-          token,
-          (response: any) => setUserArtworks(response.data),
-          (error: any) => console.error({ ...error })
-        )
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert("Erreur", "Veuillez vous reconnecter");
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      Alert.alert('Erreur', 'Veuillez vous reconnecter');
+      return;
     }
-  }
 
+    const url = `/api/art-publication/user/${id}`;
+
+    const callback = (response) => {
+      setUserArtworks(response.data);
+      setUserArtworksCount(response.data.length);
+    };
+
+    const onErrorCallback = (error) => {
+      Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
+      return console.error('Error fetching user artworks:', error);
+    };
+
+    get(url, token, callback, onErrorCallback);
+  };
 
   const fetchUserData = () => {
     if (!token) {
@@ -149,35 +123,34 @@ const OtherProfile = ({ route }: any) => {
 
     const url = `/api/user/profile/${id}`;
 
-    const callback = (response: any) => {
+    const callback = (response) => {
       setUserData(response.data);
-    }
+      fetchUserArtworks();
+    };
 
-    const onErrorCallback = (error: any) => {
+    const onErrorCallback = (error) => {
       console.error('Error fetching user data:', error);
-    }
+    };
 
     get(url, token, callback, onErrorCallback);
-  }
-
+  };
 
   const getCollections = () => {
     return get(
       `/api/collection/user/${id}/collections`,
       context?.token,
-      (res: any) => {
-        setCollections(res.data)
+      (res) => {
+        setCollections(res.data);
       },
-      (err: any) => {
-        console.error("Error getting collections: ", err);
+      (err) => {
+        console.error('Error getting collections: ', err);
         return ToastAndroid.show(
-          "Nous n'avons pas réussi à avoir les collections de cet utilisateur.",
+          'Nous n\'avons pas réussi à avoir les collections de cet utilisateur.',
           ToastAndroid.LONG
         );
       }
     );
-  }
-
+  };
 
   const fetchInfos = () => {
     setIsRefreshing(true);
@@ -186,33 +159,29 @@ const OtherProfile = ({ route }: any) => {
     getCollections();
     checkIsFollowing();
     setIsRefreshing(false);
-  }
-
+  };
 
   useEffect(fetchInfos, []);
-
 
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
 
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
         backgroundColor={colors.white}
-        barStyle='dark-content'
+        barStyle="dark-content"
       />
 
       {/* Bouton de retour en haut à gauche */}
       <TouchableOpacity
-        onPress={() => handleBackButtonClick()}
+        onPress={handleBackButtonClick}
         style={styles.backButton}
       >
         <AntDesign
           name="left"
           color={colors.white}
-          onPress={() => navigation.goBack()}
           size={24}
         />
       </TouchableOpacity>
@@ -244,24 +213,21 @@ const OtherProfile = ({ route }: any) => {
           <Text style={styles.title}>followers</Text>
         </View>
         <View style={styles.centerTextBlock}>
-          <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
-          {userData && userData.availability !== "unavailable" && (
+          <Text style={styles.centerTitle}>{userData ? userData.username : ''}</Text>
+          {userData && userData.availability !== 'unavailable' && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
           )}
         </View>
         <View style={styles.textBlock}>
-          <Text style={styles.value}>{
-            userData ? Math.max(userArtworksCount, 0) : 0
-          }</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
 
       {/* Boutons "Suivre" et "Ecrire" */}
       <View style={styles.contactAndFollow}>
-
         <Button
-          value={isFollowing ? "Suivi" : "Suivre"}
+          value={isFollowing ? 'Suivi' : 'Suivre'}
           secondary={isFollowing}
           style={{
             width: 150,
@@ -272,14 +238,13 @@ const OtherProfile = ({ route }: any) => {
           textStyle={{ fontSize: 14, textAlign: 'center' }}
           onPress={handleFollowButtonClick}
         />
-
         <Button
           value="Ecrire"
           secondary
           style={{ width: 150, height: 38, borderRadius: 10 }}
           textStyle={{ fontSize: 14 }}
           onPress={handleContactButtonClick}
-          />
+        />
       </View>
       <View style={styles.decorativeLine} />
       <View style={styles.tabsNavigation}>
@@ -290,7 +255,7 @@ const OtherProfile = ({ route }: any) => {
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Artwork')}
-          />
+        />
         <Button
           value="Collection"
           secondary={activeTab !== 'Collection'}
@@ -298,7 +263,7 @@ const OtherProfile = ({ route }: any) => {
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Collection')}
-          />
+        />
         <Button
           value="A propos"
           secondary={activeTab !== 'A propos'}
@@ -306,11 +271,11 @@ const OtherProfile = ({ route }: any) => {
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('A propos')}
-          />
+        />
       </View>
 
       {/* Ensembles de cadres carrés */}
-      { activeTab === 'Artwork' && (
+      {activeTab === 'Artwork' && (
         <View style={styles.squareContainer}>
           {userArtworks.map((artwork, index) => (
             <TouchableOpacity
@@ -321,80 +286,76 @@ const OtherProfile = ({ route }: any) => {
               <Image
                 style={styles.artworkImage}
                 source={{ uri: getImageUrl(artwork.image) }}
-                onError={() => console.log("Image loading error")}
+                onError={() => console.log('Image loading error')}
               />
             </TouchableOpacity>
           ))}
         </View>
-      ) }
+      )}
 
-      { activeTab === 'Collection' && (
+      {activeTab === 'Collection' && (
         <View style={styles.squareContainer}>
-          { collections.length === 0 ? (
+          {collections.length === 0 ? (
             <View style={[flex1, pt8]}>
               <Image
-                source={require("../assets/icons/box.png")}
+                source={require('../assets/icons/box.png')}
                 style={[
                   { width: 100, height: 100 },
                   mlAuto,
-                  mrAuto
+                  mrAuto,
                 ]}
               />
-              <Text style={[ cTextDark, mlAuto, mrAuto ]}>
+              <Text style={[cTextDark, mlAuto, mrAuto]}>
                 Cet utilisateur n'a pas de collections publiques !
               </Text>
             </View>
           ) : (
-          <FlatList
+            <FlatList
               data={collections}
               numColumns={2}
-              renderItem={({ item }: any) => (
+              renderItem={({ item }) => (
                 <TouchableOpacity
                   key={item?._id.toString()}
                   style={[
                     styles.squareFrame,
-                    { backgroundColor: getRandomBgColor() }
+                    { backgroundColor: getRandomBgColor() },
                   ]}
-                  onPress={() => navigation.navigate(
-                    'collection',
-                    { collection: item }
-                  )}
+                  onPress={() => navigation.navigate('collection', { collection: item })}
                 >
-                  <Text style={[cBlack, mh8, mv4]}>{
-                    formatName(item?.name ?? "Collection", 10)
-                  }</Text>
+                  <Text style={[cBlack, mh8, mv4]}>
+                    {formatName(item?.name ?? 'Collection', 10)}
+                  </Text>
                 </TouchableOpacity>
               )}
-              refreshControl={(
+              refreshControl={
                 <RefreshControl
-                  colors={[ colors.primary ]}
+                  colors={[colors.primary]}
                   refreshing={isRefreshing}
                   onRefresh={fetchInfos}
                 />
-              )}
+              }
             />
-          ) }
+          )}
         </View>
-      ) }
+      )}
 
-      { activeTab === "A propos" && (
+      {activeTab === 'A propos' && (
         <Card>
           <ScrollView>
-            <Text style={cTextDark}>{
-              userData?.biography ?? "Cet personne utilise Leon'art pour redécouvrir l'art !"
-            }</Text>
+            <Text style={cTextDark}>
+              {userData?.biography ?? "Cet personne utilise Leon'art pour redécouvrir l'art !"}
+            </Text>
           </ScrollView>
         </Card>
-      ) }
+      )}
     </SafeAreaView>
   );
-}
-
+};
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
-    flex: 1
+    flex: 1,
   },
   banner: {
     backgroundColor: colors.whitesmoke,
@@ -409,7 +370,7 @@ const styles = StyleSheet.create({
   },
   overlayImage: {
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   profilePicture: {
     backgroundColor: colors.white,
@@ -423,7 +384,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'absolute',
     top: -55,
-    elevation: 2
+    elevation: 2,
   },
   textBlocks: {
     flexDirection: 'row',
@@ -481,20 +442,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   navigationTabButton: {
-    width: 105, height: 38, justifyContent: 'center',
+    width: 105,
+    height: 38,
+    justifyContent: 'center',
   },
   navigationTabButtonText: {
     fontSize: 12,
   },
   marginRightForTabs: {
     marginRight: 5,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 4,
-    marginLeft: 20,
-    marginRight: 20,
   },
   squareFrame: {
     width: 115,
@@ -520,6 +476,5 @@ const styles = StyleSheet.create({
     borderRadius: 7,
   },
 });
-
 
 export default OtherProfile;
