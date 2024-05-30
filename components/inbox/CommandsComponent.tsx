@@ -105,9 +105,9 @@ const CommandsComponent = () => {
 
       {sales.map((sale, index) => (
         <TouchableOpacity
-          key={sales._id}
+          key={sale.saleId + Math.random().toString()}
           onPress={() => navigation.navigate('single_order', {
-            id: sales?.orderId,
+            id: sale?.orderId,
             buy: false
           })}
         >
