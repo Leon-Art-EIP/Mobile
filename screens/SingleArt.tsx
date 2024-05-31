@@ -350,7 +350,7 @@ const SingleArt = ({ navigation, route }: any) => {
             <Image source={{ uri: getImageUrl(artist?.profilePicture) }} style={{ height: 50, width: 50, borderRadius: 50 }} />
           </TouchableOpacity>
           <Text style={styles.artTitle}>{publication?.name}</Text>
-          <Text style={{ fontSize: 23, color: 'black', marginRight: 20, }}>, {publication?.price} €</Text>
+          <Text style={{ fontSize: 23, color: 'black', marginRight: 5, }}>, {publication?.price} €</Text>
           {context?.userId === publication?.userId && (
             <TouchableOpacity onPress={() => setIsDeleteModalShown(true)}>
               <MaterialCommunityIcons name="delete" color={colors.primary} size={32} />
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   artTitle: {
-    marginLeft: 30,
+    marginLeft: 10,
     fontWeight: 'bold',
     fontSize: 25,
     color: '#000',
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   deleteButton: {
-    marginLeft: 'auto', // Ensures the delete button is aligned to the right
+    marginLeft: 0, // Ensures the delete button is aligned to the right
   },
   deleteModal: {
     backgroundColor: colors.bg,
