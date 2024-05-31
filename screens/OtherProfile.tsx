@@ -58,6 +58,7 @@ const OtherProfile = ({ route }: any) => {
     );
   }
 
+
   const handleFollowButtonClick = async () => {
     if (!token) {
       console.error('Token JWT not found. Make sure the user is logged in.');
@@ -100,7 +101,7 @@ const OtherProfile = ({ route }: any) => {
         );
         console.log("is following: ", isFollowing);
       },
-      (error: any) => console.error({ ...error })
+      (error: any) => console.error("[api/follow/following]", { ...error })
     );
   }
 

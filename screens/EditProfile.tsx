@@ -23,9 +23,10 @@ import Title from '../components/text/Title';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {bgRed, cPrimary, cBlack} from "../constants/styles";
+import {bgRed, cPrimary, cBlack, cDisabled} from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
+import Input from '../components/textInput/Input';
 
 const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
@@ -371,12 +372,13 @@ const EditProfile = () => {
           {/* Biography */}
           <View style={styles.infoBlock}>
             <Subtitle>Description</Subtitle>
-            <TextInput
-                placeholder="Parlez nous de vous..."
-                onChangeText={handleBiographyChange}
-                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={biography}
-              />
+            <Input
+              placeholder="Parlez nous de vous..."
+              placeholderTextColor={colors.text}
+              onChangeText={handleBiographyChange}
+              style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+              value={biography}
+            />
           </View>
 
           {/* Availability */}
@@ -384,24 +386,25 @@ const EditProfile = () => {
             <Subtitle>Ouvert au commandes</Subtitle>
             <View style={styles.buttonContainer}>
               <Button
-                value="Oui"
-                // style={styles.availableButton}
-                textStyle={{ fontSize: 16 }}
-                onPress={() => setIsAvailable("available")}
-                secondary={isAvailable === "unavailable"}
-              />
-              <Button
                 value="Non"
-                // style={styles.notAvailableButton}
-                textStyle={{ fontSize: 16 }}
+                textStyle={{ fontSize: 16, flex: 1 }}
                 onPress={() => setIsAvailable("unavailable")}
                 secondary={isAvailable === "available"}
+                style={{ borderWidth: 1, borderColor: colors.textDark }}
+              />
+              <Button
+                value="Oui"
+                textStyle={{ fontSize: 16, flex: 1 }}
+                onPress={() => setIsAvailable("available")}
+                secondary={isAvailable === "unavailable"}
+                style={{ borderWidth: 1, borderColor: colors.textDark }}
               />
             </View>
           </View>
+
           <Button
             value="Enregistrer les modifications"
-            // style={styles.disconnectButton}
+            style={{ marginTop: 'auto' }}
             textStyle={{ fontSize: 17 }}
             onPress={() => handleSaveModifications()}
             />
@@ -575,6 +578,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '10%',
   },
   infoBlock: {
+    flex: 1,
     marginLeft: 25,
     marginRight: 25,
     marginBottom: 20,
@@ -588,6 +592,7 @@ const styles = StyleSheet.create({
     color: colors.black,
   },
   buttonContainer: {
+    flex: 1,
     flexDirection: 'row',
     marginTop: 0,
   },

@@ -126,6 +126,9 @@ const HomeScreen = ({ navigation }: any) => {
   }, [isRefreshing]);
 
 
+  useEffect(() => {console.log("publications: ", publications)}, [publications])
+
+
   useEffect(() => {
     refreshData();
     setupNotifications(context?.token);

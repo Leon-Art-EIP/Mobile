@@ -87,7 +87,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
   };
 
   const publish = async () => {
-    if (!name || !artType || !description || !price || !selectedImage) {
+    if (!name /*|| !artType*/ || !description || !price || !selectedImage) {
       setModalMessage("Assurez-vous d'avoir renseigné tous les champs avant de publier votre œuvre.");
       setModalVisible(true);
       return;
@@ -182,16 +182,16 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
 
   const sellWithAccount = async () => {
-    if (!name || !artType || !price || !selectedImage) {
+    if (!name /*|| !artType*/ || !price || !selectedImage) {
       if (!name) {
         console.log('missing name');
       }
       if (!price) {
         console.log('missing price');
       }
-      if (!artType) {
+      /*if (!artType) {
         console.log('missing artType');
-      }
+      }*/
       if (!selectedImage) {
         console.log('missing image');
       }

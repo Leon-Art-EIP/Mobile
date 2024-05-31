@@ -13,6 +13,7 @@ import Button from '../components/buttons/Button';
 import InfoModal from '../components/infos/InfoModal';
 import Title from '../components/text/Title';
 import Subtitle from '../components/text/Subtitle';
+import Input from '../components/textInput/Input';
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
@@ -137,9 +138,10 @@ const SearchScreen = ({ navigation }: any) => {
       <Title>'Art</Title>
       </View>
       <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       <View style={styles.searchView}>
-        <TextInput
-          onChangeText={setSearch}
+        <Input
+          onTextChanged={setSearch}
           placeholderTextColor={colors.disabledFg}
           placeholder="Rechercher..."
           style={styles.searchBar}
@@ -238,7 +240,7 @@ const SearchScreen = ({ navigation }: any) => {
           onPress={getSearchApi}
           value="Rechercher"
         />
-        <InfoModal 
+        <InfoModal
           isVisible={isModalVisible}
           message={modalMessage}
           onClose={() => setModalVisible(false)}
@@ -268,7 +270,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: 'red',
     backgroundColor: colors.disabledBg,
-    borderRadius: 10,
+    borderRadius: 50,
     flexDirection: 'row',
     marginBottom: 12
   },
@@ -285,7 +287,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 'auto',
     marginBottom: 'auto',
-    borderRadius: 0,
     shadowColor: colors.transparent,
     marginHorizontal: 12,
     marginVertical: 12,

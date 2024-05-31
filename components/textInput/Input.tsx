@@ -4,6 +4,7 @@ import colors from '../../constants/colors';
 
 interface InputProps {
   placeholder?: string;
+  placeholderTextColor?: string;
   value?: string;
   onTextChanged?: (e: string) => void;
   secureTextEntry?: boolean;
@@ -16,6 +17,7 @@ interface InputProps {
 
 const Input = ({
   placeholder = "Enter your text here ...",
+  placeholderTextColor = colors.text,
   value = "",
   onTextChanged = (_: string) => {},
   secureTextEntry = true,
@@ -45,7 +47,7 @@ const Input = ({
       placeholder={placeholder}
       value={textValue}
       onChangeText={changeText}
-      placeholderTextColor={disabled ? colors.disabledFg : colors.placeholder}
+      placeholderTextColor={disabled ? colors.disabledFg : placeholderTextColor}
       style={[
         styles.container,
         error && styles.error,

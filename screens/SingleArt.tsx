@@ -192,25 +192,11 @@ const SingleArt = ({ navigation, route } : any) => {
     );
   }
 
+
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
   };
 
-  const handleArtistButtonClick = async () => {
-    navigation.navigate('other_profile');
-
-  }
-
-  const previous = async () => {
-    navigation.navigate('homemain');
-  }
-
-  const showAlert = (message: string) => {
-    Alert.alert(
-      "Art Publication",
-      message,
-    );
-  }
 
   const getPublications = () => {
     setIsRefreshing(true);
@@ -292,7 +278,7 @@ const SingleArt = ({ navigation, route } : any) => {
       checkIsLiked();
     };
 
-    const onPostError = (error) => {
+    const onPostError = (error: any) => {
       console.error('Erreur de like :', error);
     };
 
@@ -306,6 +292,7 @@ const SingleArt = ({ navigation, route } : any) => {
       return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
     }
 
+    console.log()
     const url = `/api/art-publication/users-who-liked/${id}`;
 
     const callback = (response: any) => {
@@ -316,8 +303,8 @@ const SingleArt = ({ navigation, route } : any) => {
     };
 
     const onErrorCallback = (error: any) => {
-      console.error('Error fetching like:', error);
-      Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.');
+      console.error('Error fetching like:', { ...error });
+      /* Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.'); */
     };
 
     return get(url, token, callback, onErrorCallback);
@@ -542,11 +529,14 @@ const SingleArt = ({ navigation, route } : any) => {
           </View>
         </View>
       </Modal>
+
+      {/* Delete sliding panel */}
       <SlidingUpPanel
         ref={_slidingPanel}
         height={200}
         draggableRange={{ top: 200, bottom: 0 }}
         allowDragging={false}
+        containerStyle={bgColor}
       >
         <>
           <Text style={{

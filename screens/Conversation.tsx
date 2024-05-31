@@ -39,7 +39,7 @@ type ConversationParams = {
    * [1]: user ID
    * [2]: correspondant ID
    */
-  ids: number[];
+  ids: string[];
 } | undefined;
 
 
@@ -67,14 +67,14 @@ const Conversation = () => {
       convId: params?.ids[0],
       userId: context?.userId,
       contentType: 'string',
-      content: newMessage.toString()
+      content: newMessage?.toString()
     };
 
     const socketBody = {
       to: params?.ids[1] === context?.userId ? params?.ids[2] : params?.ids[1],
       from: context?.userId,
       convId: params?.ids[0],
-      msg: newMessage.toString()
+      msg: newMessage?.toString()
     }
 
     // use newMessage to send the message via the backend
@@ -200,7 +200,7 @@ const Conversation = () => {
           renderItem={({ item }) => (
             <TextBubble message={item} key={item._id} />
           )}
-          keyExtractor={(msg: MessageType) => msg._id.toString()}
+          keyExtractor={(msg: MessageType) => msg?._id.toString()}
           contentContainerStyle={styles.conversationContainer}
           ref={_listRef}
           onContentSizeChange={() => _listRef.current?.scrollToEnd()}
