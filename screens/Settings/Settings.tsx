@@ -98,12 +98,12 @@ const Settings = () => {
           value="Link my Stripe Account"
           onPress={linkStripeAccount}
         />
-        <Button
+        {/* <Button
           style={styles.stripebutton}
           value="Tutoriel"
           onPress={() => navigation.navigate("tutorial")}
           // onPress={linkStripeAccount}
-        />
+        /> */}
       </View>
 
       {/* Log out button */}
