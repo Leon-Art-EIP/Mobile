@@ -169,12 +169,12 @@ const Login = ({ navigation }: any) => {
           <View style={styles.line} />
         </View>
 
-        <Button
-          onPress={() => navigation.navigate('google')}
-          value="Se connecter avec Google"
-          style={[styles.googleButton, { backgroundColor: colors.platinium }]}
-          textStyle={styles.googleButtonText}
-        />
+        {/* <Button */}
+        {/*   onPress={() => navigation.navigate('google')} */}
+        {/*   value="Se connecter avec Google" */}
+        {/*   style={[styles.googleButton, { backgroundColor: colors.platinium }]} */}
+        {/*   textStyle={styles.googleButtonText} */}
+        {/* /> */}
 
         <Button
           onPress={() => navigation.navigate('signup')}

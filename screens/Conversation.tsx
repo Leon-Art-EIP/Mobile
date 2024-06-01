@@ -149,6 +149,7 @@ const Conversation = () => {
 
   useEffect(() => {
     // Get messages
+    console.log(params);
     getConversation();
 
     // Get instant messages
@@ -200,7 +201,7 @@ const Conversation = () => {
           renderItem={({ item }) => (
             <TextBubble message={item} key={item._id} />
           )}
-          keyExtractor={(msg: MessageType) => msg?._id.toString()}
+          keyExtractor={(msg: MessageType) => msg?._id?.toString() ?? (Math.random()).toString()}
           contentContainerStyle={styles.conversationContainer}
           ref={_listRef}
           onContentSizeChange={() => _listRef.current?.scrollToEnd()}

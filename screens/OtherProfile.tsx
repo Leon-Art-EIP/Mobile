@@ -40,21 +40,34 @@ const OtherProfile = ({ route }: any) => {
   }
 
   const handleContactButtonClick = () => {
+    const navigateToConversation = (
+      username: string,
+      convId: string,
+      userId: string | undefined,
+      userTwoId: string
+    ) => {
+      if (!userId) {
+        return console.warn("couldn't navigate because user id is empty");
+      }
+
+      navigation.navigate('single_conversation', {
+        name: username,
+        ids: [ convId, userId, userTwoId ]
+      });
+    }
+
     return put(
       "/api/conversations/create",
       { UserOneId: context?.userId, UserTwoId: id },
       context?.token,
-      (resp: any) => {
-        navigation.navigate('single_conversation', {
-          name: userData.username,
-          ids: [
-            resp.data.convId,
-            context?.userId,
-            id
-          ]
-        });
-      },
-      (error: any) => console.error(error)
+      (resp: any) => navigateToConversation(userData.name, resp.data.convId, context?.userId, id),
+      (error: any) => {
+       if (error.response.status === 409) {
+         console.log(error.response.data)
+         navigateToConversation(userData.name, error.response.data.convId, context?.userId, id)
+       }
+       return console.error({ ...error })
+      }
     );
   }
 

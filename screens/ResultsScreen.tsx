@@ -72,8 +72,8 @@ const ResultsScreen = () => {
     setIsRefreshing(true);
 
     const onGetSuccessful = (res: any) => {
-      let posts: ArtPublicationType[] = res?.data?.artPublications;
-      let users: UserType[] = res?.data?.users;
+      let posts: ArtPublicationType[] = res?.data?.artPublications ?? [];
+      let users: UserType[] = res?.data?.users ?? [];
 
       posts = posts.filter((post: ArtPublicationType) => post?.userId !== context?.userId);
       users = users.filter((user: UserType) => user._id !== context?.userId);

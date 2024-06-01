@@ -65,10 +65,11 @@ const SearchScreen = ({ navigation }: any) => {
 
   // Puts the arguments in the api URL and navigates to the page results
   const getSearchApi = () => {
+    "explorer/search?searchTerm=dev&artPage=1&artLimit=10&artistPage=1&artistLimit=10"
     let args1: string = `searchTerm=${search.toLowerCase()}${filtersToString()}`;
     let args2: string = `&priceRange=${priceValues}`;
     let args3: string = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
-    let url: string = args1 + args2 + args3;
+    let url: string = args1 + (priceValues === '0-1000' ? "" : args2) + args3;
 
     if (!search.trim()) {
       setModalMessage("Veuillez entrer un champ pour votre recherche.");

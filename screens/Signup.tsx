@@ -48,6 +48,9 @@ const Signup = ({ navigation }: any) => {
           if (error.response.status === 422) {
             console.error('Validation error. Please check your input data.');
             Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+          } else if (error.response.status === 409) {
+            console.error("Email address already in use: ", email);
+            return Alert.alert("Erreur", "Cette adresse est déjà utilisée");
           } else {
             console.error('Other server error:', error.response.status);
             Alert.alert('Signup Failed', 'Other server error');
@@ -156,6 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   existingUserText: {
+    color: colors.textDark,
     marginRight: 8,
   },
   loginText: {

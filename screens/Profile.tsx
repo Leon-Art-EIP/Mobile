@@ -118,8 +118,7 @@ const Profile = () => {
       }
 
       const onErrorCallback = (error: any) => {
-        Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
-        return console.error('Error fetching user artworks:', error);
+        return console.log('Error fetching user artworks:', error);
       }
 
       get(url, token, callback, onErrorCallback);

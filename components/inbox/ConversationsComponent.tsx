@@ -105,12 +105,12 @@ const ConversationsComponent = () => {
   }, []);
 
 
-  return conversations.length !== 0 ? (
+  return conversations && conversations.length !== 0 ? (
     <FlatList
       data={conversations}
       renderItem={({ item }) => (
         <TouchableOpacity
-          key={item._id.toString()}
+          key={item?._id?.toString() ?? (Math.random()).toString()}
           style={styles.conversationView}
           onPress={() => goToConversation(item._id)}
         >
@@ -140,7 +140,7 @@ const ConversationsComponent = () => {
           <View style={styles.lineView} />
         </TouchableOpacity>
       )}
-      keyExtractor={(item) => item._id.toString()}
+      keyExtractor={(item) => item?._id?.toString() ?? (Math.random()).toString()}
       refreshing={isRefreshing}
       refreshControl={
         <RefreshControl

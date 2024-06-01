@@ -21,32 +21,36 @@ const CommandsComponent = () => {
   const context = useContext(MainContext);
 
 
-  useEffect(() => {
-    if (context?.token) {
-      get(
-        `/api/order/latest-buy-orders?limit=50&page=1`,
-        context.token,
-        (response) => {
-          setOrders(response?.data || []);
-          setOrdersState(response?.data.order);
-          console.log('🖼️ Orders:', response?.data || []);
-        },
-        (error) => console.error('Error fetching orders: ', error)
-      );
-  
-      get(
-        `/api/order/latest-sell-orders?limit=50&page=1`,
-        context?.token,
-        (response) => {
-          setSales(response?.data || []);
-          console.log('🖼️ Sales:', response?.data || []);
-        },
-        (error) => console.error('Error fetching sales:', error)
-      );
+  const getCommands = () => {
+    if (!context?.token) {
+      return console.log("Couldn't find token");
     }
-  }, [context?.token]);
-  
-  const getButtonStyle = (value) => {
+    get(
+      `/api/order/latest-buy-orders?limit=50&page=1`,
+      context.token,
+      (response) => {
+        setOrders(response?.data || []);
+        setOrdersState(response?.data.order);
+        console.log('🖼️ Orders:', response?.data || []);
+      },
+      (error) => console.error('Error fetching orders: ', error)
+    );
+
+    get(
+      `/api/order/latest-sell-orders?limit=50&page=1`,
+      context?.token,
+      (response) => {
+        setSales(response?.data || []);
+        console.log('🖼️ Sales:', response?.data || []);
+      },
+      (error) => console.error('Error fetching sales:', error)
+    );
+  }
+
+  useEffect(getCommands, [context?.token]);
+
+
+  const getButtonStyle = (value: string) => {
     console.log('VALUUUE',value);
     switch (value) {
       case 'paid':
@@ -59,6 +63,7 @@ const CommandsComponent = () => {
         return styles.defaultTag; // Define defaultButton style in your stylesheet
     }
   };
+
 
   return (
     <ScrollView
@@ -101,7 +106,7 @@ const CommandsComponent = () => {
           </View>
         </TouchableOpacity>
       ))}
-  
+
     <Subtitle>Ventes</Subtitle>
 
       {sales.map((sale, index) => (
@@ -137,7 +142,7 @@ const CommandsComponent = () => {
       ))}
     </ScrollView>
   );
-};  
+};
 
 
 const styles = StyleSheet.create({
@@ -193,8 +198,6 @@ const styles = StyleSheet.create({
   defaultTag: {
     backgroundColor: colors.default,
   },
-  
-
   buttonText: {
     color: colors.black,
     fontSize: 13,
