@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
 
 // Local imports
@@ -6,6 +6,7 @@ import FollowersTabs from '../components/followers/FollowsTabs';
 import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import FollowersComponent from '../components/followers/FollowersComponent';
+import FollowedComponent from '../components/followers/FollowedComponent';
 import { useBackHandler } from '@react-native-community/hooks';
 
 
@@ -19,7 +20,6 @@ const FollowerList = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.white} />
-
       <Title style={styles.mainTitle}>Follows</Title>
       <FollowersTabs
         active={selectedTab}

@@ -91,11 +91,10 @@ const CommandsComponent = () => {
             </View>
             <View style={styles.buttonContainer}>
               <Button
-                value={order.orderState} // Setting the button text to orderState
-                style={[styles.default, getButtonStyle(order.orderState)]}                textStyle={styles.buttonText}
-                // disabled={false}
+                value={order.orderState}
+                style={[styles.default, getButtonStyle(order.orderState)]}
+                textStyle={styles.buttonText}
                 disabled={true}
-                // onPress={cDisabled}
               />
             </View>
           </View>
@@ -106,9 +105,9 @@ const CommandsComponent = () => {
 
       {sales.map((sale, index) => (
         <TouchableOpacity
-          key={sales._id}
+          key={sale.saleId + Math.random().toString()}
           onPress={() => navigation.navigate('single_order', {
-            id: sales?.orderId,
+            id: sale?.orderId,
             buy: false
           })}
         >
@@ -124,12 +123,10 @@ const CommandsComponent = () => {
             </View>
             <View style={styles.buttonContainer}>
               <Button
-                value={sale.orderState} // Setting the button text to orderState
-                // style={[styles.tag, getButtonStyle(order.orderState)]}
-                style={[styles.default, getButtonStyle(sale.orderState)]}                textStyle={styles.buttonText}
+                value={sale.orderState}
+                style={[styles.default, getButtonStyle(sale.orderState)]}
                 textStyle={styles.buttonText}
                 disabled={true}
-                // onPress={cDisabled}
               />
             </View>
           </View>

@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
 import Settings from '../screens/Settings/Settings';
+import HomeScreen from '../screens/HomeScreen';
 import GeneralConditions from '../screens/Settings/GeneralConditions';
 import PasswordAndSecurity from '../screens/Settings/PasswordAndSecurity';
 import PersonalInformations from '../screens/Settings/PersonalInformations';
@@ -22,6 +23,7 @@ const SettingsNavigator = () => {
       <Stack.Screen name="password_and_security" component={PasswordAndSecurity} options={options} />
       <Stack.Screen name="general_conditions" component={GeneralConditions} options={options} />
       <Stack.Screen name="login" component={Login} options={options} />
+      <Stack.Screen name="homemain" component={HomeScreen} options={options} />
     </Stack.Navigator>
   );
 }

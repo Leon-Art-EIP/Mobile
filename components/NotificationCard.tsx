@@ -24,7 +24,7 @@ const NotificationCard = ({
     } else if (item?.type === 'like') {
       setText(item.content + ' a liké votre publication');
     } else {
-      setText('Notification surprise');
+      setText('Notification');
     }
   }
 

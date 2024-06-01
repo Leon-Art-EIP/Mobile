@@ -1,11 +1,12 @@
-//* Standard imports
+// Standard imports
 import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, Text } from 'react-native';
 import CartComponent from '../components/inbox/CartComponent';
 import CommandsComponent from '../components/inbox/CommandsComponent';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { View } from 'react-native';
-//* Local imports
+
+// Local imports
 import ConversationsComponent from '../components/inbox/ConversationsComponent';
 import MessageTabs from '../components/inbox/MessageTabs';
 import Title from '../components/text/Title';
@@ -57,15 +58,11 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     marginLeft: 12,
-    // marginHorizontal: 12,
-    // marginVertical: 32
   },
   logo: {
     alignItems: 'center',
     borderColor: 'red',
-    // backgroundColor: colors.disabledBg,
     flexDirection: 'row',
-    // marginBottom: 12
   },
 });
 

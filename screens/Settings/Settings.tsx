@@ -10,6 +10,7 @@ import Button from '../../components/buttons/Button';
 import { MainContext } from '../../context/MainContext';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { aiCenter, flexRow, mh8, mv24 } from "../../constants/styles";
+import { Linking } from 'react-native';
 
 const Settings = () => {
   const navigation = useNavigation();
@@ -97,6 +98,12 @@ const Settings = () => {
           value="Link my Stripe Account"
           onPress={linkStripeAccount}
         />
+        {/* <Button
+          style={styles.stripebutton}
+          value="Tutoriel"
+          onPress={() => navigation.navigate("tutorial")}
+          // onPress={linkStripeAccount}
+        /> */}
       </View>
 
       {/* Log out button */}
