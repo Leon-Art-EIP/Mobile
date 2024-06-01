@@ -390,11 +390,16 @@ const SingleArt = ({ navigation, route }: any) => {
         </View>
         <CommentInput id={id}></CommentInput>
 
-        {isForSale && (
-          <View style={flexRow}>
-            <Button value="Acheter" onPress={openPaymentSheet} style={[flex1, { marginRight: 0 }]} />
-          </View>
-        )}
+        <View>
+          {isForSale && context?.userId !== publication?.userId && (
+            <Button
+              style={[styles.actionButton, styles.buyButton, { width: '100%' }]}
+              textStyle={{ fontSize: 16, textAlign: 'center', color: 'white' }}
+              value="Acheter"
+              onPress={openPaymentSheet}
+            />
+          )}
+        </View>
 
         <View style={flexRow}>
           <Button style={[flex1, { marginLeft: 0 }]} textStyle={{ color: colors.black }} value="Retour" onPress={() => navigation.goBack()} secondary />
@@ -628,6 +633,11 @@ const styles = StyleSheet.create({
   },
   availableButton: {
     backgroundColor: colors.primary,
+  },
+  buyButton: {
+    backgroundColor: colors.primary,
+    width: '100%',
+    marginVertical: 10,
   },
 });
 

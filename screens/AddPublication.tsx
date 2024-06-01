@@ -254,6 +254,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       setModalMessage("Votre œuvre a bien été publiée.");
       setModalType('success');
       setModalVisible(true);
+      navigation.navigate('homemain'); 
     }
     else {
       Alert.alert('Account Not Linked', 'Please link your Stripe account before selling.');
