@@ -1,28 +1,44 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from '../constants/colors';
 import { acCenter, aiCenter, asCenter, bgRed, cTextDark, flex1, flexRow, jcCenter, mb8, mbAuto, mh4, mr8, mtAuto, mv4, mv8, taCenter } from '../constants/styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { getNotifications, isNotificationRegistered, setupNotifications } from '../constants/notifications';
+import { getNotifications, isNotificationRegistered, NotificationsType, setupNotifications } from '../constants/notifications';
 import { MainContext } from '../context/MainContext';
 import Card from '../components/cards/Card';
 import NotificationCard from '../components/NotificationCard';
 import Title from '../components/text/Title';
 
 
+type NotifType = {
+  _id: string;
+  recipient: string;
+  type: string;
+  content: string;
+  referenceId: string;
+  read: boolean;
+  createdAt: Date;
+  __v: number;
+};
+
+
 const Notifications = () => {
   const navigation = useNavigation();
   const context = useContext(MainContext);
-  const [notifs, setNotifs] = useState<NotificationsType[]>([]);
+  const [notifs, setNotifs] = useState<NotifType[]>([]);
   const [page, setPage] = useState<number>(0);
   const [isNotifErrorDisplayed, setIsNotifErrorDisplayed] = useState<boolean>(false);
 
 
   const getNotifs = async () => {
     let notifications = await getNotifications(context?.token, 20, page);
-    setNotifs(notifications);
+    if (notifications) {
+      setNotifs([ ...notifications ]);
+    } else {
+      ToastAndroid.show("Nous n'avons pas réussi à récupérer les notifications", ToastAndroid.LONG);
+    }
   }
 
 

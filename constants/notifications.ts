@@ -51,6 +51,23 @@ const postNotification = async (message: NotificationsType | any) => {
 }
 
 
+/*
+  * Get all the notifications from the backend
+  */
+const getNotifications = async (
+  api_token: string | undefined,
+  limit: number = 10,
+  pageNumber: number = 1
+) => {
+  return new Promise((resolve, revoke) => get(
+    `/api/notifications?limit=${limit}&page=${pageNumber}`,
+    api_token,
+    (res: any) => resolve(res?.data),
+    (err: any) => revoke(err)
+  ));
+}
+
+
 const togglePermission = async () => {
   if (isNotificationAuthorized) {
     isNotificationAuthorized = false;
@@ -155,7 +172,8 @@ export {
   isNotificationRegistered,
   postNotification,
   togglePermission,
-  getNotificationCount
+  getNotificationCount,
+  getNotifications
 };
 
 export type { NotificationsType };
