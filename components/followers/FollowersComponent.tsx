@@ -1,16 +1,18 @@
 //* Standard imports
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import axios from 'axios';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity, View, Alert, FlatList, RefreshControl } from 'react-native'
+import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View, Alert, FlatList, RefreshControl } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //* Local imports
 import colors from '../../constants/colors';
-
 import Title from '../text/Title';
 import { MainContext } from '../../context/MainContext';
 import { get, getAsync } from '../../constants/fetch';
 import { getImageUrl } from '../../helpers/ImageHelper';
 import { useRefresh } from '@react-native-community/hooks';
+import { isResumable } from 'react-native-fs';
 import Input from '../textInput/Input';
 import { bgGrey, mh4 } from '../../constants/styles';
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, ToastAndroid } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';  // Importer les filtres
 import Entypo from 'react-native-vector-icons/Entypo';  // Pour les icônes des filtres
@@ -12,10 +12,7 @@ import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { bgColor, bgPlatinium, br12, flex1, mv24, mv8, ph4 } from '../constants/styles';
-import Input from '../components/textInput/Input';
-import Card from '../components/cards/Card';
+
 
 const AddPublication = ({ navigation }: any) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -45,24 +42,18 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
   if (array.includes(filterName)) {
     newFilterArray = array.filter(f => f !== filterName);
+    if (!isSubFilter) {
+      handleType('');
+    }
   } else {
     newFilterArray = [...array, filterName];
+    if (!isSubFilter) {
+      handleType(filterName);
+    }
   }
 
   isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
 };
-
-
-  // Fonction pour sélectionner/désélectionner les filtres
-  // const selectOrDeselect = (filterName: string) => {
-  //   let newFilterArray: string[] = [];
-  //   if (selectedFilters.includes(filterName)) {
-  //     newFilterArray = selectedFilters.filter(f => f !== filterName);
-  //   } else {
-  //     newFilterArray = [...selectedFilters, filterName];
-  //   }
-  //   setSelectedFilters(newFilterArray);
-  // };
 
   useEffect(() => {
     checkAccountLinkStatus();
@@ -70,7 +61,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
   const checkAccountLinkStatus = () => {
     get(
-      "/api/stripe/account-link-status",
+      `/api/stripe/account-link-status`,
       context?.token,
       (response) => {
         if (response && response.data && response.data.linked !== undefined) {
@@ -124,11 +115,15 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       '/api/art-publication',
       formData,
       context?.token,
-      () => {
-        ToastAndroid.show("Nouveau post créé avec succès !", ToastAndroid.SHORT);
-        return navigation.navigate('profile')
-      },
-      (error) => console.error('Error publishing:', error)
+      () => navigation.navigate('main'),
+      (error) => {
+        console.error('Error publishing:', error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          error.response.data.errors.forEach((err: any) => {
+            console.error(`Validation error - ${err.param}: ${err.msg}`);
+          });
+        }
+      }
     );
     setModalType('success');
     setModalMessage("Votre œuvre a bien été publiée.");
@@ -169,39 +164,44 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
       if (response.didCancel) {
         console.log('User cancelled image picker');
-      } else if (response?.error) {
-        console.log('ImagePicker Error: ', response?.error);
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
       } else {
-        const source = { uri: response?.assets[0].uri };
-        setSelectedImage(source?.uri);
+        const source = { uri: response.assets[0].uri };
+        setSelectedImage(source.uri);
       }
     } catch (error) {
       console.error('An error occurred while picking the image:', error);
     }
   };
 
+  const handleName = (value: string) => {
+    setName(value);
+  };
+  const handleDescription = (value: string) => {
+    setDescription(value);
+  };
+  const handlePrice = (value: string) => {
+    setPrice(value);
+  };
+
+  const handleType = (value: string) => {
+    setType(value);
+  };
+
+  const previous = () => {
+    navigation.navigate('homemain');
+  }
 
   const sellWithAccount = async () => {
-    if (!name /*|| !artType*/ || !price || !selectedImage) {
-      if (!name) {
-        console.log('missing name');
-      }
-      if (!price) {
-        console.log('missing price');
-      }
-      /*if (!artType) {
-        console.log('missing artType');
-      }*/
-      if (!selectedImage) {
-        console.log('missing image');
-      }
-      setModalMessage("Assurez-vous d'avoir renseigné tous les champs avant de publier votre œuvre.");
+    if (!name || !artType || !description || !price || !selectedImage) {
+      setModalMessage("Assurez-vous d'avoir renseigner tous les champs avant de publier votre œuvre.");
       setModalType('error');
       setModalVisible(true);
       return;
     }
     if (!isAccountLinked) {
-      setModalMessage("Votre compte Stripe n'est pas encore relié à l'application ! Pour ce faire, rendez-vous dans vos paramètres et mettez votre œuvre à la vente ensuite.");
+      setModalMessage("Votre compte Stripe n'est pas encore relié à l'application ! Pour ce faire, rendez-vous dans vos paramètres et mettez votre œuvre à la vente ensuite. ");
       setModalType('error');
       setModalVisible(true);
       return;
@@ -218,7 +218,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       formData.append('artType', artType !== '' ? artType : 'empty');
       formData.append('description', description !== '' ? description : 'empty');
       formData.append('dimension', dimension !== '' ? dimension : 'empty');
-      formData.append('isForSale', isForSale); // Set isForSale to true
+      formData.append('isForSale', isForSale);
       formData.append('price', isPriceValid ? parsedPrice : 0);
       formData.append('location', location !== '' ? location : 'empty');
 
@@ -245,7 +245,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
         (error) => {
           console.error('Error publishing:', error);
           if (error.response && error.response.data && error.response.data.errors) {
-            error.response.data.errors.forEach(err => {
+            error.response.data.errors.forEach((err: any) => {
               console.error(`Validation error - ${err.param}: ${err.msg}`);
             });
           }
@@ -254,6 +254,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       setModalMessage("Votre œuvre a bien été publiée.");
       setModalType('success');
       setModalVisible(true);
+      navigation.navigate('homemain');
     }
     else {
       Alert.alert('Account Not Linked', 'Please link your Stripe account before selling.');
@@ -263,118 +264,100 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
 
 
-return (
-  <SafeAreaView style={[ flex1, bgColor ]}>
-
-    {/* Title */}
-    <View style={styles.logo}>
-      <Title style={{ color: colors.primary }}>Leon</Title>
-      <Title>'Art</Title>
-    </View>
-
-    {/* Actual Screen */}
+  return (
     <ScrollView style={styles.container}>
-      <Text style={styles.artTitle}>Nouveau post</Text>
-
-
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
+      </View>
+      <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
+        <Title style={styles.artTitle}>Nouvelle publication</Title>
+      </View>
+      <Button
+        style={{ backgroundColor: colors.whitesmoke }}
+        textStyle={{ color: colors.darkGreyBg }}
+        value="Choisir une image"
+        onPress={selectImage}
+      />
       {selectedImage && (
         <Image source={{ uri: selectedImage }} style={styles.img} />
       )}
-
-      <Button
-        style={[ bgPlatinium, mv24 ]}
-        textStyle={{ color: colors.black, fontSize: 16 }}
-        value={!!selectImage ? "Modifier l'image" : "Ajouter une image"}
-        onPress={selectImage}
-      />
-
-      {/* Form */}
       <View>
-        <Input
+        <TextInput
           placeholder="Titre"
-          onTextChanged={setName}
+          onChangeText={handleName}
           value={name}
           style={styles.textInput}
         />
-        <Input
+        <TextInput
           placeholder="Description"
-          onTextChanged={setDescription}
+          onChangeText={handleDescription}
           value={description}
           style={styles.textInput}
         />
-        <Input
+        <TextInput
           placeholder="Prix (€)"
-          onTextChanged={setPrice}
+          onChangeText={handlePrice}
           value={price}
           style={styles.textInput}
         />
-
+      <TouchableOpacity
+      style={[styles.filterTouchableOpacity, { flexDirection: 'row' }]}
+      onPress={() => setIsArtTypeDisplayed(e => !e)}
+      >
+      <Text style={[styles.filterText, { fontWeight: 'bold', flex: 1 }]}>
+      Genre
+      </Text>
+      <Entypo
+      name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
+      size={24}
+      color={colors.black}
+      />
+      </TouchableOpacity>
+      {isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
+        <View key={filter.category.toString()}>
         <TouchableOpacity
-          style={[styles.filterTouchableOpacity, {
-            backgroundColor: colors.secondary,
-            paddingVertical: 10,
-            paddingHorizontal: 20,
-            marginLeft: 16,
-            marginRight: 16,
-            marginTop: 4,
-            borderRadius: 50
-          }]}
-          onPress={() => setIsArtTypeDisplayed(e => !e)}
+          style={styles.filterTouchableOpacity}
+          onPress={() => selectOrDeselect(filter.category)}
         >
-          <Text style={[
-            styles.filterText,
-            { flex: 1, color: colors.placeholder, fontSize: 16 }
-          ]}>Genre</Text>
-
-          <Entypo
-            name={!isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-up"}
-            size={24}
-            color={colors.disabledFg}
-          />
+          <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
+            {filter.category}
+          </Text>
         </TouchableOpacity>
 
-        {isArtTypeDisplayed && (
-          <Card style={[ph4, { backgroundColor: colors.secondary }]}>
-            {filters.map((filter: ArtTypeFilter) => (
-              <View key={filter.category.toString()}>
-                <TouchableOpacity
-                  style={styles.filterTouchableOpacity}
-                  onPress={() => selectOrDeselect(filter.category)}
-                >
-                  <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
-                    {filter.category}
-                  </Text>
-                </TouchableOpacity>
+        {/* Display sub-filters if main filter is selected */}
+        {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
+          <TouchableOpacity
+            key={subFilter}
+            style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
+            onPress={() => selectOrDeselect(subFilter, true)}
+          >
+            <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
+              {subFilter}
+            </Text>
+          </TouchableOpacity>
+        ))}
 
-                {/* Display sub-filters if main filter is selected */}
-                {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
-                  <TouchableOpacity
-                    key={subFilter}
-                    style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
-                    onPress={() => selectOrDeselect(subFilter, true)}
-                  >
-                    <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
-                      {subFilter}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ))}
-          </Card>
-        ) }
+        </View>
+      ))}
 
-        <Button
-          value="Publier et mettre à la vente"
-          onPress={sellWithAccount}
-          style={styles.saleButton}
-        />
+      <Button
+        value="Publier et mettre à la vente"
+        onPress={sellWithAccount}
+        style={styles.saleButton}
+      />
       </View>
-
       <View style={{ marginTop: 5 }}>
         <Button
           value="Publier sans possibilité d'achat"
           onPress={publish}
           style={styles.nosaleButton}
+        />
+        <Button
+          style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
+          textStyle={{ color: colors.black }}
+          value="Annuler"
+          onPress={previous}
         />
         <InfoModal
           isVisible={isModalVisible}
@@ -383,9 +366,7 @@ return (
           messageType="error"
         />
       </View>
-
-      </ScrollView>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
@@ -394,6 +375,40 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: colors.white,
+  },
+  logo: {
+    flexDirection: 'row',
+    height: 100,
+    paddingLeft: 20,
+    padding: 20,
+    borderRadius: 5,
+  },
+  img: {
+    margin: 13,
+    height: 300,
+    borderRadius: 4.5,
+    backgroundColor: colors.placeholder,
+  },
+  artTitle: {
+    marginTop: 25,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 0,
+    fontSize: 30,
+    color: '#000',
+  },
+  textInput: {
+    fontSize: 15,
+    marginLeft: 20,
+    marginRight: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    paddingLeft: 20,
+    overlayColor: colors.black,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.platinium,
   },
   saleButton: {
     backgroundColor: colors.primary,
@@ -406,69 +421,18 @@ const styles = StyleSheet.create({
   },
   filterTouchableOpacity: {
     flexDirection: 'row',
-    alignItems: 'center', // Align items in a row horizontally
+    alignItems: 'center',
     marginLeft: 30,
     marginTop: 20,
   },
   filterText: {
-    flex: 1, // Allows the text to take up the space and pushes the icon to the right
+    flex: 1,
     fontSize: 18,
   },
   subFilterTouchableOpacity: {
-    paddingLeft: 30, // Adds padding to align sub-filters with the genre text
-    marginLeft: 50, // Further indentation relative to the main filter
+    paddingLeft: 30,
+    marginLeft: 50,
     marginTop: 10,
-  },
-  logo: {
-    flexDirection: 'row',
-    paddingHorizontal: 36,
-    paddingVertical: 12
-  },
-  img: {
-    marginTop: 12,
-    marginHorizontal: 16,
-    height: 300,
-    borderRadius: 20,
-    backgroundColor: colors.placeholder,
-  },
-  artTitle: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 0,
-    fontSize: 30,
-    color: colors.black,
-  },
-  artText: {
-    fontSize: 55,
-    color: '#000',
-  },
-  Tags: {
-    justifyContent: 'space-between',
-    margin: 50,
-    flex: 1,
-  },
-  TagButton: {
-    backgroundColor: '#F4F4F4',
-  },
-  TagButtonText: {
-    color: '#000'
-  },
-  favorite: {
-    margin: 10,
-  },
-  vector: {
-    width: 25,
-    height: 31,
-  },
-  textInput: {
-    color: colors.black,
-    fontSize: 15,
-    backgroundColor: colors.secondary,
-    marginBottom: 20,
-    paddingLeft: 20,
-    overlayColor: colors.black,
   }
 });
 

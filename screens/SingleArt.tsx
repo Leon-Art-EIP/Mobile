@@ -1,29 +1,33 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
-  Alert, Dimensions,
+  Alert,
+  Dimensions,
   FlatList,
   Image,
   Linking,
   RefreshControl,
-  ScrollView, StatusBar,
+  ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   ToastAndroid,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
-import {del, get, post} from '../constants/fetch';
+import { del, get, post } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
-import {MainContext} from '../context/MainContext';
-import {getImageUrl} from '../helpers/ImageHelper';
-import {ArtistType, PostType} from '../constants/homeValues';
+import { MainContext } from '../context/MainContext';
+import { getImageUrl } from '../helpers/ImageHelper';
+import { ArtistType, PostType } from '../constants/homeValues';
 import Modal from 'react-native-modal';
 import {
   acCenter,
   aiCenter,
-  bgColor, bgGrey, cBlack,
+  bgColor,
+  bgGrey,
+  cBlack,
   cPrimary,
   flex1,
   flexRow,
@@ -36,21 +40,22 @@ import {
   mtAuto,
   mv8,
   ph24,
-  pv4
-} from "../constants/styles";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import SlidingUpPanel from "rn-sliding-up-panel";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+  pv4,
+} from '../constants/styles';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import SlidingUpPanel from 'rn-sliding-up-panel';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import CommentInput from '../components/CommentInput';
+import CommentsList from '../components/cards/CommentsList';
 import Subtitle from '../components/text/Subtitle';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Input from '../components/textInput/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionType } from '../constants/artTypes';
+import InfoModal from '../components/infos/InfoModal';
 
-
-const SingleArt = ({ navigation, route } : any) => {
-
+const SingleArt = ({ navigation, route }: any) => {
   const { id } = route.params;
   const context = useContext(MainContext);
   const token = context?.token;
@@ -67,10 +72,10 @@ const SingleArt = ({ navigation, route } : any) => {
   const [newCollectionName, setNewCollectionName] = useState('');
   const [isDeleteModalShown, setIsDeleteModalShown] = useState<boolean>(false);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
+  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
+  const [infoModalMessage, setInfoModalMessage] = useState('');
 
-  // In case we use more than one currency for different countries
-  const [currency, setCurrency] = useState<string>("€");
-
+  const [currency, setCurrency] = useState<string>('€');
 
   useEffect(() => {
     if (isDeleteModalShown) {
@@ -79,9 +84,6 @@ const SingleArt = ({ navigation, route } : any) => {
       _slidingPanel.current?.hide();
     }
   }, [isDeleteModalShown]);
-
-
-
 
   useEffect(() => {
     getPublications();
@@ -95,35 +97,33 @@ const SingleArt = ({ navigation, route } : any) => {
     }
   }, [publication]);
 
-
   useEffect(() => {
     getPublications();
     checkIsLiked();
     checkIsSaved();
   }, []);
 
-
   const fetchArtistDetails = async () => {
     const onErrorCallback = (error: any) => {
-      ToastAndroid.show("Could not get artist data. Try again later", ToastAndroid.LONG);
-      return console.error("Error getting profile data: ", error);
-    }
+      ToastAndroid.show('Could not get artist data. Try again later', ToastAndroid.LONG);
+      return console.error('Error getting profile data: ', error);
+    };
 
     if (!publication?.userId) {
-      return onErrorCallback("publication.userId is undefined");
+      return onErrorCallback('publication.userId is undefined');
     }
 
     return get(
       `/api/user/profile/${publication?.userId}`,
       context?.token,
       (response) => setArtist(response?.data),
-      onErrorCallback
+      onErrorCallback,
     );
   };
 
   const deletePost = () => {
     const callback = () => {
-      const msg = "Post supprimé avec succès !";
+      const msg = 'Post supprimé avec succès !';
       ToastAndroid.show(msg, ToastAndroid.SHORT);
       setIsDeleteModalShown(false);
       return navigation.goBack();
@@ -132,17 +132,12 @@ const SingleArt = ({ navigation, route } : any) => {
     const onErrorCallback = (err: any) => {
       const errorMsg: string = err?.response?.data?.msg;
 
-      console.error("Delete post ", err?.response?.status, ' : ', errorMsg);
+      console.error('Delete post ', err?.response?.status, ' : ', errorMsg);
       ToastAndroid.show(errorMsg, ToastAndroid.LONG);
       return setIsDeleteModalShown(false);
     };
 
-    del(
-      `/api/art-publication/${id}`,
-      context?.token,
-      callback,
-      onErrorCallback
-    );
+    del(`/api/art-publication/${id}`, context?.token, callback, onErrorCallback);
   };
 
   const getArtistName = (userId: string) => {
@@ -153,11 +148,10 @@ const SingleArt = ({ navigation, route } : any) => {
         setArtist(response.data);
       },
       (error) => {
-        console.error("Error fetching Artist Name:", error);
-      }
+        console.error('Error fetching Artist Name:', error);
+      },
     );
   };
-
 
   const fetchPaymentSheetParams = () => {
     console.log('In fetchPaymentSheetParams, sending id:', id);
@@ -166,7 +160,6 @@ const SingleArt = ({ navigation, route } : any) => {
       artPublicationId: id,
     };
 
-
     post(
       '/api/order/create',
       requestData,
@@ -174,8 +167,7 @@ const SingleArt = ({ navigation, route } : any) => {
       (response: any) => {
         if (response && response.data && response.data.url) {
           const paymentUrl = response.data.url;
-          Linking.openURL(paymentUrl)
-          .catch(err => {
+          Linking.openURL(paymentUrl).catch((err) => {
             console.error('Failed to open URL:', err);
             Alert.alert('Error', 'Failed to open the payment page.');
           });
@@ -183,9 +175,9 @@ const SingleArt = ({ navigation, route } : any) => {
       },
       (error: any) => {
         console.error('Error fetching payment sheet parameters:', error);
-      }
+      },
     );
-  }
+  };
 
 
   const openPaymentSheet = async () => {
@@ -199,30 +191,27 @@ const SingleArt = ({ navigation, route } : any) => {
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
-        console.log('🎨 Publications:', response.data)
+        console.log('🎨 Publications:', response.data);
         setPublication(response?.data || []);
         getArtistName(response?.data.userId);
         setSoldState(response?.data.isSold);
-        setSaleState(response?.data.isForSale)
+        setSaleState(response?.data.isForSale);
         setIsRefreshing(false);
       },
       (error) => {
-        console.error("Error fetching publications:", error);
-      }
+        console.error('Error fetching publications:', error);
+      },
     );
-  }
-
+  };
 
   const handleSavedButtonClick = async () => {
     setModalVisible(true);
-  }
-
+  };
 
   const closeModal = () => {
     setModalVisible(false);
     setNewCollectionName('');
-  }
-
+  };
 
   const addToCollection = async (collectionName: string) => {
     if (!token) {
@@ -231,21 +220,18 @@ const SingleArt = ({ navigation, route } : any) => {
     }
 
     if (!collectionName) {
-      return ToastAndroid.show(
-        "Veuillez nommer votre collection",
-        ToastAndroid.SHORT
-      );
+      return ToastAndroid.show('Veuillez nommer votre collection', ToastAndroid.SHORT);
     }
 
     const url = `/api/collection`;
     const body = {
       artPublicationId: id,
       collectionName: collectionName,
-      isPublic: true
+      isPublic: true,
     };
 
     const callback = (response: any) => {
-      Alert.alert('Oeuvre ajoutée à la collection \"' + collectionName + "\".");
+      Alert.alert('Oeuvre ajoutée à la collection "' + collectionName + '".');
       setIsSaved(true);
       checkIsSaved();
     };
@@ -257,8 +243,7 @@ const SingleArt = ({ navigation, route } : any) => {
 
     post(url, body, token, callback, onErrorCallback);
     closeModal();
-  }
-
+  };
 
   const likePublication = async () => {
     if (!token) {
@@ -269,7 +254,6 @@ const SingleArt = ({ navigation, route } : any) => {
     const body = undefined;
 
     const onPost = () => {
-      /* setIsLiked(prevIsLiked => !prevIsLiked); */
       checkIsLiked();
     };
 
@@ -278,8 +262,7 @@ const SingleArt = ({ navigation, route } : any) => {
     };
 
     post(url, body, token, onPost, onPostError);
-  }
-
+  };
 
   const checkIsLiked = async () => {
     if (!token) {
@@ -303,51 +286,47 @@ const SingleArt = ({ navigation, route } : any) => {
     };
 
     return get(url, token, callback, onErrorCallback);
-  }
-
-
-  const checkIsSaved = async () => {
-      if (!token) {
-        return console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-
-      const url = `/api/collection/my-collections`;
-
-      const callback = (response: any) => {
-        setUserCollections(response?.data);
-        if (!response?.data) {
-          return
-        }
-
-        for (const collection of response.data) {
-          const collectionId = collection._id;
-
-          const collectionCallBack = (collectionResponse: any) => {
-            const collection: any[] = collectionResponse.data;
-            if (collection.some((publication) => publication._id === id)) {
-              setIsSaved(true);
-              return;
-            }
-          };
-
-          get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
-        }
-        setIsSaved(false);
-      };
-
-      const onErrorCallback = (error: any) => {
-        console.error('Error fetching collection:', error);
-      };
-
-      get(url, token, callback, onErrorCallback);
   };
 
+  const checkIsSaved = async () => {
+    if (!token) {
+      return console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+    }
+
+    const url = `/api/collection/my-collections`;
+
+    const callback = (response: any) => {
+      setUserCollections(response?.data);
+      if (!response?.data) {
+        return;
+      }
+
+      for (const collection of response.data) {
+        const collectionId = collection._id;
+
+        const collectionCallBack = (collectionResponse: any) => {
+          const collection: any[] = collectionResponse.data;
+          if (collection.some((publication) => publication._id === id)) {
+            setIsSaved(true);
+            return;
+          }
+        };
+
+        get(`/api/collection/${collectionId}/publications`, token, collectionCallBack);
+      }
+      setIsSaved(false);
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error fetching collection:', error);
+    };
+
+    get(url, token, callback, onErrorCallback);
+  };
 
   return (
-    <SafeAreaView
-      style={[ bgColor, flex1, ph24, pv4 ]}
-    >
-      <StatusBar barStyle='dark-content' backgroundColor={colors.bg} />
+    <SafeAreaView style={[bgColor, flex1, ph24, pv4]}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
 
       <View style={styles.container}>
 
@@ -373,154 +352,86 @@ const SingleArt = ({ navigation, route } : any) => {
         {/* <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text> */}
         </View>
 
-        <View style={[ flexRow, acCenter ]}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
-            style={[bgGrey, { borderRadius: 50, height: 50 }]}
-          >
-            <Image
-              source={{ uri: getImageUrl(artist?.profilePicture) }}
-              style={{ height: 50, width: 50, borderRadius: 50 }}
-            />
+        <View style={[flexRow, acCenter]}>
+          <TouchableOpacity onPress={() => navigation.navigate('other_profile', { id: artist?._id })} style={[bgGrey, { borderRadius: 50, height: 50 }]}>
+            <Image source={{ uri: getImageUrl(artist?.profilePicture) }} style={{ height: 50, width: 50, borderRadius: 50 }} />
           </TouchableOpacity>
-
-          <ScrollView horizontal style={{ marginLeft: 24 }}>
-            <Text style={styles.artTitle}>{publication?.name}</Text>
-          </ScrollView>
-
+          <Text style={styles.artTitle}>{publication?.name}</Text>
+          <Text style={{ fontSize: 23, color: 'black', marginRight: 5, }}>, {publication?.price} €</Text>
+          {context?.userId === publication?.userId && (
+            <TouchableOpacity onPress={() => setIsDeleteModalShown(true)}>
+              <MaterialCommunityIcons name="delete" color={colors.primary} size={32} />
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* Main picture */}
-        { getImageUrl(publication?.image) ? (
-          <ImageViewer
-            style={styles.img}
-            backgroundColor={colors.disabledBg}
-            imageUrls={[{ url: getImageUrl(publication?.image) ?? "" }]}
-            renderIndicator={() => <></>}
-          />
+        {getImageUrl(publication?.image) ? (
+          <ImageViewer style={styles.img} backgroundColor={colors.disabledBg} imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]} renderIndicator={() => <></>} />
         ) : (
           <View style={styles.img} />
-        ) }
+        )}
       </View>
 
       <View style={flex1}>
-        {/* price + description */}
         <View style={flex1}>
-
-          {/* price, like, save */}
-          <View style={[ flexRow, mv8 ]}>
-            <Text style={{ color: colors.black, fontSize: 14 }}>
-              { publication?.price ?? "0" } { currency }
-            </Text>
-
-            <TouchableOpacity
-              onPress={likePublication}
-              style={mh8}
-            >
-              <AntDesign
-                name={isLiked ? "heart" : "hearto"}
-                size={32}
-                color={isLiked ? colors.primary : colors.black}
-              />
+          <View style={[flexRow, mv8]}>
+            <TouchableOpacity onPress={likePublication} style={mh8}>
+              <AntDesign name={isLiked ? 'heart' : 'hearto'} size={32} color={isLiked ? colors.primary : colors.black} />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={handleSavedButtonClick}
-              style={mh8}
-            >
-              <Ionicons
-                name={isSaved ? "checkmark-circle" : "add-circle-outline"}
-                color={isSaved ? colors.primary : colors.black}
-                size={32}
-              />
+            <TouchableOpacity onPress={handleSavedButtonClick} style={mh8}>
+              <Ionicons name={isSaved ? 'checkmark-circle' : 'add-circle-outline'} color={isSaved ? colors.primary : colors.black} size={32} />
             </TouchableOpacity>
           </View>
 
-          {/* description */}
           <ScrollView
-            style={{ flexGrow: 1 }}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefreshing}
-                onRefresh={getPublications}
-                tintColor={colors.primary}
-                colors={[ colors.primary ]}
-              />
-            }
+            style={{ flex: 1, marginBottom: 8 }}
+            refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={getPublications} tintColor={colors.primary} colors={[colors.primary]} />}
           >
-            <Text style={{ fontSize: 15 }}>
-              { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
-            </Text>
+            <Text style={{ fontSize: 15 }}>{publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"}</Text>
+          </ScrollView>
+
+          <ScrollView style={{ flex: 1 }}>
+            <CommentsList id={id}></CommentsList>
           </ScrollView>
         </View>
+        <CommentInput id={id}></CommentInput>
 
-        {/* Go back + buy button */}
+        <View>
+          {isForSale && context?.userId !== publication?.userId && (
+            <Button
+              style={[styles.actionButton, styles.buyButton, { width: '100%' }]}
+              textStyle={{ fontSize: 16, textAlign: 'center', color: 'white' }}
+              value="Acheter"
+              onPress={openPaymentSheet}
+            />
+          )}
+        </View>
+
         <View style={flexRow}>
-
-          {/* Go back button */}
-          <Button
-            style={[ flex1, { marginLeft: 0 } ]}
-            textStyle={{ color: colors.black }}
-            value="Retour"
-            onPress={() => navigation.goBack()}
-            secondary
-          />
-
-          {/* Buy button */}
-          <Button
-            value="Acheter"
-            onPress={openPaymentSheet}
-            style={[ flex1, { marginRight: 0 } ]}
-          />
+          <Button style={[flex1, { marginLeft: 0 }]} textStyle={{ color: colors.black }} value="Retour" onPress={() => navigation.goBack()} secondary />
         </View>
       </View>
 
-      {/* Modal to save in collection */}
-      <Modal
-        isVisible={isModalVisible}
-        style={styles.modal}
-      >
+      <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
           <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
-          <Input
-            style={styles.input}
-            placeholder="Nouvelle collection"
-            onTextChanged={(text: string) => setNewCollectionName(text)}
-          />
+          <Input style={styles.input} placeholder="Nouvelle collection" onTextChanged={(text: string) => setNewCollectionName(text)} />
           <FlatList
             data={userCollections}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.collectionButton}
-                onPress={() => addToCollection(item.name)}
-              >
-                <Text style={styles.collectionButtonText}>{ item.name }</Text>
+              <TouchableOpacity style={styles.collectionButton} onPress={() => addToCollection(item.name)}>
+                <Text style={styles.collectionButtonText}>{item.name}</Text>
               </TouchableOpacity>
             )}
           />
 
-          {/* Add new collection */}
-          <Input
-            style={styles.input}
-            placeholder="Nouvelle collection"
-            onTextChanged={(text: string) => setNewCollectionName(text)}
-          />
+          <Input style={styles.input} placeholder="Nouvelle collection" onTextChanged={(text: string) => setNewCollectionName(text)} />
 
           <View style={flexRow}>
-            <Button
-              value="Annuler"
-              style={styles.collectionBtn}
-              textStyle={{ fontSize: 14 }}
-              onPress={closeModal}
-              secondary
-            />
-            <Button
-              value="Créer"
-              onPress={() => addToCollection(newCollectionName)}
-              style={styles.collectionBtn}
-              textStyle={{ fontSize: 14 }}
-            />
+            <Button value="Annuler" style={styles.collectionBtn} textStyle={{ fontSize: 14 }} onPress={closeModal} secondary />
+            <Button value="Créer" onPress={() => addToCollection(newCollectionName)} style={styles.collectionBtn} textStyle={{ fontSize: 14 }} />
           </View>
         </View>
       </Modal>
@@ -534,27 +445,17 @@ const SingleArt = ({ navigation, route } : any) => {
         containerStyle={bgColor}
       >
         <>
-          <Text style={{
-            marginHorizontal: 24,
-            marginTop: 24,
-            color: colors.textDark,
-            fontSize: 16
-          }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+          <Text style={{ marginHorizontal: 24, marginTop: 24, color: colors.textDark, fontSize: 16 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
 
           <View style={flexRow}>
-            <Button
-              value="Oui"
-              onPress={deletePost}
-              style={flex1}
-            />
-            <Button
-              secondary
-              value="Non"
-              style={flex1}
-              onPress={() => setIsDeleteModalShown(false)}
-            />
+            <Button value="Oui" onPress={deletePost} style={flex1} />
+            <Button secondary value="Non" style={flex1} onPress={() => setIsDeleteModalShown(false)} />
           </View>
-
+          <InfoModal
+            isVisible={isInfoModalVisible}
+            message={infoModalMessage}
+            onClose={() => setInfoModalVisible(false)} messageType="success"
+          />
         </>
       </SlidingUpPanel>
     </SafeAreaView>
@@ -562,22 +463,6 @@ const SingleArt = ({ navigation, route } : any) => {
 };
 
 const styles = StyleSheet.create({
-  // Comments :
-
-  commentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-  },
-
-  commentContent: {
-    flexDirection: 'row',
-    marginBottom: 5,
-  },
-
-  publishedTime: {
-    color: '#888',
-  },
   container: {
     flex: 1,
     backgroundColor: colors.white,
@@ -586,16 +471,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     height: 40,
     marginVertical: 0,
-    flex: 1
+    flex: 1,
   },
   logo: {
     flexDirection: 'row',
     height: 100,
     borderRadius: 5,
   },
-
-  // MAIN :
-
   img: {
     alignSelf: 'center',
     resizeMode: 'contain',
@@ -605,7 +487,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   artTitle: {
-    marginLeft: 30,
+    marginLeft: 10,
     fontWeight: 'bold',
     fontSize: 25,
     color: '#000',
@@ -618,10 +500,8 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   actionButton: {
-    // borderRadius: 30,
     justifyContent: 'center',
     alignSelf: 'center',
-    // marginLeft: 'auto',
   },
   primaryButton: {
     backgroundColor: colors.primary,
@@ -654,7 +534,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.disabledBg,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 50
+    borderRadius: 50,
   },
   likeButton: {
     color: colors.white,
@@ -688,7 +568,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginLeft: 0,
     justifyContent: 'center',
-    backgroundColor: colors.black
+    backgroundColor: colors.black,
   },
   modal: {
     width: '90%',
@@ -721,7 +601,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.disabledBg,
     marginHorizontal: 4,
-    marginVertical: 8
+    marginVertical: 8,
   },
   createButton: {
     padding: 10,
@@ -737,7 +617,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     backgroundColor: '#ccc',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   cancelButtonText: {
     color: colors.white,
@@ -749,25 +629,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     marginTop: 'auto',
-    marginBottom: 'auto'
+    marginBottom: 'auto',
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+  },
+  deleteButton: {
+    marginLeft: 0, // Ensures the delete button is aligned to the right
   },
   deleteModal: {
     backgroundColor: colors.bg,
     borderRadius: 12,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    zIndex: 2
+    zIndex: 2,
   },
-
-  // Buttons
-
   soldButton: {
     backgroundColor: colors.disabledBg,
   },
   availableButton: {
-    // Styles specific to the button when it's available
     backgroundColor: colors.primary,
   },
+  buyButton: {
+    backgroundColor: colors.primary,
+    width: '100%',
+    marginVertical: 10,
+  },
 });
+
 
 export default SingleArt;

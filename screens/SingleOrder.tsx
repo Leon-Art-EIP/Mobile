@@ -226,52 +226,35 @@ const SingleOrder = () => {
         <Card style={{ marginHorizontal: 0, flex: 1 }}>
           <Text style={cTextDark}>{ order?.artPublicationDescription }</Text>
         </Card>
-
       </ScrollView>
 
-      <TouchableOpacity
-        style={[flexRow, aiCenter]}
-        /* navigate to user profile */
-        onPress={() => navigation.navigate('single_profile', {
-          id: params?.buy ? order?.sellerId : order?.buyerId
-        })}
-      >
-        <Text>{
-          'by ' + formatName(params?.buy ? order?.sellerName : order?.buyerName, 30)
-        }</Text>
-      </TouchableOpacity>
+      {params.buy && (
+        <View style={{
+          backgroundColor: colors.deepyellow,
+          padding: 0,
+          borderRadius: 30,
+        }}>
 
-      <Card style={{ marginHorizontal: 0, flex: 1 }}>
-        <ScrollView>
-          <Text>{order?.artPublicationDescription}</Text>
-        </ScrollView>
-      </Card>
-      <View style={{
-        backgroundColor: colors.deepyellow,
-        padding: 0,
-        borderRadius: 30,
-        // flex: 1,
-      }}>
-
-        <TouchableOpacity
-          onPress={navigateToConversation}
-          style={{
-            backgroundColor: colors.deepyellow,
-            borderRadius: 20,
-            padding: 12,
-            flexDirection: 'row',  // Align children (icon and text) in a row
-            alignItems: 'center',  // Center align items vertically within the touchable opacity
-            justifyContent: 'center'  // Center align items horizontally within the touchable opacity
-          }}
-        >
-          <MaterialCommunityIcons
-            name="message-reply-text-outline"
-            size={24}
-            color={colors.darkGreyFg}
-          />
-          <Text style={{ marginLeft: 5, backgroundColor: bgGrey, fontSize: 16 }}>Contacter le vendeur</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            onPress={navigateToConversation}
+            style={{
+              backgroundColor: colors.deepyellow,
+              borderRadius: 20,
+              padding: 12,
+              flexDirection: 'row',  // Align children (icon and text) in a row
+              alignItems: 'center',  // Center align items vertically within the touchable opacity
+              justifyContent: 'center'  // Center align items horizontally within the touchable opacity
+            }}
+          >
+            <MaterialCommunityIcons
+              name="message-reply-text-outline"
+              size={24}
+              color={colors.darkGreyFg}
+            />
+            <Text style={{ marginLeft: 5, backgroundColor: bgGrey, fontSize: 16 }}>Contacter le vendeur</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {!params?.buy ? (
         <Card style={{
@@ -293,6 +276,7 @@ const SingleOrder = () => {
           <View style={[flexRow, asCenter, mv4]}>
             {[1, 2, 3, 4, 5].map((item: number) => (
               <AntDesign
+                key={item}
                 onPress={() => setRating(item)}
                 name={rating && rating >= item ? 'star' : 'staro'}
                 color={rating && rating >= item ? colors.deepyellow : colors.deepyellow}
