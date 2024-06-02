@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {
   TouchableOpacity,
   FlatList,
@@ -26,7 +26,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import Title from "../components/text/Title";
 import ArtistCard from "../components/cards/ArtistCard";
 import ArticleCard from '../components/cards/ArticleCard';
-import { setupNotifications, getUnreadNotifCount } from '../constants/notifications';
+import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
+import Button from '../components/buttons/Button';
+import SlidingUpPanel from 'rn-sliding-up-panel';
+import { acCenter, aiCenter, bgColor, bgRed, cText, cTextDark, flex1, flexRow, mv24, br20 } from '../constants/styles';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -36,6 +39,7 @@ const HomeScreen = ({ navigation }: any) => {
   const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(false);
+  const _slidingPanel = useRef<SlidingUpPanel>(null);
 
 
   const handleToArtistProfile = (artist: ArtistType) => {
@@ -104,7 +108,7 @@ const HomeScreen = ({ navigation }: any) => {
 
 
   const getHasUnreadNotifications = async () => {
-    let unreadNumber: number = await getUnreadNotifCount(context?.token);
+    let unreadNumber: number | undefined = await getNotificationCount(context?.token);
     setHasUnreadNotifications(unreadNumber !== 0 && unreadNumber !== -1);
   }
 
@@ -126,12 +130,12 @@ const HomeScreen = ({ navigation }: any) => {
   }, [isRefreshing]);
 
 
-  useEffect(() => {console.log("publications: ", publications)}, [publications])
-
-
   useEffect(() => {
     refreshData();
-    setupNotifications(context?.token);
+    if (!isNotificationRegistered()) {
+      _slidingPanel.current?.show();
+    }
+
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
@@ -274,6 +278,39 @@ const HomeScreen = ({ navigation }: any) => {
           />
         </View>
       </View>
+
+      <SlidingUpPanel
+        ref={_slidingPanel}
+        height={200}
+        allowDragging={true}
+        draggableRange={{ top: 200, bottom: 0 }}
+        containerStyle={[ bgColor, { borderTopLeftRadius: 20, borderTopRightRadius: 20 } ]}
+      >
+        <>
+          <View style={[ flex1, aiCenter, mv24 ]}>
+            <Title style={cTextDark}>Dring dring !</Title>
+            <Text style={cTextDark}>Voulez-vous activer les notifications ?</Text>
+          </View>
+
+          <View style={flexRow}>
+            <Button
+              value="Non"
+              onPress={() => _slidingPanel.current?.hide()}
+              style={flex1}
+              secondary
+            />
+            <Button
+              value="Oui !"
+              onPress={async () => {
+                await setupNotifications(context?.token);
+                ToastAndroid.show("Les notifications ont été activées !", ToastAndroid.SHORT);
+                return _slidingPanel.current?.hide();
+              }}
+              style={flex1}
+            />
+          </View>
+        </>
+      </SlidingUpPanel>
     </ScrollView>
   </SafeAreaView>
   );

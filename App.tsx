@@ -4,6 +4,7 @@ import React from 'react';
 import {MainContextProvider} from './context/MainContext';
 import ConnexionNavigator from './navigators/ConnexionNavigator';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { Notifications } from 'react-native-notifications';
 
 
 const App = () => {

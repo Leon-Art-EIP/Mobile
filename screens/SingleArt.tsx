@@ -42,16 +42,11 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import CommentInput from '../components/CommentInput';
-import CommentsList from '../components/cards/CommentsList';
-import Content from '../components/text/Content';
 import Subtitle from '../components/text/Subtitle';
-import InfoModal from '../components/infos/InfoModal';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Input from '../components/textInput/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionType } from '../constants/artTypes';
-import { useStripe } from '@stripe/stripe-react-native';
 
 
 const SingleArt = ({ navigation, route } : any) => {
@@ -359,11 +354,6 @@ const SingleArt = ({ navigation, route } : any) => {
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
-      </View>
-
-      <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
-        <Text style={styles.artTitle}>{publication?.name}</Text>
-        <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text>
         { context?.userId === publication?.userId && (
             <TouchableOpacity
               style={[mtAuto, mbAuto, mlAuto, mr20]}
@@ -376,6 +366,11 @@ const SingleArt = ({ navigation, route } : any) => {
               />
             </TouchableOpacity>
           ) }
+      </View>
+
+      <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
+        {/* <Text style={styles.artTitle}>{publication?.name}</Text> */}
+        {/* <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text> */}
         </View>
 
         <View style={[ flexRow, acCenter ]}>

@@ -27,8 +27,8 @@ import {bgRed, cPrimary, cBlack, cDisabled} from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
+import { getPermission, isNotificationRegistered, togglePermission } from '../constants/notifications';
 
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const EditProfile = () => {
   const navigation = useNavigation();
@@ -40,8 +40,8 @@ const EditProfile = () => {
   const [isAvailable, setIsAvailable] = useState<string>('');
   const [profilePicture, setProfilePicture] = useState<string>('');
   const [banner, setBanner] = useState<string>('');
-  const [selectedProfilePicture, setSelectedProfilePicture] = useState<string>('');
-  const [selectedBanner, setSelectedBanner] = useState<string>('');
+  const [isNotifEnabled, setIsNotifEnabled] = useState<boolean>(isNotificationRegistered());
+
 
   interface UserData {
     _id: string;
@@ -61,13 +61,16 @@ const EditProfile = () => {
     biography: string;
   }
 
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
 
+
   const handleBiographyChange = (value: string) => {
     setBiography(value);
   };
+
 
   const selectImage = async () => {
     try {
@@ -96,6 +99,7 @@ const EditProfile = () => {
     }
   };
 
+
   const uploadProfilePicture = async (uri: string) => {
     console.log("Selected: " + uri);
     const formData = new FormData();
@@ -119,10 +123,16 @@ const EditProfile = () => {
       '/api/user/profile/profile-pic',
       formData,
       context?.token,
-      () => fetchData(),
-      (error: any) => console.error('Error publishing new profile picture : ', { ...error })
+      fetchData,
+      (error: any) => {
+        if (error.response.status === 413) {
+          ToastAndroid.show("Image trop grande (> 5 MB)", ToastAndroid.LONG);
+        }
+        console.error('Error publishing new profile picture : ', { ...error })
+      }
     );
-  };
+  }
+
 
   const selectBanner = async () => {
     try {
@@ -151,7 +161,8 @@ const EditProfile = () => {
     } catch (error) {
       console.error('An error occurred while picking the image:', error);
     }
-  };
+  }
+
 
   const uploadBanner = (uri: string) => {
     const formData = new FormData();
@@ -182,14 +193,16 @@ const EditProfile = () => {
       console.error('Error preparing image:', {...error});
       return;
     }
-  };
+  }
+
 
   const handleSaveModifications = () => {
     console.log("Modifications saved.");
     saveBiography();
     saveIsAvailable();
     navigation.goBack();
-  };
+  }
+
 
   const saveBiography = () => {
     try {
@@ -220,7 +233,8 @@ const EditProfile = () => {
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
-  };
+  }
+
 
   const saveIsAvailable = () => {
     try {
@@ -251,7 +265,8 @@ const EditProfile = () => {
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
-  };
+  }
+
 
   const fetchUserData = () => {
     if (!token) {
@@ -281,7 +296,7 @@ const EditProfile = () => {
     };
 
     get(url, token, callback, onErrorCallback);
-  };
+  }
 
 
   const fetchData = () => {
@@ -308,7 +323,7 @@ const EditProfile = () => {
       ToastAndroid.show('Error getting data. Please try again', ToastAndroid.SHORT);
       return console.error('Error fetching user data:', error);
     }
-  };
+  }
 
 
   useFocusEffect(
@@ -375,7 +390,7 @@ const EditProfile = () => {
             <Input
               placeholder="Parlez nous de vous..."
               placeholderTextColor={colors.text}
-              onChangeText={handleBiographyChange}
+              onTextChanged={handleBiographyChange}
               style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               value={biography}
             />
@@ -390,16 +405,38 @@ const EditProfile = () => {
                 textStyle={{ fontSize: 16, flex: 1 }}
                 onPress={() => setIsAvailable("unavailable")}
                 secondary={isAvailable === "available"}
-                style={{ borderWidth: 1, borderColor: colors.textDark }}
+                style={{
+                  borderWidth: isAvailable === 'available' ? 1 : 0,
+                  borderColor: colors.textDark
+                }}
               />
               <Button
                 value="Oui"
                 textStyle={{ fontSize: 16, flex: 1 }}
                 onPress={() => setIsAvailable("available")}
                 secondary={isAvailable === "unavailable"}
-                style={{ borderWidth: 1, borderColor: colors.textDark }}
+                style={{
+                  borderWidth: isAvailable === 'unavailable' ? 1 : 0,
+                  borderColor: colors.textDark
+                }}
               />
             </View>
+          </View>
+
+          <View style={styles.infoBlock}>
+            <Subtitle>Notifications</Subtitle>
+            <Button
+              value={isNotifEnabled ? "Désactiver" : "Activer"}
+              secondary={isNotifEnabled}
+              onPress={async () => {
+                await togglePermission()
+                setIsNotifEnabled(curr => !curr);
+              }}
+              style={{
+                borderWidth: isNotifEnabled ? 1 : 0,
+                borderColor: colors.textDark
+              }}
+            />
           </View>
 
           <Button

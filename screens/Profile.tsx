@@ -2,15 +2,9 @@ import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Refre
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 // Local imports
-import SettingsButtonImage from '../assets/images/settings_logo.png'
-import EditButtonImage from '../assets/images/edit_logo.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import emptyCollectionImage from '../assets/icons/hamburger.png'
 import Button from '../components/buttons/Button';
 
 import colors from '../constants/colors';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Pen from 'react-native-vector-icons/pen';
 
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';

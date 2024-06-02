@@ -1,101 +1,128 @@
-import { Notification, NotificationBackgroundFetchResult, NotificationCompletion, Notifications, Registered } from "react-native-notifications";
-import { NotificationActionResponse } from "react-native-notifications/lib/dist/interfaces/NotificationActionResponse";
+import notifee, { AuthorizationStatus } from "@notifee/react-native";
+import messaging from '@react-native-firebase/messaging';
+import { ToastAndroid } from "react-native";
 import { get, put } from "./fetch";
 
 
-
 type NotificationsType = {
-  _id: string;
-  recipient: string;
-  type: string;
-  content: string;
-  referenceId: string;
-  read: boolean;
-  createdAt: Date;
-  __v: number
+  collapseKey: string;
+  data: any,
+  from: string,
+  messageId: string;
+  notification: {
+    android: any,
+    body: string;
+    title: string;
+  },
+  sentTime: number;
+  ttl: number;
 };
+
+let channelId: any = undefined;
+let isNotificationAuthorized: boolean = false;
+let token: string | undefined = undefined;
 
 
 /*
-  * This private function is used to register the notifications when the app is in use (foreground)
-  * It doesn't take any argument
+  * This function creates an android notification from
+  * the back-end push notification
   */
-const _registerFgNotifs = () => {
-  Notifications.events().registerNotificationReceivedForeground(
-    (notif: Notification, completion: (response: NotificationCompletion) => void) => {
-      console.log('notification received: ', notif.body);
-      completion({ alert: true, sound: true, badge: false });
-    }
-  );
+const postNotification = async (message: NotificationsType | any) => {
+  if (!isNotificationAuthorized) {
+    return;
+  }
+
+  if (!channelId) {
+    console.error("Notification was not setup. Setting up...");
+    await setupNotifications();
+  }
+
+  await notifee.displayNotification({
+    title: message.notification.title,
+    body: message.notification.body,
+    android: {
+      channelId,
+      smallIcon: 'icon',
+      pressAction: {
+        id: 'default',
+      },
+    },
+  });
 }
 
 
-const _registerBgNotifs = () => {
-  Notifications.events().registerNotificationReceivedBackground(
-    (notif: Notification, completion: (response: NotificationBackgroundFetchResult) => void) => {
-      console.log('bg notification received: ', notif.body);
-      //TODO I have to find what I must type there because the documentation says it's another object type
-      completion();
-    }
-  )
+const togglePermission = async () => {
+  if (isNotificationAuthorized) {
+    isNotificationAuthorized = false;
+    return false;
+  }
+
+  isNotificationAuthorized = true;
+  return true;
 }
 
+
+/*
+  * Asks the user for notification permissions
+  */
+const getPermission = async () => {
+  const permission = await notifee.getNotificationSettings();
+  if (permission) {
+    isNotificationAuthorized = true;
+    return true;
+  }
+
+  const isAuthorized = await notifee.requestPermission()
+
+  if (isAuthorized.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
+    isNotificationAuthorized = true;
+    return true;
+  }
+  isNotificationAuthorized = false;
+  return false;
+}
 
 /*
   * This function sets up the notification channel
   * It has to be called in the start of the app
   */
-const setupNotifications = (
-  token: string | undefined = undefined,
+const setupNotifications = async (
+  api_token: string | undefined = undefined,
   postToBack: boolean = true
 ) => {
-  let isRegistered: boolean = false;
-
-  Notifications.isRegisteredForRemoteNotifications().then((alreadyRegistered) => {
-    isRegistered = alreadyRegistered;
+  channelId = await notifee.createChannel({
+    id: 'default',
+    name: 'Default Channel',
   });
+  await getPermission();
 
-  if (isRegistered) {
-    return console.warn("Notifications are already registered. No need to do it again. Aborting...");
+  await messaging().registerDeviceForRemoteMessages();
+  token = await messaging().getToken();
+
+  if (!token) {
+    return console.warn("Could not register for notifications: notification token is empty");
   }
 
-  Notifications.registerRemoteNotifications()
-  Notifications.events().registerRemoteNotificationsRegistered((event: Registered) => {
-    if (!postToBack) {
-      return
-    }
+  if (!postToBack) {
+    return token;
+  }
 
-    console.log("device token: ", event.deviceToken);
-    put(
-      "/api/notifications/update-fcm-token",
-      { fcmToken: event.deviceToken },
-      token,
-      () => console.log("Notifications set up"),
-      (err: any) => console.error("Notifications setup error: ", err)
-    );
-  });
-  _registerFgNotifs();
-  _registerBgNotifs();
-}
+  if (!api_token) {
+    return console.warn("Could not register for notifications: API Token is empty");
+  }
 
+  put(
+    "/api/notifications/update-fcm-token",
+    { fcmToken: token },
+    api_token,
+    () => {
+      console.log("Notifications set up")
+      messaging().onMessage(postNotification);
+      messaging().setBackgroundMessageHandler(postNotification);
+    },
+    (err: any) => console.error("Notifications setup error: ", { ...err })
+  );
 
-/*
-  * This function checks if the user granted the notifications right
-  * IOS only !
-  */
-const checkNotificationRights = () => {
-  Notifications.ios.checkPermissions()
-  .then((currentPermissions) => {
-    console.log('IOS Permission check:');
-    console.log('Badges enabled: ' + !!currentPermissions.badge);
-    console.log('Sounds enabled: ' + !!currentPermissions.sound);
-    console.log('Alerts enabled: ' + !!currentPermissions.alert);
-    console.log('Car Play enabled: ' + !!currentPermissions.carPlay);
-    console.log('Critical Alerts enabled: ' + !!currentPermissions.criticalAlert);
-    console.log('Provisional enabled: ' + !!currentPermissions.provisional);
-    console.log('Provides App Notification Settings enabled: ' + !!currentPermissions.providesAppNotificationSettings);
-    console.log('Announcement enabled: ' + !!currentPermissions.announcement);
-  });
 }
 
 
@@ -103,107 +130,32 @@ const checkNotificationRights = () => {
   * Returns true if the notifications are already registered
   * returns false otherwise
   */
-const isNotificationRegistered = async () => {
-  return Notifications.isRegisteredForRemoteNotifications()
-  .then((result: boolean) => result);
+const isNotificationRegistered = () => {
+  return !!isNotificationAuthorized;
 }
 
 
-/*
-  * Marks a notification as read
-  * Takes two parameters:
-  *     - notifId: the ID of the read notification,
-  *     - token: the user token to do the API call
-  */
-const readNotification = (
-  notifId: string | undefined = undefined,
-  token: string | undefined = undefined
-) => {
-  if (!notifId) {
-    return console.error("Read notification error: empty notification ID");
+const getNotificationCount = (api_token: string | undefined) => {
+  if (!api_token) {
+    return;
   }
 
-  if (!token) {
-    return console.error("Read notification error: empty user token");
-  }
-
-  put(
-    `/api/notifications/${notifId}/read`,
-    { id: notifId },
-    token,
-    () => {},
-    (err) => console.error("Read notification error: ", err)
-  );
-}
-
-
-/*
-  * Returns the number of unread notifications (for badge)
-  * Takes one parameter:
-  *     - token: user token for API call
-  */
-const getUnreadNotifCount = async (
-  token: string | undefined = undefined
-): Promise<number> => {
-  if (!token) {
-    console.error("Read notification error: empty user token");
-    return new Promise((_, reject) => reject(-1));
-  }
-
-  return new Promise((resolve, reject) => {
-    get(
-      "/api/notifications/count",
-      token,
-      (res) => resolve(res.unreadCount ?? -1),
-      (err) => {
-        console.error("Unread notification number error: ", err);
-        reject(err);
-      }
-    );
-  });
-}
-
-
-/*
-  * Returns an array containing the LIMIT last notifications of this user
-  * Takes 3 parameters:
-  *     - token: user token to do the API call,
-  *     - limit: how many notifications you want to get,
-  *     - page: if you want to render older notifications
-  */
-const getNotifications = (
-  token: string | undefined = undefined,
-  limit: number = 20,
-  page: number = 1
-): Promise<NotificationsType[]> => {
-  if (!token) {
-    console.error("Read notification error: empty user token");
-    return new Promise((_, reject) => reject([]));
-  }
-
-  return new Promise((resolve, reject) => {
-    get(
-      `/api/notifications?limit=${limit}&page=${page}`,
-      token,
-      (res) => {
-        resolve(res?.data);
-      },
-      (err) => {
-        reject([])
-        console.error("Get notification error: ", err);
-      }
-    );
-  });
+  return new Promise((resolve, revoke) => get(
+    "/api/notifications/count",
+    api_token,
+    (res: any) => resolve(res?.data?.unreadCount),
+    (err: any) => revoke(err)
+  ));
 }
 
 
 export {
-  checkNotificationRights,
+  getPermission,
   setupNotifications,
-  readNotification,
-  getUnreadNotifCount,
-  getNotifications,
-  isNotificationRegistered
+  isNotificationRegistered,
+  postNotification,
+  togglePermission,
+  getNotificationCount
 };
 
 export type { NotificationsType };
