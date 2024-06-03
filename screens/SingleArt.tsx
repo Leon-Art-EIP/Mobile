@@ -385,7 +385,7 @@ const SingleArt = ({ navigation, route }: any) => {
           </View>
 
           <ScrollView
-            style={{ flex: 1, marginBottom: 8 }}
+            style={{ flex: 1, marginBottom:0 }}
             refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={getPublications} tintColor={colors.primary} colors={[colors.primary]} />}
           >
             <Text style={{ fontSize: 15 }}>{publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"}</Text>
@@ -398,7 +398,7 @@ const SingleArt = ({ navigation, route }: any) => {
         <CommentInput id={id}></CommentInput>
 
         <View>
-          {isForSale && context?.userId !== publication?.userId && (
+          {isForSale && !isSold && context?.userId !== publication?.userId && (
             <Button
               style={[styles.actionButton, styles.buyButton, { width: '100%' }]}
               textStyle={{ fontSize: 16, textAlign: 'center', color: 'white' }}
