@@ -17,6 +17,8 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       return;
     Alert.alert('Your preferences have been saved !');
     postQuizDatas();
+    // navigation.navigate('profiling');
+    // navigation.navigate('mainNav');
     navigation.navigate('tutorial');
     
   };
