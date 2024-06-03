@@ -69,11 +69,11 @@ const ProfilingQuizz = ({ navigation }): any => {
         </TouchableOpacity>
       </View>
       <Button
-        style={{ borderRadius: 12 }}
+        style={{ borderRadius: 30 }}
         value="Suivant"
         onPress={handleSubmit} />
       <Button
-        style={{ borderRadius: 12, backgroundColor: colors.whitesmoke}}
+        style={{ borderRadius: 30, backgroundColor: colors.whitesmoke}}
         textStyle={{ color: 'black' }}
         value="Retour"
         onPress={previous} />

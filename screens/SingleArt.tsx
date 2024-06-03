@@ -333,7 +333,7 @@ const SingleArt = ({ navigation, route }: any) => {
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
-        { context?.userId === publication?.userId && (
+        {/* { context?.userId === publication?.userId && (
             <TouchableOpacity
               style={[mtAuto, mbAuto, mlAuto, mr20]}
               onPress={() => setIsDeleteModalShown(true)}
@@ -344,7 +344,7 @@ const SingleArt = ({ navigation, route }: any) => {
                 size={32}
               />
             </TouchableOpacity>
-          ) }
+          ) } */}
       </View>
 
       <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
