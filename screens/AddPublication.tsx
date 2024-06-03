@@ -285,18 +285,21 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       <View>
         <TextInput
           placeholder="Titre"
+          placeholderTextColor={colors.disabledFg}
           onChangeText={handleName}
           value={name}
           style={styles.textInput}
         />
         <TextInput
           placeholder="Description"
+          placeholderTextColor={colors.disabledFg}
           onChangeText={handleDescription}
           value={description}
           style={styles.textInput}
         />
         <TextInput
           placeholder="Prix (€)"
+          placeholderTextColor={colors.disabledFg}
           onChangeText={handlePrice}
           value={price}
           style={styles.textInput}
@@ -400,6 +403,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   textInput: {
+    color: colors.textDark,
     fontSize: 15,
     marginLeft: 20,
     marginRight: 20,

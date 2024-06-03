@@ -47,6 +47,7 @@ const CommentInput = ({ id }) => {
       <View style={styles.commentInputContainer}>
         <TextInput
           placeholder="Commenter..."
+          placeholderTextColor={colors.disabledFg}
           style={styles.commentInput}
           onChangeText={(text) => handleCommentInput(text)}
           value={commentInput}
@@ -96,6 +97,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   commentInput: {
+    color: colors.textDark,
     flex: 1,
     borderWidth: 0.5,
     borderColor: 'gray',

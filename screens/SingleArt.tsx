@@ -24,20 +24,11 @@ import { ArtistType, PostType } from '../constants/homeValues';
 import Modal from 'react-native-modal';
 import {
   acCenter,
-  aiCenter,
   bgColor,
   bgGrey,
-  cBlack,
-  cPrimary,
   flex1,
   flexRow,
-  mbAuto,
   mh8,
-  mlAuto,
-  mr8,
-  mr20,
-  mrAuto,
-  mtAuto,
   mv8,
   ph24,
   pv4,
@@ -282,7 +273,6 @@ const SingleArt = ({ navigation, route }: any) => {
 
     const onErrorCallback = (error: any) => {
       console.error('Error fetching like:', { ...error });
-      /* Alert.alert('Error', 'Les informations de like n\'ont pas pu être récupérées.'); */
     };
 
     return get(url, token, callback, onErrorCallback);
