@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
@@ -48,24 +48,22 @@ const Tutorial = ({ navigation }) => {
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      <Text style={styles.homeTitle}>Explorez</Text>
-      <Text style={styles.homeText}>Découvrez l'Art qui Vous Parle</Text>
-      <Text style={styles.text}>
-        Personnalisez votre expérience et plongez dans un univers artistique diversifié. Explorez des galeries infinies, filtrées selon vos goûts et préférences en art, qu'il s'agisse de peinture, de sculpture, ou de photographie.
-      </Text>
+      <Text style={styles.homeTitle}>1. Explorez</Text>
+      <Text style={styles.homeText}>L'Art qui Vous Parle</Text>
+      <Text style={styles.text2}>Découvrez une infinité de galeries et leurs créateurs, filtrées selon vos goûts et préférences.</Text>
       <View style={styles.imageContainer}>
         <Image
-          source={require('../components/assets/HomescreenEx.png')}
+          source={require('../components/assets/homescreen2.png')}
           style={styles.image}
         />
       </View>
       <View style={styles.buttonContainer}>
-        <Button
+        {/* <Button
           style={styles.button}
           textStyle={{ color: 'black' }}
           value="Retour"
           onPress={previous}
-        />
+        /> */}
         <Button
           style={styles.button}
           textStyle={{ color: 'black' }}
@@ -115,7 +113,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 15,
     color: '#000',
-    marginVertical: 10,
+    marginTop: 10,
+  },
+  text2: {
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#000',
+    marginBottom: 20,
+    // marginVertical: 10,
   },
   homeText: {
     textAlign: 'center',
@@ -129,8 +134,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   image: {
-    width: 250,
-    height: 250,
+    width: Dimensions.get('window').width - 32, // 16 padding on each side
+    height: (Dimensions.get('window').width - 32) * 0.83, // Aspect ratio 5:4
     resizeMode: 'contain',
   },
   buttonContainer: {

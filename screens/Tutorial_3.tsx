@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
@@ -49,14 +49,14 @@ const Tutorial_3 = ({ navigation }) => {
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      <Text style={styles.homeTitle}>Échangez</Text>
-      <Text style={styles.homeText}>Achats et Ventes Simplifiés</Text>
+      <Text style={styles.homeTitle}>3. Échangez</Text>
+      <Text style={styles.homeText}>Achats et ventes simplifiés</Text>
       <Text style={styles.text}>
-        Que vous souhaitiez enrichir votre collection ou vendre vos créations, LeonArt facilite les transactions sécurisées. Achetez et vendez des œuvres directement, grâce à une plateforme intuitive qui supporte les artistes et les collectionneurs.
+        Achetez et vendez facilement et échangez avec les artistes et les collectionneurs.
       </Text>
       <View style={styles.imageContainer}>
         <Image
-          source={require('../components/assets/CommandScreenEx.png')}
+          source={require('../components/assets/commands2.png')}
           style={styles.image}
         />
       </View>
@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   image: {
-    width: 250,
-    height: 250,
+    width: Dimensions.get('window').width - 32, // 16 padding on each side
+    height: (Dimensions.get('window').width - 32) * 0.83, // Aspect ratio 5:4
     resizeMode: 'contain',
   },
   buttonContainer: {

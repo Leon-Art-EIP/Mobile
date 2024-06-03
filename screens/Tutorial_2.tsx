@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
@@ -48,14 +48,14 @@ const Tutorial_2 = ({ navigation }) => {
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      <Text style={styles.homeTitle}>Partagez</Text>
+      <Text style={styles.homeTitle}>2. Partagez</Text>
       <Text style={styles.homeText}>Votre Galerie Personnelle</Text>
       <Text style={styles.text}>
-        Exprimez votre créativité en créant votre propre galerie sur Leon'Art. Partagez vos œuvres avec une communauté mondiale et inspirez les amateurs et professionnels de l'art du monde entier.
+        Exprimez votre créativité et inspirez les amateurs et professionnels de l'art du monde entier.
       </Text>
       <View style={styles.imageContainer}>
         <Image
-          source={require('../components/assets/ProfileScreenEx.png')}
+          source={require('../components/assets/profile2.png')}
           style={styles.image}
         />
       </View>
@@ -129,9 +129,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   image: {
-    width: 250,
-    height: 250,
+    width: Dimensions.get('window').width - 32, // 16 padding on each side
+    height: (Dimensions.get('window').width - 32) * 0.83, // Aspect ratio 5:4
     resizeMode: 'contain',
+    borderRadius: 12,
   },
   buttonContainer: {
     flexDirection: 'row',
