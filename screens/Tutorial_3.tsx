@@ -20,7 +20,7 @@ const Tutorial_3 = ({ navigation }) => {
 
   const next = () => {
     // navigation.navigate('profiling');
-    navigation.navigate('mainNav');
+    navigation.navigate('homemain');
   };
 
   const handleSubmit = () => {
