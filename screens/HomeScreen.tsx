@@ -109,7 +109,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   const getHasUnreadNotifications = async () => {
     let unreadNumber: number | undefined = await getNotificationCount(context?.token);
-    setHasUnreadNotifications(unreadNumber !== 0 && unreadNumber !== -1);
+    setHasUnreadNotifications(unreadNumber);
   }
 
 
@@ -158,21 +158,22 @@ const HomeScreen = ({ navigation }: any) => {
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
+
           <TouchableOpacity
             onPress={() => navigation.navigate('notifications')}
             style={styles.notifIconTouchable}
           >
             <MaterialIcons
               name={hasUnreadNotifications ? "notification-important" : "notifications"}
-              size={32}
-              color={hasUnreadNotifications ? colors.primary : colors.black}
+              size={24}
+              color={colors.offerFg}
             />
+            <Text style={styles.notifIconText}>{ hasUnreadNotifications }</Text>
           </TouchableOpacity>
         </View>
+
+        {/* News */}
         <View>
-
-        {/* Actuality */}
-
           <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
             Actualités
           </Title>
@@ -360,7 +361,17 @@ const styles = StyleSheet.create({
   notifIconTouchable: {
     marginLeft: 'auto',
     marginTop: 'auto',
-    marginRight: 12
+    marginRight: 12,
+    flexDirection: 'row',
+    backgroundColor: colors.offerBg,
+    borderRadius: 50,
+    paddingVertical: 4,
+    paddingHorizontal: 12
+  },
+  notifIconText: {
+    color: colors.offerFg,
+    fontWeight: 'bold',
+    marginHorizontal: 4,
   },
   articleImage: {
     width: '100%',

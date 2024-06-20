@@ -26,15 +26,21 @@ import {
   acCenter,
   bgColor,
   bgGrey,
+  bgRed,
   flex1,
   flexRow,
+  mbAuto,
   mh8,
+  mlAuto,
+  mr20,
+  mtAuto,
   mv8,
   ph24,
   pv4,
 } from '../constants/styles';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CommentInput from '../components/CommentInput';
@@ -45,6 +51,7 @@ import Input from '../components/textInput/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionType } from '../constants/artTypes';
 import InfoModal from '../components/infos/InfoModal';
+import ReportPanel from '../components/ReportPanel';
 
 const SingleArt = ({ navigation, route }: any) => {
   const { id } = route.params;
@@ -65,16 +72,26 @@ const SingleArt = ({ navigation, route }: any) => {
   const _slidingPanel = useRef<SlidingUpPanel>(null);
   const [isInfoModalVisible, setInfoModalVisible] = useState(false);
   const [infoModalMessage, setInfoModalMessage] = useState('');
+  const [isReportPanelVisible, setIsReportPanelVisible] = useState<boolean>(false);
 
   const [currency, setCurrency] = useState<string>('€');
 
   useEffect(() => {
     if (isDeleteModalShown) {
+      setIsReportPanelVisible(false);
       _slidingPanel.current?.show();
     } else {
       _slidingPanel.current?.hide();
     }
   }, [isDeleteModalShown]);
+
+
+  useEffect(() => {
+    if (isReportPanelVisible) {
+      setIsDeleteModalShown(false);
+    }
+  }, [isReportPanelVisible]);
+
 
   useEffect(() => {
     getPublications();
@@ -89,6 +106,8 @@ const SingleArt = ({ navigation, route }: any) => {
   }, [publication]);
 
   useEffect(() => {
+    setIsDeleteModalShown(false);
+    setIsReportPanelVisible(false);
     getPublications();
     checkIsLiked();
     checkIsSaved();
@@ -320,58 +339,91 @@ const SingleArt = ({ navigation, route }: any) => {
 
       <View style={styles.container}>
 
-      <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
-        {/* { context?.userId === publication?.userId && (
-            <TouchableOpacity
-              style={[mtAuto, mbAuto, mlAuto, mr20]}
-              onPress={() => setIsDeleteModalShown(true)}
-            >
-              <MaterialCommunityIcons
-                name='delete'
-                color={colors.primary}
-                size={32}
-              />
-            </TouchableOpacity>
-          ) } */}
-      </View>
+        <View style={styles.logo}>
+          <Title style={{ color: colors.primary }}>Leon</Title>
+          <Title>'Art</Title>
 
-      <View style={{ flexDirection: 'row',  alignItems: 'center'}}>
-        {/* <Text style={styles.artTitle}>{publication?.name}</Text> */}
-        {/* <Text style={{fontSize: 23, color: 'black' }}>, {publication?.price} €</Text> */}
+          { context?.userId === publication?.userId ? (
+              <TouchableOpacity
+                style={[mtAuto, mbAuto, mlAuto, mr20]}
+                onPress={() => setIsDeleteModalShown(true)}
+              >
+                <MaterialCommunityIcons
+                  name='delete'
+                  color={colors.primary}
+                  size={32}
+                />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[mtAuto, mbAuto, mlAuto, mr20]}
+                onPress={() => navigation.navigate('report', { id: publication?._id, type: 'post' })}
+              >
+                <MaterialIcons
+                  name="report-problem"
+                  color={colors.primary}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+
         </View>
 
         <View style={[flexRow, acCenter]}>
-          <TouchableOpacity onPress={() => navigation.navigate('other_profile', { id: artist?._id })} style={[bgGrey, { borderRadius: 50, height: 50 }]}>
-            <Image source={{ uri: getImageUrl(artist?.profilePicture) }} style={{ height: 50, width: 50, borderRadius: 50 }} />
+          <TouchableOpacity
+            onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
+            style={[bgGrey, { borderRadius: 50, height: 50 }]}
+          >
+            <Image
+              source={{ uri: getImageUrl(artist?.profilePicture) }}
+              style={{ height: 50, width: 50, borderRadius: 50 }}
+            />
           </TouchableOpacity>
           <Text style={styles.artTitle}>{publication?.name}</Text>
-          <Text style={{ fontSize: 23, color: 'black', marginRight: 5, }}>, {publication?.price} €</Text>
-          {context?.userId === publication?.userId && (
-            <TouchableOpacity onPress={() => setIsDeleteModalShown(true)}>
-              <MaterialCommunityIcons name="delete" color={colors.primary} size={32} />
-            </TouchableOpacity>
-          )}
         </View>
 
-        {getImageUrl(publication?.image) ? (
-          <ImageViewer style={styles.img} backgroundColor={colors.disabledBg} imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]} renderIndicator={() => <></>} />
+        { !!getImageUrl(publication?.image) ? (
+          <ImageViewer
+            style={styles.img}
+            backgroundColor={colors.disabledBg}
+            imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]}
+            renderIndicator={() => <></>}
+          />
         ) : (
           <View style={styles.img} />
-        )}
+        ) }
+
       </View>
 
       <View style={flex1}>
         <View style={flex1}>
           <View style={[flexRow, mv8]}>
-            <TouchableOpacity onPress={likePublication} style={mh8}>
-              <AntDesign name={isLiked ? 'heart' : 'hearto'} size={32} color={isLiked ? colors.primary : colors.black} />
+            <TouchableOpacity
+              onPress={likePublication}
+              style={[mh8, mtAuto, mbAuto]}
+            >
+              <AntDesign
+                name={isLiked ? 'heart' : 'hearto'}
+                size={24}
+                color={isLiked ? colors.primary : colors.black}
+              />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleSavedButtonClick} style={mh8}>
-              <Ionicons name={isSaved ? 'checkmark-circle' : 'add-circle-outline'} color={isSaved ? colors.primary : colors.black} size={32} />
+            <TouchableOpacity
+              onPress={handleSavedButtonClick}
+              style={[mh8, mtAuto, mbAuto]}
+            >
+              <Ionicons
+                name={isSaved ? 'checkmark-circle' : 'add-circle-outline'}
+                color={isSaved ? colors.primary : colors.black} size={28}
+              />
             </TouchableOpacity>
+
+            { publication?.price && (
+              <View style={styles.priceSignView}>
+                <Text style={styles.priceSignText}>{ publication?.price?.toString() } €</Text>
+              </View>
+            ) }
           </View>
 
           <ScrollView
@@ -385,7 +437,8 @@ const SingleArt = ({ navigation, route }: any) => {
             <CommentsList id={id}></CommentsList>
           </ScrollView>
         </View>
-        <CommentInput id={id}></CommentInput>
+
+        <CommentInput id={id} />
 
         <View>
           {isForSale && !isSold && context?.userId !== publication?.userId && (
@@ -399,7 +452,13 @@ const SingleArt = ({ navigation, route }: any) => {
         </View>
 
         <View style={flexRow}>
-          <Button style={[flex1, { marginLeft: 0 }]} textStyle={{ color: colors.black }} value="Retour" onPress={() => navigation.goBack()} secondary />
+          <Button
+            style={[flex1, { marginLeft: 0 }]}
+            textStyle={{ color: colors.black }}
+            value="Retour"
+            onPress={() => navigation.goBack()}
+            secondary
+          />
         </View>
       </View>
 
@@ -407,6 +466,7 @@ const SingleArt = ({ navigation, route }: any) => {
         <View style={styles.modalContent}>
           <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
           <Input style={styles.input} placeholder="Nouvelle collection" onTextChanged={(text: string) => setNewCollectionName(text)} />
+
           <FlatList
             data={userCollections}
             keyExtractor={(item) => item._id}
@@ -417,11 +477,26 @@ const SingleArt = ({ navigation, route }: any) => {
             )}
           />
 
-          <Input style={styles.input} placeholder="Nouvelle collection" onTextChanged={(text: string) => setNewCollectionName(text)} />
+          <Input
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onTextChanged={(text: string) => setNewCollectionName(text)}
+          />
 
           <View style={flexRow}>
-            <Button value="Annuler" style={styles.collectionBtn} textStyle={{ fontSize: 14 }} onPress={closeModal} secondary />
-            <Button value="Créer" onPress={() => addToCollection(newCollectionName)} style={styles.collectionBtn} textStyle={{ fontSize: 14 }} />
+            <Button
+              value="Annuler"
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+              onPress={closeModal}
+              secondary
+            />
+            <Button
+              value="Créer"
+              onPress={() => addToCollection(newCollectionName)}
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+            />
           </View>
         </View>
       </Modal>
@@ -441,6 +516,7 @@ const SingleArt = ({ navigation, route }: any) => {
             <Button value="Oui" onPress={deletePost} style={flex1} />
             <Button secondary value="Non" style={flex1} onPress={() => setIsDeleteModalShown(false)} />
           </View>
+
           <InfoModal
             isVisible={isInfoModalVisible}
             message={infoModalMessage}
@@ -448,6 +524,7 @@ const SingleArt = ({ navigation, route }: any) => {
           />
         </>
       </SlidingUpPanel>
+
     </SafeAreaView>
   );
 };
@@ -465,7 +542,6 @@ const styles = StyleSheet.create({
   },
   logo: {
     flexDirection: 'row',
-    height: 100,
     borderRadius: 5,
   },
   img: {
@@ -648,6 +724,19 @@ const styles = StyleSheet.create({
     width: '100%',
     marginVertical: 10,
   },
+  priceSignView: {
+    backgroundColor: colors.offerBg,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 50,
+    marginLeft: 'auto',
+    marginRight: 8
+  },
+  priceSignText: {
+    color: colors.offerFg,
+    marginHorizontal: 4,
+    fontWeight: 'bold'
+  }
 });
 
 
