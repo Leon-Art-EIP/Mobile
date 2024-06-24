@@ -7,6 +7,7 @@ import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
 import { ArtistType } from '../../constants/homeValues';
+import { cTextDark } from '../../constants/styles';
 
 const CommentsList = ({ id }) => {
   const context = useContext(MainContext);
@@ -140,7 +141,7 @@ const CommentsList = ({ id }) => {
             <Text style={styles.commentAuthor}>
               {usernames[comment.userId]}
             </Text>
-            <Text>{comment.text}</Text>
+            <Text style={cTextDark}>{comment?.text ?? "Commentaire supprimé"}</Text>
           </View>
           <View style={styles.commentMeta}>
             <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>

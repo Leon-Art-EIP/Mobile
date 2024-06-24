@@ -45,14 +45,15 @@ const ReportScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Title>Signaler</Title>
+      <Title style={styles.title}>Signaler</Title>
 
       <FlatList
         data={reasons}
         renderItem={({ item }) => (
-          <Card
-            style={{ backgroundColor: selectedReason === item ? colors.offerBg : colors.default }}
-          >
+          <Card style={{
+            backgroundColor: selectedReason === item ? colors.offerBg : colors.default,
+            marginHorizontal: 0,
+          }}>
             <TouchableOpacity
               onPress={() => setSelectedReason(item)}
             >
@@ -66,14 +67,14 @@ const ReportScreen = () => {
         )}
       />
 
-      <View style={[ flexRow, flex1 ]}>
+      <View style={[ flexRow ]}>
 
         {/* Cancel */}
         <Button
           secondary
           value="Annuler"
           onPress={() => navigation.goBack()}
-          style={flex1}
+          style={[ flex1, { marginLeft: 0 } ]}
         />
 
         {/* Submit */}
@@ -81,7 +82,7 @@ const ReportScreen = () => {
           value="Signaler"
           disabled={!selectedReason}
           onPress={submit}
-          style={flex1}
+          style={[ flex1, { marginRight: 0 } ]}
         />
       </View>
     </SafeAreaView>
@@ -91,7 +92,13 @@ const ReportScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.bg
+    backgroundColor: colors.bg,
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 24
+  },
+  title: {
+    marginBottom: 24
   }
 });
 

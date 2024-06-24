@@ -29,7 +29,7 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { acCenter, aiCenter, bgColor, bgRed, cText, cTextDark, flex1, flexRow, mv24, br20 } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, mv24 } from '../constants/styles';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -38,7 +38,7 @@ const HomeScreen = ({ navigation }: any) => {
   const [articles, setArticles] = useState<ArticleType[]>([]);
   const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<number>(0);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
 
 
@@ -108,8 +108,8 @@ const HomeScreen = ({ navigation }: any) => {
 
 
   const getHasUnreadNotifications = async () => {
-    let unreadNumber: number | undefined = await getNotificationCount(context?.token);
-    setHasUnreadNotifications(unreadNumber);
+    let unreadNumber: number | undefined = await getNotificationCount(context?.token) as number;
+    setHasUnreadNotifications(unreadNumber ?? 0);
   }
 
 
@@ -132,9 +132,12 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     refreshData();
+
+    /* I have to patch the display, it's too slow and to low
     if (!isNotificationRegistered()) {
       _slidingPanel.current?.show();
     }
+    */
 
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
@@ -177,22 +180,23 @@ const HomeScreen = ({ navigation }: any) => {
           <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
             Actualités
           </Title>
+
           {articles.length === 0 ? (
             <View style={styles.emptyView}>
-            <Image
-              style={{ height: 50, width: 50 }}
-              source={require('../assets/icons/box.png')}
-            />
-            <Title
-              size={18}
-              style={{ color: colors.disabledFg }}
-            >Looks quite empty here !</Title>
-            <Text style={{
-              fontWeight: '500',
-              color: colors.disabledFg
-            }}>Try to refresh the page</Text>
-          </View>
-              ) : (
+              <Image
+                style={{ height: 50, width: 50 }}
+                source={require('../assets/icons/box.png')}
+              />
+              <Title
+                size={18}
+                style={{ color: colors.disabledFg }}
+              >Looks quite empty here !</Title>
+              <Text style={{
+                fontWeight: '500',
+                color: colors.disabledFg
+              }}>Try to refresh the page</Text>
+            </View>
+          ) : (
             <FlatList
               data={articles}
               contentContainerStyle={styles.flatList}
@@ -209,7 +213,7 @@ const HomeScreen = ({ navigation }: any) => {
               horizontal
               scrollEnabled
             />
-          )}
+          ) }
         </View>
 
         {/* Artistes */}

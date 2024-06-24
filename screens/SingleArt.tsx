@@ -26,7 +26,10 @@ import {
   acCenter,
   bgColor,
   bgGrey,
+  bgPlatinium,
   bgRed,
+  br12,
+  br50,
   flex1,
   flexRow,
   mbAuto,
@@ -36,6 +39,7 @@ import {
   mtAuto,
   mv8,
   ph24,
+  ph8,
   pv4,
 } from '../constants/styles';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -52,6 +56,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionType } from '../constants/artTypes';
 import InfoModal from '../components/infos/InfoModal';
 import ReportPanel from '../components/ReportPanel';
+import Card from '../components/cards/Card';
 
 const SingleArt = ({ navigation, route }: any) => {
   const { id } = route.params;
@@ -369,7 +374,7 @@ const SingleArt = ({ navigation, route }: any) => {
 
         </View>
 
-        <View style={[flexRow, acCenter]}>
+        <View style={[flexRow, acCenter, mv8, mh8]}>
           <TouchableOpacity
             onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
             style={[bgGrey, { borderRadius: 50, height: 50 }]}
@@ -382,6 +387,7 @@ const SingleArt = ({ navigation, route }: any) => {
           <Text style={styles.artTitle}>{publication?.name}</Text>
         </View>
 
+        {/* Post image */}
         { !!getImageUrl(publication?.image) ? (
           <ImageViewer
             style={styles.img}
@@ -397,7 +403,7 @@ const SingleArt = ({ navigation, route }: any) => {
 
       <View style={flex1}>
         <View style={flex1}>
-          <View style={[flexRow, mv8]}>
+          <View style={[flexRow, mv8, bgGrey, br50, pv4, ph8, mh8]}>
             <TouchableOpacity
               onPress={likePublication}
               style={[mh8, mtAuto, mbAuto]}
@@ -426,12 +432,16 @@ const SingleArt = ({ navigation, route }: any) => {
             ) }
           </View>
 
-          <ScrollView
-            style={{ flex: 1, marginBottom:0 }}
-            refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={getPublications} tintColor={colors.primary} colors={[colors.primary]} />}
-          >
-            <Text style={{ fontSize: 15 }}>{publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"}</Text>
-          </ScrollView>
+          <Card style={{ marginHorizontal: 8, marginVertical: 0, borderRadius: 50 }}>
+            <ScrollView
+              style={{ flex: 1, marginBottom:0 }}
+              refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={getPublications} tintColor={colors.primary} colors={[colors.primary]} />}
+            >
+              <Text style={{ fontSize: 15, color: colors.textDark }}>{
+                publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"
+              }</Text>
+            </ScrollView>
+          </Card>
 
           <ScrollView style={{ flex: 1 }}>
             <CommentsList id={id}></CommentsList>
@@ -440,28 +450,20 @@ const SingleArt = ({ navigation, route }: any) => {
 
         <CommentInput id={id} />
 
-        <View>
+        {/* Buy and goBack button */}
+        <View style={flexRow}>
           {isForSale && !isSold && context?.userId !== publication?.userId && (
             <Button
-              style={[styles.actionButton, styles.buyButton, { width: '100%' }]}
-              textStyle={{ fontSize: 16, textAlign: 'center', color: 'white' }}
+              style={[styles.actionButton, styles.buyButton, flex1, { marginHorizontal: 8 } ]}
+              textStyle={{ fontSize: 16, textAlign: 'center', color: colors.white }}
               value="Acheter"
               onPress={openPaymentSheet}
             />
           )}
         </View>
-
-        <View style={flexRow}>
-          <Button
-            style={[flex1, { marginLeft: 0 }]}
-            textStyle={{ color: colors.black }}
-            value="Retour"
-            onPress={() => navigation.goBack()}
-            secondary
-          />
-        </View>
       </View>
 
+      {/* Collection modal */}
       <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
           <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
@@ -550,7 +552,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     height: 345,
     width: 345,
-    borderRadius: 5,
+    borderRadius: 20,
   },
   artTitle: {
     marginLeft: 10,

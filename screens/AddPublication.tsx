@@ -12,6 +12,7 @@ import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
+import { acCenter, aiCenter, cTextDark, flex1, flexRow, mr20, mr8 } from '../constants/styles';
 
 
 const AddPublication = ({ navigation }: any) => {
@@ -266,23 +267,31 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
 
   return (
     <ScrollView style={styles.container}>
+
+      {/* Leon'art title */}
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
+
       <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
         <Title style={styles.artTitle}>Nouvelle publication</Title>
       </View>
+
       <Button
         style={{ backgroundColor: colors.whitesmoke }}
         textStyle={{ color: colors.darkGreyBg }}
-        value="Choisir une image"
+        value={ selectedImage ? "Modifier l'image" : "Choisir une image"}
         onPress={selectImage}
       />
+
       {selectedImage && (
         <Image source={{ uri: selectedImage }} style={styles.img} />
       )}
+
       <View>
+
+        {/* Title */}
         <TextInput
           placeholder="Titre"
           placeholderTextColor={colors.disabledFg}
@@ -290,6 +299,8 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
           value={name}
           style={styles.textInput}
         />
+
+        {/* Description */}
         <TextInput
           placeholder="Description"
           placeholderTextColor={colors.disabledFg}
@@ -297,49 +308,56 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
           value={description}
           style={styles.textInput}
         />
-        <TextInput
-          placeholder="Prix (€)"
-          placeholderTextColor={colors.disabledFg}
-          onChangeText={handlePrice}
-          value={price}
-          style={styles.textInput}
-        />
+
+        {/* Price */}
+        <View style={[flexRow, aiCenter]}>
+          <TextInput
+            placeholder="Prix (€)"
+            placeholderTextColor={colors.disabledFg}
+            onChangeText={handlePrice}
+            value={price}
+            style={[ styles.textInput, flex1 ]}
+          />
+          <Text style={[cTextDark, mr20]}> €</Text>
+        </View>
+
       <TouchableOpacity
-      style={[styles.filterTouchableOpacity, { flexDirection: 'row' }]}
-      onPress={() => setIsArtTypeDisplayed(e => !e)}
+        style={[styles.filterTouchableOpacity, { flexDirection: 'row' }]}
+        onPress={() => setIsArtTypeDisplayed(e => !e)}
       >
-      <Text style={[styles.filterText, { fontWeight: 'bold', flex: 1 }]}>
-      Genre
-      </Text>
-      <Entypo
-      name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
-      size={24}
-      color={colors.black}
-      />
+        <Text style={[styles.filterText, { fontWeight: 'bold', flex: 1 }]}>
+          Genre
+        </Text>
+        <Entypo
+          name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
+          size={24}
+          color={colors.black}
+        />
       </TouchableOpacity>
+
       {isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
         <View key={filter.category.toString()}>
-        <TouchableOpacity
-          style={styles.filterTouchableOpacity}
-          onPress={() => selectOrDeselect(filter.category)}
-        >
-          <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
-            {filter.category}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Display sub-filters if main filter is selected */}
-        {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
           <TouchableOpacity
-            key={subFilter}
-            style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
-            onPress={() => selectOrDeselect(subFilter, true)}
+            style={styles.filterTouchableOpacity}
+            onPress={() => selectOrDeselect(filter.category)}
           >
-            <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
-              {subFilter}
+            <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
+              {filter.category}
             </Text>
           </TouchableOpacity>
-        ))}
+
+          {/* Display sub-filters if main filter is selected */}
+          {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
+            <TouchableOpacity
+              key={subFilter}
+              style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
+              onPress={() => selectOrDeselect(subFilter, true)}
+            >
+              <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
+                {subFilter}
+              </Text>
+            </TouchableOpacity>
+          ))}
 
         </View>
       ))}
@@ -350,6 +368,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
         style={styles.saleButton}
       />
       </View>
+
       <View style={{ marginTop: 5 }}>
         <Button
           value="Publier sans possibilité d'achat"
@@ -362,6 +381,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
           value="Annuler"
           onPress={previous}
         />
+
         <InfoModal
           isVisible={isModalVisible}
           message={modalMessage}
@@ -372,6 +392,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

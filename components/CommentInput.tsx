@@ -4,6 +4,7 @@ import { post } from '../constants/fetch';
 import { StyleSheet } from 'react-native';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const CommentInput = ({ id }) => {
   const [commentInput, setCommentInput] = useState('');
@@ -52,8 +53,15 @@ const CommentInput = ({ id }) => {
           onChangeText={(text) => handleCommentInput(text)}
           value={commentInput}
         />
-        <TouchableOpacity style={styles.commentButton} onPress={postComment}>
-          <Text style={styles.commentButtonText}>Envoyer</Text>
+        <TouchableOpacity
+          style={styles.sendButtonView}
+          onPress={postComment}
+        >
+          <Ionicons
+            name="send"
+            color={colors.offerFg}
+            size={24}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -99,9 +107,7 @@ const styles = StyleSheet.create({
   commentInput: {
     color: colors.textDark,
     flex: 1,
-    borderWidth: 0.5,
-    borderColor: 'gray',
-    backgroundColor: colors.white,
+    backgroundColor: colors.disabledBg,
     borderRadius: 30,
     padding: 9,
     paddingLeft: 15,
@@ -113,8 +119,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.forYouPlHolder,
   },
   commentButtonText: {
-    color: 'black',
+    color: colors.black
   },
+  sendButtonView: {
+    backgroundColor: colors.offerBg,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 50,
+    marginLeft: 8
+  }
 });
 
 export default CommentInput;

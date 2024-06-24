@@ -1,14 +1,15 @@
-import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView } from 'react-native';
+import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
+import Modal from 'react-native-modal';
 // Local imports
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 
 import { MainContext } from '../context/MainContext';
-import { get } from '../constants/fetch';
+import { get, post } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { cTextDark, mh4, mv4 } from '../constants/styles';
+import { cTextDark, flexRow, mh4, mt8, mv4 } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -16,6 +17,8 @@ import Card from '../components/cards/Card';
 import { CollectionType } from '../constants/artTypes';
 import { formatName } from '../helpers/NamesHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Input from '../components/textInput/Input';
+import Subtitle from '../components/text/Subtitle';
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -25,7 +28,9 @@ const Profile = () => {
   const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const context = useContext(MainContext);
+  const [newCollectionName, setNewCollectionName] = useState<string>("");
   const token = context?.token;
   const userID = context?.userId;
 
@@ -156,6 +161,39 @@ const Profile = () => {
     updateCollections();
   };
 
+
+  // Should be able to create a new empty collection from the profile screen
+  // but it doesn't work yet. We're waiting for the back-end (as usual lol)
+  const createCollection = async (collectionName: string) => {
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+    }
+
+    if (!collectionName) {
+      return ToastAndroid.show('Veuillez nommer votre collection', ToastAndroid.SHORT);
+    }
+
+    const url = `/api/collection`;
+    const body = {
+      artPublicationId: undefined,
+      collectionName: collectionName,
+      isPublic: true,
+    };
+
+    const callback = (response: any) => {
+      Alert.alert('Oeuvre ajoutée à la collection "' + collectionName + '".');
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error while saving to collection:', error);
+      Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+    };
+
+    post(url, body, token, callback, onErrorCallback);
+    return setIsModalVisible(false);
+  };
+
   useFocusEffect(
     React.useCallback(reloadProfile, [navigation])
   );
@@ -174,7 +212,7 @@ const Profile = () => {
               onPress={() => handleBackButtonClick()}
               style={styles.backButton}
             >
-              <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+              <Ionicons name="chevron-back-outline" color={colors.whitesmoke} size={32} />
             </TouchableOpacity>
 
             {/* Edit button */}
@@ -182,7 +220,7 @@ const Profile = () => {
               onPress={() => handleEditButtonClick()}
               style={styles.editButton}
             >
-              <Feather name="edit-2" color={colors.black} size={24} />
+              <Feather name="edit-2" color={colors.whitesmoke} size={24} />
             </TouchableOpacity>
 
             {/* Settings button */}
@@ -190,7 +228,7 @@ const Profile = () => {
               onPress={() => handleSettingsButtonClick()}
               style={styles.settingButton}
             >
-              <MaterialIcons name="settings" color={colors.black} size={32} />
+              <MaterialIcons name="settings" color={colors.whitesmoke} size={32} />
             </TouchableOpacity>
           </View>
           {/* Banner */}
@@ -295,42 +333,94 @@ const Profile = () => {
           )}
 
           {/* Collections tab */}
-          {activeTab === 'Collections' && userCollections.length !== 0 && (
-            <FlatList
-              data={userCollections}
-              numColumns={2}
-              renderItem={({ item }: any) => (
-                <TouchableOpacity
-                  key={item?._id.toString()}
-                  style={[
-                    styles.squareFrame,
-                    { backgroundColor: getRandomBgColor() }
-                  ]}
-                  onPress={() => handleCollectionClick(item)}
-                >
-                  <Text style={styles.collectionName}>{
-                    formatName(item?.name ?? "Collection", 10)
-                  }</Text>
-                </TouchableOpacity>
-              )}
-              refreshControl={(
-                <RefreshControl
-                  colors={[colors.primary]}
-                  refreshing={isRefreshing}
-                  onRefresh={reloadProfile}
+          { activeTab === 'Collections' && (
+            <>
+              { userCollections.length !== 0 ? (
+                <FlatList
+                  data={userCollections}
+                  numColumns={2}
+                  renderItem={({ item }: any) => (
+                    <TouchableOpacity
+                      key={item?._id.toString()}
+                      style={[
+                        styles.squareFrame,
+                        { backgroundColor: getRandomBgColor() }
+                      ]}
+                      onPress={() => handleCollectionClick(item)}
+                    >
+                      <Text style={styles.collectionName}>{
+                        formatName(item?.name ?? "Collection", 10)
+                      }</Text>
+                    </TouchableOpacity>
+                  )}
+                  refreshControl={(
+                    <RefreshControl
+                      colors={[colors.primary]}
+                      refreshing={isRefreshing}
+                      onRefresh={reloadProfile}
+                    />
+                  )}
                 />
-              )}
-            />
-          )}
+              ) : (
+                <Card style={{
+                  backgroundColor: colors.offerBg,
+                  alignItems: 'center',
+                  alignSelf: 'center'
+                }}>
+                  <TouchableOpacity
+                    style={{ flexDirection: 'row' }}
+                    /* onPress={() => setIsModalVisible(true)} */
+                    onPress={() => ToastAndroid.show("Cette fonctionnalité arrive bientôt !", ToastAndroid.LONG)}
+                  >
+                    <Ionicons name="add" color={colors.offerFg}size={24} />
+                    <Text style={{ color: colors.offerFg, marginLeft: 8 }}>Créer une nouvelle collection</Text>
+                  </TouchableOpacity>
+                </Card>
+              ) }
+            </>
+          ) }
 
           {activeTab === 'A propos' && (
             <Card style={styles.biographyContainer}>
-              <Text style={[styles.biography, { paddingLeft: 15 }, cTextDark]}>
+              <Text style={[styles.biography, cTextDark]}>
                 {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
               </Text>
             </Card>
           )}
         </View>
+
+        {/* Collection modal */}
+        <Modal
+          isVisible={isModalVisible}
+          style={styles.modal}
+        >
+          <View style={styles.modalContent}>
+            <Subtitle style={styles.modalTitle}>Créer une nouvelle collection</Subtitle>
+
+            <Input
+              style={styles.input}
+              placeholder="Nouvelle collection"
+              onTextChanged={setNewCollectionName}
+            />
+
+            <View style={[flexRow, mt8]}>
+              <Button
+                value="Annuler"
+                style={styles.collectionBtn}
+                textStyle={{ fontSize: 14 }}
+                onPress={() => setIsModalVisible(false)}
+                secondary
+              />
+              <Button
+                value="Créer"
+                onPress={() => createCollection(newCollectionName)}
+                style={styles.collectionBtn}
+                textStyle={{ fontSize: 14 }}
+              />
+            </View>
+          </View>
+        </Modal>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -340,6 +430,11 @@ const styles = StyleSheet.create({
   centeredText: {
     justifyContent: 'center',
     alignItems: 'center', // Ajoutez cette ligne
+  },
+  input: {
+    backgroundColor: colors.disabledBg,
+    marginHorizontal: 4,
+    marginVertical: 8,
   },
   banner: {
     backgroundColor: 'lightblue',
@@ -356,6 +451,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modal: {
+    height: Dimensions.get('window').height / 3,
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: Dimensions.get('window').width - 24,
+    backgroundColor: colors.white,
+    padding: 20,
+    borderRadius: 20,
+  },
+  collectionBtn: {
+    marginHorizontal: 2,
+    height: 40,
+    marginVertical: 0,
+    flex: 1,
+  },
+  modalTitle: {
+    color: colors.textDark,
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  collectionButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  collectionButtonText: {
+    color: '#3498db',
   },
   profilePicture: {
     width: 110,
@@ -487,11 +616,16 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   biographyContainer: {
-    marginLeft: 15,
-    marginRight: 15,
+    backgroundColor: colors.bg,
+    marginLeft: 24,
+    marginRight: 24,
     marginTop: 5,
+    paddingHorizontal: 24,
+    paddingVertical: 12
   },
   biography: {
+    marginHorizontal: 0,
+    marginVertical: 0,
     fontSize: 14,
     color: colors.black,
   },
