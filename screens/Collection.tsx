@@ -85,13 +85,16 @@ const Collection = ({ navigation, route }: any) => {
             style={[ mlAuto, mrAuto, mbAuto, mtAuto ]}
           />
         </TouchableOpacity>
+
         {/* Delete button */}
-        <TouchableOpacity
-          onPress={() => setDeleteModalVisible(true)}
-          style={styles.deleteButton}
-        >
-          <Image source={DeleteButtonImage} style={{ width: 28, height: 30 }} />
-        </TouchableOpacity>
+        { collection?.user === context?.userId && (
+          <TouchableOpacity
+            onPress={() => setDeleteModalVisible(true)}
+            style={styles.deleteButton}
+          >
+            <Image source={DeleteButtonImage} style={{ width: 28, height: 30 }} />
+          </TouchableOpacity>
+        ) }
       </View>
 
 
