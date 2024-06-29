@@ -109,6 +109,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   const getHasUnreadNotifications = async () => {
     let unreadNumber: number | undefined = await getNotificationCount(context?.token) as number;
+    console.log(unreadNumber);
     setHasUnreadNotifications(unreadNumber ?? 0);
   }
 
@@ -167,7 +168,7 @@ const HomeScreen = ({ navigation }: any) => {
             style={styles.notifIconTouchable}
           >
             <MaterialIcons
-              name={hasUnreadNotifications ? "notification-important" : "notifications"}
+              name={"notifications"}
               size={24}
               color={colors.offerFg}
             />

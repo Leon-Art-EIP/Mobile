@@ -15,23 +15,24 @@ import {
   flex1,
   flexRow,
   mb4,
-  mb8,
-  mbAuto,
-  ml4, mlAuto,
+  mh24,
+  mh8,
+  ml4,
   mr4,
-  mr8, mrAuto,
+  mr8,
   mtAuto,
   mv4,
   mv8,
-  noHMargin,
-  noMargin
+  noHMargin
 } from '../constants/styles';
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import { formatName } from '../helpers/NamesHelper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import RatingModal from '../components/modals/RatingModal';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 
 type OrderType = {
@@ -169,25 +170,27 @@ const SingleOrder = () => {
       <View style={[flexRow, aiCenter]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={mr8}
+          style={mh8}
         >
-          <AntDesign
-            name="left"
-            color={colors.black}
-            onPress={() => navigation.goBack()}
-            size={24}
-          />
+          <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
         </TouchableOpacity>
-        <Title style={mv8}>Commande</Title>
+        <Title style={[ mv8, mh8 ]}>Commande</Title>
 
 
       </View>
 
       {/* Art picture */}
-      <Image
-        source={{ uri: getImageUrl(order?.artPublicationImage) }}
-        style={styles.orderImage}
-      />
+      { order?.artPublicationImage ? (
+        <ImageViewer
+          loadingRender={() => <View style={styles.orderImage} />}
+          style={styles.orderImage}
+          backgroundColor={colors.disabledBg}
+          imageUrls={[{ url: getImageUrl(order?.artPublicationImage) ?? '' }]}
+          renderIndicator={() => <></>}
+        />
+      ) : (
+        <View style={styles.orderImage} />
+      ) }
 
       <ScrollView
         refreshControl={
@@ -259,12 +262,12 @@ const SingleOrder = () => {
       {!params?.buy ? (
         <Card style={{
           marginHorizontal: 0,
-          backgroundColor: colors.darkGreyFg,
+          backgroundColor: colors.offerBg,
           marginVertical: 0,
           marginTop: 5,
           marginBottom: 20,
         }}>
-          <Text style={{ color: colors.deepyellow }}>{
+          <Text style={{ color: colors.offerFg }}>{
             order?.orderState === 'shipping' ?
               "L'oeuvre a été envoyée ! Veuillez patienter que l'acheteur la recoive !" :
               "L'oeuvre est prête ? Appuyez sur \"Envoyer l'oeuvre\" après l'avoir envoyée à votre acheteur !"

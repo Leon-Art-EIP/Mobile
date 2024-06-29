@@ -1,15 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from '../constants/colors';
-import { acCenter, aiCenter, asCenter, bgRed, cTextDark, flex1, flexRow, jcCenter, mb8, mbAuto, mh4, mr8, mtAuto, mv4, mv8, taCenter } from '../constants/styles';
+import { aiCenter, cTextDark, flex1, flexRow, mb8, mbAuto, mh24, mr8, mtAuto, mv24, taCenter } from '../constants/styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-import { getNotifications, isNotificationRegistered, NotificationsType, setupNotifications } from '../constants/notifications';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { getNotifications, isNotificationRegistered, setupNotifications } from '../constants/notifications';
 import { MainContext } from '../context/MainContext';
 import Card from '../components/cards/Card';
 import NotificationCard from '../components/NotificationCard';
 import Title from '../components/text/Title';
+import { useRefresh } from '@react-native-community/hooks';
 
 
 type NotifType = {
@@ -24,6 +25,10 @@ type NotifType = {
 };
 
 
+// Notification number per page
+const LIMIT = 20;
+
+
 const Notifications = () => {
   const navigation = useNavigation();
   const context = useContext(MainContext);
@@ -33,13 +38,21 @@ const Notifications = () => {
 
 
   const getNotifs = async () => {
-    let notifications = await getNotifications(context?.token, 20, page);
-    if (notifications) {
-      setNotifs([ ...notifications ]);
-    } else {
-      ToastAndroid.show("Nous n'avons pas réussi à récupérer les notifications", ToastAndroid.LONG);
+    let notifications = await getNotifications(context?.token, LIMIT, page);
+
+    if (!notifications) {
+      return ToastAndroid.show(
+        "Nous n'avons pas réussi à récupérer les notifications",
+        ToastAndroid.LONG
+      );
     }
+
+    setNotifs([ ...notifications ]);
   }
+
+
+  // Unfortunately, if you move it BEFORE getNotifs, it does not work anymore
+  const { isRefreshing, onRefresh } = useRefresh(getNotifs);
 
 
   const getNextPage = () => {
@@ -65,6 +78,13 @@ const Notifications = () => {
   }, []);
 
 
+  useFocusEffect(
+    useCallback(() => {
+      getNotifs();
+    }, [navigation])
+  );
+
+
   return (
     <SafeAreaView style={styles.container}>
 
@@ -76,7 +96,7 @@ const Notifications = () => {
         >
           <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
         </TouchableOpacity>
-        <Title>Notifications</Title>
+        <Title style={mh24}>Notifications</Title>
       </View>
 
       { isNotifErrorDisplayed && (
@@ -86,7 +106,7 @@ const Notifications = () => {
             setIsNotifErrorDisplayed(false);
           }}
         >
-          <Card style={{ backgroundColor: colors.offerBg }}>
+          <Card style={{ backgroundColor: colors.offerBg, marginHorizontal: 4 }}>
             <Text style={{ color: colors.offerFg }}>
               Les notifications sont désactivées ! Cliquez ici pour les activer !
             </Text>
@@ -98,39 +118,48 @@ const Notifications = () => {
         data={notifs}
         keyExtractor={item => item._id}
         renderItem={({ item, index }) => <NotificationCard item={item} index={index} />}
-        contentContainerStyle={[ flex1 ]}
-        ListFooterComponent={() => (
-          <View style={[ flexRow, mv8, mtAuto ]}>
-            {/* Previous button */}
-            <TouchableOpacity
-              onPress={getPreviousPage}
-              disabled={page === 0}
-              style={[ flex1, aiCenter ]}
-            >
-              <Ionicons
-                name="chevron-back-outline"
-                color={page === 0 ? colors.disabledFg : colors.black}
-                size={24}
-              />
-            </TouchableOpacity>
-
-            {/* Page number */}
-            <Text style={[ flex1, taCenter, cTextDark ]}>{ "Page " + (page + 1) }</Text>
-
-            {/* Next button */}
-            <TouchableOpacity
-              onPress={getNextPage}
-              style={[ flex1, aiCenter ]}
-            >
-              <Ionicons
-                name="chevron-forward-outline"
-                color={colors.textDark}
-                size={24}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
+        refreshControl={
+          <RefreshControl
+            tintColor={colors.primary}
+            colors={[ colors.primary ]}
+            refreshing={isRefreshing}
+            onRefresh={() => { getNotifs() }}
+          />
+        }
+        style={[ flex1 ]}
       />
+
+      <View style={[ flexRow, mv24 ]}>
+
+        {/* Previous button */}
+        <TouchableOpacity
+          onPress={getPreviousPage}
+          disabled={page === 0}
+          style={[ flex1, aiCenter ]}
+        >
+          <Ionicons
+            name="chevron-back-outline"
+            color={page === 0 ? colors.disabledFg : colors.textDark}
+            size={24}
+          />
+        </TouchableOpacity>
+
+        {/* Page number */}
+        <Text style={[ flex1, taCenter, cTextDark ]}>{ "Page " + (page + 1) }</Text>
+
+        {/* Next button */}
+        <TouchableOpacity
+          onPress={getNextPage}
+          style={[ flex1, aiCenter ]}
+          disabled={notifs.length !== LIMIT}
+        >
+          <Ionicons
+            name="chevron-forward-outline"
+            color={notifs.length === LIMIT ? colors.textDark : colors.disabledFg}
+            size={24}
+          />
+        </TouchableOpacity>
+      </View>
 
     </SafeAreaView>
   );

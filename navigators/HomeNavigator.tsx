@@ -10,6 +10,7 @@ import Notifications from '../screens/Notifications';
 import Conversation from '../screens/Conversation';
 import Collection from '../screens/Collection';
 import ReportScreen from '../screens/ReportScreen';
+import SingleOrder from '../screens/SingleOrder';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -28,6 +29,7 @@ const HomeNavigator = () => {
       <Stack.Screen name="single_conversation" component={Conversation} options={options} />
       <Stack.Screen name="collection" component={Collection} options={options} />
       <Stack.Screen name="report" component={ReportScreen} options={options} />
+      <Stack.Screen name="single_order" component={SingleOrder} options={options} />
     </Stack.Navigator>
   );
 }
