@@ -23,7 +23,7 @@ const Login = ({ navigation }: any) => {
   const onLogin = async (response: any) => {
     if (!response || !response.data || !response.data.token) {
       console.error('Invalid response format: ', response);
-      Alert.alert('Login Failed', 'Invalid response format');
+      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
       return;
     }
 
@@ -49,22 +49,22 @@ const Login = ({ navigation }: any) => {
 
   const onLoginError = async (error: any) => {
     if (error.response) {
-      console.error('Server responded with an error:', { ...error.response.data });
+      console.error('Server responded with an error: ', { ...error.response.data });
       if (error.response.status === 422) {
         console.error('Validation error. Please check your input data.');
-        Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+        Alert.alert("Informations invalides", "Veuillez vérifier vos informations de connexion");
       } else {
-        console.error('Other server error:', { ...error.response.status });
-        Alert.alert('Signup Failed', 'Other server error');
+        console.error('Other server error: ', { ...error.response.status });
+        Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
       }
     } else if (error.request) {
-      console.error('Request was made but no response was received:', { ...error.request });
-      Alert.alert('Signup Failed', 'Request was made but no response was received');
+      console.error('Request was made but no response was received: ', { ...error.request });
+      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
     } else {
-      console.error('Error setting up the request:', { ...error.message });
-      Alert.alert('Signup Failed', 'Error setting up the request');
+      console.error('Error setting up the request: ', { ...error.message });
+      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
     }
-    console.error('Error config:', { ...error.config });
+    console.error('Error config: ', { ...error.config });
     setIsLoading(false);
   }
 

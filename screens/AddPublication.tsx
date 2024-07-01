@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';  // Importer les filtres
 import Entypo from 'react-native-vector-icons/Entypo';  // Pour les icônes des filtres
 
-import { getImageUrl } from '../helpers/ImageHelper';
 import { post, get } from '../constants/fetch';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
@@ -12,10 +11,15 @@ import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
-import { acCenter, aiCenter, cTextDark, flex1, flexRow, mr20, mr8 } from '../constants/styles';
+import { bgColor, bgGrey, br0, br20, cPrimary, cTextDark, flex1, flexRow, jcSA, mb24, mbAuto, mh0, mh24, mh4, mtAuto, mv24, mv8, ph24, ph4, ph8, pv24, pv8 } from '../constants/styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Input from '../components/textInput/Input';
+import Card from '../components/cards/Card';
 
 
 const AddPublication = ({ navigation }: any) => {
+  const [tab, setTab] = useState<'art' | 'text'>('art');
+  const [postText, setPostText] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [name, setName] = useState('');
   const [artType, setType] = useState('');
@@ -36,29 +40,27 @@ const AddPublication = ({ navigation }: any) => {
   const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
   const [selectedSubFilters, setSelectedSubFilters] = useState<string[]>([]);
 
-// Adjust function to handle sub-filters
-const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
-  let newFilterArray: string[] = [];
-  let array = isSubFilter ? selectedSubFilters : selectedFilters;
 
-  if (array.includes(filterName)) {
-    newFilterArray = array.filter(f => f !== filterName);
-    if (!isSubFilter) {
-      handleType('');
+  // Adjust function to handle sub-filters
+  const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
+    let newFilterArray: string[] = [];
+    let array = isSubFilter ? selectedSubFilters : selectedFilters;
+
+    if (array.includes(filterName)) {
+      newFilterArray = array.filter(f => f !== filterName);
+      if (!isSubFilter) {
+        handleType('');
+      }
+    } else {
+      newFilterArray = [...array, filterName];
+      if (!isSubFilter) {
+        handleType(filterName);
+      }
     }
-  } else {
-    newFilterArray = [...array, filterName];
-    if (!isSubFilter) {
-      handleType(filterName);
-    }
-  }
 
-  isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
-};
+    isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
+  };
 
-  useEffect(() => {
-    checkAccountLinkStatus();
-  }, []);
 
   const checkAccountLinkStatus = () => {
     get(
@@ -77,6 +79,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
       }
     );
   };
+
 
   const publish = async () => {
     if (!name /*|| !artType*/ || !description || !price || !selectedImage) {
@@ -126,6 +129,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
         }
       }
     );
+
     setModalType('success');
     setModalMessage("Votre œuvre a bien été publiée.");
     setModalVisible(true);
@@ -154,6 +158,7 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
     );
   };
 
+
   const selectImage = async () => {
     try {
       const options = {
@@ -176,23 +181,36 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
     }
   };
 
+
   const handleName = (value: string) => {
     setName(value);
   };
+
+
   const handleDescription = (value: string) => {
     setDescription(value);
   };
+
+
   const handlePrice = (value: string) => {
     setPrice(value);
   };
+
 
   const handleType = (value: string) => {
     setType(value);
   };
 
-  const previous = () => {
-    navigation.navigate('homemain');
+
+  const sendText = () => {
+    // API call for sending the post
+    // /!\ Warning! Verify you don't need
+    // a title before sending. In that case
+    // you'll need to add an extra <Input />
+    // before the main <TextInput />
+    return;
   }
+
 
   const sellWithAccount = async () => {
     if (!name || !artType || !description || !price || !selectedImage) {
@@ -263,133 +281,190 @@ const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
   };
 
 
+  useEffect(() => {
+    checkAccountLinkStatus();
+  }, []);
 
 
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={[flex1, bgColor]}>
+      <StatusBar barStyle={'dark-content'} backgroundColor={colors.bg} />
 
-      {/* Leon'art title */}
-      <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
-      </View>
-
-      <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
+      <View style={[ flexRow, ph24, mv24 ]}>
         <Title style={styles.artTitle}>Nouvelle publication</Title>
       </View>
 
-      <Button
-        style={{ backgroundColor: colors.whitesmoke }}
-        textStyle={{ color: colors.darkGreyBg }}
-        value={ selectedImage ? "Modifier l'image" : "Choisir une image"}
-        onPress={selectImage}
-      />
+      {/* Tabs */}
+      <View style={[flexRow, jcSA, pv8, mh24, ph4 ]}>
 
-      {selectedImage && (
-        <Image source={{ uri: selectedImage }} style={styles.img} />
-      )}
+        <TouchableOpacity
+          onPress={() => setTab('art')}
+          disabled={tab === 'art'}
+          style={[flex1, pv8, ph24, mh4, br20, {
+            backgroundColor: tab === 'art' ? colors.darkGreyBg : colors.disabledBg
+          }]}
+        >
+          <Text
+            style={{
+              color: tab === 'art' ? colors.white : colors.darkGreyFg,
+              textAlign: 'center'
+            }}
+          >Art</Text>
+        </TouchableOpacity>
 
-      <View>
+        <TouchableOpacity
+          onPress={() => setTab('text')}
+          disabled={tab === 'text'}
+          style={[flex1, pv8, ph24, mh4, br20, {
+            backgroundColor: tab === 'text' ? colors.darkGreyBg : colors.disabledBg
+          }]}
+        >
+          <Text
+            style={{
+              color: tab === 'text' ? colors.white : colors.darkGreyFg,
+              textAlign: 'center'
+            }}
+          >Post</Text>
+        </TouchableOpacity>
 
-        {/* Title */}
-        <TextInput
-          placeholder="Titre"
-          placeholderTextColor={colors.disabledFg}
-          onChangeText={handleName}
-          value={name}
-          style={styles.textInput}
-        />
+      </View>
 
-        {/* Description */}
-        <TextInput
-          placeholder="Description"
-          placeholderTextColor={colors.disabledFg}
-          onChangeText={handleDescription}
-          value={description}
-          style={styles.textInput}
-        />
+      { tab === 'art' ? (
+        <ScrollView style={styles.container}>
 
-        {/* Price */}
-        <View style={[flexRow, aiCenter]}>
-          <TextInput
-            placeholder="Prix (€)"
-            placeholderTextColor={colors.disabledFg}
-            onChangeText={handlePrice}
-            value={price}
-            style={[ styles.textInput, flex1 ]}
-          />
-          <Text style={[cTextDark, mr20]}> €</Text>
-        </View>
-
-      <TouchableOpacity
-        style={[styles.filterTouchableOpacity, { flexDirection: 'row' }]}
-        onPress={() => setIsArtTypeDisplayed(e => !e)}
-      >
-        <Text style={[styles.filterText, { fontWeight: 'bold', flex: 1 }]}>
-          Genre
-        </Text>
-        <Entypo
-          name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
-          size={24}
-          color={colors.black}
-        />
-      </TouchableOpacity>
-
-      {isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
-        <View key={filter.category.toString()}>
-          <TouchableOpacity
-            style={styles.filterTouchableOpacity}
-            onPress={() => selectOrDeselect(filter.category)}
-          >
-            <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
-              {filter.category}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Display sub-filters if main filter is selected */}
-          {selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
-            <TouchableOpacity
-              key={subFilter}
-              style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
-              onPress={() => selectOrDeselect(subFilter, true)}
-            >
-              <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
-                {subFilter}
-              </Text>
+          { selectedImage ? (
+            <TouchableOpacity onPress={selectImage}>
+              <Image source={{ uri: selectedImage }} style={styles.img} />
             </TouchableOpacity>
-          ))}
+          ) : (
+            <Button
+              style={{ backgroundColor: colors.whitesmoke }}
+              textStyle={{ color: colors.darkGreyBg }}
+              value={ selectedImage ? "Modifier l'image" : "Choisir une image"}
+              onPress={selectImage}
+            />
+          ) }
 
+          <View>
+
+            {/* Title */}
+            <Input
+              placeholder="Titre"
+              placeholderTextColor={colors.disabledFg}
+              onTextChanged={handleName}
+              value={name}
+              style={[ flex1, bgGrey ]}
+            />
+
+            {/* Description */}
+            <Input
+              placeholder="Description"
+              placeholderTextColor={colors.disabledFg}
+              onTextChanged={handleDescription}
+              multilines={10}   // can go to 10 lines maximum
+              value={description}
+              style={[ flex1, mv8, bgGrey, br20, { textAlignVertical: 'top' } ]}
+            />
+
+            {/* Price */}
+            <Input
+              placeholder="Prix (€)"
+              placeholderTextColor={colors.disabledFg}
+              onTextChanged={handlePrice}
+              value={price}
+              style={[ flex1, bgGrey ]}
+            />
+
+            <Card style={[ { paddingHorizontal: 12 }, pv8, { marginHorizontal: 16 }, br20 ]}>
+              <TouchableOpacity
+                style={[ flexRow, ph8 ]}
+                onPress={() => setIsArtTypeDisplayed(e => !e)}
+              >
+                <Text style={[ flex1, selectedFilters.length !== 0 ? cPrimary : cTextDark ]}>
+                  Genre
+                </Text>
+                <Entypo
+                  style={[ mtAuto, mbAuto ]}
+                  name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
+                  size={18}
+                  color={selectedFilters.length !== 0 ? colors.primary : colors.black}
+                />
+              </TouchableOpacity>
+            </Card>
+
+            { isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
+              <View key={filter.category.toString()}>
+                <TouchableOpacity
+                  style={styles.filterTouchableOpacity}
+                  onPress={() => selectOrDeselect(filter.category)}
+                >
+                  <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
+                    {filter.category}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Display sub-filters if main filter is selected */}
+                { selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
+                  <TouchableOpacity
+                    key={subFilter}
+                    style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
+                    onPress={() => selectOrDeselect(subFilter, true)}
+                  >
+                    <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
+                      {subFilter}
+                    </Text>
+                  </TouchableOpacity>
+                )) }
+
+              </View>
+            )) }
+
+            <Button
+              value="Publier et mettre à la vente"
+              onPress={sellWithAccount}
+              style={styles.saleButton}
+            />
+          </View>
+
+          <View style={mtAuto}>
+            <Button
+              value="Publier sans possibilité d'achat"
+              onPress={publish}
+              style={styles.nosaleButton}
+            />
+
+            <InfoModal
+              isVisible={isModalVisible}
+              message={modalMessage}
+              onClose={() => setModalVisible(false)}
+              messageType="error"
+            />
+          </View>
+        </ScrollView>
+
+      ) : (
+
+        <View style={[ flex1, ph8, pv24 ]}>
+          <Card style={[ flex1, mb24, ph24 ]}>
+            <TextInput
+              onChangeText={setPostText}
+              placeholder='Your post'
+              multiline
+              numberOfLines={10}
+              style={[ flex1, bgGrey, br0, mh0, { textAlignVertical: 'top' } ]}
+              placeholderTextColor={colors.disabledFg}
+            />
+          </Card>
+
+          <Button
+            onPress={sendText}
+            value="Poster"
+            style={[ mh24, mtAuto ]}
+          />
         </View>
-      ))}
 
-      <Button
-        value="Publier et mettre à la vente"
-        onPress={sellWithAccount}
-        style={styles.saleButton}
-      />
-      </View>
-
-      <View style={{ marginTop: 5 }}>
-        <Button
-          value="Publier sans possibilité d'achat"
-          onPress={publish}
-          style={styles.nosaleButton}
-        />
-        <Button
-          style={{ backgroundColor: colors.secondary, marginBottom: 30 }}
-          textStyle={{ color: colors.black }}
-          value="Annuler"
-          onPress={previous}
-        />
-
-        <InfoModal
-          isVisible={isModalVisible}
-          message={modalMessage}
-          onClose={() => setModalVisible(false)}
-          messageType="error"
-        />
-      </View>
-    </ScrollView>
+      ) }
+    </SafeAreaView>
   );
 };
 
@@ -398,7 +473,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.bg,
+  },
+  tabButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.bg,
   },
   logo: {
     flexDirection: 'row',
@@ -408,20 +491,19 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   img: {
-    margin: 13,
+    marginHorizontal: 16,
+    marginVertical: 12,
     height: 300,
-    borderRadius: 4.5,
+    borderRadius: 20,
     backgroundColor: colors.placeholder,
   },
   artTitle: {
-    marginTop: 25,
     fontWeight: 'bold',
     textAlign: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 0,
     fontSize: 30,
-    color: '#000',
+    color: colors.black
   },
   textInput: {
     color: colors.textDark,
@@ -451,6 +533,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   filterText: {
+    color: colors.black,
     flex: 1,
     fontSize: 18,
   },

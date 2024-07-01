@@ -20,6 +20,7 @@ const aiCenter: StyleProp<any> = { alignItems: 'center' };
 const jcCenter: StyleProp<any> = { justifyContent: 'center' };
 const jcStart: StyleProp<any> = { justifyContent: 'start' };
 const jcEnd: StyleProp<any> = { justifyContent: 'end' };
+const jcSA: StyleProp<any> = { justifyContent: 'space-around' };
 
 // margins
 const mlAuto: StyleProp<any> = { marginLeft: 'auto' };
@@ -35,14 +36,17 @@ const mt4: StyleProp<any> = { marginTop: 4 };
 const mt8: StyleProp<any> = { marginTop: 8 };
 const mb4: StyleProp<any> = { marginBottom: 4 };
 const mb8: StyleProp<any> = { marginBottom: 8 };
+const mb24: StyleProp<any> = { marginBottom: 24 };
 const ml4: StyleProp<any> = { marginLeft: 4 };
 const ml8: StyleProp<any> = { marginLeft: 8 };
 const mr4: StyleProp<any> = { marginRight: 4 };
 const mr8: StyleProp<any> = { marginRight: 8 };
 const mr20: StyleProp<any> = { marginRight: 20 };
+const mh0: StyleProp<any> = { marginHorizontal: 0 };
 const mh4: StyleProp<any> = { marginHorizontal: 4 };
 const mh8: StyleProp<any> = { marginHorizontal: 8 };
 const mh24: StyleProp<any> = { marginHorizontal: 24 };
+const mv0: StyleProp<any> = { marginVertical: 0 };
 const mv4: StyleProp<any> = { marginVertical: 4 };
 const mv8: StyleProp<any> = { marginVertical: 8 };
 const mv24: StyleProp<any> = { marginVertical: 24 };
@@ -61,9 +65,11 @@ const pl4: StyleProp<any> = { paddingLeft: 4 };
 const pl8: StyleProp<any> = { paddingLeft: 8 };
 const pr4: StyleProp<any> = { paddingRight: 4 };
 const pr8: StyleProp<any> = { paddingRight: 8 };
+const ph0: StyleProp<any> = { paddingHorizontal: 0 };
 const ph4: StyleProp<any> = { paddingHorizontal: 4 };
 const ph8: StyleProp<any> = { paddingHorizontal: 8 };
 const ph24: StyleProp<any> = { paddingHorizontal: 24 };
+const pv0: StyleProp<any> = { paddingVertical: 0 };
 const pv4: StyleProp<any> = { paddingVertical: 4 };
 const pv8: StyleProp<any> = { paddingVertical: 8 };
 const pv24: StyleProp<any> = { paddingVertical: 24 };
@@ -92,6 +98,7 @@ const cTextDark: StyleProp<any> = { color: colors.textDark };
 const cDisabled: StyleProp<any> = { color: colors.disabledFg };
 
 // border radius
+const br0: StyleProp<any> = { borderRadius: 0 };
 const br5: StyleProp<any> = { borderRadius: 5 };
 const br7: StyleProp<any> = { borderRadius: 7 };
 const br12: StyleProp<any> = { borderRadius: 12 };
@@ -103,16 +110,16 @@ export {
   displayFlex,
   flex1,
   asCenter, acCenter, aiCenter,
-  jcEnd, jcCenter, jcStart,
+  jcEnd, jcCenter, jcStart, jcSA,
   mlAuto, mrAuto, mtAuto, mbAuto,
   noVMargin, noMargin, noHMargin,
   noHPadding, noVPadding, noPadding,
   p4, p8, pt4, pt8, pb4, pb8, pl4, pl8, pr4, pr8,
-  pv4, pv8, pv24, ph4, ph8, ph24,
-  m4, m8, mt4, mt8, mb4, mb8, ml4, ml8, mr4, mr8, mr20,
-  mv4, mv8, mv24, mh4, mh8, mh24,
+  pv0, pv4, pv8, pv24, ph0, ph4, ph8, ph24,
+  m4, m8, mt4, mt8, mb4, mb8, mb24, ml4, ml8, mr4, mr8, mr20,
+  mv0, mv4, mv8, mv24, mh0, mh4, mh8, mh24,
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft,
   bgColor, bgRed, bgGrey, bgPlatinium,
-  br5, br7, br12, br20, br50,
+  br0, br5, br7, br12, br20, br50,
   cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark
 };

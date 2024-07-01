@@ -13,6 +13,7 @@ interface InputProps {
   onError?: () => void;
   error?: boolean;
   disabled?: boolean;
+  multilines?: number;
 };
 
 const Input = ({
@@ -26,6 +27,7 @@ const Input = ({
   onError = () => {},
   error = false,
   disabled = false,
+  multilines = 1
 }: InputProps) => {
   const [textValue, setTextValue] = useState<string>(value);
 
@@ -48,6 +50,8 @@ const Input = ({
       value={textValue}
       onChangeText={changeText}
       placeholderTextColor={disabled ? colors.disabledFg : placeholderTextColor}
+      multiline={multilines > 1}
+      numberOfLines={multilines}
       style={[
         styles.container,
         error && styles.error,
