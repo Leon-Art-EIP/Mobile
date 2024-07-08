@@ -19,7 +19,7 @@ import { getImageUrl } from '../helpers/ImageHelper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import colors from "../constants/colors";
-import { ArtistType, ArticleType } from "../constants/homeValues";
+import { ArtistType, ArticleType, RedditPostType } from "../constants/homeValues";
 import { get } from '../constants/fetch';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -29,16 +29,21 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, mv24 } from '../constants/styles';
+import { aiCenter, bgColor, bgGrey, cTextDark, flex1, flexRow, mh0, mh24, mh4, mh8, ml4, mr4, mv24 } from '../constants/styles';
+import Card from '../components/cards/Card';
+import AntDesign from "react-native-vector-icons/AntDesign";
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 
 const HomeScreen = ({ navigation }: any) => {
   const context = useContext(MainContext);
   const [artists, setArtists] = useState<ArtistType[]>([]);
   const [articles, setArticles] = useState<ArticleType[]>([]);
+  const [posts, setPosts] = useState<RedditPostType[]>([]);
   const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState<number>(0);
+  const [isPulications, setIsPublications] = useState<boolean>(true); // true: art publications, false: reddit posts
   const _slidingPanel = useRef<SlidingUpPanel>(null);
 
 
@@ -114,10 +119,20 @@ const HomeScreen = ({ navigation }: any) => {
   }
 
 
-  const refreshData = () => {
+  const getPosts = () => {
+    // let's get the posts from the back
+  }
+
+
+  // if publications is true, it will load art publicaations, else the posts
+  const refreshData = (publication: boolean) => {
     getArticles();
     getArtists();
-    getPublications();
+    if (publications) {
+      getPublications();
+    } else {
+      getPosts();
+    }
     getHasUnreadNotifications();
   };
 
@@ -261,64 +276,140 @@ const HomeScreen = ({ navigation }: any) => {
 
         {/* Pour Vous */}
 
-      <View>
-        <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
-          Publications
-        </Title>
+        <View>
+          <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
+            Publications
+          </Title>
 
-        <View style={styles.publicationsContainer}>
-          <FlatList
-            data={publications.filter((pub) => pub?.userId !== context?.userId)}
-            numColumns={3}
-            renderItem={(e) => (
-              <TouchableOpacity key={e.item._id} onPress={() => towardsPost(e.item._id)}>
-                <View style={styles.publicationItem}>
-                  <Image
-                    style={styles.publicationImage}
-                    source={{ uri: getImageUrl(e.item.image) }}
-                    onError={() => console.log("Image loading error")}
-                  />
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+          {/* oeuvres or posts chooser */}
+          <View style={[ flexRow, mh24 ]}>
+            <Button
+              value='Oeuvres'
+              onPress={() => setIsPublications(true)}
+              secondary={!isPulications}
+              style={[ mh0, flex1, mr4 ]}
+            />
+
+            <Button
+              value='Posts'
+              onPress={() => setIsPublications(false)}
+              secondary={isPulications}
+              style={[ mh0, flex1, ml4 ]}
+            />
+
+          </View>
+
+          {/* If is art publication, then post */}
+          { isPulications ? (
+            <View style={styles.publicationsContainer}>
+              <FlatList
+                data={publications.filter((pub) => pub?.userId !== context?.userId)}
+                numColumns={3}
+                renderItem={(e) => (
+                  <TouchableOpacity key={e.item._id} onPress={() => towardsPost(e.item._id)}>
+                    <View style={styles.publicationItem}>
+                      <Image
+                        style={styles.publicationImage}
+                        source={{ uri: getImageUrl(e.item.image) }}
+                        onError={() => console.log("Image loading error")}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ) : (
+            <View style={styles.publicationsContainer}>
+              <FlatList
+                data={posts.filter((post) => post?.userId !== context?.userId)}
+                numColumns={1}
+                renderItem={(post) => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('singlePost', { id: post.item?._id })}
+                  >
+                    <Card>
+                      {/* To update according to the back-end */}
+                      <Text>{ post.item?.body }</Text>
+
+                      {/* if retweet, show picture */}
+                      { post.item?.linked && (
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate('singl_art', { id: post.item?.linked?._id })}
+                        >
+                          <Image
+                            source={{ uri: getImageUrl(post.item?.linked?.content) }}
+                            style={{ height: 200, borderRadius: 12 }}
+                          />
+                        </TouchableOpacity>
+                      ) }
+
+                      {/* Post action bar */}
+                      <View style={[flexRow]}>
+
+                        {/* Like button */}
+                        <TouchableOpacity
+                          onPress={() => console.log("like that thing")}
+                        >
+                          <AntDesign
+                            name="hearto" // if post liked then heart
+                            size={24}
+                            color={colors.textDark} // if post liked then colors.primary
+                          />
+                        </TouchableOpacity>
+
+                        {/* Report */}
+                        <TouchableOpacity
+                          onPress={() => console.log('report that thing')}
+                        >
+                          <AntDesign
+                            name="warning"
+                            size={24}
+                            color={colors.textDark}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ) }
         </View>
-      </View>
 
-      <SlidingUpPanel
-        ref={_slidingPanel}
-        height={200}
-        allowDragging={true}
-        draggableRange={{ top: 200, bottom: 0 }}
-        containerStyle={[ bgColor, { borderTopLeftRadius: 20, borderTopRightRadius: 20 } ]}
-      >
-        <>
-          <View style={[ flex1, aiCenter, mv24 ]}>
-            <Title style={cTextDark}>Dring dring !</Title>
-            <Text style={cTextDark}>Voulez-vous activer les notifications ?</Text>
-          </View>
+        <SlidingUpPanel
+          ref={_slidingPanel}
+          height={200}
+          allowDragging={true}
+          draggableRange={{ top: 200, bottom: 0 }}
+          containerStyle={[ bgColor, { borderTopLeftRadius: 20, borderTopRightRadius: 20 } ]}
+        >
+          <>
+            <View style={[ flex1, aiCenter, mv24 ]}>
+              <Title style={cTextDark}>Dring dring !</Title>
+              <Text style={cTextDark}>Voulez-vous activer les notifications ?</Text>
+            </View>
 
-          <View style={flexRow}>
-            <Button
-              value="Non"
-              onPress={() => _slidingPanel.current?.hide()}
-              style={flex1}
-              secondary
-            />
-            <Button
-              value="Oui !"
-              onPress={async () => {
-                await setupNotifications(context?.token);
-                ToastAndroid.show("Les notifications ont été activées !", ToastAndroid.SHORT);
-                return _slidingPanel.current?.hide();
-              }}
-              style={flex1}
-            />
-          </View>
-        </>
-      </SlidingUpPanel>
-    </ScrollView>
-  </SafeAreaView>
+            <View style={flexRow}>
+              <Button
+                value="Non"
+                onPress={() => _slidingPanel.current?.hide()}
+                style={flex1}
+                secondary
+              />
+              <Button
+                value="Oui !"
+                onPress={async () => {
+                  await setupNotifications(context?.token);
+                  ToastAndroid.show("Les notifications ont été activées !", ToastAndroid.SHORT);
+                  return _slidingPanel.current?.hide();
+                }}
+                style={flex1}
+              />
+            </View>
+          </>
+        </SlidingUpPanel>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

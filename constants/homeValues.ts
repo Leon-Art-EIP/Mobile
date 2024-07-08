@@ -18,6 +18,11 @@ type PublicationType = {
   content: string;
 };
 
+type RedditPostType = {
+  _id: string;
+  // still a thing to see with the back end
+};
+
 type ArtistType = {
   _id: string;
   username: string;
@@ -89,7 +94,7 @@ const const_artists: NewsType[] = [
   }
 ];
 
-export type { NewsType, ArtistType, ArticleType, PublicationType, PostType };
+export type { NewsType, ArtistType, ArticleType, PublicationType, PostType, RedditPostType };
 export {
   const_news,
   const_artists,
