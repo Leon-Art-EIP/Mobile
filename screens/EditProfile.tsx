@@ -354,13 +354,13 @@ const EditProfile = () => {
           style={styles.banner}
           resizeMode="cover"
         >
-      <ModifyTag
-        onPress={selectBanner}
-        title="Modifier la bannière"
-        style={[ cBlack, styles.bannerTouchable]}
-        textStyle={{ cBlack }}
-      />
-      </ImageBackground>
+          <ModifyTag
+            onPress={selectBanner}
+            title="Modifier la bannière"
+            style={[ cBlack, styles.bannerTouchable]}
+            textStyle={{ cBlack }}
+          />
+        </ImageBackground>
 
         {/* Profile picture */}
         <View style={styles.overlayImage}>

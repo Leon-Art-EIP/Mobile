@@ -17,7 +17,7 @@ const formatName = (name: string | undefined, maxLength: number = 30) => {
   if (name.length > maxLength) {
      return capitalize(name)?.substring(0, maxLength - 4) + '...';
   }
-  return capitalize(name)?.substring(1, name.length);
+  return capitalize(name)?.substring(0, name.length);
 }
 
 

@@ -325,7 +325,7 @@ const HomeScreen = ({ navigation }: any) => {
                 numColumns={1}
                 renderItem={(post) => (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('singlePost', { id: post.item?._id })}
+                    onPress={() => navigation.navigate('singlepost', { id: post.item?._id })}
                   >
                     <Card>
                       {/* To update according to the back-end */}
@@ -334,7 +334,7 @@ const HomeScreen = ({ navigation }: any) => {
                       {/* if retweet, show picture */}
                       { post.item?.linked && (
                         <TouchableOpacity
-                          onPress={() => navigation.navigate('singl_art', { id: post.item?.linked?._id })}
+                          onPress={() => navigation.navigate('singlart', { id: post.item?.linked?._id })}
                         >
                           <Image
                             source={{ uri: getImageUrl(post.item?.linked?.content) }}
