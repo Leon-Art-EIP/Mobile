@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList, ListRenderItem, FlatListProps } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
@@ -11,7 +11,32 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { acCenter, aiCenter, bgRed, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh8, mlAuto, mrAuto, mtAuto, mv4, pt8 } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import Card from '../components/cards/Card';
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
+
+type UserDataType = {
+  subscriptions: any[];
+  stripeAccountId: string;
+  subscribers: string[];                            // userIDs who subscribed ?
+  subscribersCount: number;
+  availability: string;
+  subscription: string;
+  canPostArticles: boolean;
+  is_artist: boolean;
+  username: string;
+  location: string;
+  quizz: string;                                    // I should ask wtf that is
+  profilePicture: string;
+  collections: string[];                            // collection IDs
+  bannerPicture: string;
+  likedPublications: string[];                      // userIDs who liked
+  biography: string;
+  updatedAt: {
+    _seconds: number;
+    _nanoseconds: number;
+  };
+  _id: string;
+};
 
 type UserArtworkType = {
    _id: string;
@@ -33,7 +58,8 @@ type UserArtworkType = {
 };
 
 
-const OtherProfile = ({ route }) => {
+const OtherProfile = () => {
+  const route = useRoute();
   const navigation = useNavigation();
   const id = route?.params?.id;
   const context = useContext(MainContext);
@@ -41,12 +67,12 @@ const OtherProfile = ({ route }) => {
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [userArtworks, setUserArtworks] = useState<UserArtworkType[]>([]);
-  const [userData, setUserData] = useState(null);
-  const [activeTab, setActiveTab] = useState('Artwork');
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [userData, setUserData] = useState<UserDataType | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState<string>('Artwork');
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [collections, setCollections] = useState([]);
 
-  const handleArtworkClick = (publicationId) => {
+  const handleArtworkClick = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
   };
 
@@ -71,15 +97,26 @@ const OtherProfile = ({ route }) => {
       });
     }
 
+    const onSuccess = (resp: any) => {
+      if (userData) {
+        return navigateToConversation(
+          userData.username,
+          resp.data.convId,
+          context?.userId,
+          id
+        );
+      }
+      return console.error("Error loading user");
+    }
+
     return put(
       '/api/conversations/create',
       { UserOneId: context?.userId, UserTwoId: id },
       context?.token,
-      (resp: any) => navigateToConversation(userData?.name, resp.data.convId, context?.userId, id),
+      onSuccess,
       (error: any) => {
        if (error.response.status === 409) {
-         console.log(error.response.data)
-         navigateToConversation(userData?.name, error.response.data.convId, context?.userId, id)
+         return onSuccess(error.response);
        }
        return console.error({ ...error })
       }
@@ -217,6 +254,21 @@ const OtherProfile = ({ route }) => {
         />
       </TouchableOpacity>
 
+      {/* Report button */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('report', {
+          id: userData?._id,
+          type: 'account'
+        })}
+        style={{ zIndex: 2, position: 'absolute', right: 0 }}
+      >
+        <MaterialIcons
+          name="report-problem"
+          color={colors.primary}
+          size={24}
+        />
+      </TouchableOpacity>
+
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
@@ -245,7 +297,7 @@ const OtherProfile = ({ route }) => {
         </View>
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ''}</Text>
-          {userData && userData.availability !== 'unavailable' && (
+          {userData && userData?.availability !== 'unavailable' && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
           )}
         </View>

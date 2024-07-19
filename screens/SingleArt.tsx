@@ -55,7 +55,6 @@ import Input from '../components/textInput/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionType } from '../constants/artTypes';
 import InfoModal from '../components/infos/InfoModal';
-import ReportPanel from '../components/ReportPanel';
 import Card from '../components/cards/Card';
 
 const SingleArt = ({ navigation, route }: any) => {
