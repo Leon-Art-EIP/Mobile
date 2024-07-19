@@ -1,9 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Text, Image, StatusBar, StyleSheet, TouchableOpacity, View, FlatList, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../constants/colors";
-import { cTextDark, flex1, flexRow, fwBold, mbAuto, mh24, mh8, mlAuto, mr4, mr8, mt8, mtAuto, mv8, ph24, ph8 } from "../constants/styles";
+import { cTextDark, flex1, flexRow, fwBold, mbAuto, mh24, mh8, mlAuto, mr20, mr4, mr8, mt8, mtAuto, mv8, ph24, ph8 } from "../constants/styles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -13,6 +13,7 @@ import { getImageUrl } from "../helpers/ImageHelper";
 import { capitalize, formatName } from "../helpers/NamesHelper";
 import { useRefresh } from "@react-native-community/hooks";
 import Input from "../components/textInput/Input";
+import { MainContext } from "../context/MainContext";
 
 
 type CommentType = {
@@ -64,6 +65,7 @@ const DATA: PostType = {
 
 const SinglePost = () => {
   const navigation = useNavigation();
+  const context = useContext(MainContext);
   const post: PostType = DATA;
   const [newComment, setNewComment] = useState<string>("");
 
@@ -216,8 +218,13 @@ const SinglePost = () => {
 
         <TouchableOpacity
           onPress={sendComment}
+          style={[ mtAuto, mbAuto, mr8 ]}
         >
-          <Text>Send</Text>
+          <Ionicons
+            name="send"
+            color={colors.primary}
+            size={24}
+          />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -259,6 +266,7 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   inputView: {
+    paddingHorizontal: 12,
     backgroundColor: colors.disabledBg,
     borderRadius: 50,
     margin: 8,
@@ -266,7 +274,7 @@ const styles = StyleSheet.create({
   },
   inputInput: {
     backgroundColor: colors.disabledBg,
-    margin: 0,
+    marginHorizontal: 0,
     flex: 1
   }
 });

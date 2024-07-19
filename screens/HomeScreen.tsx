@@ -267,7 +267,6 @@ const HomeScreen = ({ navigation }: any) => {
                 <ArtistCard
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
-                  path="other_profile"
                 />
               )}
             />
@@ -300,9 +299,10 @@ const HomeScreen = ({ navigation }: any) => {
           </View>
 
           {/* If is art publication, then post */}
-          { isPulications ? (
+          { !!isPulications ? (
             <View style={styles.publicationsContainer}>
               <FlatList
+                key={"artFlatList"}
                 data={publications.filter((pub) => pub?.userId !== context?.userId)}
                 numColumns={3}
                 renderItem={(e) => (
@@ -310,7 +310,7 @@ const HomeScreen = ({ navigation }: any) => {
                     <View style={styles.publicationItem}>
                       <Image
                         style={styles.publicationImage}
-                        source={{ uri: getImageUrl(e.item.image) }}
+                        source={{ uri: getImageUrl(e.item?.image) }}
                         onError={() => console.log("Image loading error")}
                       />
                     </View>
@@ -321,6 +321,7 @@ const HomeScreen = ({ navigation }: any) => {
           ) : (
             <View style={styles.publicationsContainer}>
               <FlatList
+                key={"postFlatList"}
                 data={posts.filter((post) => post?.userId !== context?.userId)}
                 numColumns={1}
                 renderItem={(post) => (

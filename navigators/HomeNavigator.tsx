@@ -20,7 +20,7 @@ const HomeNavigator = () => {
   const options = { headerShown: false };
 
   return (
-    <Stack.Navigator initialRouteName='singlepost'>
+    <Stack.Navigator>
       <Stack.Screen name="homemain" component={HomeScreen} options={options} />
       <Stack.Screen name="article" component={Article} options={options} />
       <Stack.Screen name="singleart" component={SingleArt} options={options} />

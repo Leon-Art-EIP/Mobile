@@ -21,16 +21,16 @@ const App = () => {
       <MainContextProvider>
         <NavigationContainer independent>
           <Stack.Navigator>
-            {/* <Stack.Screen */}
-            {/*   name="connexion" */}
-            {/*   component={ConnexionNavigator} */}
-            {/*   options={options} */}
-            {/* /> */}
             <Stack.Screen
               name="connexion"
-              component={BottomNavigator}
+              component={ConnexionNavigator}
               options={options}
             />
+            {/* <Stack.Screen */}
+            {/*   name="connexion" */}
+            {/*   component={BottomNavigator} */}
+            {/*   options={options} */}
+            {/* /> */}
           </Stack.Navigator>
         </NavigationContainer>
       </MainContextProvider>
