@@ -13,10 +13,12 @@ import {
   Text,
   RefreshControl
 } from 'react-native';
+import Entypo from 'react-native-vector-icons/Entypo';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import colors from "../constants/colors";
 import { ArtistType, ArticleType } from "../constants/homeValues";
@@ -29,7 +31,7 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, mv24 } from '../constants/styles';
+import { acCenter, aiCenter, bgColor, bgRed, cText, cTextDark, flex1, flexRow, mv24, fwBold, br20 } from '../constants/styles';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -38,7 +40,7 @@ const HomeScreen = ({ navigation }: any) => {
   const [articles, setArticles] = useState<ArticleType[]>([]);
   const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<number>(0);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(false);
   const _slidingPanel = useRef<SlidingUpPanel>(null);
 
 
@@ -51,6 +53,9 @@ const HomeScreen = ({ navigation }: any) => {
     navigation.navigate('article', { article });
   };
 
+  const handleToArticlesList = (articles) => {
+    navigation.navigate('articlesList', {articles});
+  };
 
   const towardsPost = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
@@ -108,9 +113,8 @@ const HomeScreen = ({ navigation }: any) => {
 
 
   const getHasUnreadNotifications = async () => {
-    let unreadNumber: number | undefined = await getNotificationCount(context?.token) as number;
-    console.log(unreadNumber);
-    setHasUnreadNotifications(unreadNumber ?? 0);
+    let unreadNumber: number | undefined = await getNotificationCount(context?.token);
+    setHasUnreadNotifications(unreadNumber !== 0 && unreadNumber !== -1);
   }
 
 
@@ -133,12 +137,9 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     refreshData();
-
-    /* I have to patch the display, it's too slow and to low
     if (!isNotificationRegistered()) {
       _slidingPanel.current?.show();
     }
-    */
 
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
@@ -162,42 +163,50 @@ const HomeScreen = ({ navigation }: any) => {
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
-
           <TouchableOpacity
             onPress={() => navigation.navigate('notifications')}
             style={styles.notifIconTouchable}
           >
             <MaterialIcons
-              name={"notifications"}
-              size={24}
-              color={colors.offerFg}
+              name={hasUnreadNotifications ? "notification-important" : "notifications"}
+              size={32}
+              color={hasUnreadNotifications ? colors.primary : colors.black}
             />
-            <Text style={styles.notifIconText}>{ hasUnreadNotifications }</Text>
           </TouchableOpacity>
         </View>
-
-        {/* News */}
         <View>
-          <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
-            Actualités
-          </Title>
 
+        {/* Actuality */}
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => handleToArticlesList(articles)}>
+        <Title style={[ fwBold, flex1, { marginLeft: 32, marginTop: 20, marginBottom: 8 }]} size={24} >
+          Actualités
+        </Title>
+        <Entypo
+          name="chevron-thin-right"
+          color={colors.black}
+          size={20}
+          style={{
+            marginRight: 230,
+            marginTop: 15,
+          }}
+        />
+      </TouchableOpacity>
           {articles.length === 0 ? (
             <View style={styles.emptyView}>
-              <Image
-                style={{ height: 50, width: 50 }}
-                source={require('../assets/icons/box.png')}
-              />
-              <Title
-                size={18}
-                style={{ color: colors.disabledFg }}
-              >Looks quite empty here !</Title>
-              <Text style={{
-                fontWeight: '500',
-                color: colors.disabledFg
-              }}>Try to refresh the page</Text>
-            </View>
-          ) : (
+            <Image
+              style={{ height: 50, width: 50 }}
+              source={require('../assets/icons/box.png')}
+            />
+            <Title
+              size={18}
+              style={{ color: colors.disabledFg }}
+            >Looks quite empty here !</Title>
+            <Text style={{
+              fontWeight: '500',
+              color: colors.disabledFg
+            }}>Try to refresh the page</Text>
+          </View>
+              ) : (
             <FlatList
               data={articles}
               contentContainerStyle={styles.flatList}
@@ -214,7 +223,7 @@ const HomeScreen = ({ navigation }: any) => {
               horizontal
               scrollEnabled
             />
-          ) }
+          )}
         </View>
 
         {/* Artistes */}
@@ -366,17 +375,7 @@ const styles = StyleSheet.create({
   notifIconTouchable: {
     marginLeft: 'auto',
     marginTop: 'auto',
-    marginRight: 12,
-    flexDirection: 'row',
-    backgroundColor: colors.offerBg,
-    borderRadius: 50,
-    paddingVertical: 4,
-    paddingHorizontal: 12
-  },
-  notifIconText: {
-    color: colors.offerFg,
-    fontWeight: 'bold',
-    marginHorizontal: 4,
+    marginRight: 12
   },
   articleImage: {
     width: '100%',
