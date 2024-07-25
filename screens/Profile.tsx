@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, TouchableOpacity,Linking, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, Linking, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-native-modal';
@@ -39,7 +39,6 @@ const Profile = () => {
   const [facebookUrl, setFacebookUrl] = useState<string>('');
 
   const handleToFollowerList = () => {
-    // TODO : rendre dynamique
     navigation.navigate('follower_list');
   };
 
@@ -61,6 +60,10 @@ const Profile = () => {
 
   const handleCollectionClick = (collection: CollectionType) => {
     navigation.navigate('collection', { collection: collection });
+  };
+
+  const handleIconPress = (url) => {
+    Linking.openURL(url).catch(err => console.error("Failed to open URL", err));
   };
 
   interface Artwork {
@@ -95,6 +98,12 @@ const Profile = () => {
     bannerPicture: string;
     profilePicture: string;
     biography: string;
+    socialMediaLinks: {
+      instagram: string;
+      twitter: string;
+      tiktok: string;
+      facebook: string;
+    };
   }
 
   const fetchUserArtworks = async () => {
@@ -119,11 +128,11 @@ const Profile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
-    const fetchUserData = async () => {
-      if (!token) {
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        return;
+  const fetchUserData = async () => {
+    if (!token) {
+      Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      return;
     }
 
     const url = `/api/user/profile/${userID}`;
@@ -131,6 +140,15 @@ const Profile = () => {
     const callback = (response: any) => {
       setUserData(response.data);
       fetchUserArtworks();
+      
+      // Extract and set social media links
+      const socialLinks = response.data.socialMediaLinks || {};
+      setInstagramUrl(socialLinks.instagram || '');
+      setTwitterUrl(socialLinks.twitter || '');
+      setTiktokUrl(socialLinks.tiktok || '');
+      setFacebookUrl(socialLinks.facebook || '');
+      
+      console.log(' 🌞 User Data:', response.data);
     };
 
     const onErrorCallback = (error: any) => {
@@ -141,9 +159,6 @@ const Profile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
-    const handleIconPress = (url) => {
-      Linking.openURL(url).catch(err => console.error("Failed to open URL", err));
-    };
   const updateCollections = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -162,33 +177,12 @@ const Profile = () => {
     );
   };
 
-  const getSocialLinks = async () => {
-    if (!token) {
-      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      Alert.alert("Erreur", "Veuillez vous reconnecter");
-      return;
-    }
-
-    get(
-      `/api/user/profile/social-links`,
-      token,
-      (response: any) => {
-        // setUserCollections(response.data);
-        // setIsRefreshing(false);
-      },
-      (error: any) => console.error({ ...error })
-    );
-  };
-
   const reloadProfile = () => {
     setIsRefreshing(true);
     fetchUserData();
     updateCollections();
   };
 
-
-  // Should be able to create a new empty collection from the profile screen
-  // but it doesn't work yet. We're waiting for the back-end (as usual lol)
   const createCollection = async (collectionName: string) => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -408,34 +402,42 @@ const Profile = () => {
           {activeTab === 'A propos' && (
             <Card style={styles.biographyContainer}>
               <View style={styles.rowContainer}>
-                <TouchableOpacity onPress={() => handleIconPress("https://instagram.com")}>
-                  <Ionicons
-                    name="logo-instagram"
-                    color={colors.darkGreyBg}
-                    size={24}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleIconPress("https://twitter.com")}>
-                  <Ionicons
-                    name="logo-twitter"
-                    color={colors.darkGreyBg}
-                    size={24}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleIconPress("https://facebook.com")}>
-                  <Ionicons
-                    name="logo-facebook"
-                    color={colors.darkGreyBg}
-                    size={24}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleIconPress("https://pinterest.com")}>
-                  <Ionicons
-                    name="logo-pinterest"
-                    color={colors.darkGreyBg}
-                    size={24}
-                  />
-                </TouchableOpacity>
+                {instagramUrl ? (
+                  <TouchableOpacity onPress={() => handleIconPress(instagramUrl)}>
+                    <Ionicons
+                      name="logo-instagram"
+                      color={colors.darkGreyBg}
+                      size={24}
+                    />
+                  </TouchableOpacity>
+                ) : null}
+                {twitterUrl ? (
+                  <TouchableOpacity onPress={() => handleIconPress(twitterUrl)}>
+                    <Ionicons
+                      name="logo-twitter"
+                      color={colors.darkGreyBg}
+                      size={24}
+                    />
+                  </TouchableOpacity>
+                ) : null}
+                {facebookUrl ? (
+                  <TouchableOpacity onPress={() => handleIconPress(facebookUrl)}>
+                    <Ionicons
+                      name="logo-facebook"
+                      color={colors.darkGreyBg}
+                      size={24}
+                    />
+                  </TouchableOpacity>
+                ) : null}
+                {tiktokUrl ? (
+                  <TouchableOpacity onPress={() => handleIconPress(tiktokUrl)}>
+                    <Ionicons
+                      name="logo-pinterest"
+                      color={colors.darkGreyBg}
+                      size={24}
+                    />
+                  </TouchableOpacity>
+                ) : null}
               </View>
               <Text style={[styles.biography, cTextDark]}>
                 {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
