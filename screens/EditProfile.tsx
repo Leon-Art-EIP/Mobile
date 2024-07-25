@@ -34,6 +34,10 @@ const EditProfile = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [biography, setBiography] = useState<string>('');
+  const [instagramUrl, setInstagramUrl] = useState<string>('');
+  const [twitterUrl, setTwitterUrl] = useState<string>('');
+  const [tiktokUrl, setTiktokUrl] = useState<string>('');
+  const [facebookUrl, setFacebookUrl] = useState<string>('');
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
@@ -59,6 +63,10 @@ const EditProfile = () => {
     bannerPicture: string;
     profilePicture: string;
     biography: string;
+    instagramUrl: string;
+    twitterUrl: string;
+    tiktokUrl: string;
+    facebookUrl: string;
   }
 
 
@@ -68,9 +76,13 @@ const EditProfile = () => {
 
 
   const handleBiographyChange = (value: string) => {
+    console.log(value);
     setBiography(value);
   };
 
+  const handleInstagramUrl = (value: string) => {
+    setInstagramUrl(value);
+  };
 
   const selectImage = async () => {
     try {
@@ -388,14 +400,73 @@ const EditProfile = () => {
           <View style={styles.infoBlock}>
             <Subtitle>Description</Subtitle>
             <Input
-              placeholder="Parlez nous de vous..."
-              placeholderTextColor={colors.text}
+              placeholder="Parlez-nous de vous..."
+              placeholderTextColor={colors.darkGreyBg}
               onTextChanged={handleBiographyChange}
               style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               value={biography}
             />
           </View>
-
+          <View style={styles.infoBlock}>
+            <Subtitle>Réseaux sociaux</Subtitle>
+            <Text>Renseigner les liens vers vos réseaux</Text>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-instagram"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Instagram"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={handleInstagramUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={biography}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-twitter"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Twitter"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={handleBiographyChange}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={biography}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-facebook"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Facebook"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={handleBiographyChange}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={biography}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-pinterest"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="TikTok"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={handleBiographyChange}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={biography}
+              />
+            </View>
+          </View>
           {/* Availability */}
           <View style={styles.infoBlock}>
             <Subtitle>Ouvert au commandes</Subtitle>
@@ -658,7 +729,11 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     marginRight: 0,
     flex: 1,
-    borderRadius: 50
+    borderRadius: 50,
+  },
+  socialMedia: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

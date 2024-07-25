@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, View, Text, StyleSheet, Image, TouchableOpacity,Linking, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-native-modal';
@@ -33,6 +33,10 @@ const Profile = () => {
   const [newCollectionName, setNewCollectionName] = useState<string>("");
   const token = context?.token;
   const userID = context?.userId;
+  const [instagramUrl, setInstagramUrl] = useState<string>('');
+  const [twitterUrl, setTwitterUrl] = useState<string>('');
+  const [tiktokUrl, setTiktokUrl] = useState<string>('');
+  const [facebookUrl, setFacebookUrl] = useState<string>('');
 
   const handleToFollowerList = () => {
     // TODO : rendre dynamique
@@ -115,11 +119,11 @@ const Profile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
-  const fetchUserData = async () => {
-    if (!token) {
-      Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      console.error('Token JWT not found. Make sure the user is logged in.');
-      return;
+    const fetchUserData = async () => {
+      if (!token) {
+        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+        console.error('Token JWT not found. Make sure the user is logged in.');
+        return;
     }
 
     const url = `/api/user/profile/${userID}`;
@@ -137,6 +141,9 @@ const Profile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
+    const handleIconPress = (url) => {
+      Linking.openURL(url).catch(err => console.error("Failed to open URL", err));
+    };
   const updateCollections = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -150,6 +157,24 @@ const Profile = () => {
       (response: any) => {
         setUserCollections(response.data);
         setIsRefreshing(false);
+      },
+      (error: any) => console.error({ ...error })
+    );
+  };
+
+  const getSocialLinks = async () => {
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      Alert.alert("Erreur", "Veuillez vous reconnecter");
+      return;
+    }
+
+    get(
+      `/api/user/profile/social-links`,
+      token,
+      (response: any) => {
+        // setUserCollections(response.data);
+        // setIsRefreshing(false);
       },
       (error: any) => console.error({ ...error })
     );
@@ -382,6 +407,36 @@ const Profile = () => {
 
           {activeTab === 'A propos' && (
             <Card style={styles.biographyContainer}>
+              <View style={styles.rowContainer}>
+                <TouchableOpacity onPress={() => handleIconPress("https://instagram.com")}>
+                  <Ionicons
+                    name="logo-instagram"
+                    color={colors.darkGreyBg}
+                    size={24}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleIconPress("https://twitter.com")}>
+                  <Ionicons
+                    name="logo-twitter"
+                    color={colors.darkGreyBg}
+                    size={24}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleIconPress("https://facebook.com")}>
+                  <Ionicons
+                    name="logo-facebook"
+                    color={colors.darkGreyBg}
+                    size={24}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleIconPress("https://pinterest.com")}>
+                  <Ionicons
+                    name="logo-pinterest"
+                    color={colors.darkGreyBg}
+                    size={24}
+                  />
+                </TouchableOpacity>
+              </View>
               <Text style={[styles.biography, cTextDark]}>
                 {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
               </Text>
@@ -624,6 +679,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   biography: {
+    marginTop: 15,
     marginHorizontal: 0,
     marginVertical: 0,
     fontSize: 14,
