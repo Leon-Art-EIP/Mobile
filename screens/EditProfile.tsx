@@ -10,8 +10,8 @@ import {
   ToastAndroid
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import React, {useState, useContext, useEffect} from 'react';
-import {ImageLibraryOptions, launchImageLibrary} from 'react-native-image-picker';
+import React, { useState, useContext, useEffect } from 'react';
+import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 
 // Local imports
 import { getImageUrl } from '../helpers/ImageHelper';
@@ -23,12 +23,11 @@ import Title from '../components/text/Title';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {bgRed, cPrimary, cBlack, cDisabled} from "../constants/styles";
+import { bgRed, cPrimary, cBlack, cDisabled } from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
 import { getPermission, isNotificationRegistered, togglePermission } from '../constants/notifications';
-
 
 const EditProfile = () => {
   const navigation = useNavigation();
@@ -46,7 +45,6 @@ const EditProfile = () => {
   const [banner, setBanner] = useState<string>('');
   const [isNotifEnabled, setIsNotifEnabled] = useState<boolean>(isNotificationRegistered());
 
-
   interface UserData {
     _id: string;
     username: string;
@@ -63,17 +61,17 @@ const EditProfile = () => {
     bannerPicture: string;
     profilePicture: string;
     biography: string;
-    instagramUrl: string;
-    twitterUrl: string;
-    tiktokUrl: string;
-    facebookUrl: string;
+    socialMediaLinks: {
+      instagram: string;
+      twitter: string;
+      tiktok: string;
+      facebook: string;
+    };
   }
-
 
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
-
 
   const handleBiographyChange = (value: string) => {
     console.log(value);
@@ -82,6 +80,19 @@ const EditProfile = () => {
 
   const handleInstagramUrl = (value: string) => {
     setInstagramUrl(value);
+  };
+
+  const handleTwitterUrl = (value: string) => {
+    console.log('Twitter VALUE 🇫🇷🇫🇷🇫🇷🇫🇷', value)
+    setTwitterUrl(value);
+  };
+
+  const handleTiktokUrl = (value: string) => {
+    setTiktokUrl(value);
+  };
+
+  const handleFacebookUrl = (value: string) => {
+    setFacebookUrl(value);
   };
 
   const selectImage = async () => {
@@ -110,7 +121,6 @@ const EditProfile = () => {
       console.error('An error occurred while picking the image:', error);
     }
   };
-
 
   const uploadProfilePicture = async (uri: string) => {
     console.log("Selected: " + uri);
@@ -145,7 +155,6 @@ const EditProfile = () => {
     );
   }
 
-
   const selectBanner = async () => {
     try {
       const options: ImageLibraryOptions = {
@@ -175,7 +184,6 @@ const EditProfile = () => {
     }
   }
 
-
   const uploadBanner = (uri: string) => {
     const formData = new FormData();
 
@@ -198,23 +206,22 @@ const EditProfile = () => {
             formData,
             context?.token,
             () => fetchData(),
-            (error: any) => console.error('Error publishing:', {...error})
+            (error: any) => console.error('Error publishing:', { ...error })
           );
         });
     } catch (error: any) {
-      console.error('Error preparing image:', {...error});
+      console.error('Error preparing image:', { ...error });
       return;
     }
   }
-
 
   const handleSaveModifications = () => {
     console.log("Modifications saved.");
     saveBiography();
     saveIsAvailable();
+    saveSocialMediaLinks();
     navigation.goBack();
   }
-
 
   const saveBiography = () => {
     try {
@@ -247,7 +254,6 @@ const EditProfile = () => {
     }
   }
 
-
   const saveIsAvailable = () => {
     try {
       if (token) {
@@ -279,6 +285,38 @@ const EditProfile = () => {
     }
   }
 
+  const saveSocialMediaLinks = () => {
+    if (!token) {
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      return;
+    }
+    console.log('IN SOCILA MEDIA SAVO');
+    const url = '/api/user/profile/social-links';
+    const body = {
+      instagram: instagramUrl,
+      twitter: twitterUrl,
+      facebook: facebookUrl,
+      tiktok: tiktokUrl
+    };
+
+    const callback = (response: any) => {
+      console.log('👀 Social media links updated:', response.data);
+      ToastAndroid.show('Social media links updated successfully!', ToastAndroid.SHORT);
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error updating social media links:', error);
+      if (error.response) {
+        console.error('Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received from server');
+      } else {
+        console.error('Error setting up the request:', error.message);
+      }
+    };
+
+    post(url, body, token, callback, onErrorCallback);
+  }
 
   const fetchUserData = () => {
     if (!token) {
@@ -286,30 +324,30 @@ const EditProfile = () => {
       ToastAndroid.show("Error getting your user information. Please log in", ToastAndroid.SHORT);
       return navigation.navigate('login');
     }
-
+  
     const url = `/api/user/profile/${userID}`;
-
+  
     const callback = (response: any) => {
       setUserData(response.data);
+      setInstagramUrl(response.data.socialMediaLinks?.instagram || '');
+      setTwitterUrl(response.data.socialMediaLinks?.twitter || '');
+      setTiktokUrl(response.data.socialMediaLinks?.tiktok || '');
+      setFacebookUrl(response.data.socialMediaLinks?.facebook || '');
     };
-
+  
     const onErrorCallback = (error: any) => {
       console.error('Error fetching user data:', error);
       if (error.response) {
-        // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
         console.error('Server responded with non-2xx status:', error.response.data);
       } else if (error.request) {
-        // La requête a été effectuée mais aucune réponse n'a été reçue
         console.error('No response received from server');
       } else {
-        // Une erreur s'est produite lors de la configuration de la requête
         console.error('Error setting up the request:', error.message);
       }
     };
-
+  
     get(url, token, callback, onErrorCallback);
-  }
-
+  }  
 
   const fetchData = () => {
     try {
@@ -337,14 +375,11 @@ const EditProfile = () => {
     }
   }
 
-
   useFocusEffect(
     React.useCallback(fetchData, [navigation])
   );
 
-
   useEffect(fetchData, []);
-
 
   return (
     <ScrollView nestedScrollEnabled>
@@ -360,19 +395,18 @@ const EditProfile = () => {
         </View>
 
         {/* Banner */}
-
         <ImageBackground
           source={{ uri: getImageUrl(banner) }}
           style={styles.banner}
           resizeMode="cover"
         >
-      <ModifyTag
-        onPress={selectBanner}
-        title="Modifier la bannière"
-        style={[ cBlack, styles.bannerTouchable]}
-        textStyle={{ cBlack }}
-      />
-      </ImageBackground>
+          <ModifyTag
+            onPress={selectBanner}
+            title="Modifier la bannière"
+            style={[cBlack, styles.bannerTouchable]}
+            textStyle={{ cBlack }}
+          />
+        </ImageBackground>
 
         {/* Profile picture */}
         <View style={styles.overlayImage}>
@@ -381,9 +415,9 @@ const EditProfile = () => {
             onPress={selectImage}
           >
             <Image
-            source={{ uri: getImageUrl(profilePicture) }}
-            style={styles.profilePicture}
-            onError={(error) => console.error("Error loading profile picture:", error)}
+              source={{ uri: getImageUrl(profilePicture) }}
+              style={styles.profilePicture}
+              onError={(error) => console.error("Error loading profile picture:", error)}
             />
           </TouchableOpacity>
         </View>
@@ -417,11 +451,11 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder="Instagram"
+                placeholder={instagramUrl}
                 placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={handleInstagramUrl}
+                onTextChanged={setInstagramUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={biography}
+                value={instagramUrl}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -431,11 +465,11 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder="Twitter"
+                placeholder={twitterUrl}
                 placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={handleBiographyChange}
+                onTextChanged={setTwitterUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={biography}
+                value={twitterUrl}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -445,28 +479,29 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder="Facebook"
+                placeholder={facebookUrl}
                 placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={handleBiographyChange}
+                onTextChanged={setFacebookUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={biography}
+                value={facebookUrl}
               />
             </View>
             <View style={styles.socialMedia}>
               <Ionicons
-                name="logo-pinterest"
+                name="logo-tiktok"
                 color={colors.darkGreyBg}
                 size={24}
               />
               <Input
-                placeholder="TikTok"
+                placeholder={tiktokUrl}
                 placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={handleBiographyChange}
+                onTextChanged={setTiktokUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={biography}
+                value={tiktokUrl}
               />
             </View>
           </View>
+
           {/* Availability */}
           <View style={styles.infoBlock}>
             <Subtitle>Ouvert au commandes</Subtitle>
@@ -515,7 +550,7 @@ const EditProfile = () => {
             style={{ marginTop: 'auto' }}
             textStyle={{ fontSize: 17 }}
             onPress={() => handleSaveModifications()}
-            />
+          />
         </View>
       </View>
     </ScrollView>
@@ -559,7 +594,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'absolute',
     top: -55,
-
   },
   textBlocks: {
     flexDirection: 'row',
@@ -649,7 +683,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.tertiary,
-    // backgroundColor: colors.tertiary,
     padding: 8,
     marginBottom: 10,
     borderRadius: 40,
