@@ -184,6 +184,13 @@ const CommentsList = ({ id }) => {
                         {usernames[nestedComment.userId]}
                       </Text>
                       <Text style={cTextDark}>{nestedComment?.text ?? "Commentaire supprimé"}</Text>
+                      <Text style={styles.publishedTime}>{timeSince(nestedComment.createdAt)}</Text>
+                      <TouchableOpacity
+                        onPress={() => handleDeletePress(nestedComment.id)}
+                        style={styles.deleteButton}
+                      >
+                        <Text style={styles.deleteButtonText}>Supprimer</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 ))}
