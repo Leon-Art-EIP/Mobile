@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal, TextInput, Keyboard } from 'react-native';
-import { get, del, post } from '../../constants/fetch';
+import { get, del, post, put } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
 import { cTextDark } from '../../constants/styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const CommentsList = ({ id }) => {
   const context = useContext(MainContext);
@@ -19,6 +20,7 @@ const CommentsList = ({ id }) => {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [nestedCommentsVisible, setNestedCommentsVisible] = useState({});
+  const [likes, setLikes] = useState({});
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -157,6 +159,27 @@ const CommentsList = ({ id }) => {
     }));
   };
 
+  const handleLikePress = (commentId) => {
+    if (!context?.token) {
+      return;
+    }
+    const url = `/api/art-publication/comment/${commentId}/like`;
+    put(
+      url,
+      {},
+      context?.token,
+      () => {
+        setLikes((prevLikes) => ({
+          ...prevLikes,
+          [commentId]: !prevLikes[commentId],
+        }));
+      },
+      (error) => {
+        console.error("Error liking comment:", error);
+      }
+    );
+  };
+
   return (
     <View style={{ marginTop: 30, marginBottom: 40, marginLeft: 0, marginRight: 20 }}>
       {comments.map((comment, index) => (
@@ -168,17 +191,31 @@ const CommentsList = ({ id }) => {
             onPress={() => handleToArtistProfile(comment.userId)}
           />
           <View style={styles.commentContent}>
-            <Text style={styles.commentAuthor}>
-              {usernames[comment.userId]}
-            </Text>
+            <View style={styles.commentHeader}>
+              <Text style={styles.commentAuthor}>
+                {usernames[comment.userId]}
+              </Text>
+              <View style={styles.commentMeta}>
+                <TouchableOpacity
+                  onPress={() => handleDeletePress(comment.id)}
+                  style={styles.deleteButton}
+                >
+                  <Text style={styles.deleteButtonText}>Supprimer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <Text style={cTextDark}>{comment?.text ?? "Commentaire supprimé"}</Text>
-            <View style={styles.commentMeta}>
+            <View style={styles.commentFooter}>
               <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
               <TouchableOpacity
-                onPress={() => handleDeletePress(comment.id)}
-                style={styles.deleteButton}
+                onPress={() => handleLikePress(comment.id)}
+                style={styles.likeButton}
               >
-                <Text style={styles.deleteButtonText}>Supprimer</Text>
+                <AntDesign
+                  name={likes[comment.id] ? 'heart' : 'hearto'}
+                  size={20}
+                  color={likes[comment.id] ? 'red' : colors.darkGreyFg}
+                />
               </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -208,17 +245,31 @@ const CommentsList = ({ id }) => {
                   onPress={() => handleToArtistProfile(nestedComment.userId)}
                 />
                 <View style={styles.commentContent}>
-                  <Text style={styles.commentAuthor}>
-                    {usernames[nestedComment.userId]}
-                  </Text>
+                  <View style={styles.commentHeader}>
+                    <Text style={styles.commentAuthor}>
+                      {usernames[nestedComment.userId]}
+                    </Text>
+                    <View style={styles.commentMeta}>
+                      <TouchableOpacity
+                        onPress={() => handleDeletePress(nestedComment.id)}
+                        style={styles.deleteButton}
+                      >
+                        <Text style={styles.deleteButtonText}>Supprimer</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                   <Text style={cTextDark}>{nestedComment?.text ?? "Commentaire supprimé"}</Text>
-                  <View style={styles.commentMeta}>
+                  <View style={styles.commentFooter}>
                     <Text style={styles.publishedTime}>{timeSince(nestedComment.createdAt)}</Text>
                     <TouchableOpacity
-                      onPress={() => handleDeletePress(nestedComment.id)}
-                      style={styles.deleteButton}
+                      onPress={() => handleLikePress(nestedComment.id)}
+                      style={styles.likeButton}
                     >
-                      <Text style={styles.deleteButtonText}>Supprimer</Text>
+                      <AntDesign
+                        name={likes[nestedComment.id] ? 'heart' : 'hearto'}
+                        size={20}
+                        color={likes[nestedComment.id] ? 'red' : colors.darkGreyFg}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -285,7 +336,7 @@ const styles = StyleSheet.create({
   },
   commentAuthor: {
     fontWeight: 'bold',
-    marginRight: 0,
+    marginRight: 5,
     color: colors.darkGreyFg,
     fontSize: 15,
   },
@@ -293,13 +344,24 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 5,
   },
-  commentMeta: {
+  commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 5,
+    alignItems: 'center',
+  },
+  commentFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  commentMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 'auto',
   },
   publishedTime: {
     color: '#888',
+    marginRight: 10,
   },
   artistCard: {
     container: {
@@ -315,7 +377,7 @@ const styles = StyleSheet.create({
       borderRadius: 20,
     },
     deleteButton: {
-      padding: 10,
+      padding: 5,
       backgroundColor: 'red',
       borderRadius: 5,
       marginLeft: 5,
@@ -365,6 +427,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 5,
     marginRight: 5,
+  },
+  likeButton: {
+    padding: 5,
+    marginLeft: 5,
   },
 });
 
