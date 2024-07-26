@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal } from 'react-native';
-import { get, del } from '../../constants/fetch';
+import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal, TextInput, Keyboard } from 'react-native';
+import { get, del, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
-import { ArtistType } from '../../constants/homeValues';
 import { cTextDark } from '../../constants/styles';
 
 const CommentsList = ({ id }) => {
   const context = useContext(MainContext);
   const [comments, setComments] = useState([]);
-  const [usernames, setUsernames] = useState([]);
+  const [usernames, setUsernames] = useState({});
   const [userProfiles, setUserProfiles] = useState({});
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -39,7 +40,6 @@ const CommentsList = ({ id }) => {
             ...prevProfiles,
             [userId]: response.data,
           }));
-          console.log('❤️‍🩹REPOSFNLKNDFLSKNFD', response.data);
         } else {
           console.error('Invalid response:', response);
         }
@@ -62,8 +62,10 @@ const CommentsList = ({ id }) => {
           setComments(response.data);
           response.data.forEach((comment) => {
             getUsername(comment.userId);
+            comment.nestedComments.forEach((nestedComment) => {
+              getUsername(nestedComment.userId);
+            });
           });
-          console.log('PITE:', comment.userId);
         } else {
           console.error('Invalid response:', response);
         }
@@ -79,7 +81,7 @@ const CommentsList = ({ id }) => {
       `/api/art-publication/comment/${commentToDelete}`,
       context?.token,
       () => {
-        setComments((prevComments) => prevComments.filter(comment => comment._id !== commentToDelete));
+        setComments((prevComments) => prevComments.filter(comment => comment.id !== commentToDelete));
         ToastAndroid.show("Commentaire supprimé", ToastAndroid.SHORT);
         setIsDeleteModalShown(false);
       },
@@ -116,45 +118,105 @@ const CommentsList = ({ id }) => {
   };
 
   const handleToArtistProfile = (_id) => {
-    // console.log('artist iddd: ', artist._id);
-    console.log('🌹🌹🌹🌹🌹 other_profile', _id);
-    navigation.navigate('other_profile', { id: _id});
+    navigation.navigate('other_profile', { id: _id });
   };
 
-  const navigateToUserProfile = (userId) => {
-    navigation.navigate('other_profile', { id: userId });
+  const handleReplyPress = (commentId) => {
+    setReplyingTo(commentId);
+  };
+
+  const handleReplySubmit = () => {
+    if (!context?.token || !replyText.trim()) {
+      return;
+    }
+    const url = `/api/art-publication/comment/${id}`;
+    const body = { text: replyText, parentCommentId: replyingTo };
+
+    post(
+      url,
+      body,
+      context?.token,
+      (response) => {
+        fetchComments();
+        setReplyText("");
+        setReplyingTo(null);
+        Keyboard.dismiss();
+      },
+      (error) => {
+        console.error('Error posting reply:', error);
+      }
+    );
   };
 
   return (
     <View style={{ marginTop: 30, marginBottom: 40, marginLeft: 0, marginRight: 20 }}>
       {comments.map((comment, index) => (
         <View key={index} style={styles.commentContainer}>
-          {/* <TouchableOpacity onPress={() => navigateToUserProfile(comment.userId)}> */}
-            <ArtistCard
-              item={userProfiles[comment.userId]}
-              style={styles.artistCard}
-              showTitle={false}
-              onPress={() => handleToArtistProfile(comment.userId)}
-            />
-          {/* </TouchableOpacity> */}
+          <ArtistCard
+            item={userProfiles[comment.userId]}
+            style={styles.artistCard}
+            showTitle={false}
+            onPress={() => handleToArtistProfile(comment.userId)}
+          />
           <View style={styles.commentContent}>
             <Text style={styles.commentAuthor}>
               {usernames[comment.userId]}
             </Text>
             <Text style={cTextDark}>{comment?.text ?? "Commentaire supprimé"}</Text>
+            <TouchableOpacity
+              onPress={() => handleReplyPress(comment.id)}
+              style={styles.replyButton}
+            >
+              <Text style={styles.replyButtonText}>Répondre</Text>
+            </TouchableOpacity>
+            {comment.nestedComments && comment.nestedComments.length > 0 && (
+              <View style={styles.repliesContainer}>
+                {comment.nestedComments.map((nestedComment, nestedIndex) => (
+                  <View key={nestedIndex} style={styles.replyContainer}>
+                    <ArtistCard
+                      item={userProfiles[nestedComment.userId]}
+                      style={styles.artistCard}
+                      showTitle={false}
+                      onPress={() => handleToArtistProfile(nestedComment.userId)}
+                    />
+                    <View style={styles.replyContent}>
+                      <Text style={styles.commentAuthor}>
+                        {usernames[nestedComment.userId]}
+                      </Text>
+                      <Text style={cTextDark}>{nestedComment?.text ?? "Commentaire supprimé"}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+            {replyingTo === comment.id && (
+              <View style={styles.replyInputContainer}>
+                <TextInput
+                  style={styles.replyInput}
+                  value={replyText}
+                  onChangeText={setReplyText}
+                  placeholder="Votre réponse..."
+                />
+                <TouchableOpacity
+                  onPress={handleReplySubmit}
+                  style={styles.replyButton}
+                >
+                  <Text style={styles.sendButtonText}>Poster</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
           <View style={styles.commentMeta}>
             <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
             <TouchableOpacity
-              onPress={() => handleDeletePress(comment._id)}
+              onPress={() => handleDeletePress(comment.id)}
               style={styles.deleteButton}
             >
               <Text style={styles.deleteButtonText}>Supprimer</Text>
             </TouchableOpacity>
           </View>
-
         </View>
-        ))}
+      ))}
       <Modal
         visible={isDeleteModalShown}
         transparent={true}
@@ -185,7 +247,7 @@ const styles = StyleSheet.create({
   },
   commentContainer: {
     flexDirection: 'row',
-    marginBottom: 5, // Adjusted to reduce space between comments
+    marginBottom: 5,
   },
   commentAuthor: {
     fontWeight: 'bold',
@@ -195,32 +257,32 @@ const styles = StyleSheet.create({
   },
   commentContent: {
     flex: 1,
-    marginLeft: 5, // Reduced margin between ArtistCard and text
+    marginLeft: 5,
   },
   commentMeta: {
-    alignItems: 'flex-end', // Align meta information to the right
+    alignItems: 'flex-end',
   },
   publishedTime: {
     color: '#888',
   },
   artistCard: {
     container: {
-      width: 40, // Reduced size
-      height: 40, // Reduced size
-      borderRadius: 20, // Adjusted for perfect circle
-      justifyContent: 'center', // Center the image
-      alignItems: 'center', // Center the image
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     image: {
-      width: 40, // Match container size
-      height: 40, // Match container size
-      borderRadius: 20, // Adjusted for perfect circle
+      width: 40,
+      height: 40,
+      borderRadius: 20,
     },
     deleteButton: {
       padding: 10,
       backgroundColor: 'red',
       borderRadius: 5,
-      marginTop: 5, // Add some space between the time and delete button
+      marginTop: 5,
     },
     deleteButtonText: {
       color: 'white',
@@ -240,6 +302,46 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  replyButton: {
+    marginTop: 5,
+  },
+  replyButtonText: {
+    color: colors.darkGreyFg,
+  },
+  sendButtonText: {
+    color: colors.primary,
+    marginLeft: 50,
+  },
+  repliesContainer: {
+    marginTop: 10,
+    marginLeft: 20,
+    borderLeftWidth: 1,
+    borderLeftColor: colors.darkGreyBg,
+    paddingLeft: 10,
+    borderRadius: 15,
+  },
+  replyContainer: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+  replyContent: {
+    flex: 1,
+    marginLeft: 5,
+  },
+  replyInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  replyInput: {
+    flex: 1,
+    borderColor: colors.white,
+    borderWidth: 1,
+    borderRadius: 30,
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+    marginRight: 5,
   },
 });
 
