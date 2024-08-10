@@ -21,7 +21,7 @@ const Input = ({
   placeholderTextColor = colors.text,
   value = "",
   onTextChanged = (_: string) => {},
-  secureTextEntry = true,
+  secureTextEntry = false,
   ref = null,
   style = {},
   onError = () => {},
@@ -51,6 +51,7 @@ const Input = ({
       onChangeText={changeText}
       placeholderTextColor={disabled ? colors.disabledFg : placeholderTextColor}
       multiline={multilines > 1}
+      secureTextEntry={secureTextEntry}
       numberOfLines={multilines}
       style={[
         styles.container,

@@ -134,10 +134,6 @@ const SearchScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.logo}>
-      <Title style={{ color: colors.primary }}>Leon</Title>
-      <Title>'Art</Title>
-      </View>
       <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
 
       <View style={styles.searchView}>

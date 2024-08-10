@@ -306,7 +306,10 @@ const HomeScreen = ({ navigation }: any) => {
                 data={publications.filter((pub) => pub?.userId !== context?.userId)}
                 numColumns={3}
                 renderItem={(e) => (
-                  <TouchableOpacity key={e.item._id} onPress={() => towardsPost(e.item._id)}>
+                  <TouchableOpacity
+                    key={e.item._id + Math.random().toString()}
+                    onPress={() => towardsPost(e.item._id)}
+                  >
                     <View style={styles.publicationItem}>
                       <Image
                         style={styles.publicationImage}

@@ -17,11 +17,16 @@ const Signup = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
+  const [password2, setPassword2] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const context = useContext(MainContext);
 
   const handleSignup = () => {
     const requestData = { username, email, password };
+
+    if (password !== password2) {
+      return setError("Les mots de passe ne matchent pas");
+    }
 
     axios.post(`${API_URL}/api/auth/signup`, requestData)
       .then(async response => {
@@ -93,9 +98,24 @@ const Signup = ({ navigation }: any) => {
 
       <Input
         placeholder="Mot de passe"
+        secureTextEntry
         onTextChanged={setPassword}
         style={styles.input}
       />
+
+      <Input
+        placeholder="Retapez votre mot de passe"
+        secureTextEntry
+        onTextChanged={setPassword2}
+        style={styles.input}
+      />
+
+      { error && (
+        <Text style={{
+          color: colors.error,
+          marginHorizontal: 24
+        }}>{ error }</Text>
+      )}
 
       <Button
         onPress={handleSignup}
@@ -148,8 +168,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: 70,
-    marginBottom: 40,
+    marginBottom: 24,
   },
   existingUserContainer: {
     flexDirection: 'row',

@@ -56,6 +56,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CollectionType } from '../constants/artTypes';
 import InfoModal from '../components/infos/InfoModal';
 import Card from '../components/cards/Card';
+import { formatName } from '../helpers/NamesHelper';
 
 const SingleArt = ({ navigation, route }: any) => {
   const { id } = route.params;
@@ -77,8 +78,9 @@ const SingleArt = ({ navigation, route }: any) => {
   const [isInfoModalVisible, setInfoModalVisible] = useState(false);
   const [infoModalMessage, setInfoModalMessage] = useState('');
   const [isReportPanelVisible, setIsReportPanelVisible] = useState<boolean>(false);
-
   const [currency, setCurrency] = useState<string>('€');
+  
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     if (isDeleteModalShown) {
@@ -89,13 +91,11 @@ const SingleArt = ({ navigation, route }: any) => {
     }
   }, [isDeleteModalShown]);
 
-
   useEffect(() => {
     if (isReportPanelVisible) {
       setIsDeleteModalShown(false);
     }
   }, [isReportPanelVisible]);
-
 
   useEffect(() => {
     getPublications();
@@ -116,6 +116,18 @@ const SingleArt = ({ navigation, route }: any) => {
     checkIsLiked();
     checkIsSaved();
   }, []);
+
+  useEffect(() => {
+    const imageUrl = getImageUrl(publication?.image);
+    if (imageUrl) {
+      Image.getSize(imageUrl, (width, height) => {
+        const screenWidth = Dimensions.get('window').width * 0.90; // 95% of screen width
+        const scaleFactor = width / screenWidth;
+        const imageHeight = height / scaleFactor;
+        setImageSize({ width: screenWidth, height: imageHeight });
+      });
+    }
+  }, [publication]);
 
   const fetchArtistDetails = async () => {
     const onErrorCallback = (error: any) => {
@@ -193,11 +205,9 @@ const SingleArt = ({ navigation, route }: any) => {
     );
   };
 
-
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
   };
-
 
   const getPublications = () => {
     setIsRefreshing(true);
@@ -205,7 +215,6 @@ const SingleArt = ({ navigation, route }: any) => {
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
-        console.log('🎨 Publications:', response.data);
         setPublication(response?.data || []);
         getArtistName(response?.data.userId);
         setSoldState(response?.data.isSold);
@@ -284,7 +293,6 @@ const SingleArt = ({ navigation, route }: any) => {
       return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
     }
 
-    console.log()
     const url = `/api/art-publication/users-who-liked/${id}`;
 
     const callback = (response: any) => {
@@ -363,9 +371,9 @@ const SingleArt = ({ navigation, route }: any) => {
                 style={[mtAuto, mbAuto, mlAuto, mr20]}
                 onPress={() => navigation.navigate('report', { id: publication?._id, type: 'post' })}
               >
-                <MaterialIcons
-                  name="report-problem"
-                  color={colors.primary}
+                <AntDesign
+                  name="warning"
+                  color={colors.black}
                   size={24}
                 />
               </TouchableOpacity>
@@ -376,24 +384,35 @@ const SingleArt = ({ navigation, route }: any) => {
         <View style={[flexRow, acCenter, mv8, mh8]}>
           <TouchableOpacity
             onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
-            style={[bgGrey, { borderRadius: 50, height: 50 }]}
+            style={[bgGrey, { borderRadius: 50, height: 30, marginTop: 'auto', marginBottom: 'auto' }]}
           >
             <Image
               source={{ uri: getImageUrl(artist?.profilePicture) }}
-              style={{ height: 50, width: 50, borderRadius: 50 }}
+              style={{ height: 30, width: 30, borderRadius: 50 }}
             />
           </TouchableOpacity>
-          <Text style={styles.artTitle}>{publication?.name}</Text>
+          <Text style={styles.artTitle}>{ formatName(publication?.name) }</Text>
         </View>
 
         {/* Post image */}
         { !!getImageUrl(publication?.image) ? (
-          <ImageViewer
-            style={styles.img}
-            backgroundColor={colors.disabledBg}
-            imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]}
-            renderIndicator={() => <></>}
-          />
+          <View
+            style={{
+              width: '95%',
+              height: imageSize.height * 0.95,
+              borderRadius: 20,
+              overflow: 'hidden',
+              alignSelf: 'center',
+              backgroundColor: colors.disabledBg,
+              marginTop: 10,
+            }}
+          >
+            <ImageViewer
+              backgroundColor="transparent"
+              imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]}
+              renderIndicator={() => <></>}
+            />
+          </View>
         ) : (
           <View style={styles.img} />
         ) }
@@ -546,15 +565,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   img: {
+    flex: 1,
     alignSelf: 'center',
-    resizeMode: 'contain',
     marginTop: 10,
-    height: 345,
-    width: 345,
+    width: '95%',
     borderRadius: 20,
   },
   artTitle: {
-    marginLeft: 10,
+    marginTop: 'auto',
+    marginLeft: 16,
     fontWeight: 'bold',
     fontSize: 25,
     color: '#000',
@@ -739,6 +758,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 });
-
 
 export default SingleArt;

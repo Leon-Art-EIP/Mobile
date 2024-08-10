@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, StatusBar } from 'react-native';
 
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
-
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+import { cBlack, flexRow, br50, flex1 } from '../constants/styles';
 
 
 const ProfilingQuizz = ({ navigation }): any => {
-  // const { objective } = route.params || { objective: 'defaultObjective' };
-  const [objective, setObjective] = useState(null);
+  const [objective, setObjective] = useState<string | undefined>(undefined);
 
-  
-  const handleUserChoice = (choice) => {
-    console.log('🤩 Choice :', choice);
-    setObjective(choice);
-  };
 
-  const previous = () => {
-    navigation.navigate('homemain');
-  };
 
   const handleSubmit = () => {
     if (!objective) {
@@ -33,62 +23,85 @@ const ProfilingQuizz = ({ navigation }): any => {
     } else if (objective === 'discover') {
       console.log('🤩 choice :', objective);
       navigation.navigate('profilingAmateur', { objective: 'discover' });
-    } 
+    }
   };
 
-  const getButtonStyle = (choice) => (
-    objective === choice ? 
-      { ...styles.TagButton, backgroundColor: colors.primary  } : 
-      styles.TagButton
-  );
+
+  const getButtonStyle = (choice: string) => {
+    if (objective === choice) {
+      return {
+        ...styles.tagButton,
+        backgroundColor: colors.primary
+      };
+    } else {
+      return styles.tagButton;
+    }
+  };
+
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={colors.bg} barStyle='dark-content' />
+
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
+
       <Text style={styles.homeTitle}>Bienvenue !</Text>
-      <Text style={styles.homeText}>Avec Leon'Art vous souhaitez...</Text>      
-      <View style={styles.Tags}>
+      <Text style={styles.homeText}>Avec Leon'Art vous souhaitez...</Text>
+
+      <View style={styles.tags}>
+
         <TouchableOpacity
           style={getButtonStyle("sell")}
-          onPress={() => handleUserChoice("sell")}
+          onPress={() => setObjective("sell")}
         >
-          <Text style={[styles.buttonText, objective === "sell" && { color: 'white' }]}>
+          <Text style={[
+            styles.buttonText,
+            objective === "sell" && { color: 'white' }
+          ]}>
             Vendre mes œuvres d’art
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={getButtonStyle("discover")}
-          onPress={() => handleUserChoice("discover")}
+          onPress={() => setObjective("discover")}
         >
           <Text style={[styles.buttonText, objective === "discover" && { color: 'white' }]}>
             Découvrir des œuvres d’art
           </Text>
         </TouchableOpacity>
       </View>
-      <Button
-        style={{ borderRadius: 30 }}
-        value="Suivant"
-        onPress={handleSubmit} />
-      <Button
-        style={{ borderRadius: 30, backgroundColor: colors.whitesmoke}}
-        textStyle={{ color: 'black' }}
-        value="Retour"
-        onPress={previous} />
+
+      <View style={flexRow}>
+        <Button
+          style={[ br50, flex1 ]}
+          textStyle={cBlack}
+          secondary
+          value="Retour"
+          onPress={navigation.goBack}
+        />
+
+        <Button
+          style={[ br50, flex1 ]}
+          disabled={!objective}
+          value="Suivant"
+          onPress={handleSubmit}
+        />
+      </View>
+
     </View>
   );
 };
 
 
 const styles = StyleSheet.create({
-  TagButton: {
+  tagButton: {
     padding: 10,
-    margin: 20,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 50,
+    marginVertical: 12,
     backgroundColor: colors.whitesmoke,
   },
   buttonText: {
@@ -126,9 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#000',
   },
-  Tags: {
-    justifyContent: 'space-between',
-    margin: 40,
+  tags: {
     marginBottom: 70,
     flex: 1,
   },

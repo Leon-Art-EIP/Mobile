@@ -451,7 +451,7 @@ const AddPublication = ({ navigation }: any) => {
               placeholder='Your post'
               multiline
               numberOfLines={10}
-              style={[ flex1, bgGrey, br0, mh0, { textAlignVertical: 'top' } ]}
+              style={[ cTextDark, flex1, bgGrey, br0, mh0, { textAlignVertical: 'top' } ]}
               placeholderTextColor={colors.disabledFg}
             />
           </Card>

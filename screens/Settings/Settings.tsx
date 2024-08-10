@@ -51,13 +51,9 @@ const Settings = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
-      </View>
       <StatusBar backgroundColor={colors.white} />
       <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
           />
       <View style={[ flexRow, mv24, aiCenter, mh8 ]}>

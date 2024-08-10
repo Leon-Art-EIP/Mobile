@@ -5,7 +5,6 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   ImageBackground,
   ToastAndroid
 } from 'react-native';
@@ -19,15 +18,14 @@ import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
-import Title from '../components/text/Title';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {bgRed, cPrimary, cBlack, cDisabled} from "../constants/styles";
+import { cBlack } from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
-import { getPermission, isNotificationRegistered, togglePermission } from '../constants/notifications';
+import { isNotificationRegistered, togglePermission } from '../constants/notifications';
 
 
 const EditProfile = () => {

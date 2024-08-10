@@ -19,10 +19,6 @@ const InboxScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
-      <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
-      </View>
       <StatusBar backgroundColor={colors.white} barStyle='dark-content' />
       <View style={[ flexRow, mv24, aiCenter, mh8 ]}>
       <TouchableOpacity

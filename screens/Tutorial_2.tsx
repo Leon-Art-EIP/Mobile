@@ -3,44 +3,12 @@ import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
+import { useNavigation } from '@react-navigation/native';
+import { flex1 } from '../constants/styles';
 
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+const Tutorial_2 = () => {
+  const navigation = useNavigation();
 
-const Tutorial_2 = ({ navigation }) => {
-  const [objective, setObjective] = useState(null);
-
-  const handleUserChoice = (choice) => {
-    console.log('🤩 Choice :', choice);
-    setObjective(choice);
-  };
-
-  const previous = () => {
-    navigation.navigate('tutorial');
-  };
-
-  const next = () => {
-    navigation.navigate('tutorial3');
-  };
-
-  const handleSubmit = () => {
-    if (!objective) {
-      console.log('No objective selected');
-      return;
-    }
-    if (objective === 'sell') {
-      console.log('🤩 choice :', objective);
-      navigation.navigate('profilingArtist', { objective: 'sell' });
-    } else if (objective === 'discover') {
-      console.log('🤩 choice :', objective);
-      navigation.navigate('profilingAmateur', { objective: 'discover' });
-    }
-  };
-
-  const getButtonStyle = (choice) => (
-    objective === choice ?
-      { ...styles.TagButton, backgroundColor: colors.primary } :
-      styles.TagButton
-  );
 
   return (
     <View style={styles.container}>
@@ -49,7 +17,6 @@ const Tutorial_2 = ({ navigation }) => {
         <Title>'Art</Title>
       </View>
       <Text style={styles.homeTitle}>2. Partagez</Text>
-      <Text style={styles.homeText}>Votre Galerie Personnelle</Text>
       <Text style={styles.text}>
         Exprimez votre créativité et inspirez les amateurs et professionnels de l'art du monde entier.
       </Text>
@@ -61,16 +28,15 @@ const Tutorial_2 = ({ navigation }) => {
       </View>
       <View style={styles.buttonContainer}>
         <Button
-          style={styles.button}
-          textStyle={{ color: 'black' }}
+          style={flex1}
+          secondary
           value="Retour"
-          onPress={previous}
+          onPress={() => navigation.goBack()}
         />
         <Button
-          style={styles.button}
-          textStyle={{ color: 'black' }}
+          style={flex1}
           value="Suivant"
-          onPress={next}
+          onPress={() => navigation.navigate('tutorial3')}
         />
       </View>
     </View>
@@ -94,6 +60,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    paddingHorizontal: 24,
     backgroundColor: colors.white,
     justifyContent: 'space-between',
   },
@@ -106,20 +73,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   homeTitle: {
-    textAlign: 'center',
     fontSize: 30,
-    color: '#000',
+    color: colors.black,
     marginVertical: 10,
   },
   text: {
-    textAlign: 'center',
     fontSize: 15,
-    color: '#000',
-    marginVertical: 10,
-  },
-  homeText: {
-    textAlign: 'center',
-    fontSize: 18,
     color: '#000',
     marginVertical: 10,
   },

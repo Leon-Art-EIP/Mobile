@@ -4,16 +4,21 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
+import { flex1, flexRow } from '../constants/styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
   const { objective, artSellingType } = route.params;
+  const [error, setError] = useState<string | undefined>(undefined);
   const [customCommands, setCustomCommands] = useState<string | null>(null);
 
-  console.log('received datas', objective, artSellingType);
 
   const next = () => {
-    if (customCommands == null)
-      return;
+    if (customCommands === null) {
+      return setError('Veuillez sélectionner une option');
+    }
+
     navigation.navigate('profilingLast', {
       objective,
       artSellingType,
@@ -21,67 +26,82 @@ const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
     });
   };
 
-  const previous = () => {
-    navigation.navigate('profilingArtist', {
-      objective: objective,
-      artSellingType: artSellingType,
-    });
-  };
-
-  useEffect(() => {
-    console.log('customCommands', customCommands);
-  }, [customCommands]); 
 
   const selectTag = (value: string) => {
     setCustomCommands(customCommands === value ? null : value);
   };
 
-  const getButtonStyle = (choice) => (
-    customCommands === choice ? 
-      { ...styles.TagButton, backgroundColor: colors.primary } : 
-      styles.TagButton
-  );
+
+  const getButtonStyle = (choice: string) => {
+    if (customCommands === choice) {
+      return {
+        ...styles.tagButton,
+        backgroundColor: colors.primary
+      };
+    } else {
+      return styles.tagButton;
+    }
+  };
+
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      <Text style={styles.question}>2/3 - Souhaitez-vous proposer des créations personnalisées ?</Text>
-      <View style={styles.Tags}>
-      <View style={styles.Tags}>
-        <TouchableOpacity
-          style={getButtonStyle('Yes')}
-          onPress={() => selectTag('Yes')}>
-          <Text style={[styles.buttonText, customCommands === 'Yes' && { color: 'white' }]}>
-            Oui
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+
+      <Text style={styles.question}>
+        2/3 - Souhaitez-vous proposer des créations personnalisées ?
+      </Text>
+
+      <View style={styles.tags}>
+
+        <Button
+          value='Oui'
+          style={[
+            getButtonStyle('Yes'),
+            { marginTop: 'auto' }
+          ]}
+          onPress={() => selectTag('Yes')}
+          secondary={customCommands !== 'Yes'}
+        />
+
+        <Button
+          value='Non'
           style={getButtonStyle('No')}
-          onPress={() => selectTag('No')}>
-          <Text style={[styles.buttonText, customCommands === 'No' && { color: 'white' }]}>
-            Non
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={getButtonStyle('Maybe')}
-          onPress={() => selectTag('Maybe')}>
-          <Text style={[styles.buttonText, customCommands === 'Maybe' && { color: 'white' }]}>
-            Peut-être plus tard
-          </Text>
-        </TouchableOpacity>
+          onPress={() => selectTag('No')}
+          secondary={customCommands !== 'No'}
+        />
+
+        <Button
+          value='Peut-être plus tard'
+          onPress={() => selectTag('Maybe')}
+          secondary={customCommands !== 'Maybe'}
+          style={[
+            getButtonStyle('Maybe'),
+            { marginBottom: 'auto' }
+          ]}
+        />
       </View>
+
+      <View style={[flexRow]}>
+        <Button
+          secondary
+          style={flex1}
+          textStyle={{ color: colors.black }}
+          value="Retour"
+          onPress={navigation.goBack}
+        />
+
+        <Button
+          disabled={!customCommands}
+          value="Suivant"
+          onPress={next}
+          style={flex1}
+        />
       </View>
-      <Button value="Suivant" onPress={next} />
-      <Button
-        style={{ backgroundColor: colors.secondary }}
-        textStyle={{ color: colors.black }}
-        value="Retour"
-        onPress={previous}
-      />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -89,7 +109,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    color: '#FFFF',
     backgroundColor: colors.white,
   },
   logo: {
@@ -110,17 +129,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
-  Tags: {
-    justifyContent: 'space-between',
-    margin: 23,
+  tags: {
     flex: 1,
     alignItems: 'center',
-    flexDirection: 'column',
   },
-  TagButton: {
-    padding: 13,
+  tagButton: {
+    padding: 8,
+    width: '90%',
     margin: 5,
-    borderRadius: 25,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.whitesmoke,

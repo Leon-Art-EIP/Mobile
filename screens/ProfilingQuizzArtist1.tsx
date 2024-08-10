@@ -4,10 +4,19 @@ import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
 import TagButton from '../components/tags/TagButton';
+import { flex1, flexRow, mh4, ml0, mr0, mt4 } from '../constants/styles';
+
+
+const ART_TYPES: string[] = [
+  "Peinture", "Calligraphie", "Photographie", "Mode", "Design Graphique",
+  "Tattoo", "Dessin", "Illustration", "Sculpture", "Ecriture", "Vidéo", "Autre"
+];
+
 
 const ProfilingQuizzArtist = ({ route, navigation } : any) => {
   const { objective } = route.params;
   const [artSellingType, setArtSelling] = useState([]);
+
 
   const selectTag = (value) => {
     setArtSelling((currentArtSellingType) => {
@@ -22,6 +31,7 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
     console.log('🟣 ArtSelling Datas;', artSellingType);
   };
 
+
   const next = () => {
     console.log('Selected Selling Types:', artSellingType);
     if (artSellingType.length === 0) {
@@ -35,9 +45,6 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
     });
   };
 
-  const previous = () => {
-    navigation.navigate('profiling', { objective });
-  };
 
   return (
     <View style={styles.container}>
@@ -45,77 +52,35 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
+
       <Text style={styles.question}>1/3 - Que comptez-vous vendre ?</Text>
-      <ScrollView style={styles.Tags}>
-        <TagButton
-          value="Peinture"
-          style={styles.TagButton}
-          onPress={selectTag}
-        />
-        <TagButton
-          value="Calligraphie"
-          style={styles.TagButton}
-          onPress={selectTag}
-        />
-        <TagButton
-          value="Photographie"
-          style={styles.TagButton}
-          onPress={selectTag}
-        />
-        <TagButton 
-          value="Mode"
-          style={styles.TagButton}
-          onPress={selectTag}
+
+      <ScrollView style={styles.tags}>
+        { ART_TYPES.map((type: string) => (
+          <TagButton
+            key={type}
+            value={type}
+            style={styles.tagButton}
+            onPress={selectTag}
           />
-          <TagButton 
-          value="Design Graphique"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
-          <TagButton 
-          value="Tattoo"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
-          <TagButton 
-          value="Dessin"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
-          <TagButton 
-          value="Illustration"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
-          <TagButton 
-          value="Sculpture"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
-          <TagButton 
-          value="Ecriture"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
-          <TagButton 
-          value="Video"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
-          <TagButton 
-          value="Autre"
-          style={styles.TagButton}
-          onPress={selectTag}
-          />
+        )) }
       </ScrollView>
-      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}/>
-      <Button value="Suivant" onPress={next} />
-      <Button
-        style={{ backgroundColor: colors.secondary }}
-        textStyle={{ color: colors.black }}
-        value="Retour"
-        onPress={previous}
-      />
+
+      <View style={[ flexRow, mh4 ]}>
+        <Button
+          secondary
+          style={[ flex1, ml0]}
+          value="Retour"
+          onPress={navigation.goBack}
+        />
+
+        <Button
+          disabled={!artSellingType}
+          value="Suivant"
+          onPress={next}
+          style={[flex1, mr0]}
+        />
+      </View>
     </View>
   );
 };
@@ -145,16 +110,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
-Tags: {
-  flex: 1,
-  marginHorizontal: 60,
-  marginBottom: 6,
-},
-TagButton: {
-  marginHorizontal: 5,
-  marginVertical: 3,
-},
-  toggle: {},
+  tags: {
+    flex: 1,
+    marginBottom: 6,
+  },
+  tagButton: {
+    marginHorizontal: 5,
+    marginVertical: 3,
+  },
 });
 
 export default ProfilingQuizzArtist;
