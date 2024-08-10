@@ -1,9 +1,9 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useContext, useState } from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Text, Image, StatusBar, StyleSheet, TouchableOpacity, View, FlatList, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../constants/colors";
-import { cTextDark, flex1, flexRow, fwBold, mbAuto, mh24, mh8, mlAuto, mr20, mr4, mr8, mt8, mtAuto, mv8, ph24, ph8 } from "../constants/styles";
+import { cText, cTextDark, flex1, flexRow, fwBold, mbAuto, mh24, mh8, mlAuto, mr20, mr4, mr8, mt8, mtAuto, mv8, ph24, ph8, taCenter } from "../constants/styles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -14,17 +14,8 @@ import { capitalize, formatName } from "../helpers/NamesHelper";
 import { useRefresh } from "@react-native-community/hooks";
 import Input from "../components/textInput/Input";
 import { MainContext } from "../context/MainContext";
-
-
-type CommentType = {
-  _id: string;
-  userName: string;
-  userId: string;
-  userPicture: string;
-  body: string;             // the actual content of the comment
-  likes: number;            // the number of likes
-  isLiked: boolean;
-};
+import { RedditPostType } from "../constants/homeValues";
+import { get, post } from "../constants/fetch";
 
 
 type PostType = {
@@ -40,33 +31,38 @@ type PostType = {
 };
 
 
-const DATA: PostType = {
-  _id: "mqlsdkfj",
-  body: "Ceci est un post super cool sur des trucs méga intéressants",
-  link: undefined,
-  userName: "dev",
-  userId: "qskdjfmlqksjdm,",
-  userPicture: "undefined",
-  likes: 1244,
-  isLiked: false,
-  comments: [
-    {
-      _id: "fgdqdsd",
-      userPicture: "undefined",
-      userId: "mlkjmlkjmlkj",
-      likes: 1,
-      userName: "dev2",
-      isLiked: true,
-      body: "Wow tro drol jador"
-    }
-  ]
+const DATA: RedditPostType = {
+  id: "POST_ID",
+  text: "POST_TEXT",
+  artPublicationId: "ARTPUBLICATION_ID",
+  artPublication: undefined,
+  userId: "USER_ID,",
+  likes: [],
+  user: {
+    username: "USERNAME",
+    profilePicture: "USER_PICTURE"
+  },
+  createdAt: new Date()
+};
+
+
+type CommentType = {
+  _id: string;
+  userName: string;
+  userId: string;
+  userPicture: string;
+  body: string;             // the actual content of the comment
+  likes: number;            // the number of likes
+  isLiked: boolean;
 };
 
 
 const SinglePost = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const context = useContext(MainContext);
-  const post: PostType = DATA;
+  const [redditPost, setRedditPost] = useState<RedditPostType>(DATA);
+  const [isLiked, setIsLiked] = useState<boolean>(!!redditPost?.likes.includes(context?.userId ?? "", 0));
   const [newComment, setNewComment] = useState<string>("");
 
 
@@ -81,6 +77,25 @@ const SinglePost = () => {
 
 
   const likePost = () => {
+    const callback = () => {
+      let new_object: RedditPostType = { ...redditPost };
+      if (isLiked) {
+        new_object.likes = new_object.likes?.filter(
+          (like: string) => like === context?.userId
+        );
+      } else {
+        new_object.likes?.push(context?.userId ?? "");
+      }
+      return setRedditPost({ ...new_object });
+    }
+
+    return post(
+      `/api/posts/like/${redditPost.id}`,
+      { id: redditPost?.id },
+      context?.token,
+      callback,
+      (err: any) => console.error({ ...err })
+    );
     // like or unlike a post
   }
 
@@ -89,6 +104,18 @@ const SinglePost = () => {
     // refresh data
     console.log("refreshing the data...");
   }
+
+
+  useEffect(() => {
+    setIsLiked(!!redditPost?.likes.includes(context?.userId ?? "", 0))
+  }, [post]);
+
+
+  useEffect(() => {
+    if (!!route?.params?.post) {
+      setRedditPost(route.params.post)
+    }
+  }, []);
 
 
   const { isRefreshing, onRefresh } = useRefresh(reloadData)
@@ -130,25 +157,25 @@ const SinglePost = () => {
         {/* Profile card */}
         <View style={[ flexRow ]}>
           <Image
-            source={{ uri: getImageUrl(post.userPicture) }}
+            source={{ uri: getImageUrl(redditPost?.user.profilePicture) }}
             style={styles.ppic}
           />
-          <Text style={styles.profileText}>{ formatName(capitalize(post.userName), 20) }</Text>
+          <Text style={styles.profileText}>{ formatName(capitalize(redditPost?.user.username), 20) }</Text>
         </View>
 
         {/* Actual content */}
-        <Text style={[cTextDark, mv8]}>{ post.body }</Text>
+        <Text style={[cTextDark, mv8]}>{ redditPost.text }</Text>
 
-        {/* { post.link && ( */}
+        { redditPost?.artPublication && (
           <TouchableOpacity
-            onPress={() => navigation.navigate('singleart', { id: post.link })}
+            onPress={() => navigation.navigate('singleart', { id: redditPost.artPublicationId ?? "" })}
           >
             <Image
-              source={{ uri: post.link }}
+              source={{ uri: redditPost.artPublication ?? "" }}
               style={styles.linkedImage}
             />
           </TouchableOpacity>
-        {/* ) } */}
+        ) }
 
         {/* Likes */}
         <TouchableOpacity
@@ -156,20 +183,26 @@ const SinglePost = () => {
           style={[flexRow, mt8]}
         >
           <AntDesign
-            name={post.isLiked ? 'heart' : 'hearto'}
+            name={isLiked ? 'heart' : 'hearto'}
             size={16}
-            color={post.isLiked ? colors.primary : colors.textDark}
+            color={isLiked ? colors.primary : colors.textDark}
             style={[ mtAuto, mbAuto, mr8 ]}
           />
-          <Text style={[ cTextDark, mtAuto, mbAuto ]}>{ post.likes }</Text>
+          <Text style={[ cTextDark, mtAuto, mbAuto ]}>{ redditPost?.likes.length }</Text>
         </TouchableOpacity>
       </Card>
 
       {/* Separator */}
       <View style={styles.line} />
 
+      <View style={flex1}>
+        <Text style={[ cText, taCenter ]}>
+          Les commentaires seront bientôt disponibles
+        </Text>
+      </View>
+
       {/* Comments */}
-      <FlatList
+      {/* <FlatList
         data={post.comments}
         renderItem={({ item }) => (
           <Card style={[ mh8, ph24 ]}>
@@ -180,7 +213,6 @@ const SinglePost = () => {
               />
               <Text style={styles.profileText}>{ item.userName }</Text>
 
-              {/* Like that comment */}
               <TouchableOpacity
                 onPress={likePost}
                 style={[ flexRow, mlAuto ]}
@@ -206,7 +238,7 @@ const SinglePost = () => {
           colors={[ colors.primary ]}
         />}
         contentContainerStyle={[flex1]}
-      />
+      /> */}
 
       {/* Write a comment */}
       <View style={styles.inputView}>
@@ -266,6 +298,7 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   inputView: {
+    marginTop: 'auto',
     paddingHorizontal: 12,
     backgroundColor: colors.disabledBg,
     borderRadius: 50,

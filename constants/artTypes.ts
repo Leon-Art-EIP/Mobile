@@ -1,3 +1,4 @@
+
 export interface ArtTypeFilter {
   category: string;
   types: string[];

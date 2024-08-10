@@ -20,7 +20,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import colors from "../constants/colors";
 import { ArtistType, ArticleType, RedditPostType } from "../constants/homeValues";
-import { get } from '../constants/fetch';
+import { get, post } from '../constants/fetch';
 import { useFocusEffect } from '@react-navigation/native';
 
 import Title from "../components/text/Title";
@@ -29,10 +29,9 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { aiCenter, bgColor, bgGrey, cTextDark, flex1, flexRow, mh0, mh24, mh4, mh8, ml4, mr4, mv24 } from '../constants/styles';
+import { aiCenter, bgColor, bgGrey, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24 } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
-import ImageViewer from 'react-native-image-zoom-viewer';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -120,21 +119,46 @@ const HomeScreen = ({ navigation }: any) => {
 
 
   const getPosts = () => {
-    // let's get the posts from the back
+    return get(
+      "/api/posts?filter=popular",
+      context?.token,
+      (res: any) => setPosts(res.data || []),
+      (err: any) => console.error({ ...err })
+    );
   }
 
 
-  // if publications is true, it will load art publicaations, else the posts
-  const refreshData = (publication: boolean) => {
+  const likePost = (id: string) => {
+    return post(
+      `/api/posts/like/${id}`,
+      { id: id },
+      context?.token,
+      getPosts,
+      (err: any) => console.error({ ...err })
+    );
+  }
+
+
+  // if publications is true, it will load art publications, else the posts
+  const refreshData = () => {
     getArticles();
     getArtists();
-    if (publications) {
+    if (isPulications) {
       getPublications();
     } else {
       getPosts();
     }
     getHasUnreadNotifications();
   };
+
+
+  useEffect(() => {
+    if (isPulications) {
+      getPublications();
+    } else {
+      getPosts();
+    }
+  }, [isPulications]);
 
 
   useEffect(() => {
@@ -206,11 +230,11 @@ const HomeScreen = ({ navigation }: any) => {
               <Title
                 size={18}
                 style={{ color: colors.disabledFg }}
-              >Looks quite empty here !</Title>
+              >C'est tout vide par ici !</Title>
               <Text style={{
                 fontWeight: '500',
                 color: colors.disabledFg
-              }}>Try to refresh the page</Text>
+              }}>Essaie de recharger la page</Text>
             </View>
           ) : (
             <FlatList
@@ -249,11 +273,11 @@ const HomeScreen = ({ navigation }: any) => {
               <Title
                 size={18}
                 style={{ color: colors.disabledFg }}
-              >Looks quite empty here !</Title>
+              >C'est tout vide par ici !</Title>
               <Text style={{
                 fontWeight: '500',
                 color: colors.disabledFg
-              }}>Try to refresh the page</Text>
+              }}>Essaie de recharger la page</Text>
             </View>
             ) : (
             <FlatList
@@ -329,20 +353,36 @@ const HomeScreen = ({ navigation }: any) => {
                 numColumns={1}
                 renderItem={(post) => (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('singlepost', { id: post.item?._id })}
+                    onPress={() => navigation.navigate('singlepost', { post: post.item })}
                   >
-                    <Card>
+                    <Card style={mh0}>
+                      <View style={flexRow}>
+                        <Image
+                          source={{ uri: getImageUrl(post.item.artPublication ?? "") }}
+                          style={{
+                            height: 30,
+                            width: 30,
+                            borderRadius: 50,
+                            backgroundColor: colors.tertiary
+                          }}
+                        />
+
+                        <Text style={[cTextDark, mtAuto, mbAuto, ml8]}>
+                          { post.item.user.username }
+                        </Text>
+                      </View>
+
                       {/* To update according to the back-end */}
-                      <Text>{ post.item?.body }</Text>
+                      <Text>{ post.item?.text }</Text>
 
                       {/* if retweet, show picture */}
-                      { post.item?.linked && (
+                      { post.item?.artPublication && (
                         <TouchableOpacity
-                          onPress={() => navigation.navigate('singlart', { id: post.item?.linked?._id })}
+                          onPress={() => navigation.navigate('singlart', { id: post.item?.artPublicationId })}
                         >
                           <Image
-                            source={{ uri: getImageUrl(post.item?.linked?.content) }}
-                            style={{ height: 200, borderRadius: 12 }}
+                            source={{ uri: getImageUrl(post.item?.artPublication) }}
+                            style={styles.postImage}
                           />
                         </TouchableOpacity>
                       ) }
@@ -352,25 +392,17 @@ const HomeScreen = ({ navigation }: any) => {
 
                         {/* Like button */}
                         <TouchableOpacity
-                          onPress={() => console.log("like that thing")}
+                          onPress={() => likePost(post.item.id)}
+                          style={[flexRow, mt8]}
                         >
                           <AntDesign
-                            name="hearto" // if post liked then heart
+                            name={post.item.likes.includes(context?.userId ?? "", 0) ? "heart" : "hearto"}
                             size={24}
-                            color={colors.textDark} // if post liked then colors.primary
+                            color={post.item.likes.includes(context?.userId ?? "", 0) ? colors.primary : colors.textDark}
                           />
+                          <Text style={[cTextDark, ml8]}>{ post.item.likes.length }</Text>
                         </TouchableOpacity>
 
-                        {/* Report */}
-                        <TouchableOpacity
-                          onPress={() => console.log('report that thing')}
-                        >
-                          <AntDesign
-                            name="warning"
-                            size={24}
-                            color={colors.textDark}
-                          />
-                        </TouchableOpacity>
                       </View>
                     </Card>
                   </TouchableOpacity>
@@ -507,6 +539,12 @@ const styles = StyleSheet.create({
   publicationTitle: {
     color: colors.black,
   },
+  postImage: {
+    height: 200,
+    borderRadius: 12,
+    backgroundColor: colors.tertiary,
+    marginVertical: 8
+  }
 });
 
 

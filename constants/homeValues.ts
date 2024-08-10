@@ -18,11 +18,6 @@ type PublicationType = {
   content: string;
 };
 
-type RedditPostType = {
-  _id: string;
-  // still a thing to see with the back end
-};
-
 type ArtistType = {
   _id: string;
   username: string;
@@ -41,6 +36,21 @@ type ArtistType = {
   likedPublications: string[];
   profilePicture: string | undefined;
 };
+
+export type RedditPostType = {
+  id: string;
+  userId: string;
+  text: string;
+  createdAt: Date;
+  likes: string[];
+  user: {
+    username: string;
+    profilePicture: string;
+  };
+  artPublicationId: string | undefined;
+  artPublication: string | undefined;
+};
+
 
 type PostType = {
   _id: string;
