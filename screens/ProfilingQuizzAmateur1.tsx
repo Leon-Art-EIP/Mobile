@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
-import TagButton from '../components/TagButton';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
+import TagButton from '../components/tags/TagButton';
 
 const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
   const { objective } = route.params;
@@ -112,15 +112,7 @@ const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
           onPress={selectTag}
           />
       </ScrollView>
-      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}>
-          <TagButton 
-              style={ styles.toggle }
-              value="Oui"
-          />
-          <Text style={{paddingRight: 20}}>
-          Localiser ma position et optimiser mon référencement sur l’application
-          </Text>
-      </View>
+      <View style={{ flexDirection: 'row', marginTop: 5, marginRight: 70 }}/>
       <Button value="Suivant" onPress={next} />
       <Button
         style={{ backgroundColor: colors.secondary }}

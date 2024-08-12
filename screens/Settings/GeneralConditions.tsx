@@ -1,13 +1,25 @@
-import { SafeAreaView, StyleSheet, StatusBar, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  StatusBar,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Alert,
+  ScrollView
+} from 'react-native';
 import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 
 // Local imports
-import Title from '../../components/Title';
+import Title from '../../components/text/Title';
 import colors from '../../constants/colors';
 import BackArrow from '../../assets/images/back_arrow_black.png';
 import { MainContext } from '../../context/MainContext';
 import { get, post } from '../../constants/fetch';
+import {flex1} from "../../constants/styles";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const GeneralConditions = () => {
   const navigation = useNavigation();
@@ -48,14 +60,20 @@ const GeneralConditions = () => {
   return (
     <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
       <StatusBar backgroundColor={colors.white} />
+
+      {/* Go back button */}
       <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
-          >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+        onPress={() => handleBackButtonClick()}
+        style={styles.backButton}
+      >
+        <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
       </TouchableOpacity>
+
       <Title style={styles.mainTitle}>Conditions générales de vente</Title>
-      <Text style={styles.textContent}>{conditions}</Text>
+
+      <ScrollView style={flex1}>
+        <Text style={styles.textContent}>{conditions}</Text>
+      </ScrollView>
 
     </SafeAreaView>
   );

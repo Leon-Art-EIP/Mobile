@@ -3,67 +3,66 @@ import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import colors from '../constants/colors';
 import { ArtistType } from '../constants/homeValues';
 import { getImageUrl } from '../helpers/ImageHelper';
-import Card from './Card';
-import Title from './Title';
+import Card from './cards/Card';
+import Title from './text/Title';
 
 interface ArtistCardProps {
   onPress?: () => void;
-  item: ArtistType;
+  item: ArtistType | undefined;
   path: string;
+  style?: any;
+  showTitle?: boolean;
 }
-
-const API_URL = process.env.REACT_APP_API_URL;
-
 
 const ArtistCard = ({
   onPress = () => {},
   item,
+  style = {},
+  showTitle = true,
 }: ArtistCardProps) => (
-  <TouchableOpacity
-    accessibilityRole="button"
-    onPress={onPress}
-  >
-    <Card style={styles.container}>
-      { item?.profilePicture && (
+  <TouchableOpacity onPress={onPress}>
+    <Card style={[styles.container, style?.container]}>
+      {item?.profilePicture && (
         <Image
-          style={styles.image}
+          style={[styles.image, style?.image]}
           source={{ uri: getImageUrl(item?.profilePicture) }}
         />
-      ) }
+      )}
     </Card>
-    <Title size={16} style={styles.title}>
-      {item.username}
-    </Title>
+    {showTitle && (
+      <Title size={16} style={[styles.title, style.title]}>
+        {item?.username}
+      </Title>
+    )}
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.artistPlHolder,
+    backgroundColor: colors.white,
     marginRight: 5,
-    marginBottom: 60,
-    textAlign: 'center',
-    width: 120,
-    height: 120,
+    marginBottom: 10,
+    width: 80,
+    height: 80,
     position: 'relative',
-    borderRadius: 70,
+    borderRadius: 40,
   },
   image: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: 120,
-    height: 120,
-    borderRadius: 70,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   title: {
-    marginRight: 5,
-    marginLeft: 25,
-    position: 'absolute',
-    bottom: 10,
-    left: '50%',
     transform: [{ translateX: -50 }],
+    position: 'absolute',
+    bottom: -20,
+    left: '50%',
     color: colors.darkGreyBg,
+    fontSize: 12,
+    disabled: false,
   },
 });
 

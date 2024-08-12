@@ -6,6 +6,12 @@ import Article from '../screens/Article';
 import SingleArt from '../screens/SingleArt';
 import OtherProfile from '../screens/OtherProfile';
 import Stripe from '../screens/Stripe';
+import Notifications from '../screens/Notifications';
+import Conversation from '../screens/Conversation';
+import Collection from '../screens/Collection';
+import ReportScreen from '../screens/ReportScreen';
+import SingleOrder from '../screens/SingleOrder';
+import SinglePost from '../screens/SinglePost';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -18,8 +24,14 @@ const HomeNavigator = () => {
       <Stack.Screen name="homemain" component={HomeScreen} options={options} />
       <Stack.Screen name="article" component={Article} options={options} />
       <Stack.Screen name="singleart" component={SingleArt} options={options} />
+      <Stack.Screen name="singlepost" component={SinglePost} options={options} />
       <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
       <Stack.Screen name="stripe" component={Stripe} options={options} />
+      <Stack.Screen name="notifications" component={Notifications} options={options} />
+      <Stack.Screen name="single_conversation" component={Conversation} options={options} />
+      <Stack.Screen name="collection" component={Collection} options={options} />
+      <Stack.Screen name="report" component={ReportScreen} options={options} />
+      <Stack.Screen name="single_order" component={SingleOrder} options={options} />
     </Stack.Navigator>
   );
 }

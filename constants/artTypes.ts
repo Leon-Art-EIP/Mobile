@@ -1,8 +1,18 @@
+
 export interface ArtTypeFilter {
   category: string;
   types: string[];
   collapsed: boolean;
 }
+
+export type CollectionType = {
+  _id: string;
+  name: string;
+  user: string; // user id
+  __v: 0;
+  artPublications: string[]; // publication IDs
+  isPublic: boolean;
+};
 
 export const artTypeFilters: ArtTypeFilter[] = [
   {

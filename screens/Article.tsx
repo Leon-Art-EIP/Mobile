@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
+import Content from '../components/text/Content';
 
 const Article = ({ navigation, route }: any) => {
   const { article } = route.params;
@@ -18,16 +19,16 @@ const Article = ({ navigation, route }: any) => {
         <Title>'Art</Title>
       </View>
       <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <Text style={styles.artTitle}>
+        <Title style={styles.artTitle}>
           {article.title}
-        </Text>
+        </Title>
       </View>
       <View>
-        <Text
+        <Content
           style={styles.textInput}
         >
           {article.content}
-        </Text>
+        </Content>
       </View>
       <View style={{ marginTop: 20 }}>
         <Button

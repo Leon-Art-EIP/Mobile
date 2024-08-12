@@ -2,10 +2,9 @@ import React, { useState, useContext } from 'react';
 import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 
-import Button from '../components/Button';
-import Title from '../components/Title';
+import Button from '../components/buttons/Button';
+import Title from '../components/text/Title';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
@@ -20,50 +19,52 @@ const Login = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const context = useContext(MainContext);
 
-  const onLogin = async (response: any) => {
-    if (response && response.data && response.data.token) {
-      const tokenFromDB = response.data.token;
-      console.log("Token : " + tokenFromDB);
-      // console.log(response.data);
-      // console.log(response.data.user.id);
 
-      try {
-        await AsyncStorage.setItem('jwt', tokenFromDB);
-        context?.setToken(tokenFromDB);
-        context?.setUserEmail(response.data.user.email);
-        context?.setUserId(response.data.user.id);
-        context?.setisArtist(response.data.user.is_artist);
-        navigation.navigate('main');
-      } catch (error) {
-        console.error('Error storing token:', error);
-        Alert.alert('Login Failed', 'Error storing token');
-      }
-    } else {
+  const onLogin = async (response: any) => {
+    if (!response || !response.data || !response.data.token) {
       console.error('Invalid response format: ', response);
-      Alert.alert('Login Failed', 'Invalid response format');
+      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
+      return;
     }
+
+    const tokenFromDB = response.data.token;
+
+    try {
+      await AsyncStorage.setItem('jwt', tokenFromDB);
+    } catch (error) {
+      console.error('Error storing token:', error);
+      Alert.alert('Login Failed', 'Error storing token');
+      return;
+    }
+
+    context?.setToken(tokenFromDB);
+    context?.setUserEmail(response.data.user.email);
+    context?.setUserId(response.data.user.id);
+    context?.setisArtist(response.data.user.is_artist);
+    context?.setUsername(response.data.user.username);
     setIsLoading(false);
+    return navigation.navigate('main');
   }
 
 
-  const onLoginError = async (error: any) =>{
+  const onLoginError = async (error: any) => {
     if (error.response) {
-      console.error('Server responded with an error:', { ...error.response.data });
+      console.error('Server responded with an error: ', { ...error.response.data });
       if (error.response.status === 422) {
         console.error('Validation error. Please check your input data.');
-        Alert.alert('Signup Failed', 'Validation error. Please check your input data.');
+        Alert.alert("Informations invalides", "Veuillez vérifier vos informations de connexion");
       } else {
-        console.error('Other server error:', { ...error.response.status });
-        Alert.alert('Signup Failed', 'Other server error');
+        console.error('Other server error: ', { ...error.response.status });
+        Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
       }
     } else if (error.request) {
-      console.error('Request was made but no response was received:', { ...error.request });
-      Alert.alert('Signup Failed', 'Request was made but no response was received');
+      console.error('Request was made but no response was received: ', { ...error.request });
+      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
     } else {
-      console.error('Error setting up the request:', { ...error.message });
-      Alert.alert('Signup Failed', 'Error setting up the request');
+      console.error('Error setting up the request: ', { ...error.message });
+      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
     }
-    console.error('Error config:', { ...error.config });
+    console.error('Error config: ', { ...error.config });
     setIsLoading(false);
   }
 
@@ -82,35 +83,6 @@ const Login = ({ navigation }: any) => {
   };
 
 
-  const handleGoogleLogin = () => {
-    navigation.navigate('google');
-  };
-
-
-  const handleRegister = () => {
-    navigation.navigate('signup');
-  };
-
-
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-  };
-
-
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-  };
-
-
-  const handleForgotPassword = () => {
-    navigation.navigate('recover');
-  };
-
-
-  const handleRememberMeChange = () => {
-    setRememberMe(!rememberMe);
-  };
-
   return (
     <View style={styles.container}>
 
@@ -128,7 +100,7 @@ const Login = ({ navigation }: any) => {
             <Image source={require('../assets/mail_icon.png')} style={styles.icon} />
             <TextInput
               placeholder="Email"
-              onChangeText={handleEmailChange}
+              onChangeText={(newEmail: string) => setEmail(newEmail)}
               placeholderTextColor={colors.disabledFg}
               style={styles.passwordInput}
             />
@@ -140,7 +112,7 @@ const Login = ({ navigation }: any) => {
             <TextInput
               placeholder="Mot de passe"
               placeholderTextColor={colors.disabledFg}
-              onChangeText={handlePasswordChange}
+              onChangeText={(newPsw: string) => setPassword(newPsw)}
               style={styles.passwordInput}
               secureTextEntry={!showPassword}
               value={password}
@@ -157,24 +129,29 @@ const Login = ({ navigation }: any) => {
           </View>
         </View>
 
-        <TouchableOpacity onPress={handleRememberMeChange}>
+        <TouchableOpacity
+          onPress={() => setRememberMe((currentValue: boolean) => !currentValue)}
+        >
           <View style={styles.checkboxContainer}>
             <CheckBox
-              tintColor={{ true: colors.primary, false: colors.black }}
+              tintColors={{ true: colors.primary, false: colors.textDark }}
+              tintColor={colors.textDark}
+              onFillColor={colors.primary}
               value={rememberMe}
-              onValueChange={handleRememberMeChange}
+              onValueChange={(value: boolean) => setRememberMe(value)}
             />
             <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleForgotPassword}>
+        <TouchableOpacity onPress={() => navigation.navigate('recover')}>
           <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
         </TouchableOpacity>
 
         { isLoading && (
           <ActivityIndicator color={colors.primary} />
         )}
+
         <Button
           onPress={handleLogin}
           value="Se connecter"
@@ -192,18 +169,17 @@ const Login = ({ navigation }: any) => {
           <View style={styles.line} />
         </View>
 
-        <Button
-          onPress={handleGoogleLogin}
-          value="Se connecter avec Google"
-          style={[styles.googleButton, { backgroundColor: colors.tertiary }]}
-          textStyle={styles.googleButtonText}
-        />
+        {/* <Button */}
+        {/*   onPress={() => navigation.navigate('google')} */}
+        {/*   value="Se connecter avec Google" */}
+        {/*   style={[styles.googleButton, { backgroundColor: colors.platinium }]} */}
+        {/*   textStyle={styles.googleButtonText} */}
+        {/* /> */}
 
         <Button
-          onPress={handleRegister}
+          onPress={() => navigation.navigate('signup')}
           value="S'inscrire"
-          style={styles.registerButton}
-          textStyle={styles.registerButtonText}
+          tertiary
         />
       </SafeAreaView>
     </View>
@@ -256,16 +232,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'white',
+    color: 'black',
   },
   registerButton: {
-    backgroundColor: 'gray',
+    backgroundColor: colors.deepyellow,
   },
   registerButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'white',
+    color: colors.black,
   },
   titleView: {
     display: 'flex',
@@ -294,7 +270,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rememberMeText: {
-    color: colors.black,
+    color: colors.textDark,
     marginLeft: 8
   },
   orContainer: {

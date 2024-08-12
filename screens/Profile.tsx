@@ -1,30 +1,36 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
-import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import Modal from 'react-native-modal';
 // Local imports
-import SettingsButtonImage from '../assets/images/settings_logo.png'
-import EditButtonImage from '../assets/images/edit_logo.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import profilePicture from '../assets/images/user.png'
-import bannerImage from '../assets/images/banner.jpg'
-import emptyCollectionImage from '../assets/icons/hamburger.png'
-import Button from '../components/Button';
+import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
+
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
+import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto } from '../constants/styles';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Feather from "react-native-vector-icons/Feather";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Card from '../components/cards/Card';
+import { CollectionType } from '../constants/artTypes';
+import { formatName } from '../helpers/NamesHelper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Input from '../components/textInput/Input';
+import Subtitle from '../components/text/Subtitle';
 
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
 
 const Profile = () => {
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('Artwork'); 
-  const [userCollections, setUserCollections] = useState([]);
+  const [activeTab, setActiveTab] = useState('Artwork');
+  const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
-  const [userArtworksCount, setUserArtworksCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const context = useContext(MainContext);
+  const [newCollectionName, setNewCollectionName] = useState<string>("");
   const token = context?.token;
   const userID = context?.userId;
 
@@ -45,16 +51,12 @@ const Profile = () => {
     navigation.navigate('settings');
   };
 
-  // TODO : remplacer pars cette version quand SingleArt est ready
-  // const handleArtworkClick = (pageName, artworkId) => {
-  //   navigation.navigate(pageName, artworkId);
-  // };
-  const handleArtworkClick = (pageName) => {
-    navigation.navigate(pageName);
+  const handleArtworkClick = (id: string) => {
+    navigation.navigate('singleArt', { id: id });
   };
 
-  const handleCollectionClick = (collction) => {
-    navigation.navigate('collection', { collection: collction});
+  const handleCollectionClick = (collection: CollectionType) => {
+    navigation.navigate('collection', { collection: collection });
   };
 
   interface Artwork {
@@ -88,155 +90,187 @@ const Profile = () => {
     __v: number;
     bannerPicture: string;
     profilePicture: string;
+    biography: string;
   }
 
   const fetchUserArtworks = async () => {
-    try {
-      if (token) {
-        const url = `/api/art-publication/user/${userID}`;
-        const callback = (response) => {
-          setUserArtworks(response.data);
-          setUserArtworksCount(response.data.length);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user artworks:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
-        };
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-        Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres de l\'utilisateur :', error);
-      Alert.alert('Erreur de récupération des œuvres', 'Une erreur s\'est produite.');
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return;
     }
+
+    const url = `/api/art-publication/user/${context.userId}`;
+    console.log(context);
+
+    const callback = (response: any) => {
+      setUserArtworks(response.data);
+    };
+
+    const onErrorCallback = (error: any) => {
+      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
+      return console.error('Error fetching user artworks:', error);
+    };
+
+    get(url, token, callback, onErrorCallback);
   };
 
   const fetchUserData = async () => {
-        try {
-      if (token) {
-        const url = `/api/user/profile/${userID}`;
-        const callback = (response) => {
-          setUserData(response.data);
-          fetchUserArtworks();
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user data:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-        };
-
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+    if (!token) {
+      Alert.alert('Une erreur est survenue', 'Veuillez vous reconnecter.');
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      return;
     }
+
+    const url = `/api/user/profile/${userID}`;
+
+    const callback = (response: any) => {
+      setUserData(response.data);
+      fetchUserArtworks();
+    };
+
+    const onErrorCallback = (error: any) => {
+      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
+      return console.error('Error fetching user data:', error);
+    };
+
+    get(url, token, callback, onErrorCallback);
+  };
+
+  const updateCollections = async () => {
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      Alert.alert("Erreur", "Veuillez vous reconnecter");
+      return;
+    }
+
+    get(
+      `/api/collection/my-collections`,
+      token,
+      (response: any) => {
+        setUserCollections(response.data);
+        setIsRefreshing(false);
+      },
+      (error: any) => console.error({ ...error })
+    );
+  };
+
+  const reloadProfile = () => {
+    console.log("context: ", context);
+    setIsRefreshing(true);
+    fetchUserData();
+    updateCollections();
+  };
+
+
+  // Should be able to create a new empty collection from the profile screen
+  // but it doesn't work yet. We're waiting for the back-end (as usual lol)
+  const createCollection = async (collectionName: string) => {
+    if (!token) {
+      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+    }
+
+    if (!collectionName) {
+      return ToastAndroid.show('Veuillez nommer votre collection', ToastAndroid.SHORT);
+    }
+
+    const url = `/api/collection`;
+    const body = {
+      artPublicationId: undefined,
+      collectionName: collectionName,
+      isPublic: true,
+    };
+
+    const callback = (response: any) => {
+      Alert.alert('Oeuvre ajoutée à la collection "' + collectionName + '".');
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error while saving to collection:', error);
+      Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+    };
+
+    post(url, body, token, callback, onErrorCallback);
+    return setIsModalVisible(false);
   };
 
   useFocusEffect(
-    React.useCallback(() => {}, [navigation])
+    React.useCallback(reloadProfile, [navigation])
   );
 
-  useEffect(() => {
-    fetchUserData();
-    updateCollections();
-  }, []);
 
-  const updateCollections = async () => {
-      try {
-        const token = context?.token;
-        if (token) {
-          get(
-            `/api/collection/my-collections`,
-            token,
-            (response: any) => setUserCollections(response.data),
-            (error: any) => console.error({ ...error })
-          )
-        } else {
-          console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-          Alert.alert("Erreur", "Veuillez vous reconnecter");
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des collections de l\'utilisateur :', error);
-        Alert.alert('Erreur de récupération des collections', 'Une erreur s\'est produite.');
-      }
-  }
+  useEffect(reloadProfile, []);
+
 
   return (
-    <ScrollView nestedScrollEnabled>
-    <View>
+    <SafeAreaView style={[ flex1, bgColor ]}>
+      <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
+
       {/* Buttons : Back, Edit profile and Settings */}
-      <View style={{ flexDirection: 'row', marginRight: 20 }}>
+      <View style={[ flexRow, mr20, { zIndex: 2 } ]}>
+
+        {/* Go back button */}
         <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
+          onPress={handleBackButtonClick}
           style={styles.backButton}
-          >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
+        >
+          <Ionicons
+            name="chevron-back-outline"
+            color={colors.whitesmoke}
+            size={32}
+          />
         </TouchableOpacity>
+
+        {/* Edit button */}
         <TouchableOpacity
           onPress={() => handleEditButtonClick()}
           style={styles.editButton}
         >
-          <Image source={EditButtonImage} style={{ width: 40, height: 40 }} />
+          <Feather name="edit-2" color={colors.whitesmoke} size={24} />
         </TouchableOpacity>
+
+        {/* Settings button */}
         <TouchableOpacity
           onPress={() => handleSettingsButtonClick()}
           style={styles.settingButton}
         >
-          <Image source={SettingsButtonImage} style={{ width: 40, height: 40 }} />
+          <MaterialIcons
+            name="settings"
+            color={colors.whitesmoke}
+            size={32}
+          />
         </TouchableOpacity>
       </View>
       {/* Banner */}
       <View style={styles.banner}>
         <Image
-          source={bannerImage}
+          source={{ uri: getImageUrl(userData?.bannerPicture) }}
           style={styles.bannerImage}
           resizeMode="cover"
         />
       </View>
+
       {/* Profile picture */}
       <View style={styles.overlayImage}>
         <View style={styles.circleImageContainer}>
           <Image
-            source={profilePicture}
+            source={{ uri: getImageUrl(userData?.profilePicture) }}
             style={styles.profilePicture}
           />
         </View>
       </View>
+
       {/* Text blocks : followers, name and posts*/}
       <View style={styles.textBlocks}>
+
         {/* Bloc de texte followers */}
         <View style={styles.textBlock}>
           <TouchableOpacity onPress={handleToFollowerList}>
             <View style={styles.centeredText}>
               <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-              <Text style={styles.title}>followers</Text>
+              <Text style={styles.title}>abonnés</Text>
             </View>
-
           </TouchableOpacity>
         </View>
 
@@ -245,26 +279,28 @@ const Profile = () => {
           <Text style={styles.centerTitle}>{userData ? userData.username : ""}</Text>
           {userData && userData.availability !== "unavailable" && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
-            )}
+          )}
         </View>
-        
+
         <View style={styles.textBlock}>
-          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworks.length, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
+
       {/* Decorative line */}
       <View style={styles.decorativeLine} />
+
       {/* Tab selections button : Artwork, Collections and About */}
       <View style={styles.tabsNavigation}>
         <Button
-          value="Artwork"
+          value="Oeuvres"
           secondary={activeTab !== 'Artwork'}
           tertiary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Artwork')}
-          />
+        />
         <Button
           value="Collections"
           secondary={activeTab !== 'Collections'}
@@ -272,7 +308,7 @@ const Profile = () => {
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Collections')}
-          />
+        />
         <Button
           value="A propos"
           secondary={activeTab !== 'A propos'}
@@ -280,73 +316,158 @@ const Profile = () => {
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('A propos')}
-          />
+        />
       </View>
-      {/* Artwork tab */}
-      {activeTab === 'Artwork' &&
+
+      {/* Artworks */}
+      { activeTab === 'Artwork' && (
         <View style={styles.squareContainer}>
-          {userArtworks.map((artwork, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-            onPress={() => handleArtworkClick('singleArt', { artworkId: artwork._id })}
-          >
-            <Image
-              source={{ uri: `${API_URL}api/${artwork.image}` }}
-              style={{ flex: 1, borderRadius: 10 }}
-              resizeMode="cover"
-              onError={(error) => console.log(`Error loading image ${index}:`, error.nativeEvent)}
-            />
-          </TouchableOpacity>
-          ))}
-        </View>
-      }
-      {/* Collections tab */}
-      {activeTab === 'Collections' && userCollections.length > 0 && (
-        <View style={styles.squareContainer}>
-          {userCollections.map((collection, index) => (
-            <TouchableOpacity
-              key={collection._id}
-              style={[
-                styles.squareFrame,
-                {
-                  width: '48%', // Ajuste la largeur pour que deux collections puissent s'ajuster dans une ligne du tableau
-                  marginLeft: index % 2 === 0 ? 0 : '2%', // Si index est pair, la collection est collée à gauche, sinon à droite
-                  marginRight: index % 2 === 0 ? '2%' : 0, // Si index est pair, ajoute une marge à droite pour les collections impaires
-                  marginBottom: 10, // Ajoute une marge en bas pour séparer les lignes
-                },
-              ]}
-              onPress={() => handleCollectionClick(collection)}
-            >
+
+          { userArtworks.length === 0 ? (
+            <View style={[ flex1, aiCenter, jcCenter ]}>
               <Image
-                source={
-                  collection.artPublications.length > 0
-                    ? { uri: `${API_URL}api/${collection.artPublications[0].image}` }
-                    : emptyCollectionImage // Remplace avec le chemin réel de ton image vide
-                }
-                style={{ flex: 1, borderRadius: 10 }}
-                resizeMode="cover"
-                onError={(error) => console.log(`Error loading image for collection ${collection._id}:`, error.nativeEvent)}
+                source={require('../assets/icons/box.png')}
+                style={[
+                  { width: 80, height: 80 },
+                  mlAuto,
+                  mrAuto,
+                ]}
               />
-              <Text style={styles.collectionName}>{collection.name}</Text>
-            </TouchableOpacity>
-          ))}
+              <Text style={[ cTextDark ]}>
+                Cet utilisateur n'a pas posté d'oeuvres !
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={userArtworks}
+              numColumns={3}
+              renderItem={(e) => (
+                <TouchableOpacity
+                  onPress={() => handleArtworkClick(e.item._id)}
+                  key={e.item._id}
+                  style={[mh4, mv4]}
+                >
+                  <Image
+                    source={{ uri: getImageUrl(e.item.image) }}
+                    style={styles.artworkImage}
+                  />
+                </TouchableOpacity>
+              )}
+              refreshControl={(
+                <RefreshControl
+                  colors={[colors.primary]}
+                  refreshing={isRefreshing}
+                  onRefresh={reloadProfile}
+                />
+              )}
+            />
+          ) }
         </View>
       )}
 
+      {/* Collections tab */}
+      { activeTab === 'Collections' && (
+        <>
+          { userCollections.length !== 0 ? (
+            <FlatList
+              data={userCollections}
+              numColumns={2}
+              renderItem={({ item }: any) => (
+                <TouchableOpacity
+                  key={item?._id.toString()}
+                  style={[
+                    styles.squareFrame,
+                    { backgroundColor: getRandomBgColor() }
+                  ]}
+                  onPress={() => handleCollectionClick(item)}
+                >
+                  <Text style={styles.collectionName}>{
+                    formatName(item?.name ?? "Collection", 10)
+                  }</Text>
+                </TouchableOpacity>
+              )}
+              refreshControl={(
+                <RefreshControl
+                  colors={[colors.primary]}
+                  refreshing={isRefreshing}
+                  onRefresh={reloadProfile}
+                />
+              )}
+            />
+          ) : (
+            <Card style={{
+              backgroundColor: colors.offerBg,
+              alignSelf: 'center',
+              ...aiCenter, ...mtAuto, ...mbAuto
+            }}>
+              <TouchableOpacity
+                style={flexRow}
+                /* onPress={() => setIsModalVisible(true)} */
+                onPress={() => ToastAndroid.show("Cette fonctionnalité arrive bientôt !", ToastAndroid.LONG)}
+              >
+                <Ionicons name="add" color={colors.offerFg}size={24} />
+                <Text style={{ color: colors.offerFg, marginLeft: 8 }}>Créer une nouvelle collection</Text>
+              </TouchableOpacity>
+            </Card>
+          ) }
+        </>
+      ) }
 
+      { activeTab === 'A propos' && (
+        <Card style={styles.biographyContainer}>
+          <Text style={[styles.biography, cTextDark]}>
+            {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
+          </Text>
+        </Card>
+      ) }
 
-    </View>
-    </ScrollView>
+      {/* Collection modal */}
+      <Modal
+        isVisible={isModalVisible}
+        style={styles.modal}
+      >
+        <View style={styles.modalContent}>
+          <Subtitle style={styles.modalTitle}>Créer une nouvelle collection</Subtitle>
+
+          <Input
+            style={styles.input}
+            placeholder="Nouvelle collection"
+            onTextChanged={setNewCollectionName}
+          />
+
+          <View style={[flexRow, mt8]}>
+            <Button
+              value="Annuler"
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+              onPress={() => setIsModalVisible(false)}
+              secondary
+            />
+            <Button
+              value="Créer"
+              onPress={() => createCollection(newCollectionName)}
+              style={styles.collectionBtn}
+              textStyle={{ fontSize: 14 }}
+            />
+          </View>
+        </View>
+      </Modal>
+
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   centeredText: {
     justifyContent: 'center',
     alignItems: 'center', // Ajoutez cette ligne
   },
-  banner: { 
+  input: {
+    backgroundColor: colors.disabledBg,
+    marginHorizontal: 4,
+    marginVertical: 8,
+  },
+  banner: {
     backgroundColor: 'lightblue',
     height: 180,
     width: '100%',
@@ -358,13 +479,48 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   overlayImage: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modal: {
+    height: Dimensions.get('window').height / 3,
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: Dimensions.get('window').width - 24,
+    backgroundColor: colors.white,
+    padding: 20,
+    borderRadius: 20,
+  },
+  collectionBtn: {
+    marginHorizontal: 2,
+    height: 40,
+    marginVertical: 0,
+    flex: 1,
+  },
+  modalTitle: {
+    color: colors.textDark,
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  collectionButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  collectionButtonText: {
+    color: '#3498db',
   },
   profilePicture: {
     width: 110,
     height: 110,
+    backgroundColor: colors.white,
+    borderRadius: 200
   },
   circleImageContainer: {
     width: 110,
@@ -373,7 +529,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'absolute',
     top: -55,
-
   },
   textBlocks: {
     flexDirection: 'row',
@@ -388,12 +543,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontStyle: 'normal',
     fontWeight: '400',
-    color: colors.tertiary,
+    color: colors.black,
   },
   value: {
     fontSize: 22,
     fontWeight: '600',
-    color: colors.tertiary,
+    color: colors.black,
   },
   centerTextBlock: {
     flex: 1,
@@ -403,7 +558,7 @@ const styles = StyleSheet.create({
   centerTitle: {
     fontSize: 25,
     fontWeight: 'bold',
-    color: colors.tertiary,
+    color: colors.black,
     textAlign: 'center',
   },
   centerSubtitle: {
@@ -420,7 +575,7 @@ const styles = StyleSheet.create({
   },
   decorativeLine: {
     height: 1,
-    backgroundColor: colors.tertiary,
+    backgroundColor: colors.black,
     marginVertical: 10,
     marginLeft: 30,
     marginRight: 30,
@@ -431,7 +586,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   navigationTabButton: {
-    width: 105, height: 38, justifyContent: 'center',
+    width: 105,
+    height: 38,
+    justifyContent: 'center',
   },
   navigationTabButtonText: {
     fontSize: 12,
@@ -447,41 +604,36 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrame: {
-    width: 115,
+    maxWidth: '33%',
     height: 115,
-    backgroundColor: 'lightgray',
+    backgroundColor: colors.platinium,
     borderRadius: 10,
     margin: 5,
-  },  
+    marginBottom: 10,
+  },
   squareContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
+    flex: 1,
     marginHorizontal: 10,
   },
   backButton: {
     position: 'absolute',
     top: 16,
     left: 16,
-    zIndex: 1,
   },
   editButton: {
     position: 'absolute',
     top: 16,
     right: 50,
-    zIndex: 1,
   },
   settingButton: {
     position: 'absolute',
     top: 16,
     right: 0,
-    zIndex: 1,
   },
   collectionName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.tertiary,
-    // backgroundColor: colors.tertiary,
+    color: colors.black,
     padding: 8,
     marginBottom: 5,
     borderRadius: 40,
@@ -492,6 +644,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     marginLeft: 20,
+  },
+  biographyContainer: {
+    backgroundColor: colors.bg,
+    marginLeft: 24,
+    marginRight: 24,
+    marginTop: 5,
+    paddingHorizontal: 24,
+    paddingVertical: 12
+  },
+  biography: {
+    marginHorizontal: 0,
+    marginVertical: 0,
+    fontSize: 14,
+    color: colors.black,
+  },
+  artworkImage: {
+    height: 120,
+    width: 120,
+    borderRadius: 7,
   },
 });
 

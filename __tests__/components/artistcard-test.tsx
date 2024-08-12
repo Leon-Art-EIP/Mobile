@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import ArticleCard from '../../components/ArticleCard';
+import ArticleCard from '../../components/cards/ArticleCard';
 
 describe('ArticleCard', () => {
   const mockOnPress = jest.fn();

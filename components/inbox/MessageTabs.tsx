@@ -22,7 +22,8 @@ const TABS: TabType[] = [
 
 const MessageTabs = ({ active = 'conversations', setActive = (e: string) => {} }: any) => (
   <View style={styles.container}>
-    {TABS.map((tab: TabType) => (
+
+    { TABS.map((tab: TabType) => (
       <TouchableOpacity
         key={tab.id}
         style={[

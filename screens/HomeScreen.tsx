@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {
   TouchableOpacity,
   FlatList,
@@ -12,47 +12,61 @@ import {
   ToastAndroid,
   Text,
   RefreshControl
-} from 'react-native'
+} from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import colors from "../constants/colors";
-import { ArtistType, ArticleType } from "../constants/homeValues";
-import { get } from '../constants/fetch';
+import { ArtistType, ArticleType, RedditPostType } from "../constants/homeValues";
+import { get, post } from '../constants/fetch';
+import { useFocusEffect } from '@react-navigation/native';
 
-import Title from "../components/Title";
-import ArtistCard from "../components/ArtistCard";
-import ArticleCard from '../components/ArticleCard';
+import Title from "../components/text/Title";
+import ArtistCard from "../components/cards/ArtistCard";
+import ArticleCard from '../components/cards/ArticleCard';
+import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
+import Button from '../components/buttons/Button';
+import SlidingUpPanel from 'rn-sliding-up-panel';
+import { aiCenter, bgColor, bgGrey, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24 } from '../constants/styles';
+import Card from '../components/cards/Card';
+import AntDesign from "react-native-vector-icons/AntDesign";
+
 
 const HomeScreen = ({ navigation }: any) => {
-  console.log('HomeScreen mounted');
   const context = useContext(MainContext);
   const [artists, setArtists] = useState<ArtistType[]>([]);
   const [articles, setArticles] = useState<ArticleType[]>([]);
+  const [posts, setPosts] = useState<RedditPostType[]>([]);
   const [publications, setPublications] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<number>(0);
+  const [isPulications, setIsPublications] = useState<boolean>(true); // true: art publications, false: reddit posts
+  const _slidingPanel = useRef<SlidingUpPanel>(null);
+
 
   const handleToArtistProfile = (artist: ArtistType) => {
-    console.log('artist id: ', artist._id);
     navigation.navigate('other_profile', { id: artist._id });
   };
+
 
   const handleToArticle = (article: ArticleType) => {
     navigation.navigate('article', { article });
   };
 
-  const towardsPost = (publicationId) => {
-    console.log('🔵 ID:', publicationId);
+
+  const towardsPost = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
   };
+
 
   const getArticles = () => {
     if (!context?.token) {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
       get(
-      "/api/article/latest?limit=5&page=0",
+      "/api/article/latest?limit=10&page=0",
       context?.token,
       (response) => {
         setArticles(response?.data || []);
@@ -63,6 +77,7 @@ const HomeScreen = ({ navigation }: any) => {
       }
     );
   };
+
 
   const getArtists = () => {
     if (!context?.token) {
@@ -75,49 +90,115 @@ const HomeScreen = ({ navigation }: any) => {
       (response: any) => {
         setArtists(response?.data?.artists);
       }
-    )
-  }
+    );
+  };
+
 
   const getPublications = () => {
-    console.log('Token:', context?.token);
     if (!context?.token) {
       return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
     }
+
     get(
-      "/api/art-publication/feed/latest?page=0&limit=15",
+      "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
-      (response) => {
-        console.log('🎨 Publications:', response.data)
-        setPublications(response?.data || []);
-      },
+      (response) => setPublications(response?.data || []),
       (error) => {
-        console.error("Error fetching publications:", error);
         ToastAndroid.show("Error fetching publications", ToastAndroid.SHORT);
+        return console.error("Error fetching publications:", error);
       }
-      );
-      console.log('LOG');
+    );
   };
 
+
+  const getHasUnreadNotifications = async () => {
+    let unreadNumber: number | undefined = await getNotificationCount(context?.token) as number;
+    setHasUnreadNotifications(unreadNumber ?? 0);
+  }
+
+
+  const getPosts = () => {
+    const callback = (res: any) => {
+      setPosts(res?.data);
+      /*
+      let new_array = res?.data.map((item: RedditPostType) => {
+        if (!item?.artPublication) {
+          return item;
+        }
+
+
+
+      });
+      */
+    }
+
+    return get(
+      "/api/posts?filter=popular",
+      context?.token,
+      callback,
+      (err: any) => console.error({ ...err })
+    );
+  }
+
+
+  const likePost = (id: string) => {
+    return post(
+      `/api/posts/like/${id}`,
+      { id: id },
+      context?.token,
+      getPosts,
+      (err: any) => console.error({ ...err })
+    );
+  }
+
+
+  // if publications is true, it will load art publications, else the posts
+  const refreshData = () => {
+    getArticles();
+    getArtists();
+    if (isPulications) {
+      getPublications();
+    } else {
+      getPosts();
+    }
+    getHasUnreadNotifications();
+  };
+
+
   useEffect(() => {
-  }, [articles]);
+    if (isPulications) {
+      getPublications();
+    } else {
+      getPosts();
+    }
+  }, [isPulications]);
+
 
   useEffect(() => {
     if (!isRefreshing) {
       return;
     }
-    getArticles();
-    getArtists();
-    getPublications();
+    refreshData();
     setIsRefreshing(false);
   }, [isRefreshing]);
 
+
   useEffect(() => {
-    getArtists();
-    getArticles();
-    getPublications();
+    refreshData();
+
+    /* I have to patch the display, it's too slow and to low
+    if (!isNotificationRegistered()) {
+      _slidingPanel.current?.show();
+    }
+    */
+
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
+
+  useFocusEffect(
+    useCallback(refreshData, [navigation])
+  );
 
 
   return (
@@ -127,35 +208,48 @@ const HomeScreen = ({ navigation }: any) => {
         <RefreshControl
           refreshing={isRefreshing}
           onRefresh={() => setIsRefreshing(current => !current)}
+          colors={[colors.primary]}
         />
       }>
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('notifications')}
+            style={styles.notifIconTouchable}
+          >
+            <MaterialIcons
+              name={"notifications"}
+              size={24}
+              color={colors.offerFg}
+            />
+            <Text style={styles.notifIconText}>{ hasUnreadNotifications }</Text>
+          </TouchableOpacity>
         </View>
+
+        {/* News */}
         <View>
-
-        {/* Actualités */}
-
-          <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
+          <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
             Actualités
           </Title>
+
           {articles.length === 0 ? (
             <View style={styles.emptyView}>
-            <Image
-              style={{ height: 50, width: 50 }}
-              source={require('../assets/icons/box.png')}
-            />
-            <Title
-              size={18}
-              style={{ color: colors.disabledFg }}
-            >Looks quite empty here !</Title>
-            <Text style={{
-              fontWeight: '500',
-              color: colors.disabledFg
-            }}>Try to refresh the page</Text>
-          </View>
-              ) : (
+              <Image
+                style={{ height: 50, width: 50 }}
+                source={require('../assets/icons/box.png')}
+              />
+              <Title
+                size={18}
+                style={{ color: colors.disabledFg }}
+              >C'est tout vide par ici !</Title>
+              <Text style={{
+                fontWeight: '500',
+                color: colors.disabledFg
+              }}>Essaie de recharger la page</Text>
+            </View>
+          ) : (
             <FlatList
               data={articles}
               contentContainerStyle={styles.flatList}
@@ -172,15 +266,14 @@ const HomeScreen = ({ navigation }: any) => {
               horizontal
               scrollEnabled
             />
-          )}
+          ) }
         </View>
 
         {/* Artistes */}
-
         <View>
           <Title
             size={24}
-            style={{ margin: 32, marginBottom: 4 }}
+            style={{ margin: 32, marginBottom: 8 }}
           >
             Artistes
           </Title>
@@ -193,11 +286,11 @@ const HomeScreen = ({ navigation }: any) => {
               <Title
                 size={18}
                 style={{ color: colors.disabledFg }}
-              >Looks quite empty here !</Title>
+              >C'est tout vide par ici !</Title>
               <Text style={{
                 fontWeight: '500',
                 color: colors.disabledFg
-              }}>Try to refresh the page</Text>
+              }}>Essaie de recharger la page</Text>
             </View>
             ) : (
             <FlatList
@@ -207,45 +300,169 @@ const HomeScreen = ({ navigation }: any) => {
               showsHorizontalScrollIndicator={false}
               horizontal
               nestedScrollEnabled
-              renderItem={(e: ListRenderItemInfo<ArtistType>) => (
+              renderItem={(e: ListRenderItemInfo<ArtistType>) => e.item._id === context?.userId ? (
+                <></>
+              ) : (
                 <ArtistCard
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
-                  path="other_profile"
-                  // style={{ marginRight: 8 }}
                 />
-              )}
+              ) }
             />
           ) }
         </View>
 
         {/* Pour Vous */}
 
-    <View>
-      <Title size={24} style={{ margin: 32, marginBottom: 4 }}>
-        Publications
-      </Title>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.publicationsContainer}>
-          {publications.map((publication, index) => (
-            <TouchableOpacity key={publication._id} onPress={() => towardsPost(publication._id)}>
-              <View style={styles.publicationItem}>
-                <Image
-                  style={styles.publicationImage}
-                  source={{ uri: getImageUrl(publication.image) }}
-                  onError={() => console.log("Image loading error")}
-                />
-                {/* <Text style={styles.publicationTitle}>{publication.name}</Text> */}
-              </View>
-            </TouchableOpacity>
-          ))}
+        <View>
+          <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
+            Publications
+          </Title>
+
+          {/* oeuvres or posts chooser */}
+          <View style={[ flexRow, mh24 ]}>
+            <Button
+              value='Oeuvres'
+              onPress={() => setIsPublications(true)}
+              secondary={!isPulications}
+              style={[ mh0, flex1, mr4 ]}
+            />
+
+            <Button
+              value='Posts'
+              onPress={() => setIsPublications(false)}
+              secondary={isPulications}
+              style={[ mh0, flex1, ml4 ]}
+            />
+
+          </View>
+
+          {/* If is art publication, then post */}
+          { !!isPulications ? (
+            <View style={styles.publicationsContainer}>
+              <FlatList
+                key={"artFlatList"}
+                data={publications.filter((pub) => pub?.userId !== context?.userId)}
+                numColumns={3}
+                renderItem={(e) => (
+                  <TouchableOpacity
+                    key={e.item._id + Math.random().toString()}
+                    onPress={() => towardsPost(e.item._id)}
+                  >
+                    <View style={styles.publicationItem}>
+                      <Image
+                        style={styles.publicationImage}
+                        source={{ uri: getImageUrl(e.item?.image) }}
+                        onError={() => console.log("Image loading error")}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ) : (
+            <View style={styles.publicationsContainer}>
+              <FlatList
+                key={"postFlatList"}
+                data={posts.filter((post) => post?.userId !== context?.userId)}
+                numColumns={1}
+                renderItem={(post) => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('singlepost', { post: post.item })}
+                  >
+                    <Card style={mh0}>
+                      <View style={flexRow}>
+                        <Image
+                          source={{ uri: getImageUrl(post.item.artPublication ?? "") }}
+                          style={{
+                            height: 30,
+                            width: 30,
+                            borderRadius: 50,
+                            backgroundColor: colors.tertiary
+                          }}
+                        />
+
+                        <Text style={[cTextDark, mtAuto, mbAuto, ml8]}>
+                          { post.item.user.username }
+                        </Text>
+                      </View>
+
+                      {/* To update according to the back-end */}
+                      <Text>{ post.item?.text }</Text>
+
+                      {/* if retweet, show picture */}
+                      { post.item?.artPublication && (
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate('singlart', { id: post.item?.artPublicationId })}
+                        >
+                          <Image
+                            source={{ uri: getImageUrl(post.item?.artPublication) }}
+                            style={styles.postImage}
+                          />
+                        </TouchableOpacity>
+                      ) }
+
+                      {/* Post action bar */}
+                      <View style={[flexRow]}>
+
+                        {/* Like button */}
+                        <TouchableOpacity
+                          onPress={() => likePost(post.item.id)}
+                          style={[flexRow, mt8]}
+                        >
+                          <AntDesign
+                            name={post.item.likes.includes(context?.userId ?? "", 0) ? "heart" : "hearto"}
+                            size={18}
+                            color={post.item.likes.includes(context?.userId ?? "", 0) ? colors.primary : colors.textDark}
+                          />
+                          <Text style={[cTextDark, ml8, { fontSize: 12 }]}>{ post.item.likes.length }</Text>
+                        </TouchableOpacity>
+
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ) }
         </View>
+
+        <SlidingUpPanel
+          ref={_slidingPanel}
+          height={200}
+          allowDragging={true}
+          draggableRange={{ top: 200, bottom: 0 }}
+          containerStyle={[ bgColor, { borderTopLeftRadius: 20, borderTopRightRadius: 20 } ]}
+        >
+          <>
+            <View style={[ flex1, aiCenter, mv24 ]}>
+              <Title style={cTextDark}>Dring dring !</Title>
+              <Text style={cTextDark}>Voulez-vous activer les notifications ?</Text>
+            </View>
+
+            <View style={flexRow}>
+              <Button
+                value="Non"
+                onPress={() => _slidingPanel.current?.hide()}
+                style={flex1}
+                secondary
+              />
+              <Button
+                value="Oui !"
+                onPress={async () => {
+                  await setupNotifications(context?.token);
+                  ToastAndroid.show("Les notifications ont été activées !", ToastAndroid.SHORT);
+                  return _slidingPanel.current?.hide();
+                }}
+                style={flex1}
+              />
+            </View>
+          </>
+        </SlidingUpPanel>
       </ScrollView>
-    </View>
-  </ScrollView>
-  </SafeAreaView>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -281,12 +498,27 @@ const styles = StyleSheet.create({
   },
   articleContainer: {
     marginHorizontal: 8,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   articleTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  notifIconTouchable: {
+    marginLeft: 'auto',
+    marginTop: 'auto',
+    marginRight: 12,
+    flexDirection: 'row',
+    backgroundColor: colors.offerBg,
+    borderRadius: 50,
+    paddingVertical: 4,
+    paddingHorizontal: 12
+  },
+  notifIconText: {
+    color: colors.offerFg,
+    fontWeight: 'bold',
+    marginHorizontal: 4,
   },
   articleImage: {
     width: '100%',
@@ -322,6 +554,12 @@ const styles = StyleSheet.create({
   publicationTitle: {
     color: colors.black,
   },
+  postImage: {
+    height: 200,
+    borderRadius: 12,
+    backgroundColor: colors.tertiary,
+    marginVertical: 8
+  }
 });
 
 

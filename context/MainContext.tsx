@@ -19,6 +19,9 @@ type MainContextType = {
   setUserEmail: (e: string | undefined) => void;
   isArtist: boolean | undefined;
   setisArtist: (e: boolean | undefined) => void;
+  logOut: () => void;
+  username: string | undefined;
+  setUsername: (e: string | undefined) => void;
   // Add your new type value here
 };
 
@@ -33,7 +36,17 @@ const MainContextProvider = ({
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
   const [isArtist, setisArtist] = useState<boolean | undefined>(undefined);
-  // Add your new value with a useState variable
+  const [username, setUsername] = useState<string | undefined>(undefined);
+
+
+  const logOut = () => {
+    setToken(undefined);
+    setUserEmail(undefined);
+    setUserId(undefined);
+    setisArtist(undefined);
+    setUsername(undefined);
+  }
+
 
   return (
     <MainContext.Provider
@@ -45,7 +58,10 @@ const MainContextProvider = ({
         userEmail,
         setUserEmail,
         isArtist,
-        setisArtist
+        setisArtist,
+        logOut,
+        username,
+        setUsername
         // add your value and your setValue here
       }}
     >

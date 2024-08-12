@@ -1,13 +1,28 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, RefreshControl, ScrollView, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Title from '../components/Title';
+import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { aiCenter, bgGrey, br20, cBlack, cDisabled, flex1, flexRow, jcCenter, mh8, mv4, mv8, ph8, pv24 } from '../constants/styles';
+import {
+  aiCenter,
+  bgGrey,
+  br20,
+  cBlack,
+  cDisabled,
+  flex1,
+  flexRow,
+  jcCenter,
+  mh24,
+  mh8, mt8, mv24,
+  mv4,
+  mv8,
+  ph8,
+  pv24, taCenter
+} from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import { getImageUrl } from '../helpers/ImageHelper';
 
@@ -40,6 +55,7 @@ const ResultsScreen = () => {
   const context = useContext(MainContext);
   const [posts, setPosts] = useState<ArtPublicationType[]>([]);
   const [users, setUsers] = useState<UserType[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
   const navigateToPreview = (post: ArtPublicationType) => {
@@ -52,18 +68,40 @@ const ResultsScreen = () => {
   }
 
 
-  useEffect(() => {
+  const getResults = () => {
+    setIsRefreshing(true);
+
+    const onGetSuccessful = (res: any) => {
+      let posts: ArtPublicationType[] = res?.data?.artPublications ?? [];
+      let users: UserType[] = res?.data?.users ?? [];
+
+      posts = posts.filter((post: ArtPublicationType) => post?.userId !== context?.userId);
+      users = users.filter((user: UserType) => user._id !== context?.userId);
+
+      setPosts(posts);
+      setUsers(users);
+      setIsRefreshing(false);
+    }
+
+    const onGetError = (err: any) => {
+      ToastAndroid.show(
+        "Une erreur est survenue. Veuillez réessayer plus tard",
+        ToastAndroid.LONG
+      );
+      return console.error(err?.response);
+    }
+
     // Get results from received API call
     get(
       "/api/explorer/search?" + params?.url,
       context?.token,
-      (res: any) => {
-        setPosts(res?.data?.artPublications);
-        setUsers(res?.data?.users);
-      },
-      (err: any) => console.error({ ...err })
+      onGetSuccessful,
+      onGetError
     );
-  }, []);
+  }
+
+
+  useEffect(getResults, []);
 
 
   return (
@@ -71,13 +109,13 @@ const ResultsScreen = () => {
       <StatusBar backgroundColor={colors.white} barStyle="dark-content" />
 
       {/* Header */}
-      <View style={[flexRow, aiCenter, mv8]}>
+      <View style={[flexRow, aiCenter, mv24]}>
         <Ionicons
-          name='chevron-back'
+          name='chevron-back-outline'
           size={32}
           color={colors.title}
           onPress={() => navigation.goBack()}
-          style={mh8}
+          style={mh24}
         />
         <Title>Search</Title>
       </View>
@@ -89,10 +127,13 @@ const ResultsScreen = () => {
             source={require('../assets/icons/box.png')}
             style={styles.emptyImg}
           />
-          <Text style={cDisabled}>Il n'y a pas d'artiste qui porte ce nom !</Text>
+          <Text style={[cDisabled, mt8]}>Il n'y a pas d'artiste qui porte ce nom !</Text>
         </View>
       ) : (
-        <ScrollView horizontal style={[bgGrey, br20, mh8]}>
+        <ScrollView
+          horizontal
+          style={[bgGrey, br20, mh8]}
+        >
           { users.map((user: UserType) => (
             <TouchableOpacity
               key={user._id}
@@ -110,7 +151,18 @@ const ResultsScreen = () => {
       ) }
 
       {/* Data */}
-      <View style={styles.postsFlatlist}>
+      <ScrollView
+        style={styles.postsFlatlist}
+        scrollEnabled={false}
+        refreshControl={
+          <RefreshControl
+            onRefresh={getResults}
+            refreshing={isRefreshing}
+            tintColor={colors.primary}
+            colors={[ colors.primary ]}
+          />
+        }
+      >
         { posts.length === 0 ? (
 
           <View style={[jcCenter, aiCenter, flex1]}>
@@ -118,7 +170,9 @@ const ResultsScreen = () => {
               source={require('../assets/icons/box.png')}
               style={styles.emptyImg}
             />
-            <Text>Il n'y a pas de postes qui correspondent à la recherche !</Text>
+            <Text style={[ cDisabled, taCenter, mt8 ]}>
+              Il n'y a pas de postes qui correspondent à la recherche !
+            </Text>
           </View>
 
         ) : (
@@ -126,7 +180,7 @@ const ResultsScreen = () => {
           <FlatList
             data={posts}
             numColumns={3}
-            renderItem={({ item, index }) => { console.log(index); return(
+            renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => navigateToPreview(item)}
                 style={styles.singleArt}
@@ -140,13 +194,11 @@ const ResultsScreen = () => {
                   }}
                   source={{ uri: getImageUrl(item.image) }}
                 />
-                {/* <Text>{ e.item?.name }</Text> */}
               </TouchableOpacity>
-            )}}
+            )}
           />
-
         ) }
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -171,8 +223,10 @@ const styles = StyleSheet.create({
     ...mh8,
     ...mv8,
     ...bgGrey,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 20,
-    flex: 1
+    flexGrow: 1
   },
   singleArt: {
     backgroundColor: "#ddd",

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "30560177674",
+    "project_id": "leon-art",
+    "storage_bucket": "leon-art.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:30560177674:android:21185bcf5eccdb75e919f3",
+        "android_client_info": {
+          "package_name": "com.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "30560177674-4t580rm8qo89g6339lkrlgo9j0qg2pfg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAw5GzfNjnp91JUvZPEOZ7U2g5Zq5Ndx8M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "30560177674-4t580rm8qo89g6339lkrlgo9j0qg2pfg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,32 +1,45 @@
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native'
-import { useNavigation, useFocusEffect, NavigationContainer } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState, useEffect, useContext } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  ImageBackground,
+  ToastAndroid
+} from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import React, {useState, useContext, useEffect} from 'react';
+import {ImageLibraryOptions, launchImageLibrary} from 'react-native-image-picker';
+
 // Local imports
-import SettingsButtonImage from '../assets/images/settings_logo.png'
-import EditButtonImage from '../assets/images/edit_logo.png'
-import BackArrow from '../assets/images/back_arrow.png'
-import profilePicture from '../assets/images/user.png'
-import bannerImage from '../assets/images/banner.jpg'
-import Button from '../components/Button';
+import { getImageUrl } from '../helpers/ImageHelper';
+import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
-import Title from '../components/Title';
-
-const API_URL: string | undefined = process.env.REACT_APP_API_URL;
+import { Platform } from 'react-native';
+import RNFS from 'react-native-fs';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { cBlack } from "../constants/styles";
+import ModifyTag from '../components/tags/ModifyTag';
+import Subtitle from '../components/text/Subtitle';
+import Input from '../components/textInput/Input';
+import { isNotificationRegistered, togglePermission } from '../constants/notifications';
 
 
 const EditProfile = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [biography, setBiography] = useState<string>('');
   const context = useContext(MainContext);
   const token = context?.token;
   const userID = context?.userId;
+  const [isAvailable, setIsAvailable] = useState<string>('');
+  const [profilePicture, setProfilePicture] = useState<string>('');
+  const [banner, setBanner] = useState<string>('');
+  const [isNotifEnabled, setIsNotifEnabled] = useState<boolean>(isNotificationRegistered());
 
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
 
   interface UserData {
     _id: string;
@@ -43,130 +56,418 @@ const EditProfile = () => {
     __v: number;
     bannerPicture: string;
     profilePicture: string;
+    biography: string;
   }
 
-  const fetchUserData = async () => {
-        try {
-      if (token) {
-        const url = `/api/user/profile/${userID}`;
-        const callback = (response) => {
-          setUserData(response.data);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error fetching user data:', error);
-          if (error.response) {
-            // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            // La requête a été effectuée mais aucune réponse n'a été reçue
-            console.error('No response received from server');
-          } else {
-            // Une erreur s'est produite lors de la configuration de la requête
-            console.error('Error setting up the request:', error.message);
-          }
-          Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
-        };
 
-        get(url, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-        Alert.alert('Token JWT not found. Make sure the user is logged in.');
+  const handleBackButtonClick = () => {
+    navigation.goBack();
+  };
+
+
+  const handleBiographyChange = (value: string) => {
+    setBiography(value);
+  };
+
+
+  const selectImage = async () => {
+    try {
+      const options: ImageLibraryOptions = {
+        mediaType: 'photo',
+        quality: 1
+      };
+
+      const response = await launchImageLibrary(options);
+
+      if (response.didCancel) {
+        return console.log('User cancelled image picker');
+      }
+
+      if (response.error) {
+        return console.log('ImagePicker Error: ', response.error);
+      }
+
+      const source = { uri: response.assets[0]?.uri };
+
+      if (source.uri) {
+        return uploadProfilePicture(source.uri);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      console.error('An error occurred while picking the image:', error);
     }
   };
 
+
+  const uploadProfilePicture = async (uri: string) => {
+    console.log("Selected: " + uri);
+    const formData = new FormData();
+
+    if (uri) {
+      try {
+        const fileData = await RNFS.readFile(uri, 'base64');
+        formData.append('profilePicture', {
+          name: 'image.jpg',
+          type: 'image/jpeg',
+          uri: Platform.OS === 'android' ? `file://${uri}` : uri,
+          data: fileData
+        });
+      } catch (error) {
+        console.error('Error preparing image:', error);
+        return;
+      }
+    }
+
+    post(
+      '/api/user/profile/profile-pic',
+      formData,
+      context?.token,
+      fetchData,
+      (error: any) => {
+        if (error.response.status === 413) {
+          ToastAndroid.show("Image trop grande (> 5 MB)", ToastAndroid.LONG);
+        }
+        console.error('Error publishing new profile picture : ', { ...error })
+      }
+    );
+  }
+
+
+  const selectBanner = async () => {
+    try {
+      const options: ImageLibraryOptions = {
+        mediaType: 'photo',
+        quality: 1
+      };
+
+      const response = await launchImageLibrary(options);
+
+      if (response.didCancel) {
+        throw('User cancelled image picker');
+      }
+
+      if (response?.error) {
+        throw('ImagePicker Error: ' + response?.error.toString());
+      }
+
+      if (!response.assets) {
+        throw("Selected image was undefined");
+      }
+
+      if (response.assets[0].uri) {
+        return uploadBanner(response.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('An error occurred while picking the image:', error);
+    }
+  }
+
+
+  const uploadBanner = (uri: string) => {
+    const formData = new FormData();
+
+    if (!uri) {
+      return console.error('Upload banner error: uri is not defined');
+    }
+
+    try {
+      RNFS.readFile(uri, 'base64')
+        .then((fileData: string) => {
+          formData.append('bannerPicture', {
+            name: 'image.jpg',
+            type: 'image/jpeg',
+            uri: Platform.OS === 'android' ? `file://${uri}` : uri,
+            data: fileData
+          });
+
+          post(
+            '/api/user/profile/banner-pic',
+            formData,
+            context?.token,
+            () => fetchData(),
+            (error: any) => console.error('Error publishing:', {...error})
+          );
+        });
+    } catch (error: any) {
+      console.error('Error preparing image:', {...error});
+      return;
+    }
+  }
+
+
+  const handleSaveModifications = () => {
+    console.log("Modifications saved.");
+    saveBiography();
+    saveIsAvailable();
+    navigation.goBack();
+  }
+
+
+  const saveBiography = () => {
+    try {
+      if (token) {
+        const url = `/api/user/profile/bio`;
+        const body = {
+          biography: biography
+        };
+        const callback = (response) => {
+          setUserData(response.data);
+          if (userData?.biography !== undefined) setBiography(userData.biography);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error saving modifications:', error);
+          if (error.response) {
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            console.error('No response received from server');
+          } else {
+            console.error('Error setting up the request:', error.message);
+          }
+        };
+
+        post(url, body, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }
+
+
+  const saveIsAvailable = () => {
+    try {
+      if (token) {
+        const url = `/api/user/profile/availability`;
+        const body = {
+          availability: isAvailable
+        };
+        const callback = (response) => {
+          setUserData(response.data);
+          if (userData?.availability !== undefined) setIsAvailable(userData.availability);
+        };
+        const onErrorCallback = (error) => {
+          console.error('Error saving modifications:', error);
+          if (error.response) {
+            console.error('Server responded with non-2xx status:', error.response.data);
+          } else if (error.request) {
+            console.error('No response received from server');
+          } else {
+            console.error('Error setting up the request:', error.message);
+          }
+        };
+
+        post(url, body, token, callback, onErrorCallback);
+      } else {
+        console.error('Token JWT not found. Make sure the user is logged in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }
+
+
+  const fetchUserData = () => {
+    if (!token) {
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      ToastAndroid.show("Error getting your user information. Please log in", ToastAndroid.SHORT);
+      return navigation.navigate('login');
+    }
+
+    const url = `/api/user/profile/${userID}`;
+
+    const callback = (response: any) => {
+      setUserData(response.data);
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error fetching user data:', error);
+      if (error.response) {
+        // La requête a été effectuée et le serveur a répondu avec un statut de réponse qui n'est pas 2xx
+        console.error('Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        // La requête a été effectuée mais aucune réponse n'a été reçue
+        console.error('No response received from server');
+      } else {
+        // Une erreur s'est produite lors de la configuration de la requête
+        console.error('Error setting up the request:', error.message);
+      }
+    };
+
+    get(url, token, callback, onErrorCallback);
+  }
+
+
+  const fetchData = () => {
+    try {
+      fetchUserData();
+
+      if (userData?.biography) {
+        setBiography(userData.biography);
+      }
+
+      if (userData?.availability) {
+        setIsAvailable(userData.availability);
+      }
+
+      if (userData?.profilePicture) {
+        setProfilePicture(userData.profilePicture);
+      }
+
+      if (userData?.bannerPicture) {
+        console.log(userData.bannerPicture);
+        setBanner(userData.bannerPicture);
+      }
+    } catch (error) {
+      ToastAndroid.show('Error getting data. Please try again', ToastAndroid.SHORT);
+      return console.error('Error fetching user data:', error);
+    }
+  }
+
+
   useFocusEffect(
-    React.useCallback(() => {}, [navigation])
+    React.useCallback(fetchData, [navigation])
   );
 
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+
+  useEffect(fetchData, []);
+
 
   return (
     <ScrollView nestedScrollEnabled>
-    <View>
-      <View style={{ flexDirection: 'row', marginRight: 20 }}>
-        <TouchableOpacity
-          onPress={() => handleBackButtonClick()}
-          style={styles.backButton}
-          >
-          <Image source={BackArrow} style={{ width: 24, height: 24 }} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.banner}>
-        <Image
-          source={bannerImage}
-          style={styles.bannerImage}
-          resizeMode="cover"
-        />
-        <Title style={styles.mainTitle}>Modifier la bannière</Title>
-      </View>
-
-      <View style={styles.overlayImage}>
-        <View style={styles.circleImageContainer}>
-          <Image
-            source={profilePicture}
-            style={styles.profilePicture}
-          />
-        </View>
-      </View>
-
-      <View style={styles.decorativeLine} />
       <View>
-        <View style={styles.infoBlock}>
-          <Title style={styles.infoTitle}>Nom</Title>
-          <Text style={styles.infoValue}>{userData?.username}</Text>
+        <View style={{ flexDirection: 'row', marginRight: 20 }}>
+          {/* Back button */}
+          <TouchableOpacity
+            onPress={() => handleBackButtonClick()}
+            style={styles.backButton}
+          >
+            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+          </TouchableOpacity>
         </View>
-        <View style={styles.infoBlock}>
-          <Title style={styles.infoTitle}>Description</Title>
-          <Text style={styles.infoValue}>Hey salut, j’ai 19 ans et je suis fan de poterie ! J’adore toutes les oeuvres de Bernard Palissy qui est pour moi, le meilleur potereur du Monde !</Text>
-        </View>
-        <View style={styles.infoBlock}>
-          <Title style={styles.infoTitle}>Ouvert au commandes</Title>
-          <View style={styles.buttonContainer}>
-            <Button
-              value="Oui"
-              style={styles.availableButton}
-              textStyle={{ fontSize: 18, fontWeight: 'bold' }}
+
+        {/* Banner */}
+
+        <ImageBackground
+          source={{ uri: getImageUrl(banner) }}
+          style={styles.banner}
+          resizeMode="cover"
+        >
+          <ModifyTag
+            onPress={selectBanner}
+            title="Modifier la bannière"
+            style={[ cBlack, styles.bannerTouchable]}
+            textStyle={{ cBlack }}
+          />
+        </ImageBackground>
+
+        {/* Profile picture */}
+        <View style={styles.overlayImage}>
+          <TouchableOpacity
+            style={styles.circleImageContainer}
+            onPress={selectImage}
+          >
+            <Image
+            source={{ uri: getImageUrl(profilePicture) }}
+            style={styles.profilePicture}
+            onError={(error) => console.error("Error loading profile picture:", error)}
             />
-            <Button
-              value="Non"
-              style={styles.availableButton}
-              textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-              tertiary
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.decorativeLine} />
+
+        <View>
+          {/* Name */}
+          <View style={styles.infoBlock}>
+            <Subtitle>Nom</Subtitle>
+            <Text style={styles.infoValue}>{userData?.username}</Text>
+          </View>
+          {/* Biography */}
+          <View style={styles.infoBlock}>
+            <Subtitle>Description</Subtitle>
+            <Input
+              placeholder="Parlez nous de vous..."
+              placeholderTextColor={colors.text}
+              onTextChanged={handleBiographyChange}
+              style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+              value={biography}
             />
           </View>
+
+          {/* Availability */}
+          <View style={styles.infoBlock}>
+            <Subtitle>Ouvert au commandes</Subtitle>
+            <View style={styles.buttonContainer}>
+              <Button
+                value="Non"
+                textStyle={{ fontSize: 16, flex: 1 }}
+                onPress={() => setIsAvailable("unavailable")}
+                secondary={isAvailable === "available"}
+                style={{
+                  borderWidth: isAvailable === 'available' ? 1 : 0,
+                  borderColor: colors.textDark
+                }}
+              />
+              <Button
+                value="Oui"
+                textStyle={{ fontSize: 16, flex: 1 }}
+                onPress={() => setIsAvailable("available")}
+                secondary={isAvailable === "unavailable"}
+                style={{
+                  borderWidth: isAvailable === 'unavailable' ? 1 : 0,
+                  borderColor: colors.textDark
+                }}
+              />
+            </View>
+          </View>
+
+          <View style={styles.infoBlock}>
+            <Subtitle>Notifications</Subtitle>
+            <Button
+              value={isNotifEnabled ? "Désactiver" : "Activer"}
+              secondary={isNotifEnabled}
+              onPress={async () => {
+                await togglePermission()
+                setIsNotifEnabled(curr => !curr);
+              }}
+              style={{
+                borderWidth: isNotifEnabled ? 1 : 0,
+                borderColor: colors.textDark
+              }}
+            />
+          </View>
+
+          <Button
+            value="Enregistrer les modifications"
+            style={{ marginTop: 'auto' }}
+            textStyle={{ fontSize: 17 }}
+            onPress={() => handleSaveModifications()}
+            />
         </View>
-        <Button
-          value="Enregistrer les modifications"
-          style={styles.disconnectButton}
-          textStyle={{ fontSize: 18, fontWeight: 'bold' }}
-          />
       </View>
-    </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   centeredText: {
     justifyContent: 'center',
-    alignItems: 'center', // Ajoutez cette ligne
+    alignItems: 'center',
   },
-  banner: { 
-    backgroundColor: 'lightblue',
+  banner: {
+    backgroundColor: colors.offerBg,
     height: 180,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  bannerImage: {
-    width: '100%',
-    height: '100%',
+  bannerTouchable: {
+    backgroundColor: colors.bg,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: colors.darkGreyFg,
+    paddingVertical: 8,
+    paddingHorizontal: 12
   },
   overlayImage: {
     flex: 1,
@@ -176,6 +477,7 @@ const styles = StyleSheet.create({
   profilePicture: {
     width: 110,
     height: 110,
+    backgroundColor: colors.white
   },
   circleImageContainer: {
     width: 110,
@@ -254,10 +556,14 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 1,
   },
-  editButton: {
-    position: 'absolute',
+  editProfilePictureButton: {
     top: 16,
-    right: 50,
+    left: 40,
+    zIndex: 1,
+  },
+  editBannerButton: {
+    bottom: 50,
+    left: 340,
     zIndex: 1,
   },
   settingButton: {
@@ -284,30 +590,30 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     position: 'absolute',
-    top: 60, // Ajustez la valeur en fonction de votre design
-    width: '100%', // Centrer horizontalement
-    textAlign: 'center', // Centrer horizontalement
-    fontSize:30, // Ajustez la taille de la police en fonction de votre design
+    top: 60,
+    width: '100%',
+    textAlign: 'center',
     fontWeight: 'bold',
-    color: 'white', // Ajustez la couleur en fonction de votre design
+    color: colors.white
   },
   settingsButton: {
-    width: '95%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    width: '95%',
     height: 50,
     borderRadius: 10,
     justifyContent: 'center',
-    alignSelf: 'center', // Centre le bouton horizontalement
-    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
+    alignSelf: 'center',
+    marginHorizontal: '10%',
   },
   disconnectButton: {
-    width: '80%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    width: '80%',
     height: 40,
     borderRadius: 100,
     justifyContent: 'center',
-    alignSelf: 'center', // Centre le bouton horizontalement
-    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
+    alignSelf: 'center',
+    marginHorizontal: '10%',
   },
   infoBlock: {
+    flex: 1,
     marginLeft: 25,
     marginRight: 25,
     marginBottom: 20,
@@ -321,14 +627,36 @@ const styles = StyleSheet.create({
     color: colors.black,
   },
   buttonContainer: {
+    flex: 1,
     flexDirection: 'row',
-    marginTop: 0, // Ajustez la marge en fonction de vos besoins
+    marginTop: 0,
   },
   availableButton: {
-    width: '25%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
+    width: '25%',
     height: 40,
     borderRadius: 100,
     justifyContent: 'center',
+  },
+  notAvailableButton: {
+    width: '25%',
+    height: 40,
+    borderRadius: 100,
+    justifyContent: 'center',
+    color: colors.darkGreyFg,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 100,
+    marginBottom: 16,
+    paddingHorizontal: 10,
+  },
+  biographyInput: {
+    marginLeft: 0,
+    marginRight: 0,
+    flex: 1,
+    borderRadius: 50
   },
 });
 

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { post } from '../constants/fetch';
 import colors from '../constants/colors';
-import Title from '../components/Title';
-import Button from '../components/Button';
-import TagButton from '../components/TagButton';
+import Title from '../components/text/Title';
+import Button from '../components/buttons/Button';
+
 
 const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
-  const { objective, artInterestType } = route.params;  
+  const { objective, artInterestType } = route.params;
   const [budget, setBudget] = useState<string | null>(null);
   const customCommands = false;
   const location = '';
@@ -31,15 +30,15 @@ const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
 
   useEffect(() => {
     console.log('budget', budget);
-  }, [budget]); 
+  }, [budget]);
 
   const selectTag = (value: string) => {
     setBudget(budget === value ? null : value);
   };
 
   const getButtonStyle = (choice) => (
-    budget === choice ? 
-      { ...styles.TagButton, backgroundColor: colors.primary } : 
+    budget === choice ?
+      { ...styles.TagButton, backgroundColor: colors.primary } :
       styles.TagButton
   );
 
@@ -54,6 +53,7 @@ const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
       </Text>
     <View style={styles.Tags}>
       <View style={styles.Tags}>
+
         <TouchableOpacity
             style={getButtonStyle('0-100')}
             onPress={() => selectTag('0-100')}>
