@@ -20,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Input from '../components/textInput/Input';
 import Subtitle from '../components/text/Subtitle';
 
+
 const Profile = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Artwork');
@@ -99,14 +100,15 @@ const Profile = () => {
       return;
     }
 
-    const url = `/api/art-publication/user/${userID}`;
+    const url = `/api/art-publication/user/${context.userId}`;
+    console.log(context);
 
     const callback = (response: any) => {
       setUserArtworks(response.data);
     };
 
     const onErrorCallback = (error: any) => {
-      Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
+      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
       return console.error('Error fetching user artworks:', error);
     };
 
@@ -115,7 +117,7 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     if (!token) {
-      Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      Alert.alert('Une erreur est survenue', 'Veuillez vous reconnecter.');
       console.error('Token JWT not found. Make sure the user is logged in.');
       return;
     }
@@ -128,7 +130,7 @@ const Profile = () => {
     };
 
     const onErrorCallback = (error: any) => {
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
       return console.error('Error fetching user data:', error);
     };
 
@@ -154,6 +156,7 @@ const Profile = () => {
   };
 
   const reloadProfile = () => {
+    console.log("context: ", context);
     setIsRefreshing(true);
     fetchUserData();
     updateCollections();
@@ -196,7 +199,9 @@ const Profile = () => {
     React.useCallback(reloadProfile, [navigation])
   );
 
+
   useEffect(reloadProfile, []);
+
 
   return (
     <SafeAreaView style={[ flex1, bgColor ]}>
@@ -264,7 +269,7 @@ const Profile = () => {
           <TouchableOpacity onPress={handleToFollowerList}>
             <View style={styles.centeredText}>
               <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-              <Text style={styles.title}>followers</Text>
+              <Text style={styles.title}>abonnés</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -289,7 +294,7 @@ const Profile = () => {
       {/* Tab selections button : Artwork, Collections and About */}
       <View style={styles.tabsNavigation}>
         <Button
-          value="Artwork"
+          value="Oeuvres"
           secondary={activeTab !== 'Artwork'}
           tertiary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
@@ -514,6 +519,8 @@ const styles = StyleSheet.create({
   profilePicture: {
     width: 110,
     height: 110,
+    backgroundColor: colors.white,
+    borderRadius: 200
   },
   circleImageContainer: {
     width: 110,

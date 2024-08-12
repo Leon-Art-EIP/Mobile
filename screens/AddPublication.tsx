@@ -452,7 +452,7 @@ const AddPublication = ({ navigation }: any) => {
           <Card style={[ flex1, mb24, ph24 ]}>
             <TextInput
               onChangeText={setPostText}
-              placeholder='Your post'
+              placeholder='Laissez libre court à vos pensées'
               multiline
               numberOfLines={10}
               style={[ cTextDark, flex1, bgGrey, br0, mh0, { textAlignVertical: 'top' } ]}

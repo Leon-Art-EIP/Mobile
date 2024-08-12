@@ -21,6 +21,7 @@ const Signup = ({ navigation }: any) => {
   const [error, setError] = useState<string | undefined>(undefined);
   const context = useContext(MainContext);
 
+
   const handleSignup = () => {
     const requestData = { username, email, password };
 
@@ -31,12 +32,17 @@ const Signup = ({ navigation }: any) => {
     axios.post(`${API_URL}/api/auth/signup`, requestData)
       .then(async response => {
         if (response && response.data && response.data.token) {
-          const tokenFromDB = response.data.token;
-          console.log('Server response', response.data);
-          console.log('Token from DB:', tokenFromDB);
+          const token = response.data?.token;
+          const userId = response?.data?.user?.id;
+          const username = response?.data?.user?.username;
+          const email = response?.data?.user?.email;
 
           try {
-            await AsyncStorage.setItem('jwt', tokenFromDB);
+            /* await AsyncStorage.setItem('jwt', tokenFromDB); */
+            context?.setUserEmail(email);
+            context?.setToken(token);
+            context?.setUserId(userId);
+            context?.setUsername(username);
             navigation.navigate('profilingquizz');
           } catch (error) {
             console.error('Error storing token:', error);
@@ -44,7 +50,7 @@ const Signup = ({ navigation }: any) => {
           }
         } else {
           console.error('Invalid response format: ', response);
-          Alert.alert('Signup Failed', 'Invalid response format');
+          Alert.alert('Inscription échouée', 'Réponse du serveur erronée');
         }
       })
       .catch(error => {
@@ -75,6 +81,7 @@ const Signup = ({ navigation }: any) => {
   const handleLoginNavigation = () => {
     navigation.navigate('login');
   };
+
 
   return (
     <View style={styles.container}>

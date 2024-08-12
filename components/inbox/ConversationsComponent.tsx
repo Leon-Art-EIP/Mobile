@@ -156,7 +156,7 @@ const ConversationsComponent = () => {
         source={require('../../assets/icons/box.png')}
         style={styles.emptyImg}
       />
-      <Text style={{ marginBottom: 'auto' }}>Looks empty right there !</Text>
+      <Text style={{ marginBottom: 'auto' }}>C'est tout vide par ici !</Text>
     </View>
   );
 }

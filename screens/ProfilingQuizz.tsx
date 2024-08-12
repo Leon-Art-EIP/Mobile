@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, StatusBar } from 'react-native';
 
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
 import { cBlack, flexRow, br50, flex1 } from '../constants/styles';
+import { MainContext } from '../context/MainContext';
 
 
 const ProfilingQuizz = ({ navigation }): any => {
   const [objective, setObjective] = useState<string | undefined>(undefined);
+  const context = useContext(MainContext);
 
 
 
   const handleSubmit = () => {
     if (!objective) {
-      console.log('No objective selected');
-      return;
+      return console.log('No objective selected');
     }
+
     if (objective === 'sell') {
-      console.log('🤩 choice :', objective);
+      context?.setisArtist(true);
       navigation.navigate('profilingArtist', { objective: 'sell' });
     } else if (objective === 'discover') {
-      console.log('🤩 choice :', objective);
+      context?.setisArtist(false);
       navigation.navigate('profilingAmateur', { objective: 'discover' });
     }
   };

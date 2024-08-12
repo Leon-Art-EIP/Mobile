@@ -113,16 +113,29 @@ const HomeScreen = ({ navigation }: any) => {
 
   const getHasUnreadNotifications = async () => {
     let unreadNumber: number | undefined = await getNotificationCount(context?.token) as number;
-    console.log(unreadNumber);
     setHasUnreadNotifications(unreadNumber ?? 0);
   }
 
 
   const getPosts = () => {
+    const callback = (res: any) => {
+      setPosts(res?.data);
+      /*
+      let new_array = res?.data.map((item: RedditPostType) => {
+        if (!item?.artPublication) {
+          return item;
+        }
+
+
+
+      });
+      */
+    }
+
     return get(
       "/api/posts?filter=popular",
       context?.token,
-      (res: any) => setPosts(res.data || []),
+      callback,
       (err: any) => console.error({ ...err })
     );
   }
@@ -287,12 +300,14 @@ const HomeScreen = ({ navigation }: any) => {
               showsHorizontalScrollIndicator={false}
               horizontal
               nestedScrollEnabled
-              renderItem={(e: ListRenderItemInfo<ArtistType>) => e.item._id === context?.userId ? (<></>) : (
+              renderItem={(e: ListRenderItemInfo<ArtistType>) => e.item._id === context?.userId ? (
+                <></>
+              ) : (
                 <ArtistCard
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
                 />
-              )}
+              ) }
             />
           ) }
         </View>
@@ -397,10 +412,10 @@ const HomeScreen = ({ navigation }: any) => {
                         >
                           <AntDesign
                             name={post.item.likes.includes(context?.userId ?? "", 0) ? "heart" : "hearto"}
-                            size={24}
+                            size={18}
                             color={post.item.likes.includes(context?.userId ?? "", 0) ? colors.primary : colors.textDark}
                           />
-                          <Text style={[cTextDark, ml8]}>{ post.item.likes.length }</Text>
+                          <Text style={[cTextDark, ml8, { fontSize: 12 }]}>{ post.item.likes.length }</Text>
                         </TouchableOpacity>
 
                       </View>

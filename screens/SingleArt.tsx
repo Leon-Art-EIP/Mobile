@@ -26,23 +26,30 @@ import {
   acCenter,
   bgColor,
   bgGrey,
-  bgPlatinium,
-  bgRed,
-  br12,
+  br20,
   br50,
   flex1,
   flexRow,
   mbAuto,
   mh8,
+  ml4,
   mlAuto,
   mr20,
+  mr4,
+  mr8,
+  mt4,
+  mt8,
   mtAuto,
+  mv0,
+  mv24,
+  mv4,
   mv8,
   ph24,
   ph8,
   pv4,
 } from '../constants/styles';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SlidingUpPanel from 'rn-sliding-up-panel';
@@ -79,7 +86,7 @@ const SingleArt = ({ navigation, route }: any) => {
   const [infoModalMessage, setInfoModalMessage] = useState('');
   const [isReportPanelVisible, setIsReportPanelVisible] = useState<boolean>(false);
   const [currency, setCurrency] = useState<string>('€');
-  
+
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -215,6 +222,7 @@ const SingleArt = ({ navigation, route }: any) => {
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
+        console.log(response.data)
         setPublication(response?.data || []);
         getArtistName(response?.data.userId);
         setSoldState(response?.data.isSold);
@@ -349,136 +357,127 @@ const SingleArt = ({ navigation, route }: any) => {
     <SafeAreaView style={[bgColor, flex1, ph24, pv4]}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
 
-      <View style={styles.container}>
+      <View style={styles.logo}>
+        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title>'Art</Title>
 
-        <View style={styles.logo}>
-          <Title style={{ color: colors.primary }}>Leon</Title>
-          <Title>'Art</Title>
-
-          { context?.userId === publication?.userId ? (
-              <TouchableOpacity
-                style={[mtAuto, mbAuto, mlAuto, mr20]}
-                onPress={() => setIsDeleteModalShown(true)}
-              >
-                <MaterialCommunityIcons
-                  name='delete'
-                  color={colors.primary}
-                  size={32}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[mtAuto, mbAuto, mlAuto, mr20]}
-                onPress={() => navigation.navigate('report', { id: publication?._id, type: 'post' })}
-              >
-                <AntDesign
-                  name="warning"
-                  color={colors.black}
-                  size={24}
-                />
-              </TouchableOpacity>
-            ) }
-
-        </View>
-
-        <View style={[flexRow, acCenter, mv8, mh8]}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
-            style={[bgGrey, { borderRadius: 50, height: 30, marginTop: 'auto', marginBottom: 'auto' }]}
-          >
-            <Image
-              source={{ uri: getImageUrl(artist?.profilePicture) }}
-              style={{ height: 30, width: 30, borderRadius: 50 }}
-            />
-          </TouchableOpacity>
-          <Text style={styles.artTitle}>{ formatName(publication?.name) }</Text>
-        </View>
-
-        {/* Post image */}
-        { !!getImageUrl(publication?.image) ? (
-          <View
-            style={{
-              width: '95%',
-              height: imageSize.height * 0.95,
-              borderRadius: 20,
-              overflow: 'hidden',
-              alignSelf: 'center',
-              backgroundColor: colors.disabledBg,
-              marginTop: 10,
-            }}
-          >
-            <ImageViewer
-              backgroundColor="transparent"
-              imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]}
-              renderIndicator={() => <></>}
-            />
-          </View>
-        ) : (
-          <View style={styles.img} />
-        ) }
+        { context?.userId === publication?.userId ? (
+            <TouchableOpacity
+              style={[mtAuto, mbAuto, mlAuto, mr20]}
+              onPress={() => setIsDeleteModalShown(true)}
+            >
+              <MaterialCommunityIcons
+                name='delete'
+                color={colors.primary}
+                size={32}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[mtAuto, mbAuto, mlAuto, mr20]}
+              onPress={() => navigation.navigate('report', { id: publication?._id, type: 'post' })}
+            >
+              <AntDesign
+                name="warning"
+                color={colors.black}
+                size={24}
+              />
+            </TouchableOpacity>
+          ) }
 
       </View>
 
-      <View style={flex1}>
-        <View style={flex1}>
-          <View style={[flexRow, mv8, bgGrey, br50, pv4, ph8, mh8]}>
-            <TouchableOpacity
-              onPress={likePublication}
-              style={[mh8, mtAuto, mbAuto]}
-            >
-              <AntDesign
-                name={isLiked ? 'heart' : 'hearto'}
-                size={24}
-                color={isLiked ? colors.primary : colors.black}
-              />
-            </TouchableOpacity>
+      <View style={[flexRow, acCenter, mv8, mh8]}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
+          style={[bgGrey, { borderRadius: 50, height: 30, marginTop: 'auto', marginBottom: 'auto' }]}
+        >
+          <Image
+            source={{ uri: getImageUrl(artist?.profilePicture) }}
+            style={{ height: 30, width: 30, borderRadius: 50 }}
+          />
+        </TouchableOpacity>
+        <Text style={styles.artTitle}>{ formatName(publication?.name) }</Text>
+      </View>
 
-            <TouchableOpacity
-              onPress={handleSavedButtonClick}
-              style={[mh8, mtAuto, mbAuto]}
-            >
-              <Ionicons
-                name={isSaved ? 'checkmark-circle' : 'add-circle-outline'}
-                color={isSaved ? colors.primary : colors.black} size={28}
-              />
-            </TouchableOpacity>
-
-            { publication?.price && (
-              <View style={styles.priceSignView}>
-                <Text style={styles.priceSignText}>{ publication?.price?.toString() } €</Text>
-              </View>
-            ) }
-          </View>
-
-          <Card style={{ marginHorizontal: 8, marginVertical: 0, borderRadius: 50 }}>
-            <ScrollView
-              style={{ flex: 1, marginBottom:0 }}
-              refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={getPublications} tintColor={colors.primary} colors={[colors.primary]} />}
-            >
-              <Text style={{ fontSize: 15, color: colors.textDark }}>{
-                publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"
-              }</Text>
-            </ScrollView>
-          </Card>
-
-          <ScrollView style={{ flex: 1 }}>
-            <CommentsList id={id}></CommentsList>
-          </ScrollView>
+      {/* Post image */}
+      { !!getImageUrl(publication?.image) ? (
+        <View
+          style={{
+            width: '95%',
+            height: imageSize.height * 0.95,
+            maxHeight: 200,
+            borderRadius: 20,
+            overflow: 'hidden',
+            alignSelf: 'center',
+            backgroundColor: colors.disabledBg,
+            marginTop: 10,
+          }}
+        >
+          <ImageViewer
+            backgroundColor="transparent"
+            imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]}
+            renderIndicator={() => <></>}
+          />
         </View>
+      ) : (
+        <View style={styles.img} />
+      ) }
 
-        <CommentInput id={id} />
-
-        {/* Buy and goBack button */}
-        <View style={flexRow}>
-          {isForSale && !isSold && context?.userId !== publication?.userId && (
-            <Button
-              style={[styles.actionButton, styles.buyButton, flex1, { marginHorizontal: 8 } ]}
-              textStyle={{ fontSize: 16, textAlign: 'center', color: colors.white }}
-              value="Acheter"
-              onPress={openPaymentSheet}
+      <View style={[pv4]}>
+        <View style={[flexRow, bgGrey, br50, pv4, ph8, mh8]}>
+          <TouchableOpacity
+            onPress={likePublication}
+            style={[mh8, mtAuto, mbAuto]}
+          >
+            <AntDesign
+              name={isLiked ? 'heart' : 'hearto'}
+              size={24}
+              color={isLiked ? colors.primary : colors.black}
             />
-          )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleSavedButtonClick}
+            style={[mh8, mtAuto, mbAuto]}
+          >
+            <Ionicons
+              name={isSaved ? 'checkmark-circle' : 'add-circle-outline'}
+              color={isSaved ? colors.primary : colors.black} size={28}
+            />
+          </TouchableOpacity>
+
+          { publication?.price && (
+            <TouchableOpacity
+              onPress={openPaymentSheet}
+              style={styles.priceSignView}
+              disabled={!isForSale || isSold || context?.userId === publication?.userId}
+            >
+              <Feather
+                name="shopping-cart"
+                size={18}
+                style={[mtAuto, mbAuto, ml4, mr4]}
+                color={colors.offerFg}
+              />
+              <Text style={styles.priceSignText}>{ publication?.price?.toString() } €</Text>
+            </TouchableOpacity>
+          ) }
         </View>
+
+        {/* Description */}
+        <Card style={[ mh8, mv0, br20, mt4 ]}>
+          <Text style={{ fontSize: 13, color: colors.textDark }}>{
+            publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"
+          }</Text>
+        </Card>
+
+      </View>
+
+      <View style={[flex1]}>
+        <ScrollView contentContainerStyle={{ flex: 1 }}>
+          <CommentsList id={id}></CommentsList>
+        </ScrollView>
+        <CommentInput id={id} />
       </View>
 
       {/* Collection modal */}
@@ -522,28 +521,30 @@ const SingleArt = ({ navigation, route }: any) => {
       </Modal>
 
       {/* Delete sliding panel */}
-      <SlidingUpPanel
-        ref={_slidingPanel}
-        height={200}
-        draggableRange={{ top: 200, bottom: 0 }}
-        allowDragging={false}
-        containerStyle={bgColor}
-      >
-        <>
-          <Text style={{ marginHorizontal: 24, marginTop: 24, color: colors.textDark, fontSize: 16 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+      { context?.userId === artist?._id && (
+        <SlidingUpPanel
+          ref={_slidingPanel}
+          height={200}
+          draggableRange={{ top: 200, bottom: 0 }}
+          allowDragging={false}
+          containerStyle={bgColor}
+        >
+          <>
+            <Text style={{ marginHorizontal: 24, marginTop: 24, color: colors.textDark, fontSize: 16 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
 
-          <View style={flexRow}>
-            <Button value="Oui" onPress={deletePost} style={flex1} />
-            <Button secondary value="Non" style={flex1} onPress={() => setIsDeleteModalShown(false)} />
-          </View>
+            <View style={flexRow}>
+              <Button value="Oui" onPress={deletePost} style={flex1} />
+              <Button secondary value="Non" style={flex1} onPress={() => setIsDeleteModalShown(false)} />
+            </View>
 
-          <InfoModal
-            isVisible={isInfoModalVisible}
-            message={infoModalMessage}
-            onClose={() => setInfoModalVisible(false)} messageType="success"
-          />
-        </>
-      </SlidingUpPanel>
+            <InfoModal
+              isVisible={isInfoModalVisible}
+              message={infoModalMessage}
+              onClose={() => setInfoModalVisible(false)} messageType="success"
+            />
+          </>
+        </SlidingUpPanel>
+      ) }
 
     </SafeAreaView>
   );
@@ -551,7 +552,6 @@ const SingleArt = ({ navigation, route }: any) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: colors.white,
   },
   collectionBtn: {
@@ -745,6 +745,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   priceSignView: {
+    flexDirection: 'row',
     backgroundColor: colors.offerBg,
     paddingVertical: 4,
     paddingHorizontal: 8,

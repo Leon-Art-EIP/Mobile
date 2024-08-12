@@ -6,7 +6,6 @@ import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
-import { ArtistType } from '../../constants/homeValues';
 import { cTextDark } from '../../constants/styles';
 
 const CommentsList = ({ id }) => {
@@ -15,17 +14,20 @@ const CommentsList = ({ id }) => {
   const [usernames, setUsernames] = useState([]);
   const [userProfiles, setUserProfiles] = useState({});
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
-  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [commentToDelete, setCommentToDelete] = useState<string>();
   const navigation = useNavigation();
+
 
   useEffect(() => {
     fetchComments();
   }, [id]);
 
-  const getUsername = (userId) => {
+
+  const getUsername = (userId: string) => {
     if (!context?.token) {
       return;
     }
+
     get(
       `/api/user/profile/${userId}`,
       context?.token,
@@ -39,9 +41,8 @@ const CommentsList = ({ id }) => {
             ...prevProfiles,
             [userId]: response.data,
           }));
-          console.log('❤️‍🩹REPOSFNLKNDFLSKNFD', response.data);
         } else {
-          console.error('Invalid response:', response);
+          return console.error('Invalid response:', response);
         }
       },
       (error) => {
@@ -49,6 +50,7 @@ const CommentsList = ({ id }) => {
       }
     );
   };
+
 
   const fetchComments = () => {
     if (!context?.token) {
@@ -62,8 +64,8 @@ const CommentsList = ({ id }) => {
           setComments(response.data);
           response.data.forEach((comment) => {
             getUsername(comment.userId);
+            console.log('PITE:', comment.userId);
           });
-          console.log('PITE:', comment.userId);
         } else {
           console.error('Invalid response:', response);
         }
@@ -73,6 +75,7 @@ const CommentsList = ({ id }) => {
       }
     );
   };
+
 
   const deleteComment = () => {
     del(
@@ -90,12 +93,14 @@ const CommentsList = ({ id }) => {
     );
   };
 
-  const handleDeletePress = (commentId) => {
+
+  const handleDeletePress = (commentId: string) => {
     setCommentToDelete(commentId);
     setIsDeleteModalShown(true);
   };
 
-  const timeSince = (date) => {
+
+  const timeSince = (date: Date | string | number) => {
     const now = new Date();
     const commentDate = new Date(date);
     const timeDifference = now - commentDate;

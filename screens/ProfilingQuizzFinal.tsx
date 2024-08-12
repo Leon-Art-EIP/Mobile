@@ -14,12 +14,10 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
   const context = useContext(MainContext);
 
   const next = () => {
-    if (discoveryMethod == null)
+    if (discoveryMethod == null) {
       return;
-    Alert.alert('Your preferences have been saved !');
+    }
     postQuizDatas();
-    // navigation.navigate('profiling');
-    // navigation.navigate('mainNav');
     navigation.navigate('tutorial');
   };
 
