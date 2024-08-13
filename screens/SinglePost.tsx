@@ -18,6 +18,9 @@ import { RedditPostType } from "../constants/homeValues";
 import { get, post } from "../constants/fetch";
 
 
+const NOT_FOUND = "https://qph.cf2.quoracdn.net/main-qimg-1a4bafe2085452fdc55f646e3e31279c-lq";
+
+
 type PostType = {
   _id: string;
   body: string;             // the actual content
@@ -79,13 +82,15 @@ const SinglePost = () => {
   const likePost = () => {
     const callback = () => {
       let new_object: RedditPostType = { ...redditPost };
+
       if (isLiked) {
         new_object.likes = new_object.likes?.filter(
-          (like: string) => like === context?.userId
+          (like: string) => like !== context?.userId
         );
       } else {
         new_object.likes?.push(context?.userId ?? "");
       }
+      setIsLiked(currentValue => !currentValue);
       return setRedditPost({ ...new_object });
     }
 
@@ -113,8 +118,9 @@ const SinglePost = () => {
 
   useEffect(() => {
     if (!!route?.params?.post) {
-      setRedditPost(route.params.post)
+      setRedditPost(route.params?.post)
     }
+    console.log(redditPost.likes, ' :: ', context?.userId)
   }, []);
 
 
@@ -157,7 +163,7 @@ const SinglePost = () => {
         {/* Profile card */}
         <View style={[ flexRow ]}>
           <Image
-            source={{ uri: getImageUrl(redditPost?.user.profilePicture) }}
+            source={{ uri: getImageUrl(redditPost?.user?.profilePicture) ?? NOT_FOUND }}
             style={styles.ppic}
           />
           <Text style={styles.profileText}>{ formatName(capitalize(redditPost?.user.username), 20) }</Text>
@@ -171,7 +177,7 @@ const SinglePost = () => {
             onPress={() => navigation.navigate('singleart', { id: redditPost.artPublicationId ?? "" })}
           >
             <Image
-              source={{ uri: redditPost.artPublication ?? "" }}
+              source={{ uri: getImageUrl(redditPost?.artPublication?.image) ?? NOT_FOUND }}
               style={styles.linkedImage}
             />
           </TouchableOpacity>

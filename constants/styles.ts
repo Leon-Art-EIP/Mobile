@@ -90,6 +90,7 @@ const bgColor: StyleProp<any> = { backgroundColor: colors.bg };
 const bgRed: StyleProp<any> = { backgroundColor: '#f00' };
 const bgGrey: StyleProp<any> = { backgroundColor: colors.disabledBg };
 const bgPlatinium: StyleProp<any> = { backgroundColor: colors.platinium };
+const bgDisabled: StyleProp<any> = { backgroundColor: colors.disabledBg };
 
 // color
 const cBlack: StyleProp<any> = { color: colors.black };
@@ -121,7 +122,7 @@ export {
   m4, m8, mt4, mt8, mb4, mb8, mb24, ml0, ml4, ml8, mr0, mr4, mr8, mr20,
   mv0, mv4, mv8, mv24, mh0, mh4, mh8, mh24,
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft,
-  bgColor, bgRed, bgGrey, bgPlatinium,
+  bgColor, bgRed, bgGrey, bgPlatinium, bgDisabled,
   br0, br5, br7, br12, br20, br50,
   cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark
 };

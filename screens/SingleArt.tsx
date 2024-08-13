@@ -26,6 +26,7 @@ import {
   acCenter,
   bgColor,
   bgGrey,
+  bgRed,
   br20,
   br50,
   flex1,
@@ -64,6 +65,10 @@ import { CollectionType } from '../constants/artTypes';
 import InfoModal from '../components/infos/InfoModal';
 import Card from '../components/cards/Card';
 import { formatName } from '../helpers/NamesHelper';
+
+
+const NOT_FOUND = "https://qph.cf2.quoracdn.net/main-qimg-1a4bafe2085452fdc55f646e3e31279c-lq";
+
 
 const SingleArt = ({ navigation, route }: any) => {
   const { id } = route.params;
@@ -187,8 +192,6 @@ const SingleArt = ({ navigation, route }: any) => {
   };
 
   const fetchPaymentSheetParams = () => {
-    console.log('In fetchPaymentSheetParams, sending id:', id);
-
     const requestData = {
       artPublicationId: id,
     };
@@ -222,7 +225,6 @@ const SingleArt = ({ navigation, route }: any) => {
       `/api/art-publication/${id}`,
       context?.token,
       (response) => {
-        console.log(response.data)
         setPublication(response?.data || []);
         getArtistName(response?.data.userId);
         setSoldState(response?.data.isSold);
@@ -393,7 +395,7 @@ const SingleArt = ({ navigation, route }: any) => {
           style={[bgGrey, { borderRadius: 50, height: 30, marginTop: 'auto', marginBottom: 'auto' }]}
         >
           <Image
-            source={{ uri: getImageUrl(artist?.profilePicture) }}
+            source={{ uri: getImageUrl(artist?.profilePicture) ?? NOT_FOUND }}
             style={{ height: 30, width: 30, borderRadius: 50 }}
           />
         </TouchableOpacity>
@@ -416,7 +418,7 @@ const SingleArt = ({ navigation, route }: any) => {
         >
           <ImageViewer
             backgroundColor="transparent"
-            imageUrls={[{ url: getImageUrl(publication?.image) ?? '' }]}
+            imageUrls={[{ url: getImageUrl(publication?.image) ?? NOT_FOUND }]}
             renderIndicator={() => <></>}
           />
         </View>
@@ -459,7 +461,9 @@ const SingleArt = ({ navigation, route }: any) => {
                 style={[mtAuto, mbAuto, ml4, mr4]}
                 color={colors.offerFg}
               />
-              <Text style={styles.priceSignText}>{ publication?.price?.toString() } €</Text>
+              <Text style={styles.priceSignText}>{
+                publication?.price?.toString() + ' ' + currency
+              }</Text>
             </TouchableOpacity>
           ) }
         </View>

@@ -5,18 +5,16 @@ import { aiCenter, asCenter, bgRed, bgGrey, fwBold, mbAuto, mtAuto, mlAuto } fro
 import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import Title from '../text/Title';
+import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
 import Subtitle from '../text/Subtitle';
+import { formatName } from '../../helpers/NamesHelper';
 
 const CommandsComponent = () => {
   const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
   const [ordersState, setOrdersState] = useState([]);
-  const [salesState, setSalesState] = useState([]);
-  const [publicationNames, setPublicationNames] = useState({});
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
 
@@ -31,7 +29,6 @@ const CommandsComponent = () => {
       (response) => {
         setOrders(response?.data || []);
         setOrdersState(response?.data.order);
-        console.log('🖼️ Orders:', response?.data || []);
       },
       (error) => console.error('Error fetching orders: ', error)
     );
@@ -39,10 +36,7 @@ const CommandsComponent = () => {
     get(
       `/api/order/latest-sell-orders?limit=50&page=1`,
       context?.token,
-      (response) => {
-        setSales(response?.data || []);
-        console.log('🖼️ Sales:', response?.data || []);
-      },
+      (response) => setSales(response?.data || []),
       (error) => console.error('Error fetching sales:', error)
     );
   }
@@ -56,7 +50,7 @@ const CommandsComponent = () => {
       case ('paid'): return { backgroundColor: colors.paid };
       case ('completed'): return { backgroundColor: colors.completed };
       case ('shipping'): return { backgroundColor: colors.shipping };
-      default: return { backgroundColor: colors.default };
+      default: return { display: 'none' };
     }
   };
 
@@ -66,7 +60,7 @@ const CommandsComponent = () => {
       case ('paid'): return "Payée";
       case ('completed'): return "Terminée";
       case ('shipping'): return "Livraison"
-      default: return "Commande"
+      default: return ""
     }
   };
 
@@ -76,7 +70,7 @@ const CommandsComponent = () => {
         refreshControl={<RefreshControl
           refreshing={isRefreshing}
           colors={[colors.primary]}
-          // onRefresh={getCommands}
+          onRefresh={getCommands}
         />}
         contentContainerStyle={styles.container}
       >
@@ -107,7 +101,7 @@ const CommandsComponent = () => {
                 testID="command-img"
               />
               <View style={styles.textContainer}>
-                <Text style={fwBold}>{order.artPublicationName}</Text>
+                <Text style={fwBold}>{ formatName(order.artPublicationName, 20) }</Text>
                 <Text>{order.orderPrice} €</Text>
               </View>
               <View style={styles.buttonContainer}>

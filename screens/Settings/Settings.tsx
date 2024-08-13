@@ -9,7 +9,7 @@ import colors from '../../constants/colors';
 import Button from '../../components/buttons/Button';
 import { MainContext } from '../../context/MainContext';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { aiCenter, flexRow, mh8, mv24 } from "../../constants/styles";
+import { aiCenter, flexRow, mh8, mtAuto, mv24 } from "../../constants/styles";
 import { Linking } from 'react-native';
 
 const Settings = () => {
@@ -67,47 +67,40 @@ const Settings = () => {
         <Title style={{ marginHorizontal: 24 }}>Paramètres</Title>
       </View>
 
-      <View>
-        <Button
-          value="Informations personnelles"
-          secondary
-          style={styles.settingsButton}
-          textStyle={{ fontSize: 16 }}
-          onPress={() => navigation.navigate("personal_informations")}
-        />
-        <Button
-          value="Mot de passe et sécurité"
-          secondary
-          style={styles.settingsButton}
-          textStyle={{ fontSize: 16, textAlign: 'left' }}
-          onPress={() => navigation.navigate("password_and_security")}
-        />
-        <Button
-          value="Conditions générales de vente"
-          secondary
-          style={styles.settingsButton}
-          textStyle={{ fontSize: 16 }}
-          onPress={() => navigation.navigate("general_conditions")}
-        />
-        <Button
-          style={styles.stripebutton}
-          value="Link my Stripe Account"
-          onPress={linkStripeAccount}
-        />
-        <Button
-          style={styles.stripebutton}
-          value="Tutoriel"
-          onPress={() => navigation.navigate("tutorial")}
-          // onPress={linkStripeAccount}
-        />
-      </View>
+      <Button
+        value="Informations personnelles"
+        secondary
+        textStyle={{ fontSize: 16 }}
+        onPress={() => navigation.navigate("personal_informations")}
+      />
+      <Button
+        value="Mot de passe et sécurité"
+        secondary
+        textStyle={{ fontSize: 16, textAlign: 'left' }}
+        onPress={() => navigation.navigate("password_and_security")}
+      />
+      <Button
+        value="Conditions générales de vente"
+        secondary
+        textStyle={{ fontSize: 16 }}
+        onPress={() => navigation.navigate("general_conditions")}
+      />
+      <Button
+        secondary
+        value="Lier mon compte Stripe"
+        onPress={linkStripeAccount}
+      />
+      <Button
+        secondary
+        style={[mtAuto]}
+        value="Tutoriel"
+        onPress={() => navigation.navigate("tutorial")}
+      />
 
       {/* Log out button */}
       <Button
         value="Se déconnecter"
-        style={styles.disconnectButton}
-        textStyle={{ marginTop: 'auto' }}
-        onPress={() => handleDisconnectClick()}
+        onPress={handleDisconnectClick}
       />
     </SafeAreaView>
   );
@@ -117,7 +110,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
     paddingHorizontal: 12,
-    paddingBottom: 80,
     flex: 1
   },
   logo: {
@@ -127,30 +119,10 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 5,
   },
-  stripebutton: {
-    width: '85%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
-    backgroundColor: colors.stripe,
-    ifyContent: 'center',
-    alignSelf: 'center', // Centre le bouton horizontalement
-    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
-  },
   mainTitle: {
     marginTop: 10,
     marginHorizontal: 12,
     marginVertical: 32
-  },
-  settingsButton: {
-    width: '85%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
-    justifyContent: 'center',
-    alignSelf: 'center', // Centre le bouton horizontalement
-    marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
-  },
-  disconnectButton: {
-    width: '65%',
-    marginTop: 85,
-    justifyContent: 'center',
-    alignSelf: 'center',
-    fontWeight: 'bold',
   }
 });
 

@@ -1,6 +1,4 @@
-import React from 'react';
 import colors from '../constants/colors';
-import { get } from '../constants/fetch';
 
 
 const getImageUrl = (urlFromBack: string | undefined) => {

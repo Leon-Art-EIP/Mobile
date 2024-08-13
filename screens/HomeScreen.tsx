@@ -32,6 +32,7 @@ import SlidingUpPanel from 'rn-sliding-up-panel';
 import { aiCenter, bgColor, bgGrey, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24 } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
+import axios from 'axios';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -118,20 +119,38 @@ const HomeScreen = ({ navigation }: any) => {
 
 
   const getPosts = () => {
-    const callback = (res: any) => {
+    const callback = async (res: any) => {
       setPosts(res?.data);
-      /*
-      let new_array = res?.data.map((item: RedditPostType) => {
-        if (!item?.artPublication) {
+
+      const new_array = await Promise.all(
+        res?.data.map(async (item: RedditPostType) => {
+          if (!item?.artPublication) {
+            return item;
+          }
+
+          const promise: string = await new Promise((resolve, reject) => {
+            get(
+              `/api/art-publication/${item.artPublicationId}`,
+              context?.token,
+              (res: any) => resolve(res.data?.image),
+              () => reject()
+            );
+          });
+
+          item.artPublication = {
+            name: item?.artPublication?.name,
+            image: promise
+          };
+
           return item;
-        }
+        })
+      );
 
-
-
-      });
-      */
+      setPosts([ ...new_array ]);
+      setIsRefreshing(false);
     }
 
+    setIsRefreshing(true);
     return get(
       "/api/posts?filter=popular",
       context?.token,
@@ -347,7 +366,7 @@ const HomeScreen = ({ navigation }: any) => {
                 renderItem={(e) => (
                   <TouchableOpacity
                     key={e.item._id + Math.random().toString()}
-                    onPress={() => towardsPost(e.item._id)}
+                    onPress={() => towardsPost(e.item?._id)}
                   >
                     <View style={styles.publicationItem}>
                       <Image
@@ -373,17 +392,16 @@ const HomeScreen = ({ navigation }: any) => {
                     <Card style={mh0}>
                       <View style={flexRow}>
                         <Image
-                          source={{ uri: getImageUrl(post.item.artPublication ?? "") }}
+                          source={{ uri: getImageUrl(post.item?.user?.profilePicture ?? "") }}
                           style={{
                             height: 30,
                             width: 30,
-                            borderRadius: 50,
-                            backgroundColor: colors.tertiary
+                            borderRadius: 50
                           }}
                         />
 
                         <Text style={[cTextDark, mtAuto, mbAuto, ml8]}>
-                          { post.item.user.username }
+                          { post.item?.user?.username }
                         </Text>
                       </View>
 
@@ -393,10 +411,10 @@ const HomeScreen = ({ navigation }: any) => {
                       {/* if retweet, show picture */}
                       { post.item?.artPublication && (
                         <TouchableOpacity
-                          onPress={() => navigation.navigate('singlart', { id: post.item?.artPublicationId })}
+                          onPress={() => navigation.navigate('singleart', { id: post.item?.artPublicationId })}
                         >
                           <Image
-                            source={{ uri: getImageUrl(post.item?.artPublication) }}
+                            source={{ uri: getImageUrl(post.item?.artPublication?.image ?? "") }}
                             style={styles.postImage}
                           />
                         </TouchableOpacity>
@@ -411,11 +429,11 @@ const HomeScreen = ({ navigation }: any) => {
                           style={[flexRow, mt8]}
                         >
                           <AntDesign
-                            name={post.item.likes.includes(context?.userId ?? "", 0) ? "heart" : "hearto"}
+                            name={post.item?.likes?.includes(context?.userId ?? "", 0) ? "heart" : "hearto"}
                             size={18}
-                            color={post.item.likes.includes(context?.userId ?? "", 0) ? colors.primary : colors.textDark}
+                            color={post.item?.likes?.includes(context?.userId ?? "", 0) ? colors.primary : colors.textDark}
                           />
-                          <Text style={[cTextDark, ml8, { fontSize: 12 }]}>{ post.item.likes.length }</Text>
+                          <Text style={[cTextDark, ml8, { fontSize: 12 }]}>{ post.item?.likes?.length }</Text>
                         </TouchableOpacity>
 
                       </View>

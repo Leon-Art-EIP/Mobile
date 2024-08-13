@@ -48,7 +48,10 @@ export type RedditPostType = {
     profilePicture: string;
   };
   artPublicationId: string | undefined;
-  artPublication: string | undefined;
+  artPublication: {
+    name: string;
+    image: string | undefined;
+  } | undefined;
 };
 
 
