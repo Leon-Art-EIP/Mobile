@@ -134,8 +134,8 @@ const Login = ({ navigation }: any) => {
         >
           <View style={styles.checkboxContainer}>
             <CheckBox
-              tintColors={{ true: colors.primary, false: colors.bg }}
-              tintColor={colors.bg}
+              tintColors={{ true: colors.primary, false: colors.textDark }}
+              tintColor={colors.textDark}
               onFillColor={colors.primary}
               value={rememberMe}
               onValueChange={(value: boolean) => setRememberMe(value)}
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rememberMeText: {
-    color: colors.black,
+    color: colors.textDark,
     marginLeft: 8
   },
   orContainer: {

@@ -5,6 +5,7 @@ import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
+import { flex1, flexRow } from '../constants/styles';
 
 
 const ProfilingQuizzFinal = ({ route, navigation }: any) => {
@@ -13,14 +14,11 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
   const context = useContext(MainContext);
 
   const next = () => {
-    if (discoveryMethod == null)
+    if (discoveryMethod == null) {
       return;
-    Alert.alert('Your preferences have been saved !');
+    }
     postQuizDatas();
-    // navigation.navigate('profiling');
-    // navigation.navigate('mainNav');
     navigation.navigate('tutorial');
-    
   };
 
   const postQuizDatas = () => {
@@ -44,47 +42,48 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       discoveryMethod,
     };
 
-    post('/api/quizz/submit',
-    requestData,
-    context?.token,
-    () => navigation.navigate('main'),
-    (error) => {
-      console.error('Error publishing quiz data:', error);
-      if (error.response && error.response.data && error.response.data.errors) {
-        error.response.data.errors.forEach(err => {
-          console.error(`Validation error - ${err.param}: ${err.msg}`);
-        });
+    post(
+      '/api/quizz/submit',
+      requestData,
+      context?.token,
+      () => navigation.navigate('main'),
+      (error: any) => {
+        console.error('Error publishing quiz data:', error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          error.response.data.errors.forEach((err: any) => {
+            console.error(`Validation error - ${err.param}: ${err.msg}`);
+          });
+        }
       }
-    }
     );
-    console.log('😇 RequestDatas: ', requestData);
-    console.log('Quiz successfully posted !');
-    console.log(requestData)
   };
+
 
   const previous = () => {
-    if (objective === 'sell')
+    if (objective === 'sell') {
       navigation.navigate('profilingArtist2', {objective, artSellingType});
-    else if (objective === 'discover')
+    } else if (objective === 'discover') {
       navigation.navigate('profilingAmateur2', {objective, artSellingType});
-
+    }
   };
 
-  useEffect(() => {
-    console.log('selectedTag:', discoveryMethod);
-    console.log('customcommands:', customCommands);
-    },
-  );
 
   const selectTag = (tag: string) => {
     setSelectedTag(discoveryMethod === tag ? null : tag);
   };
 
-  const getButtonStyle = (choice) => (
-    discoveryMethod === choice ?
-      { ...styles.TagButton, backgroundColor: colors.primary } :
-      styles.TagButton
-  );
+
+  const getButtonStyle = (choice: string) => {
+    if (discoveryMethod === choice) {
+      return {
+        ...styles.tagButton,
+        backgroundColor: colors.primary
+      };
+    } else {
+      return styles.tagButton;
+    }
+  };
+
 
   return (
     <View style={styles.container}>
@@ -92,50 +91,63 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
-      <Text style={styles.question}>3/3 - Comment avez-vous découvert Leon'Art ?</Text>
-      <View style={styles.Tags}>
-        <TouchableOpacity
-          style={getButtonStyle("Réseaux sociaux")}
-          onPress={() => selectTag("Réseaux sociaux")}>
-          <Text style={[styles.buttonText, discoveryMethod === "Réseaux sociaux" && { color: 'white' }]}>
-            Réseaux sociaux
-          </Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity
+      <Text style={styles.question}>
+        3/3 - Comment avez-vous découvert Leon'Art ?
+      </Text>
+
+      <View style={styles.tags}>
+
+        <Button
+          style={[
+            { marginTop: 'auto' },
+            getButtonStyle("Réseaux sociaux")
+          ]}
+          onPress={() => selectTag("Réseaux sociaux")}
+          secondary={discoveryMethod !== 'Réseaux sociaux'}
+          value='Réseaux sociaux'
+        />
+
+        <Button
           style={getButtonStyle("Salon Professionnel")}
-          onPress={() => selectTag("Salon Professionnel")}>
-          <Text style={[styles.buttonText, discoveryMethod === "Salon Professionnel" && { color: 'white' }]}>
-            Salon Professionnel
-          </Text>
-        </TouchableOpacity>
+          onPress={() => selectTag("Salon Professionnel")}
+          secondary={discoveryMethod !== 'Salon Professionnel'}
+          value='Salon Professionnel'
+        />
 
-        <TouchableOpacity
+        <Button
           style={getButtonStyle("Bouche à oreilles")}
-          onPress={() => selectTag("Bouche à oreilles")}>
-          <Text style={[styles.buttonText, discoveryMethod === "Bouche à oreilles" && { color: 'white' }]}>
-            Bouche à oreilles
-          </Text>
-        </TouchableOpacity>
+          onPress={() => selectTag("Bouche à oreilles")}
+          secondary={discoveryMethod !== 'Bouche à oreilles'}
+          value='Bouche à oreilles'
+        />
 
-        <TouchableOpacity
-          style={getButtonStyle("Autre")}
-          onPress={() => selectTag("Autre")}>
-          <Text style={[styles.buttonText, discoveryMethod === "Autre" && { color: 'white' }]}>
-            Autre
-          </Text>
-        </TouchableOpacity>
+        <Button
+          style={[
+            { marginBottom: 'auto' },
+            getButtonStyle("Autre")
+          ]}
+          onPress={() => selectTag("Autre")}
+          secondary={discoveryMethod !== 'Autre'}
+          value='Autre'
+        />
+
       </View>
-      <Button
-        value="Tutoriel de présentation"
-        onPress={next}
-      />
-      <Button
-        style={{ backgroundColor: colors.secondary }}
-        textStyle={{ color: colors.black }}
-        value="Retour"
-        onPress={previous}
-      />
+
+      <View style={[flexRow]}>
+        <Button
+          secondary
+          style={[flex1]}
+          value="Retour"
+          onPress={previous}
+        />
+
+        <Button
+          value="Suivant"
+          style={[flex1]}
+          onPress={next}
+        />
+      </View>
     </View>
   );
 };
@@ -165,17 +177,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
-  Tags: {
-    justifyContent: 'space-between',
-    margin: 23,
+  tags: {
     flex: 1,
     alignItems: 'center',
     flexDirection: 'column',
   },
-  TagButton: {
+  tagButton: {
     padding: 13,
     margin: 5,
-    borderRadius: 25,
+    borderRadius: 50,
+    width: '90%',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.whitesmoke,

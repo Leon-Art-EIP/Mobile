@@ -103,7 +103,7 @@ const SingleOrder = () => {
         ToastAndroid.show("Order canceled", ToastAndroid.SHORT);
         return navigation.goBack();
       },
-      (err) => console.warn(err)
+      (err: any) => console.warn({ ...err })
     );
   }
 
@@ -118,7 +118,7 @@ const SingleOrder = () => {
         ToastAndroid.show("Order validated", ToastAndroid.SHORT);
         return navigation.goBack();
       },
-      (err) => console.warn(err)
+      (err: any) => console.warn({ ...err })
     );
   }
 
@@ -145,7 +145,7 @@ const SingleOrder = () => {
           });
         }
       },
-      (err) => console.warn(err)
+      (err: any) => console.warn({ ...err })
     );
   }
 
@@ -155,7 +155,7 @@ const SingleOrder = () => {
       `/api/order/${params?.buy ? "buy" : "sell"}/${params.id}`,
       context?.token,
       (res: any) => setOrder(res?.data),
-      (err: any) => console.error(err)
+      (err: any) => console.warn({ ...err })
     );
   }
 

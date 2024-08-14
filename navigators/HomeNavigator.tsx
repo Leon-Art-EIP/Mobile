@@ -11,7 +11,7 @@ import Conversation from '../screens/Conversation';
 import Collection from '../screens/Collection';
 import ReportScreen from '../screens/ReportScreen';
 import SingleOrder from '../screens/SingleOrder';
-import ArticlesList from '../screens/ArticleList';
+import SinglePost from '../screens/SinglePost';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -25,6 +25,7 @@ const HomeNavigator = () => {
       <Stack.Screen name="article" component={Article} options={options} />
       <Stack.Screen name="articles" component={ArticlesList} options={options} />
       <Stack.Screen name="singleart" component={SingleArt} options={options} />
+      <Stack.Screen name="singlepost" component={SinglePost} options={options} />
       <Stack.Screen name="other_profile" component={OtherProfile} options={options} />
       <Stack.Screen name="stripe" component={Stripe} options={options} />
       <Stack.Screen name="notifications" component={Notifications} options={options} />

@@ -10,6 +10,7 @@ import colors from '../constants/colors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SearchNavigator from './SearchNavigator';
+import AddPublication from '../screens/AddPublication';
 
 
 const BottomNavigator = () => {
@@ -53,7 +54,7 @@ const BottomNavigator = () => {
       }} />
 
       {/* Add tab */}
-      <Tab.Screen name="Add" component={AddNavigator} options={{
+      <Tab.Screen name="Add" component={AddPublication} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
           <MaterialIcons

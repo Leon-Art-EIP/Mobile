@@ -16,21 +16,20 @@ const CommentsList = ({ id }) => {
   const [usernames, setUsernames] = useState({});
   const [userProfiles, setUserProfiles] = useState({});
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
-  const [commentToDelete, setCommentToDelete] = useState(null);
-  const [replyingTo, setReplyingTo] = useState(null);
-  const [replyText, setReplyText] = useState("");
-  const [nestedCommentsVisible, setNestedCommentsVisible] = useState({});
-  const [likes, setLikes] = useState({});
+  const [commentToDelete, setCommentToDelete] = useState<string>();
   const navigation = useNavigation();
+
 
   useEffect(() => {
     fetchComments();
   }, [id]);
 
-  const getUsername = (userId) => {
+
+  const getUsername = (userId: string) => {
     if (!context?.token) {
       return;
     }
+
     get(
       `/api/user/profile/${userId}`,
       context?.token,
@@ -45,7 +44,7 @@ const CommentsList = ({ id }) => {
             [userId]: response.data,
           }));
         } else {
-          console.error('Invalid response:', response);
+          return console.error('Invalid response:', response);
         }
       },
       (error) => {
@@ -53,6 +52,7 @@ const CommentsList = ({ id }) => {
       }
     );
   };
+
 
   const fetchComments = () => {
     if (!context?.token) {
@@ -66,9 +66,7 @@ const CommentsList = ({ id }) => {
           setComments(response.data);
           response.data.forEach((comment) => {
             getUsername(comment.userId);
-            comment.nestedComments.forEach((nestedComment) => {
-              getUsername(nestedComment.userId);
-            });
+            console.log('PITE:', comment.userId);
           });
         } else {
           console.error('Invalid response:', response);
@@ -79,6 +77,7 @@ const CommentsList = ({ id }) => {
       }
     );
   };
+
 
   const deleteComment = () => {
     del(
@@ -96,12 +95,14 @@ const CommentsList = ({ id }) => {
     );
   };
 
-  const handleDeletePress = (commentId) => {
+
+  const handleDeletePress = (commentId: string) => {
     setCommentToDelete(commentId);
     setIsDeleteModalShown(true);
   };
 
-  const timeSince = (date) => {
+
+  const timeSince = (date: Date | string | number) => {
     const now = new Date();
     const commentDate = new Date(date);
     const timeDifference = now - commentDate;

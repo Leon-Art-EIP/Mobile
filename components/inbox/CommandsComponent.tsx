@@ -1,22 +1,20 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {Image, RefreshControl, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import colors from '../../constants/colors';
-import { bgGrey, cDisabled, flexRow, fwBold } from '../../constants/styles';
+import { aiCenter, asCenter, bgRed, bgGrey, fwBold, mbAuto, mtAuto, mlAuto } from '../../constants/styles';
 import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import Title from '../text/Title';
+import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
 import Subtitle from '../text/Subtitle';
+import { formatName } from '../../helpers/NamesHelper';
 
 const CommandsComponent = () => {
   const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
   const [ordersState, setOrdersState] = useState([]);
-  const [salesState, setSalesState] = useState([]);
-  const [publicationNames, setPublicationNames] = useState({});
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
 
@@ -31,7 +29,6 @@ const CommandsComponent = () => {
       (response) => {
         setOrders(response?.data || []);
         setOrdersState(response?.data.order);
-        console.log('🖼️ Orders:', response?.data || []);
       },
       (error) => console.error('Error fetching orders: ', error)
     );
@@ -39,105 +36,140 @@ const CommandsComponent = () => {
     get(
       `/api/order/latest-sell-orders?limit=50&page=1`,
       context?.token,
-      (response) => {
-        setSales(response?.data || []);
-        console.log('🖼️ Sales:', response?.data || []);
-      },
+      (response) => setSales(response?.data || []),
       (error) => console.error('Error fetching sales:', error)
     );
   }
+
 
   useEffect(getCommands, [context?.token]);
 
 
   const getButtonStyle = (value: string) => {
-    console.log('VALUUUE',value);
     switch (value) {
-      case 'paid':
-        return styles.paidTag; // Define paidButton style in your stylesheet
-      case 'completed':
-        return styles.completedTag; // Define completedButton style in your stylesheet
-      case 'shipping':
-        return styles.shippingTag; // Define shippingButton style in your stylesheet
-      default:
-        return styles.defaultTag; // Define defaultButton style in your stylesheet
+      case ('paid'): return { backgroundColor: colors.paid };
+      case ('completed'): return { backgroundColor: colors.completed };
+      case ('shipping'): return { backgroundColor: colors.shipping };
+      default: return { display: 'none' };
     }
   };
 
 
+  const getFrenchValue = (value: string) => {
+    switch (value) {
+      case ('paid'): return "Payée";
+      case ('completed'): return "Terminée";
+      case ('shipping'): return "Livraison"
+      default: return ""
+    }
+  };
+
   return (
-    <ScrollView
-      refreshControl={<RefreshControl
-        refreshing={isRefreshing}
-        colors={[colors.primary]}
-        // onRefresh={getCommands}
-      />}
-      contentContainerStyle={styles.container}
-    >
-    <Subtitle>Commandes</Subtitle>
+    <>
+      <ScrollView
+        refreshControl={<RefreshControl
+          refreshing={isRefreshing}
+          colors={[colors.primary]}
+          onRefresh={getCommands}
+        />}
+        contentContainerStyle={styles.container}
+      >
+        <Subtitle>Commandes</Subtitle>
 
-      { orders.map((order, index) => (
-        <TouchableOpacity
-          key={order.orderId + Math.random().toString()}
-          onPress={() => navigation.navigate('single_order', {
-            id: order?.orderId,
-            buy: true
-          })}
-        >
-          <View key={order._id || index} style={styles.orderItem}>
+        { orders.length === 0 && (
+          <View style={[ asCenter, aiCenter, mtAuto, mbAuto ]}>
             <Image
-              style={styles.image}
-              source={{ uri: getImageUrl(order.artPublicationImage) }}
-              testID="command-img"
+              source={require('../../assets/icons/box.png')}
+              style={{ width: 80, height: 80 }}
             />
-            <View style={styles.textContainer}>
-              <Text style={fwBold}>{order.artPublicationName}</Text>
-              <Text>{order.orderPrice} €</Text>
-            </View>
-            <View style={styles.buttonContainer}>
-              <Button
-                value={order.orderState}
-                style={[styles.default, getButtonStyle(order.orderState)]}
-                textStyle={styles.buttonText}
-                disabled={true}
-              />
-            </View>
+            <Text style={{ marginBottom: 'auto' }}>C'est tout vide par ici !</Text>
           </View>
-        </TouchableOpacity>
-      ))}
+        )}
 
-    <Subtitle>Ventes</Subtitle>
+        { orders.map((order, index) => (
+          <TouchableOpacity
+            key={order.orderId + Math.random().toString()}
+            onPress={() => navigation.navigate('single_order', {
+              id: order?.orderId,
+              buy: true
+            })}
+          >
+            <View key={order._id || index} style={styles.orderItem}>
+              <Image
+                style={styles.image}
+                source={{ uri: getImageUrl(order.artPublicationImage) }}
+                testID="command-img"
+              />
+              <View style={styles.textContainer}>
+                <Text style={fwBold}>{ formatName(order.artPublicationName, 20) }</Text>
+                <Text>{order.orderPrice} €</Text>
+              </View>
+              <View style={styles.buttonContainer}>
+                <Button
+                  value={getFrenchValue(order.orderState)}
+                  style={[mlAuto, getButtonStyle(order.orderState)]}
+                  textStyle={styles.buttonText}
+                  disabled
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-      {sales.map((sale, index) => (
-        <TouchableOpacity
-          key={sale.saleId + Math.random().toString()}
-          onPress={() => navigation.navigate('single_order', {
-            id: sale?.orderId,
-            buy: false
-          })}
-        >
-          <View key={sale._id || index} style={styles.orderItem}>
+      <ScrollView
+        refreshControl={<RefreshControl
+          refreshing={isRefreshing}
+          colors={[colors.primary]}
+          // onRefresh={getCommands}
+        />}
+        contentContainerStyle={styles.container}
+      >
+
+        <Subtitle>Ventes</Subtitle>
+
+        { sales.length === 0 && (
+          <View style={[ asCenter, aiCenter, mtAuto, mbAuto ]}>
             <Image
-              style={styles.image}
-              source={{ uri: getImageUrl(sale.artPublicationImage) }}
-              testID="command-img"
+              source={require('../../assets/icons/box.png')}
+              style={{ width: 80, height: 80 }}
             />
-            <View style={styles.textContainer}>
-              <Text style={fwBold}>{sale.artPublicationName}</Text>
-              <Text>{sale.orderPrice} €</Text>
-            </View>
-            <View style={styles.buttonContainer}>
-              <Button
-                value={sale.orderState}
-                style={[styles.default, getButtonStyle(sale.orderState)]}
-                textStyle={styles.buttonText}
-                disabled={true}
-              />
-            </View>
+            <Text style={{ marginBottom: 'auto' }}>C'est tout vide par ici !</Text>
           </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+        ) }
+
+        { sales.map((sale, index) => (
+          <TouchableOpacity
+            key={sale.saleId + Math.random().toString()}
+            onPress={() => navigation.navigate('single_order', {
+              id: sale?.orderId,
+              buy: false
+            })}
+          >
+            <View key={sale._id || index} style={styles.orderItem}>
+              <Image
+                style={styles.image}
+                source={{ uri: getImageUrl(sale.artPublicationImage) }}
+                testID="command-img"
+              />
+              <View style={styles.textContainer}>
+                <Text style={fwBold}>{sale.artPublicationName}</Text>
+                <Text>{sale.orderPrice} €</Text>
+              </View>
+              <View style={styles.buttonContainer}>
+                <Button
+                  value={getFrenchValue(sale.orderState)}
+                  style={[mlAuto, getButtonStyle(sale.orderState)]}
+                  textStyle={styles.buttonText}
+                  disabled={true}
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+        )) }
+
+      </ScrollView>
+    </>
   );
 };
 
@@ -152,7 +184,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginVertical: 8,
     alignItems: 'center',
-    paddingRight: 10,
   },
   orderDetailsContainer: {
     flex: 1,
@@ -181,20 +212,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Tags
-
-  paidTag: {
-    backgroundColor: colors.paid,
-  },
-  completedTag: {
-    backgroundColor: colors.completed,
-  },
-  shippingTag: {
-    backgroundColor: colors.shipping,
-  },
-  defaultTag: {
-    backgroundColor: colors.default,
-  },
   buttonText: {
     color: colors.black,
     fontSize: 13,

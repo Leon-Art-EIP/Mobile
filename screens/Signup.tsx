@@ -17,21 +17,32 @@ const Signup = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
+  const [password2, setPassword2] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const context = useContext(MainContext);
+
 
   const handleSignup = () => {
     const requestData = { username, email, password };
 
+    if (password !== password2) {
+      return setError("Les mots de passe ne matchent pas");
+    }
+
     axios.post(`${API_URL}/api/auth/signup`, requestData)
       .then(async response => {
         if (response && response.data && response.data.token) {
-          const tokenFromDB = response.data.token;
-          console.log('Server response', response.data);
-          console.log('Token from DB:', tokenFromDB);
+          const token = response.data?.token;
+          const userId = response?.data?.user?.id;
+          const username = response?.data?.user?.username;
+          const email = response?.data?.user?.email;
 
           try {
-            await AsyncStorage.setItem('jwt', tokenFromDB);
+            /* await AsyncStorage.setItem('jwt', tokenFromDB); */
+            context?.setUserEmail(email);
+            context?.setToken(token);
+            context?.setUserId(userId);
+            context?.setUsername(username);
             navigation.navigate('profilingquizz');
           } catch (error) {
             console.error('Error storing token:', error);
@@ -39,7 +50,7 @@ const Signup = ({ navigation }: any) => {
           }
         } else {
           console.error('Invalid response format: ', response);
-          Alert.alert('Signup Failed', 'Invalid response format');
+          Alert.alert('Inscription échouée', 'Réponse du serveur erronée');
         }
       })
       .catch(error => {
@@ -71,6 +82,7 @@ const Signup = ({ navigation }: any) => {
     navigation.navigate('login');
   };
 
+
   return (
     <View style={styles.container}>
       <View style={styles.titleView}>
@@ -93,9 +105,24 @@ const Signup = ({ navigation }: any) => {
 
       <Input
         placeholder="Mot de passe"
+        secureTextEntry
         onTextChanged={setPassword}
         style={styles.input}
       />
+
+      <Input
+        placeholder="Retapez votre mot de passe"
+        secureTextEntry
+        onTextChanged={setPassword2}
+        style={styles.input}
+      />
+
+      { error && (
+        <Text style={{
+          color: colors.error,
+          marginHorizontal: 24
+        }}>{ error }</Text>
+      )}
 
       <Button
         onPress={handleSignup}
@@ -148,8 +175,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: 70,
-    marginBottom: 40,
+    marginBottom: 24,
   },
   existingUserContainer: {
     flexDirection: 'row',

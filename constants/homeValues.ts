@@ -37,6 +37,24 @@ type ArtistType = {
   profilePicture: string | undefined;
 };
 
+export type RedditPostType = {
+  id: string;
+  userId: string;
+  text: string;
+  createdAt: Date;
+  likes: string[];
+  user: {
+    username: string;
+    profilePicture: string;
+  };
+  artPublicationId: string | undefined;
+  artPublication: {
+    name: string;
+    image: string | undefined;
+  } | undefined;
+};
+
+
 type PostType = {
   _id: string;
   userId: string;
@@ -89,7 +107,7 @@ const const_artists: NewsType[] = [
   }
 ];
 
-export type { NewsType, ArtistType, ArticleType, PublicationType, PostType };
+export type { NewsType, ArtistType, ArticleType, PublicationType, PostType, RedditPostType };
 export {
   const_news,
   const_artists,

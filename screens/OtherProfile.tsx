@@ -1,36 +1,78 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList, ListRenderItem, FlatListProps } from 'react-native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import profilePicture from '../assets/images/user.png';
-import bannerImage from '../assets/images/banner.jpg';
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh24, mh4, mh8, mlAuto, mrAuto, mtAuto, mv4, mv8, pt8 } from '../constants/styles';
-import { CollectionType } from '../constants/artTypes';
+import { acCenter, aiCenter, bgRed, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh8, mlAuto, mrAuto, mtAuto, mv4, pt8 } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import Card from '../components/cards/Card';
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-const OtherProfile = ({ route }) => {
+
+type UserDataType = {
+  subscriptions: any[];
+  stripeAccountId: string;
+  subscribers: string[];                            // userIDs who subscribed ?
+  subscribersCount: number;
+  availability: string;
+  subscription: string;
+  canPostArticles: boolean;
+  is_artist: boolean;
+  username: string;
+  location: string;
+  quizz: string;                                    // I should ask wtf that is
+  profilePicture: string;
+  collections: string[];                            // collection IDs
+  bannerPicture: string;
+  likedPublications: string[];                      // userIDs who liked
+  biography: string;
+  updatedAt: {
+    _seconds: number;
+    _nanoseconds: number;
+  };
+  _id: string;
+};
+
+type UserArtworkType = {
+   _id: string;
+   image: string;
+   isForSale: boolean;
+   comments: any[];
+   description: string;
+   userId: string;
+   createdAt: {
+     _seconds: number;
+     _nanoseconds: number;
+  },
+   artType: string;
+   isSold: boolean;
+   name: string;
+   location: string;
+   dimension: string;
+   likes: string[]               // userIDs who liked
+};
+
+
+const OtherProfile = () => {
+  const route = useRoute();
   const navigation = useNavigation();
   const id = route?.params?.id;
   const context = useContext(MainContext);
   const token = context?.token;
 
   const [isFollowing, setIsFollowing] = useState(false);
-  const [userArtworks, setUserArtworks] = useState([]);
-  const [userArtworksCount, setUserArtworksCount] = useState(0);
-  const [userData, setUserData] = useState(null);
-  const [activeTab, setActiveTab] = useState('Artwork');
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [userArtworks, setUserArtworks] = useState<UserArtworkType[]>([]);
+  const [userData, setUserData] = useState<UserDataType | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState<string>('Artwork');
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [collections, setCollections] = useState([]);
 
-  const handleArtworkClick = (publicationId) => {
+  const handleArtworkClick = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
   };
 
@@ -55,15 +97,26 @@ const OtherProfile = ({ route }) => {
       });
     }
 
+    const onSuccess = (resp: any) => {
+      if (userData) {
+        return navigateToConversation(
+          userData.username,
+          resp.data.convId,
+          context?.userId,
+          id
+        );
+      }
+      return console.error("Error loading user");
+    }
+
     return put(
       '/api/conversations/create',
       { UserOneId: context?.userId, UserTwoId: id },
       context?.token,
-      (resp: any) => navigateToConversation(userData?.name, resp.data.convId, context?.userId, id),
+      onSuccess,
       (error: any) => {
        if (error.response.status === 409) {
-         console.log(error.response.data)
-         navigateToConversation(userData?.name, error.response.data.convId, context?.userId, id)
+         return onSuccess(error.response);
        }
        return console.error({ ...error })
       }
@@ -104,7 +157,7 @@ const OtherProfile = ({ route }) => {
       (response) => {
         setIsFollowing(
           !!response.data?.subscriptions.some(
-            (subscription) => subscription._id === id
+            (subscription: any) => subscription._id === id
           )
         );
       },
@@ -121,10 +174,7 @@ const OtherProfile = ({ route }) => {
 
     const url = `/api/art-publication/user/${id}`;
 
-    const callback = (response: any) => {
-      setUserArtworks(response.data);
-      setUserArtworksCount(response.data.length);
-    };
+    const callback = (res: any) => setUserArtworks(res.data);
 
     const onErrorCallback = (error: any) => {
       Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
@@ -204,6 +254,21 @@ const OtherProfile = ({ route }) => {
         />
       </TouchableOpacity>
 
+      {/* Report button */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('report', {
+          id: userData?._id,
+          type: 'account'
+        })}
+        style={{ zIndex: 2, position: 'absolute', right: 0 }}
+      >
+        <MaterialIcons
+          name="report-problem"
+          color={colors.primary}
+          size={24}
+        />
+      </TouchableOpacity>
+
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
@@ -232,60 +297,59 @@ const OtherProfile = ({ route }) => {
         </View>
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ''}</Text>
-          {userData && userData.availability !== 'unavailable' && (
+          {userData && userData?.availability !== 'unavailable' && (
             <Text style={styles.centerSubtitle}>Ouvert aux commandes</Text>
           )}
         </View>
         <View style={styles.textBlock}>
-          <Text style={styles.value}>{userData ? Math.max(userArtworksCount, 0) : 0}</Text>
+          <Text style={styles.value}>{userData ? Math.max(userArtworks.length, 0) : 0}</Text>
           <Text style={styles.title}>posts</Text>
         </View>
       </View>
 
       {/* Boutons "Suivre" et "Ecrire" */}
-      <View style={styles.contactAndFollow}>
+      <View style={styles.contactAndFollowView}>
         <Button
           value={isFollowing ? 'Suivi' : 'Suivre'}
           secondary={isFollowing}
-          style={{
-            width: 150,
-            height: 38,
-            borderRadius: 10,
-            justifyContent: 'center',
-          }}
+          style={styles.contactAndFollowBtn}
           textStyle={{ fontSize: 14, textAlign: 'center' }}
           onPress={handleFollowButtonClick}
         />
         <Button
           value="Ecrire"
           secondary
-          style={{ width: 150, height: 38, borderRadius: 10 }}
+          style={styles.contactAndFollowBtn}
           textStyle={{ fontSize: 14 }}
           onPress={handleContactButtonClick}
         />
       </View>
+
+      {/* Separator */}
       <View style={styles.decorativeLine} />
+
+      {/* Tabs */}
       <View style={styles.tabsNavigation}>
         <Button
           value="Artwork"
+          tertiary={activeTab === 'Artwork'}
           secondary={activeTab !== 'Artwork'}
-          primary={activeTab === 'Artwork'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Artwork')}
         />
         <Button
           value="Collection"
+          tertiary={activeTab === 'Collection'}
           secondary={activeTab !== 'Collection'}
-          primary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('Collection')}
         />
         <Button
           value="A propos"
+          tertiary={activeTab === 'A propos'}
           secondary={activeTab !== 'A propos'}
-          primary={activeTab === 'A propos'}
           style={styles.navigationTabButton}
           textStyle={styles.navigationTabButtonText}
           onPress={() => setActiveTab('A propos')}
@@ -293,37 +357,65 @@ const OtherProfile = ({ route }) => {
       </View>
 
       {/* Ensembles de cadres carrés */}
-      {activeTab === 'Artwork' && (
+      { activeTab === 'Artwork' && (
         <View style={styles.squareContainer}>
-          {userArtworks.map((artwork, index) => (
-            <TouchableOpacity
-              key={artwork._id}
-              style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
-              onPress={() => handleArtworkClick(artwork._id)}
-            >
-              <Image
-                style={styles.artworkImage}
-                source={{ uri: getImageUrl(artwork.image) }}
-                onError={() => console.log('Image loading error')}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
 
-      {activeTab === 'Collection' && (
-        <View style={styles.squareContainer}>
-          {collections.length === 0 ? (
-            <View style={[flex1, pt8]}>
+          { userArtworks.length === 0 ? (
+            <View style={[ flex1, aiCenter, jcCenter ]}>
               <Image
                 source={require('../assets/icons/box.png')}
                 style={[
-                  { width: 100, height: 100 },
+                  { width: 80, height: 80 },
                   mlAuto,
                   mrAuto,
                 ]}
               />
-              <Text style={[cTextDark, mlAuto, mrAuto]}>
+              <Text style={[ cTextDark ]}>
+                Cet utilisateur n'a pas posté d'oeuvres !
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={userArtworks}
+              renderItem={({ item, index }: { item: UserArtworkType, index: number }) => (
+                <TouchableOpacity
+                  key={item._id}
+                  style={[styles.squareFrame, { marginRight: (index + 1) % 3 !== 0 ? 5 : 0 }]}
+                  onPress={() => handleArtworkClick(item?._id)}
+                >
+                  <Image
+                    style={styles.artworkImage}
+                    source={{ uri: getImageUrl(item?.image) }}
+                    onError={() => console.log('Image loading error')}
+                  />
+                </TouchableOpacity>
+              )}
+              refreshControl={
+                <RefreshControl
+                  colors={[colors.primary]}
+                  refreshing={isRefreshing}
+                  onRefresh={fetchInfos}
+                />
+              }
+            />
+          ) }
+        </View>
+      ) }
+
+      { activeTab === 'Collection' && (
+        <View style={styles.squareContainer}>
+
+          { collections.length === 0 ? (
+            <View style={[ flex1, aiCenter, jcCenter ]}>
+              <Image
+                source={require('../assets/icons/box.png')}
+                style={[
+                  { width: 80, height: 80 },
+                  mlAuto,
+                  mrAuto,
+                ]}
+              />
+              <Text style={[ cTextDark ]}>
                 Cet utilisateur n'a pas de collections publiques !
               </Text>
             </View>
@@ -353,11 +445,11 @@ const OtherProfile = ({ route }) => {
                 />
               }
             />
-          )}
+          ) }
         </View>
       )}
 
-      {activeTab === 'A propos' && (
+      { activeTab === 'A propos' && (
         <Card>
           <ScrollView>
             <Text style={cTextDark}>
@@ -365,7 +457,7 @@ const OtherProfile = ({ route }) => {
             </Text>
           </ScrollView>
         </Card>
-      )}
+      ) }
     </SafeAreaView>
   );
 };
@@ -439,13 +531,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(112, 0, 255, 1)',
   },
-  contactAndFollow: {
+  contactAndFollowView: {
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 37,
     flexDirection: 'row',
-    paddingVertical: 0,
-    paddingHorizontal: 17,
+    paddingHorizontal: 8
+  },
+  contactAndFollowBtn: {
+    flex: 1,
+    borderRadius: 50
   },
   decorativeLine: {
     height: 1,
@@ -478,10 +572,8 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   squareContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-    marginHorizontal: 10,
+    flex: 1,
+    marginHorizontal: 24,
   },
   backButton: {
     padding: 15,

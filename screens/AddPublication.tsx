@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform, StatusBar, ToastAndroid } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';  // Importer les filtres
 import Entypo from 'react-native-vector-icons/Entypo';  // Pour les icônes des filtres
@@ -203,12 +203,16 @@ const AddPublication = ({ navigation }: any) => {
 
 
   const sendText = () => {
-    // API call for sending the post
-    // /!\ Warning! Verify you don't need
-    // a title before sending. In that case
-    // you'll need to add an extra <Input />
-    // before the main <TextInput />
-    return;
+    return post(
+      `/api/posts`,
+      { text: postText, artPublicationId: undefined },
+      context?.token,
+      () => {
+        navigation.navigate('Home');
+        ToastAndroid.show("Post envoyé !", ToastAndroid.SHORT);
+      },
+      (err: any) => console.error({ ...err })
+    );
   }
 
 
@@ -448,10 +452,10 @@ const AddPublication = ({ navigation }: any) => {
           <Card style={[ flex1, mb24, ph24 ]}>
             <TextInput
               onChangeText={setPostText}
-              placeholder='Your post'
+              placeholder='Laissez libre court à vos pensées'
               multiline
               numberOfLines={10}
-              style={[ flex1, bgGrey, br0, mh0, { textAlignVertical: 'top' } ]}
+              style={[ cTextDark, flex1, bgGrey, br0, mh0, { textAlignVertical: 'top' } ]}
               placeholderTextColor={colors.disabledFg}
             />
           </Card>

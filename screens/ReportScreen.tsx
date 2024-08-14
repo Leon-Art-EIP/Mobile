@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View, _ScrollView } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Dimensions, FlatList, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View, _ScrollView } from 'react-native';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import colors from '../constants/colors';
 import reportValues from '../constants/reportValues';
@@ -9,6 +9,9 @@ import Card from '../components/cards/Card';
 import Title from '../components/text/Title';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationRouteContext, useNavigation, useRoute } from '@react-navigation/native';
+import { get, post } from '../constants/fetch';
+import Content from '../components/text/Content';
+import { MainContext } from '../context/MainContext';
 
 
 interface ReportPanelProps {
@@ -19,22 +22,51 @@ interface ReportPanelProps {
 
 const ReportScreen = () => {
   const navigation = useNavigation();
+  const context = useContext(MainContext);
   const route = useRoute();
   const params = route.params;
-  const _panel = useRef<SlidingUpPanel>(null);
   const [reasons, setReasons] = useState<string[]>([]);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
 
 
   const getReasonsFromBack = () => {
-    // Call the back end for the values
-    return setReasons(reportValues);
+    return get(
+      "/api/signalments/infractions",
+      context?.token,
+      (res: any) => setReasons(res.data),
+      (err: any) => console.error({ ...err })
+    );
   }
 
 
   const submit = () => {
-    // API call to submit the report
-    return;
+    const url = `/api/signalments/${params?.type === "account" ? "user" : "art-publication"}`;
+    let object = undefined;
+
+    if (params?.type === 'account') {
+      object = {
+        userId: params?.id,
+        infraction: selectedReason,
+        message: "MESSAGE"
+      };
+    } else {
+      object = {
+        artPublicationId: params?.id,
+        infraction: selectedReason,
+        message: "MESSAGE"
+      };
+    }
+
+    post(
+      url,
+      object,
+      context?.token,
+      () => {
+        ToastAndroid.show("Votre signalement a été pris en compte", ToastAndroid.SHORT);
+        return navigation.navigate("home");
+      },
+      (err: any) => console.error({ ...err })
+    );
   }
 
 

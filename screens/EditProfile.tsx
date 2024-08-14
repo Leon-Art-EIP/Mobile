@@ -1,17 +1,18 @@
 import {
   View,
-  Text,
   StyleSheet,
   Image,
-  ScrollView,
   TouchableOpacity,
-  TextInput,
   ImageBackground,
-  ToastAndroid
+  ToastAndroid,
+  Keyboard,
+  ActivityIndicator,
+  Dimensions
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import React, { useState, useContext, useEffect } from 'react';
-import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
+import React, {useState, useContext, useEffect } from 'react';
+import {ImageLibraryOptions, launchImageLibrary} from 'react-native-image-picker';
 
 // Local imports
 import { getImageUrl } from '../helpers/ImageHelper';
@@ -19,64 +20,76 @@ import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
-import Title from '../components/text/Title';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { bgRed, cPrimary, cBlack, cDisabled } from "../constants/styles";
+import { bgColor, bgDisabled, bgPlatinium, br12, br20, br5, br7, cBlack, cTextDark, flex1, flexRow, mbAuto, mh0, ml0, ml4, ml8, mlAuto, mr0, mr20, mr4, mr8, mrAuto, mt8, mtAuto, mv8, ph24, ph8 } from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
-import { getPermission, isNotificationRegistered, togglePermission } from '../constants/notifications';
+import CheckBox from '@react-native-community/checkbox';
+import { transform } from 'metro-transform-worker';
+
+
+interface UserData {
+  _id: string;
+  username: string;
+  is_artist: boolean;
+  availability: string;
+  subscription: string;
+  collections: any[];
+  subscriptions: any[];
+  subscribers: any[];
+  subscribersCount: number;
+  likedPublications: any[];
+  canPostArticles: boolean;
+  __v: number;
+  bannerPicture: string;
+  profilePicture: string;
+  biography: string;
+}
+
+
+const USERDATA: UserData = {
+  _id: "ID",
+  username: "USERNAME",
+  is_artist: false,
+  availability: " ",
+  subscription: " ",
+  collections: [],
+  subscriptions: [],
+  subscribers: [],
+  subscribersCount: 0,
+  likedPublications: [],
+  canPostArticles: false,
+  __v: 0,
+  bannerPicture: " ",
+  profilePicture: " ",
+  biography: " ",
+}
+
 
 const EditProfile = () => {
   const navigation = useNavigation();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [biography, setBiography] = useState<string>('');
-  const [instagramUrl, setInstagramUrl] = useState<string>('');
-  const [twitterUrl, setTwitterUrl] = useState<string>('');
-  const [tiktokUrl, setTiktokUrl] = useState<string>('');
-  const [facebookUrl, setFacebookUrl] = useState<string>('');
+  const [userData, setUserData] = useState<UserData | undefined>(undefined);
   const context = useContext(MainContext);
-  const token = context?.token;
-  const userID = context?.userId;
-  const [isAvailable, setIsAvailable] = useState<string>('');
-  const [profilePicture, setProfilePicture] = useState<string>('');
-  const [banner, setBanner] = useState<string>('');
-  const [isNotifEnabled, setIsNotifEnabled] = useState<boolean>(isNotificationRegistered());
+  const [isAvailable, setIsAvailable] = useState<boolean | undefined>(false);
+  const [isKeyboardFocused, setIsKeyboardFocused] = useState<boolean>(false);
+  const [profilePicture, setProfilePicture] = useState<string | undefined>(undefined);
+  const [bannerPicture, setBannerPicture] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  interface UserData {
-    _id: string;
-    username: string;
-    is_artist: boolean;
-    availability: string;
-    subscription: string;
-    collections: any[];
-    subscriptions: any[];
-    subscribers: any[];
-    subscribersCount: number;
-    likedPublications: any[];
-    canPostArticles: boolean;
-    __v: number;
-    bannerPicture: string;
-    profilePicture: string;
-    biography: string;
-    socialMediaLinks: {
-      instagram: string;
-      twitter: string;
-      tiktok: string;
-      facebook: string;
-    };
+
+  const setNewBio = (new_bio: string) => {
+    let new_userData: UserData | undefined = { ...userData };
+
+    if (!new_userData) {
+      return;
+    }
+
+    new_userData.biography = new_bio;
+    return setUserData({ ...new_userData });
   }
-
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
-
-  const handleBiographyChange = (value: string) => {
-    console.log(value);
-    setBiography(value);
-  };
 
   const handleInstagramUrl = (value: string) => {
     setInstagramUrl(value);
@@ -95,465 +108,233 @@ const EditProfile = () => {
     setFacebookUrl(value);
   };
 
-  const selectImage = async () => {
-    try {
-      const options: ImageLibraryOptions = {
-        mediaType: 'photo',
-        quality: 1
-      };
+  const selectImage = async (type: 'profile' | 'banner') => {
+    const options: ImageLibraryOptions = {
+      mediaType: 'photo',
+      quality: 1
+    };
 
-      const response = await launchImageLibrary(options);
+    const response = await launchImageLibrary(options);
 
-      if (response.didCancel) {
-        return console.log('User cancelled image picker');
+    if (response.error) {
+      return console.log('ImagePicker Error: ', response.error);
+    }
+
+    if (response.assets[0]?.uri) {
+      if (type === 'profile') {
+        setProfilePicture(response?.assets[0]?.uri);
+      } else {
+        setBannerPicture(response.assets[0]?.uri);
       }
-
-      if (response.error) {
-        return console.log('ImagePicker Error: ', response.error);
-      }
-
-      const source = { uri: response.assets[0]?.uri };
-
-      if (source.uri) {
-        return uploadProfilePicture(source.uri);
-      }
-    } catch (error) {
-      console.error('An error occurred while picking the image:', error);
     }
   };
 
-  const uploadProfilePicture = async (uri: string) => {
-    console.log("Selected: " + uri);
+  const uploadPicture = async (type: 'banner' | 'profile') => {
     const formData = new FormData();
+    const uri: string = type === 'profile' ? profilePicture : bannerPicture;
 
-    if (uri) {
-      try {
-        const fileData = await RNFS.readFile(uri, 'base64');
-        formData.append('profilePicture', {
-          name: 'image.jpg',
-          type: 'image/jpeg',
-          uri: Platform.OS === 'android' ? `file://${uri}` : uri,
-          data: fileData
-        });
-      } catch (error) {
-        console.error('Error preparing image:', error);
-        return;
-      }
-    }
+    const fileData = await RNFS.readFile(uri, 'base64');
+    formData.append('profilePicture', {
+      name: 'image.jpg',
+      type: 'image/jpeg',
+      uri: Platform.OS === 'android' ? `file://${uri}` : uri,
+      data: fileData
+    });
 
     post(
-      '/api/user/profile/profile-pic',
+      '/api/user/profile/' + (type === 'banner' ? 'banner' : 'profile') + '-pic',
       formData,
       context?.token,
-      fetchData,
+      fetchUserData,
       (error: any) => {
         if (error.response.status === 413) {
           ToastAndroid.show("Image trop grande (> 5 MB)", ToastAndroid.LONG);
         }
-        console.error('Error publishing new profile picture : ', { ...error })
+        console.error('Error publishing new profile picture : ', { ...error });
       }
     );
   }
 
-  const selectBanner = async () => {
-    try {
-      const options: ImageLibraryOptions = {
-        mediaType: 'photo',
-        quality: 1
-      };
-
-      const response = await launchImageLibrary(options);
-
-      if (response.didCancel) {
-        throw('User cancelled image picker');
-      }
-
-      if (response?.error) {
-        throw('ImagePicker Error: ' + response?.error.toString());
-      }
-
-      if (!response.assets) {
-        throw("Selected image was undefined");
-      }
-
-      if (response.assets[0].uri) {
-        return uploadBanner(response.assets[0].uri);
-      }
-    } catch (error) {
-      console.error('An error occurred while picking the image:', error);
-    }
-  }
-
-  const uploadBanner = (uri: string) => {
-    const formData = new FormData();
-
-    if (!uri) {
-      return console.error('Upload banner error: uri is not defined');
-    }
-
-    try {
-      RNFS.readFile(uri, 'base64')
-        .then((fileData: string) => {
-          formData.append('bannerPicture', {
-            name: 'image.jpg',
-            type: 'image/jpeg',
-            uri: Platform.OS === 'android' ? `file://${uri}` : uri,
-            data: fileData
-          });
-
-          post(
-            '/api/user/profile/banner-pic',
-            formData,
-            context?.token,
-            () => fetchData(),
-            (error: any) => console.error('Error publishing:', { ...error })
-          );
-        });
-    } catch (error: any) {
-      console.error('Error preparing image:', { ...error });
-      return;
-    }
-  }
-
   const handleSaveModifications = () => {
-    console.log("Modifications saved.");
     saveBiography();
     saveIsAvailable();
-    saveSocialMediaLinks();
-    navigation.goBack();
+    if (bannerPicture) {
+      uploadPicture('banner');
+    }
+    if (profilePicture) {
+      uploadPicture('profile');
+    }
+    /* navigation.goBack(); */
   }
 
   const saveBiography = () => {
-    try {
-      if (token) {
-        const url = `/api/user/profile/bio`;
-        const body = {
-          biography: biography
-        };
-        const callback = (response) => {
-          setUserData(response.data);
-          if (userData?.biography !== undefined) setBiography(userData.biography);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error saving modifications:', error);
-          if (error.response) {
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            console.error('No response received from server');
-          } else {
-            console.error('Error setting up the request:', error.message);
-          }
-        };
-
-        post(url, body, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
+    post(
+      "/api/user/profile/bio",
+      { biography: userData?.biography },
+      context?.token,
+      () => {},
+      (err: any) => console.error({ ...err })
+    );
   }
+
 
   const saveIsAvailable = () => {
-    try {
-      if (token) {
-        const url = `/api/user/profile/availability`;
-        const body = {
-          availability: isAvailable
-        };
-        const callback = (response) => {
-          setUserData(response.data);
-          if (userData?.availability !== undefined) setIsAvailable(userData.availability);
-        };
-        const onErrorCallback = (error) => {
-          console.error('Error saving modifications:', error);
-          if (error.response) {
-            console.error('Server responded with non-2xx status:', error.response.data);
-          } else if (error.request) {
-            console.error('No response received from server');
-          } else {
-            console.error('Error setting up the request:', error.message);
-          }
-        };
-
-        post(url, body, token, callback, onErrorCallback);
-      } else {
-        console.error('Token JWT not found. Make sure the user is logged in.');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
+    post(
+      "/api/user/profile/availability",
+      { availability: isAvailable },
+      context?.token,
+      () => {},
+      (err: any) => console.error({ ...err })
+    );
   }
 
-  const saveSocialMediaLinks = () => {
-    if (!token) {
-      console.error('Token JWT not found. Make sure the user is logged in.');
-      return;
-    }
-    console.log('IN SOCILA MEDIA SAVO');
-    const url = '/api/user/profile/social-links';
-    const body = {
-      instagram: instagramUrl,
-      twitter: twitterUrl,
-      facebook: facebookUrl,
-      tiktok: tiktokUrl
-    };
-
-    const callback = (response: any) => {
-      console.log('👀 Social media links updated:', response.data);
-      ToastAndroid.show('Social media links updated successfully!', ToastAndroid.SHORT);
-    };
-
-    const onErrorCallback = (error: any) => {
-      console.error('Error updating social media links:', error);
-      if (error.response) {
-        console.error('Server responded with non-2xx status:', error.response.data);
-      } else if (error.request) {
-        console.error('No response received from server');
-      } else {
-        console.error('Error setting up the request:', error.message);
-      }
-    };
-
-    post(url, body, token, callback, onErrorCallback);
-  }
 
   const fetchUserData = () => {
-    if (!token) {
-      console.error('Token JWT not found. Make sure the user is logged in.');
-      ToastAndroid.show("Error getting your user information. Please log in", ToastAndroid.SHORT);
-      return navigation.navigate('login');
-    }
-  
-    const url = `/api/user/profile/${userID}`;
-  
-    const callback = (response: any) => {
-      setUserData(response.data);
-      setInstagramUrl(response.data.socialMediaLinks?.instagram || '');
-      setTwitterUrl(response.data.socialMediaLinks?.twitter || '');
-      setTiktokUrl(response.data.socialMediaLinks?.tiktok || '');
-      setFacebookUrl(response.data.socialMediaLinks?.facebook || '');
-    };
-  
-    const onErrorCallback = (error: any) => {
-      console.error('Error fetching user data:', error);
-      if (error.response) {
-        console.error('Server responded with non-2xx status:', error.response.data);
-      } else if (error.request) {
-        console.error('No response received from server');
-      } else {
-        console.error('Error setting up the request:', error.message);
-      }
-    };
-  
-    get(url, token, callback, onErrorCallback);
-  }  
-
-  const fetchData = () => {
-    try {
-      fetchUserData();
-
-      if (userData?.biography) {
-        setBiography(userData.biography);
-      }
-
-      if (userData?.availability) {
-        setIsAvailable(userData.availability);
-      }
-
-      if (userData?.profilePicture) {
-        setProfilePicture(userData.profilePicture);
-      }
-
-      if (userData?.bannerPicture) {
-        console.log(userData.bannerPicture);
-        setBanner(userData.bannerPicture);
-      }
-    } catch (error) {
-      ToastAndroid.show('Error getting data. Please try again', ToastAndroid.SHORT);
-      return console.error('Error fetching user data:', error);
-    }
+    setIsLoading(true);
+    get(
+      `/api/user/profile/${context?.userId}`,
+      context?.token,
+      (res: any) => {
+        setUserData({ ...res?.data });
+        console.log("new user data: ", userData);
+        setIsLoading(false);
+      },
+      (err: any) => console.error({ ...err })
+    );
   }
 
+
+  const setupScreen = () => {
+    fetchUserData();
+
+    Keyboard.addListener('keyboardDidShow', () => setIsKeyboardFocused(true));
+    Keyboard.addListener('keyboardDidHide', () => setIsKeyboardFocused(false));
+  }
+
+
   useFocusEffect(
-    React.useCallback(fetchData, [navigation])
+    React.useCallback(setupScreen, [navigation])
   );
 
-  useEffect(fetchData, []);
+  useEffect(() => {
+    if (!!userData?.availability !== isAvailable) {
+      let new_user: UserData | undefined = { ...userData };
+      new_user.availability = !new_user?.availability;
+      setUserData({ ...new_user });
+    }
+  }, [userData])
+
+
+  useEffect(setupScreen, []);
+
 
   return (
-    <ScrollView nestedScrollEnabled>
-      <View>
-        <View style={{ flexDirection: 'row', marginRight: 20 }}>
-          {/* Back button */}
-          <TouchableOpacity
-            onPress={() => handleBackButtonClick()}
-            style={styles.backButton}
-          >
-            <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView style={[bgColor, flex1]}>
 
-        {/* Banner */}
-        <ImageBackground
-          source={{ uri: getImageUrl(banner) }}
-          style={styles.banner}
-          resizeMode="cover"
+      { isLoading && (
+        <ActivityIndicator
+          color={colors.primary}
+          size={32}
+        />
+      ) }
+
+      <View style={[flexRow, mr20]}>
+        {/* Back button */}
+        <TouchableOpacity
+          onPress={navigation.goBack}
+          style={styles.backButton}
         >
-          <ModifyTag
-            onPress={selectBanner}
-            title="Modifier la bannière"
-            style={[cBlack, styles.bannerTouchable]}
-            textStyle={{ cBlack }}
+          <Ionicons
+            name="chevron-back-outline"
+            color={colors.black}
+            style={[mtAuto, mbAuto, mlAuto, mrAuto]}
+            size={32}
           />
-        </ImageBackground>
-
-        {/* Profile picture */}
-        <View style={styles.overlayImage}>
-          <TouchableOpacity
-            style={styles.circleImageContainer}
-            onPress={selectImage}
-          >
-            <Image
-              source={{ uri: getImageUrl(profilePicture) }}
-              style={styles.profilePicture}
-              onError={(error) => console.error("Error loading profile picture:", error)}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.decorativeLine} />
-
-        <View>
-          {/* Name */}
-          <View style={styles.infoBlock}>
-            <Subtitle>Nom</Subtitle>
-            <Text style={styles.infoValue}>{userData?.username}</Text>
-          </View>
-          {/* Biography */}
-          <View style={styles.infoBlock}>
-            <Subtitle>Description</Subtitle>
-            <Input
-              placeholder="Parlez-nous de vous..."
-              placeholderTextColor={colors.darkGreyBg}
-              onTextChanged={handleBiographyChange}
-              style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-              value={biography}
-            />
-          </View>
-          <View style={styles.infoBlock}>
-            <Subtitle>Réseaux sociaux</Subtitle>
-            <Text>Renseigner les liens vers vos réseaux</Text>
-            <View style={styles.socialMedia}>
-              <Ionicons
-                name="logo-instagram"
-                color={colors.darkGreyBg}
-                size={24}
-              />
-              <Input
-                placeholder={instagramUrl}
-                placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={setInstagramUrl}
-                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={instagramUrl}
-              />
-            </View>
-            <View style={styles.socialMedia}>
-              <Ionicons
-                name="logo-twitter"
-                color={colors.darkGreyBg}
-                size={24}
-              />
-              <Input
-                placeholder={twitterUrl}
-                placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={setTwitterUrl}
-                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={twitterUrl}
-              />
-            </View>
-            <View style={styles.socialMedia}>
-              <Ionicons
-                name="logo-facebook"
-                color={colors.darkGreyBg}
-                size={24}
-              />
-              <Input
-                placeholder={facebookUrl}
-                placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={setFacebookUrl}
-                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={facebookUrl}
-              />
-            </View>
-            <View style={styles.socialMedia}>
-              <Ionicons
-                name="logo-tiktok"
-                color={colors.darkGreyBg}
-                size={24}
-              />
-              <Input
-                placeholder={tiktokUrl}
-                placeholderTextColor={colors.darkGreyBg}
-                onTextChanged={setTiktokUrl}
-                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={tiktokUrl}
-              />
-            </View>
-          </View>
-
-          {/* Availability */}
-          <View style={styles.infoBlock}>
-            <Subtitle>Ouvert au commandes</Subtitle>
-            <View style={styles.buttonContainer}>
-              <Button
-                value="Non"
-                textStyle={{ fontSize: 16, flex: 1 }}
-                onPress={() => setIsAvailable("unavailable")}
-                secondary={isAvailable === "available"}
-                style={{
-                  borderWidth: isAvailable === 'available' ? 1 : 0,
-                  borderColor: colors.textDark
-                }}
-              />
-              <Button
-                value="Oui"
-                textStyle={{ fontSize: 16, flex: 1 }}
-                onPress={() => setIsAvailable("available")}
-                secondary={isAvailable === "unavailable"}
-                style={{
-                  borderWidth: isAvailable === 'unavailable' ? 1 : 0,
-                  borderColor: colors.textDark
-                }}
-              />
-            </View>
-          </View>
-
-          <View style={styles.infoBlock}>
-            <Subtitle>Notifications</Subtitle>
-            <Button
-              value={isNotifEnabled ? "Désactiver" : "Activer"}
-              secondary={isNotifEnabled}
-              onPress={async () => {
-                await togglePermission()
-                setIsNotifEnabled(curr => !curr);
-              }}
-              style={{
-                borderWidth: isNotifEnabled ? 1 : 0,
-                borderColor: colors.textDark
-              }}
-            />
-          </View>
-
-          <Button
-            value="Enregistrer les modifications"
-            style={{ marginTop: 'auto' }}
-            textStyle={{ fontSize: 17 }}
-            onPress={() => handleSaveModifications()}
-          />
-        </View>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+
+      {/* Banner */}
+      <ImageBackground
+        source={{ uri: bannerPicture ?? getImageUrl(userData?.bannerPicture) }}
+        style={styles.banner}
+        resizeMode="cover"
+      >
+        <ModifyTag
+          onPress={() => selectImage('banner')}
+          title="Modifier la bannière"
+          style={[ cBlack, styles.bannerTouchable]}
+          textStyle={{ cBlack }}
+        />
+      </ImageBackground>
+
+      {/* Profile picture */}
+      <View style={styles.overlayImage}>
+        <TouchableOpacity
+          style={styles.circleImageContainer}
+          onPress={() => selectImage('profile')}
+        >
+          <Image
+            source={{ uri: profilePicture ?? getImageUrl(userData?.profilePicture) }}
+            style={styles.profilePicture}
+            onError={(error) => console.error({ ...error })}
+          />
+        </TouchableOpacity>
+      </View>
+
+      <View style={[flex1, ph24, { marginTop: '20%' }]}>
+        {/* Name */}
+        <View>
+          <Subtitle>Nom</Subtitle>
+          <Input
+            placeholder={userData?.username}
+            style={[bgDisabled, mh0, cTextDark, mt8, { height: 40 }]}
+            value={userData?.username}
+            disabled
+          />
+        </View>
+
+        {/* Biography */}
+        <View style={[mt8]}>
+          <Subtitle>Biographie</Subtitle>
+          <Input
+            placeholder={userData?.biography}
+            placeholderTextColor={colors.text}
+            onTextChanged={setNewBio}
+            multilines={5}
+            style={[bgDisabled, mh0, br20, mt8, cTextDark]}
+          />
+        </View>
+
+        {/* Availability */}
+        <View style={[mt8, flexRow]}>
+          <Subtitle>Ouvert au commandes</Subtitle>
+          <CheckBox
+            value={isAvailable ?? !!userData?.availability}
+            onValueChange={setIsAvailable}
+            tintColors={{ true: colors.primary, false: colors.textDark }}
+            tintColor={colors.textDark}
+            style={[mtAuto, mbAuto, mlAuto]}
+          />
+        </View>
+
+        { !isKeyboardFocused && (
+          <View style={[flexRow, mtAuto]}>
+            <Button
+              value='Annuler'
+              onPress={navigation.goBack}
+              secondary
+              style={[flex1, ml0, mr8]}
+            />
+            <Button
+              value="Enregistrer"
+              style={[flex1, mr0, ml8]}
+              textStyle={{ fontSize: 17 }}
+              onPress={handleSaveModifications}
+            />
+          </View>
+        ) }
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -578,7 +359,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   overlayImage: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -638,15 +418,6 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     paddingHorizontal: 17,
   },
-  decorativeLine: {
-    height: 1,
-    backgroundColor: colors.tertiary,
-    marginVertical: 10,
-    marginLeft: 30,
-    marginRight: 30,
-    marginTop: 70,
-    marginBottom: 20,
-  },
   marginRightForTabs: {
     marginRight: 5,
   },
@@ -658,6 +429,12 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   backButton: {
+    borderWidth: 1,
+    borderColor: colors.darkGreyFg,
+    backgroundColor: colors.bg,
+    borderRadius: 50,
+    height: 40,
+    width: 40,
     position: 'absolute',
     top: 16,
     left: 16,
@@ -718,12 +495,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginHorizontal: '10%',
   },
-  infoBlock: {
-    flex: 1,
-    marginLeft: 25,
-    marginRight: 25,
-    marginBottom: 20,
-  },
   infoTitle: {
     fontSize: 16,
     color: 'grey',
@@ -749,25 +520,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     justifyContent: 'center',
     color: colors.darkGreyFg,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 100,
-    marginBottom: 16,
-    paddingHorizontal: 10,
-  },
-  biographyInput: {
-    marginLeft: 0,
-    marginRight: 0,
-    flex: 1,
-    borderRadius: 50,
-  },
-  socialMedia: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  }
 });
 
 export default EditProfile;

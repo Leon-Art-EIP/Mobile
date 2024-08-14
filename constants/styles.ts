@@ -37,8 +37,10 @@ const mt8: StyleProp<any> = { marginTop: 8 };
 const mb4: StyleProp<any> = { marginBottom: 4 };
 const mb8: StyleProp<any> = { marginBottom: 8 };
 const mb24: StyleProp<any> = { marginBottom: 24 };
+const ml0: StyleProp<any> = { marginLeft: 0 };
 const ml4: StyleProp<any> = { marginLeft: 4 };
 const ml8: StyleProp<any> = { marginLeft: 8 };
+const mr0: StyleProp<any> = { marginRight: 0 };
 const mr4: StyleProp<any> = { marginRight: 4 };
 const mr8: StyleProp<any> = { marginRight: 8 };
 const mr20: StyleProp<any> = { marginRight: 20 };
@@ -88,6 +90,7 @@ const bgColor: StyleProp<any> = { backgroundColor: colors.bg };
 const bgRed: StyleProp<any> = { backgroundColor: '#f00' };
 const bgGrey: StyleProp<any> = { backgroundColor: colors.disabledBg };
 const bgPlatinium: StyleProp<any> = { backgroundColor: colors.platinium };
+const bgDisabled: StyleProp<any> = { backgroundColor: colors.disabledBg };
 
 // color
 const cBlack: StyleProp<any> = { color: colors.black };
@@ -116,10 +119,10 @@ export {
   noHPadding, noVPadding, noPadding,
   p4, p8, pt4, pt8, pb4, pb8, pl4, pl8, pr4, pr8,
   pv0, pv4, pv8, pv24, ph0, ph4, ph8, ph24,
-  m4, m8, mt4, mt8, mb4, mb8, mb24, ml4, ml8, mr4, mr8, mr20,
+  m4, m8, mt4, mt8, mb4, mb8, mb24, ml0, ml4, ml8, mr0, mr4, mr8, mr20,
   mv0, mv4, mv8, mv24, mh0, mh4, mh8, mh24,
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft,
-  bgColor, bgRed, bgGrey, bgPlatinium,
+  bgColor, bgRed, bgGrey, bgPlatinium, bgDisabled,
   br0, br5, br7, br12, br20, br50,
   cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark
 };
