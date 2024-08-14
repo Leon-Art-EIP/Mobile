@@ -12,6 +12,7 @@ import Collection from '../screens/Collection';
 import ReportScreen from '../screens/ReportScreen';
 import SingleOrder from '../screens/SingleOrder';
 import SinglePost from '../screens/SinglePost';
+import ArticlesList from '../screens/ArticleList';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();

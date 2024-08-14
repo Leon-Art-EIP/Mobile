@@ -17,13 +17,15 @@ const CommentsList = ({ id }) => {
   const [userProfiles, setUserProfiles] = useState({});
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<string>();
+  const [likes, setLikes] = useState({});
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [nestedCommentsVisible, setNestedCommentsVisible] = useState({});
   const navigation = useNavigation();
-
 
   useEffect(() => {
     fetchComments();
   }, [id]);
-
 
   const getUsername = (userId: string) => {
     if (!context?.token) {
@@ -53,7 +55,6 @@ const CommentsList = ({ id }) => {
     );
   };
 
-
   const fetchComments = () => {
     if (!context?.token) {
       return;
@@ -66,7 +67,7 @@ const CommentsList = ({ id }) => {
           setComments(response.data);
           response.data.forEach((comment) => {
             getUsername(comment.userId);
-            console.log('PITE:', comment.userId);
+            // console.log('PITE:', comment.userId);
           });
         } else {
           console.error('Invalid response:', response);
@@ -77,7 +78,6 @@ const CommentsList = ({ id }) => {
       }
     );
   };
-
 
   const deleteComment = () => {
     del(
@@ -95,12 +95,10 @@ const CommentsList = ({ id }) => {
     );
   };
 
-
   const handleDeletePress = (commentId: string) => {
     setCommentToDelete(commentId);
     setIsDeleteModalShown(true);
   };
-
 
   const timeSince = (date: Date | string | number) => {
     const now = new Date();
@@ -273,165 +271,108 @@ const CommentsList = ({ id }) => {
                       />
                     </TouchableOpacity>
                   </View>
+                  <TouchableOpacity
+                    onPress={() => handleReplyPress(nestedComment.id)}
+                    style={styles.replyButton}
+                  >
+                    <Text style={styles.replyButtonText}>Répondre</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
-            {replyingTo === comment.id && (
-              <View style={styles.replyInputContainer}>
-                <TextInput
-                  style={styles.replyInput}
-                  value={replyText}
-                  onChangeText={setReplyText}
-                  placeholder="Votre réponse..."
-                />
-                <TouchableOpacity
-                  onPress={handleReplySubmit}
-                  style={styles.replyButton}
-                >
-                  <Text style={styles.sendButtonText}>Poster</Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </View>
         </View>
       ))}
-      <Modal
-        visible={isDeleteModalShown}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setIsDeleteModalShown(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={{ color: colors.darkGreyBg, marginBottom: 20 }}>Are you sure you want to delete this comment?</Text>
-            <Button style={{ backgroundColor: colors.primary, marginBottom: 10, width: '60%' }} value="Supprimer" onPress={deleteComment} />
-            <Button style={{ backgroundColor: colors.darkGreyBg, width: '60%' }} value="Annuler" onPress={() => setIsDeleteModalShown(false)} />
-          </View>
+      {replyingTo && (
+        <View style={styles.replyInputContainer}>
+          <TextInput
+            value={replyText}
+            onChangeText={setReplyText}
+            placeholder="Écrire une réponse..."
+            style={styles.replyInput}
+          />
+          <Button
+            text="Envoyer"
+            onPress={handleReplySubmit}
+            style={styles.replySubmitButton}
+          />
         </View>
-      </Modal>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  commentsContainer: {
-    marginTop: 0,
-    marginBottom: 30,
-    marginLeft: 0,
-    marginRight: 0,
-  },
   commentContainer: {
     flexDirection: 'row',
-    marginBottom: 5,
+    marginBottom: 20,
+    paddingRight: 10,
   },
-  nestedCommentContainer: {
-    flexDirection: 'row',
-    marginBottom: 5,
-    marginLeft: 15,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    padding: 5,
-  },
-  commentAuthor: {
-    fontWeight: 'bold',
-    marginRight: 5,
-    color: colors.darkGreyFg,
-    fontSize: 15,
+  artistCard: {
+    marginRight: 10,
   },
   commentContent: {
     flex: 1,
-    marginLeft: 5,
   },
   commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+  },
+  commentAuthor: {
+    fontWeight: 'bold',
+  },
+  commentMeta: {
+    flexDirection: 'row',
+  },
+  deleteButton: {
+    marginLeft: 10,
+  },
+  deleteButtonText: {
+    color: 'red',
   },
   commentFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  commentMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 'auto',
+    marginTop: 5,
   },
   publishedTime: {
-    color: '#888',
-    marginRight: 10,
+    color: colors.darkGreyFg,
+    fontSize: 12,
   },
-  artistCard: {
-    container: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    image: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-    },
-    deleteButton: {
-      padding: 5,
-      backgroundColor: 'red',
-      borderRadius: 5,
-      marginLeft: 5,
-    },
-    deleteButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  likeButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: colors.white,
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   replyButton: {
     marginTop: 5,
   },
   replyButtonText: {
-    color: colors.darkGreyFg,
-  },
-  sendButtonText: {
-    color: colors.primary,
-    marginLeft: 50,
+    color: colors.blue,
   },
   toggleNestedCommentsButton: {
-    marginTop: 5,
+    marginTop: 10,
+  },
+  nestedCommentContainer: {
+    flexDirection: 'row',
+    marginLeft: 20,
+    marginTop: 10,
   },
   replyInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
   },
   replyInput: {
     flex: 1,
-    borderColor: colors.white,
+    borderColor: colors.darkGreyFg,
     borderWidth: 1,
-    borderRadius: 30,
-    paddingHorizontal: 5,
-    paddingVertical: 5,
-    marginRight: 5,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginRight: 10,
   },
-  likeButton: {
-    padding: 5,
-    marginLeft: 5,
+  replySubmitButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 15,
   },
 });
 

@@ -31,7 +31,7 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { acCenter, aiCenter, bgColor, bgGrey, cText, bgRed, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24, fwBold, br20 } from '../constants/styles';
+import { acCenter, aiCenter, bgColor, bgGrey, bgRed, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24, fwBold, br20 } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
 import axios from 'axios';
@@ -59,7 +59,7 @@ const HomeScreen = ({ navigation }: any) => {
   };
 
   const handleToArticlesList = (articles) => {
-    navigation.navigate('articlesList', {articles});
+    navigation.navigate('articles', {articles});
   };
 
   const towardsPost = (publicationId: string) => {
