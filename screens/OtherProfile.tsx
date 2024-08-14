@@ -255,19 +255,21 @@ const OtherProfile = () => {
       </TouchableOpacity>
 
       {/* Report button */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate('report', {
-          id: userData?._id,
-          type: 'account'
-        })}
-        style={{ zIndex: 2, position: 'absolute', right: 0 }}
-      >
-        <MaterialIcons
-          name="report-problem"
-          color={colors.primary}
-          size={24}
-        />
-      </TouchableOpacity>
+      { userData?._id !== context?.userId && (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('report', {
+            id: userData?._id,
+            type: 'account'
+          })}
+          style={{ zIndex: 2, position: 'absolute', right: 0 }}
+        >
+          <MaterialIcons
+            name="report-problem"
+            color={colors.primary}
+            size={24}
+          />
+        </TouchableOpacity>
+      ) }
 
       {/* Bannière */}
       <View style={styles.banner}>
@@ -308,22 +310,24 @@ const OtherProfile = () => {
       </View>
 
       {/* Boutons "Suivre" et "Ecrire" */}
-      <View style={styles.contactAndFollowView}>
-        <Button
-          value={isFollowing ? 'Suivi' : 'Suivre'}
-          secondary={isFollowing}
-          style={styles.contactAndFollowBtn}
-          textStyle={{ fontSize: 14, textAlign: 'center' }}
-          onPress={handleFollowButtonClick}
-        />
-        <Button
-          value="Ecrire"
-          secondary
-          style={styles.contactAndFollowBtn}
-          textStyle={{ fontSize: 14 }}
-          onPress={handleContactButtonClick}
-        />
-      </View>
+      { userData?._id !== context?.userId && (
+        <View style={styles.contactAndFollowView}>
+          <Button
+            value={isFollowing ? 'Suivi' : 'Suivre'}
+            secondary={isFollowing}
+            style={styles.contactAndFollowBtn}
+            textStyle={{ fontSize: 14, textAlign: 'center' }}
+            onPress={handleFollowButtonClick}
+          />
+          <Button
+            value="Ecrire"
+            secondary
+            style={styles.contactAndFollowBtn}
+            textStyle={{ fontSize: 14 }}
+            onPress={handleContactButtonClick}
+          />
+        </View>
+      ) }
 
       {/* Separator */}
       <View style={styles.decorativeLine} />

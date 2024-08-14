@@ -29,10 +29,9 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { aiCenter, bgColor, bgGrey, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24 } from '../constants/styles';
+import { aiCenter, bgColor, bgGrey, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv0, mv24 } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
-import axios from 'axios';
 
 
 const HomeScreen = ({ navigation }: any) => {
@@ -103,7 +102,7 @@ const HomeScreen = ({ navigation }: any) => {
     get(
       "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
-      (response) => setPublications(response?.data || []),
+      (response) => setPublications(response?.data),
       (error) => {
         ToastAndroid.show("Error fetching publications", ToastAndroid.SHORT);
         return console.error("Error fetching publications:", error);
@@ -344,14 +343,18 @@ const HomeScreen = ({ navigation }: any) => {
               value='Oeuvres'
               onPress={() => setIsPublications(true)}
               secondary={!isPulications}
-              style={[ mh0, flex1, mr4 ]}
+              tertiary={isPulications}
+              style={[ mh0, flex1, mr4, { height: 40 } ]}
+              textStyle={{ fontSize: 13 }}
             />
 
             <Button
               value='Posts'
               onPress={() => setIsPublications(false)}
               secondary={isPulications}
-              style={[ mh0, flex1, ml4 ]}
+              tertiary={!isPulications}
+              style={[ mh0, flex1, ml4, { height: 40 } ]}
+              textStyle={{ fontSize: 13 }}
             />
 
           </View>
@@ -555,7 +558,7 @@ const styles = StyleSheet.create({
   publicationsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 10,
+    paddingHorizontal: 24,
   },
   publicationItem: {
     height: 120,

@@ -5,7 +5,6 @@ import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View, FlatList, 
 
 //* Local imports
 import colors from '../../constants/colors';
-import { MessageType } from '../../constants/conversations';
 import { get } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import SockHelper from '../../helpers/SocketHelper';
@@ -16,15 +15,15 @@ const CONV_NOT_FOUND = "Error: couldn't find conversation to navigate to";
 
 
 type ConversationType = {
-  "_id": string;
-  "lastMessage": string;
-  "unreadMessages": boolean;
-  "UserOneId": string;
-  "UserOneName": string;
-  "UserOnePicture": string;
-  "UserTwoId": string;
-  "UserTwoName": string;
-  "UserTwoPicture": string;
+  id: string;
+  lastMessage: string;
+  unreadMessages: boolean;
+  UserOneId: string;
+  UserOneName: string;
+  UserOnePicture: string;
+  UserTwoId: string;
+  UserTwoName: string;
+  UserTwoPicture: string;
 };
 
 
@@ -44,6 +43,7 @@ const ConversationsComponent = () => {
       context?.token,
       (res: any) => {
         setConversations([ ...(res.data['chats'] as ConversationType[]) ]);
+        console?.log(conversations);
         return setIsRefreshing(false);
       },
       (err: any) => console.error("Couldn't get conversations: ", err)
@@ -110,7 +110,7 @@ const ConversationsComponent = () => {
       data={conversations}
       renderItem={({ item }) => (
         <TouchableOpacity
-          key={item?._id?.toString() ?? (Math.random()).toString()}
+          key={item?.id?.toString() ?? (Math.random()).toString()}
           style={styles.conversationView}
           onPress={() => goToConversation(item._id)}
         >

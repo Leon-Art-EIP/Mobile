@@ -12,7 +12,7 @@ import { capitalize, formatName } from '../helpers/NamesHelper';
 
 type NotifType = {
   __v: number;
-  _id: string;
+  id: string;
   content: string;
   createdAt: Date;
   read: boolean;
@@ -50,8 +50,8 @@ const NotificationCard = ({
 
   const callback = () => {
     return put(
-      `/api/notifications/${item?._id}/read`,
-      { id: item?._id },
+      `/api/notifications/${item?.id}/read`,
+      { id: item?.id },
       context?.token,
       () => {
         switch (item?.type) {
@@ -83,6 +83,7 @@ const NotificationCard = ({
   return item && index !== -1 ? (
     <TouchableOpacity
       onPress={callback}
+      key={item.id}
     >
       <Card style={[ mh4, mv4, flexRow, ph24 ]}>
 
