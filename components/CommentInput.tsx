@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
 import { post } from '../constants/fetch';
 import { StyleSheet } from 'react-native';
 import colors from '../constants/colors';
@@ -15,14 +15,13 @@ const CommentInput = ({ id }) => {
   };
 
   const postComment = async () => {
-    // Check if empty
     if (!commentInput.trim()) {
       console.warn('Comment cannot be empty');
       return;
     }
 
     const body = {
-      text: commentInput, // Use the commentInput state here
+      text: commentInput,
     };
 
     post(
@@ -31,7 +30,7 @@ const CommentInput = ({ id }) => {
       context?.token,
       (response) => {
         if (response && response.data) {
-          setCommentInput(''); // Clear the input after successful post
+          setCommentInput('');
           console.log(response.data);
         } else {
           console.error('Invalid response:', response);
@@ -50,7 +49,7 @@ const CommentInput = ({ id }) => {
           placeholder="Commenter..."
           placeholderTextColor={colors.disabledFg}
           style={styles.commentInput}
-          onChangeText={(text) => handleCommentInput(text)}
+          onChangeText={handleCommentInput}
           value={commentInput}
         />
         <TouchableOpacity
@@ -70,30 +69,7 @@ const CommentInput = ({ id }) => {
 
 const styles = StyleSheet.create({
   container: {
-  },
-  commentsContainer: {
-    marginTop: 20,
-    marginBottom: 30,
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  commentContainer: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  commentAuthor: {
-    fontWeight: 'bold',
-    marginRight: 5,
-  },
-  commentContent: {
-    flex: 1,
-  },
-  publishedTime: {
-    marginLeft: 'auto',
-  },
-  modal: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    // Any styles for the container, if needed
   },
   commentInputContainer: {
     flexDirection: 'row',
@@ -103,6 +79,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 2,
     width: '100%',
+    backgroundColor: '#FFFFFF',
   },
   commentInput: {
     color: colors.textDark,
@@ -112,21 +89,12 @@ const styles = StyleSheet.create({
     padding: 9,
     paddingLeft: 15,
   },
-  commentButton: {
-    marginLeft: 10,
-    padding: 15,
-    borderRadius: 50,
-    backgroundColor: colors.forYouPlHolder,
-  },
-  commentButtonText: {
-    color: colors.black
-  },
   sendButtonView: {
     backgroundColor: colors.offerBg,
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderRadius: 50,
-    marginLeft: 8
+    marginLeft: 8,
   }
 });
 
