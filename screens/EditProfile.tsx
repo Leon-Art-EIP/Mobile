@@ -167,7 +167,7 @@ const EditProfile = () => {
     saveIsAvailable();
     saveSocialMediaLinks();
   
-    if (banner) {
+    if (bannerPicture) {
       uploadPicture('banner');
     }
     if (profilePicture) {
