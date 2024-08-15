@@ -127,7 +127,7 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     if (!token) {
-      Alert.alert('Token JWT not found. Make sure the user is logged in.');
+      Alert.alert('Une erreur est survenue', 'Veuillez vous reconnecter.');
       console.error('Token JWT not found. Make sure the user is logged in.');
       return;
     }
@@ -148,7 +148,7 @@ const Profile = () => {
     };
   
     const onErrorCallback = (error: any) => {
-      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
+      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
       return console.error('Error fetching user data:', error);
     };
   
@@ -654,9 +654,11 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   rowContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      padding: 10,
+    flexDirection: 'row',
+     justifyContent: 'space-between',
+     marginTop: 4,
+     marginLeft: 20,
+     marginRight: 20,
   },
   squareFrame: {
     maxWidth: '33%',

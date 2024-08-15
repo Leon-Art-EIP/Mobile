@@ -49,7 +49,7 @@ const CommentInput = ({ id }) => {
           placeholder="Commenter..."
           placeholderTextColor={colors.disabledFg}
           style={styles.commentInput}
-          onChangeText={handleCommentInput}
+          onChangeText={(text) => handleCommentInput(text)}
           value={commentInput}
         />
         <TouchableOpacity
@@ -69,7 +69,30 @@ const CommentInput = ({ id }) => {
 
 const styles = StyleSheet.create({
   container: {
-    // Any styles for the container, if needed
+  },
+  commentsContainer: {
+    marginTop: 20,
+    marginBottom: 30,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  commentContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  commentAuthor: {
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
+  commentContent: {
+    flex: 1,
+  },
+  publishedTime: {
+    marginLeft: 'auto',
+  },
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   commentInputContainer: {
     flexDirection: 'row',
@@ -88,6 +111,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 9,
     paddingLeft: 15,
+  },
+  commentButton: {
+    marginLeft: 10,
+    padding: 15,
+    borderRadius: 50,
+    backgroundColor: colors.forYouPlHolder,
+  },
+  commentButtonText: {
+    color: colors.black
   },
   sendButtonView: {
     backgroundColor: colors.offerBg,

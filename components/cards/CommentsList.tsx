@@ -13,10 +13,10 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 const CommentsList = ({ id }) => {
   const context = useContext(MainContext);
   const [comments, setComments] = useState([]);
-  const [usernames, setUsernames] = useState({});
+  const [usernames, setUsernames] = useState([]);
   const [userProfiles, setUserProfiles] = useState({});
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
-  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [commentToDelete, setCommentToDelete] = useState<string>();
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [nestedCommentsVisible, setNestedCommentsVisible] = useState({});
@@ -27,7 +27,7 @@ const CommentsList = ({ id }) => {
     fetchComments();
   }, [id]);
 
-  const getUsername = (userId) => {
+  const getUsername = (userId: string) => {
     if (!context?.token) {
       return;
     }
@@ -45,7 +45,7 @@ const CommentsList = ({ id }) => {
             [userId]: response.data,
           }));
         } else {
-          console.error('Invalid response:', response);
+          return console.error('Invalid response:', response);
         }
       },
       (error) => {
@@ -96,12 +96,12 @@ const CommentsList = ({ id }) => {
     );
   };
 
-  const handleDeletePress = (commentId) => {
+  const handleDeletePress = (commentId: string) => {
     setCommentToDelete(commentId);
     setIsDeleteModalShown(true);
   };
 
-  const timeSince = (date) => {
+  const timeSince = (date: Date | string | number) => {
     const now = new Date();
     const commentDate = new Date(date);
     const timeDifference = now - commentDate;
@@ -338,7 +338,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 5,
     marginLeft: 15,
-    // backgroundColor: '#f0f0f0',
     borderRadius: 5,
     padding: 5,
   },
@@ -421,7 +420,6 @@ const styles = StyleSheet.create({
     marginLeft: 50,
   },
   toggleNestedCommentsButton: {
-    // marginTop: 5,
   },
   replyInputContainer: {
     flexDirection: 'row',

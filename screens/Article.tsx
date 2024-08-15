@@ -43,15 +43,17 @@ const Article = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 16,
     backgroundColor: colors.white,
   },
   scrollContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 100, // Add some bottom padding to prevent content from being hidden behind the button
+    paddingBottom: 100,
   },
   logo: {
     flexDirection: 'row',
     height: 100,
+    paddingLeft: 20,
     padding: 20,
     borderRadius: 5,
   },

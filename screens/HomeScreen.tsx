@@ -18,7 +18,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-// import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import colors from "../constants/colors";
 import { ArtistType, ArticleType, RedditPostType } from "../constants/homeValues";
@@ -208,10 +207,11 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     refreshData();
-    if (!isNotificationRegistered()) {
-      _slidingPanel.current?.show();
-    }
-
+    /* I have to patch the display, it's too slow and to low
+     if (!isNotificationRegistered()) {
+       _slidingPanel.current?.show();
+     }
+     */
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
@@ -239,10 +239,11 @@ const HomeScreen = ({ navigation }: any) => {
             style={styles.notifIconTouchable}
           >
             <MaterialIcons
-              name={hasUnreadNotifications ? "notification-important" : "notifications"}
-              size={32}
-              color={hasUnreadNotifications ? colors.primary : colors.black}
-            />
+               name={"notifications"}
+               size={24}
+               color={colors.offerFg}
+             />
+             <Text style={styles.notifIconText}>{ hasUnreadNotifications }</Text>
           </TouchableOpacity>
         </View>
         <View>
@@ -539,7 +540,12 @@ const styles = StyleSheet.create({
   notifIconTouchable: {
     marginLeft: 'auto',
     marginTop: 'auto',
-    marginRight: 12
+    marginRight: 12,
+    flexDirection: 'row',
+    backgroundColor: colors.offerBg,
+    borderRadius: 50,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
   },
   articleImage: {
     width: '100%',
@@ -574,6 +580,11 @@ const styles = StyleSheet.create({
   },
   publicationTitle: {
     color: colors.black,
+  },
+  notifIconText: {
+    color: colors.offerFg,
+    fontWeight: 'bold',
+    marginHorizontal: 4,
   },
   postImage: {
     height: 200,

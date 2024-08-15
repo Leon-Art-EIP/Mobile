@@ -176,8 +176,6 @@ const EditProfile = () => {
     if (profilePicture) {
       uploadPicture('profile');
     }
-    
-    navigation.goBack();
   }
 
   const saveBiography = () => {
@@ -203,35 +201,33 @@ const EditProfile = () => {
 
 
   const fetchUserData = () => {
-    if (!token) {
-      console.error('Token JWT not found. Make sure the user is logged in.');
-      ToastAndroid.show("Error getting your user information. Please log in", ToastAndroid.SHORT);
-      return navigation.navigate('login');
-    }
-  
-    const url = `/api/user/profile/${userID}`;
-  
-    const callback = (response: any) => {
-      setUserData(response.data);
-      setInstagramUrl(response.data.socialMediaLinks?.instagram || '');
-      setTwitterUrl(response.data.socialMediaLinks?.twitter || '');
-      setTiktokUrl(response.data.socialMediaLinks?.tiktok || '');
-      setFacebookUrl(response.data.socialMediaLinks?.facebook || '');
-    };
-  
-    const onErrorCallback = (error: any) => {
-      console.error('Error fetching user data:', error);
-      if (error.response) {
-        console.error('Server responded with non-2xx status:', error.response.data);
-      } else if (error.request) {
-        console.error('No response received from server');
-      } else {
-        console.error('Error setting up the request:', error.message);
+    setIsLoading(true);
+
+    get(
+      `/api/user/profile/${context?.userId}`,
+      context?.token,
+      (res: any) => {
+        setUserData({ ...res?.data });
+        setInstagramUrl(res.data.socialMediaLinks?.instagram || '');
+        setTwitterUrl(res.data.socialMediaLinks?.twitter || '');
+        setTiktokUrl(res.data.socialMediaLinks?.tiktok || '');
+        setFacebookUrl(res.data.socialMediaLinks?.facebook || '');
+        console.log("new user data: ", res?.data);
+        setIsLoading(false);
+      },
+      (err: any) => {
+        console.error('Error fetching user data:', err);
+        if (err.response) {
+          console.error('Server responded with non-2xx status:', err.response.data);
+        } else if (err.request) {
+          console.error('No response received from server');
+        } else {
+          console.error('Error setting up the request:', err.message);
+        }
       }
-    };
+    );
+  };
   
-    get(url, token, callback, onErrorCallback);
-  }
   
   const saveSocialMediaLinks = () => {
     if (!token) {
@@ -249,7 +245,7 @@ const EditProfile = () => {
   
     const callback = (response: any) => {
       console.log('Social media links updated:', response.data);
-      ToastAndroid.show('Social media links updated successfully!', ToastAndroid.SHORT);
+      ToastAndroid.show('Lien vers vos réseaux sociaux ajouté avec succès !', ToastAndroid.SHORT);
     };
   
     const onErrorCallback = (error: any) => {
@@ -539,6 +535,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   socialMedia: {
+    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
