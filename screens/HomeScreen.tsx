@@ -246,57 +246,60 @@ const HomeScreen = ({ navigation }: any) => {
              <Text style={styles.notifIconText}>{ hasUnreadNotifications }</Text>
           </TouchableOpacity>
         </View>
+
         <View>
 
         {/* Actuality */}
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => handleToArticlesList(articles)}>
-        <Title style={[ fwBold, flex1, { marginLeft: 32, marginTop: 20, marginBottom: 8 }]} size={24} >
-          Actualités
-        </Title>
-        <Entypo
-          name="chevron-thin-right"
-          color={colors.black}
-          size={20}
-          style={{
-            marginRight: 230,
-            marginTop: 15,
-          }}
-        />
-      </TouchableOpacity>
-          {articles.length === 0 ? (
-            <View style={styles.emptyView}>
-              <Image
-                style={{ height: 50, width: 50 }}
-                source={require('../assets/icons/box.png')}
-              />
-              <Title
-                size={18}
-                style={{ color: colors.disabledFg }}
-              >C'est tout vide par ici !</Title>
-              <Text style={{
-                fontWeight: '500',
-                color: colors.disabledFg
-              }}>Essaie de recharger la page</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={articles}
-              contentContainerStyle={styles.flatList}
-              renderItem={(e: ListRenderItemInfo<ArticleType>) => (
-                <ArticleCard
-                  onPress={() => handleToArticle(e.item)}
-                  item={e.item}
-                  path="article"
-                />
-              )}
-              keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
-              showsHorizontalScrollIndicator={false}
-              pagingEnabled
-              horizontal
-              scrollEnabled
+          <Title style={[ fwBold, flex1, { marginLeft: 32, marginTop: 20, marginBottom: 8 }]} size={24} >
+            Actualités
+          </Title>
+          <Entypo
+            name="chevron-thin-right"
+            color={colors.black}
+            size={20}
+            style={{
+              marginRight: 230,
+              marginTop: 15,
+            }}
+          />
+        </TouchableOpacity>
+
+        {articles.length === 0 ? (
+          <View style={styles.emptyView}>
+            <Image
+              style={{ height: 50, width: 50 }}
+              source={require('../assets/icons/box.png')}
             />
-          )}
-        </View>
+            <Title
+              size={18}
+              style={{ color: colors.disabledFg }}
+            >C'est tout vide par ici !</Title>
+            <Text style={{
+              fontWeight: '500',
+              color: colors.disabledFg
+            }}>Essaie de recharger la page</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={articles}
+            contentContainerStyle={styles.flatList}
+            renderItem={(e: ListRenderItemInfo<ArticleType>) => (
+              <ArticleCard
+                onPress={() => handleToArticle(e.item)}
+                item={e.item}
+                path="article"
+              />
+            )}
+            keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
+            showsHorizontalScrollIndicator={false}
+            pagingEnabled
+            horizontal
+            scrollEnabled
+          />
+        )}
+
+      </View>
 
         {/* Artistes */}
         <View>

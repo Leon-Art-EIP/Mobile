@@ -143,8 +143,6 @@ const Profile = () => {
       setTwitterUrl(socialLinks.twitter || '');
       setTiktokUrl(socialLinks.tiktok || '');
       setFacebookUrl(socialLinks.facebook || '');
-      
-      console.log('User Data:', response.data);
     };
   
     const onErrorCallback = (error: any) => {
@@ -438,43 +436,44 @@ const Profile = () => {
             {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
           </Text>
           <View style={styles.rowContainer}>
-      {instagramUrl ? (
-        <TouchableOpacity onPress={() => handleIconPress(instagramUrl)}>
-          <Ionicons
-            name="logo-instagram"
-            color={colors.darkGreyBg}
-            size={24}
-          />
-        </TouchableOpacity>
-      ) : null}
-      {twitterUrl ? (
-        <TouchableOpacity onPress={() => handleIconPress(twitterUrl)}>
-          <Ionicons
-            name="logo-twitter"
-            color={colors.darkGreyBg}
-            size={24}
-          />
-        </TouchableOpacity>
-      ) : null}
-      {facebookUrl ? (
-        <TouchableOpacity onPress={() => handleIconPress(facebookUrl)}>
-          <Ionicons
-            name="logo-facebook"
-            color={colors.darkGreyBg}
-            size={24}
-          />
-        </TouchableOpacity>
-      ) : null}
-      {tiktokUrl ? (
-        <TouchableOpacity onPress={() => handleIconPress(tiktokUrl)}>
-          <Ionicons
-            name="logo-pinterest"
-            color={colors.darkGreyBg}
-            size={24}
-          />
-        </TouchableOpacity>
-      ) : null}
-    </View>
+
+            { instagramUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(instagramUrl)}>
+                <Ionicons
+                  name="logo-instagram"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+            { twitterUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(twitterUrl)}>
+                <Ionicons
+                  name="logo-twitter"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+            { facebookUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(facebookUrl)}>
+                <Ionicons
+                  name="logo-facebook"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+            { tiktokUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(tiktokUrl)}>
+                <Ionicons
+                  name="logo-pinterest"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+          </View>
         </Card>
       ) }
 
@@ -655,10 +654,10 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     flexDirection: 'row',
-     justifyContent: 'space-between',
-     marginTop: 4,
-     marginLeft: 20,
-     marginRight: 20,
+    justifyContent: 'space-between',
+    marginTop: 4,
+    marginLeft: 20,
+    marginRight: 20,
   },
   squareFrame: {
     maxWidth: '33%',

@@ -30,7 +30,6 @@ import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
 import CheckBox from '@react-native-community/checkbox';
-import { transform } from 'metro-transform-worker';
 
 
 interface UserData {
@@ -81,12 +80,10 @@ const EditProfile = () => {
   const [bannerPicture, setBannerPicture] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const token = context?.token;
-  const userID = context?.userId;
   const [instagramUrl, setInstagramUrl] = useState<string>('');
   const [twitterUrl, setTwitterUrl] = useState<string>('');
   const [tiktokUrl, setTiktokUrl] = useState<string>('');
   const [facebookUrl, setFacebookUrl] = useState<string>('');
-
 
 
   const setNewBio = (new_bio: string) => {
@@ -100,22 +97,6 @@ const EditProfile = () => {
     return setUserData({ ...new_userData });
   }
 
-  const handleInstagramUrl = (value: string) => {
-    setInstagramUrl(value);
-  };
-
-  const handleTwitterUrl = (value: string) => {
-    console.log('Twitter VALUE 🇫🇷🇫🇷🇫🇷🇫🇷', value)
-    setTwitterUrl(value);
-  };
-
-  const handleTiktokUrl = (value: string) => {
-    setTiktokUrl(value);
-  };
-
-  const handleFacebookUrl = (value: string) => {
-    setFacebookUrl(value);
-  };
 
   const selectImage = async (type: 'profile' | 'banner') => {
     const options: ImageLibraryOptions = {
@@ -138,17 +119,21 @@ const EditProfile = () => {
     }
   };
 
+
   const uploadPicture = async (type: 'banner' | 'profile') => {
     const formData = new FormData();
     const uri: string = type === 'profile' ? profilePicture : bannerPicture;
 
     const fileData = await RNFS.readFile(uri, 'base64');
-    formData.append('profilePicture', {
-      name: 'image.jpg',
-      type: 'image/jpeg',
-      uri: Platform.OS === 'android' ? `file://${uri}` : uri,
-      data: fileData
-    });
+    formData.append(
+      type === 'banner' ? 'bannerPicture' : 'profilePicture',
+      {
+        name: 'image.jpg',
+        type: 'image/jpeg',
+        uri: Platform.OS === 'android' ? `file://${uri}` : uri,
+        data: fileData
+      }
+    );
 
     post(
       '/api/user/profile/' + (type === 'banner' ? 'banner' : 'profile') + '-pic',
@@ -261,7 +246,7 @@ const EditProfile = () => {
   
     post(url, body, token, callback, onErrorCallback);
   }
-  
+
 
   const setupScreen = () => {
     fetchUserData();
