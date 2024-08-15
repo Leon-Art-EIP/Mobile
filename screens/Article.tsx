@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
@@ -14,25 +14,23 @@ const Article = ({ navigation, route }: any) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
-      </View>
-      <View style={{ flexDirection: 'row', paddingRight: 20, paddingLeft: 20 }}>
-        <Title style={styles.artTitle}>
-          {article.title}
-        </Title>
-      </View>
-      <View>
-        <Content
-          style={styles.textInput}
-        >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.logo}>
+          <Title style={{ color: colors.primary }}>Leon</Title>
+          <Title>'Art</Title>
+        </View>
+        <View style={styles.artTitleContainer}>
+          <Title style={styles.artTitle}>
+            {article.title}
+          </Title>
+        </View>
+        <Content style={styles.textInput}>
           {article.content}
         </Content>
-      </View>
-      <View style={{ marginTop: 20 }}>
+      </ScrollView>
+      <View style={styles.buttonContainer}>
         <Button
-          style={{ backgroundColor: colors.secondary, marginTop: 400 }}
+          style={styles.button}
           textStyle={{ color: colors.black }}
           value="Retour"
           onPress={previous}
@@ -48,12 +46,21 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: colors.white,
   },
+  scrollContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 100,
+  },
   logo: {
     flexDirection: 'row',
     height: 100,
     paddingLeft: 20,
     padding: 20,
     borderRadius: 5,
+  },
+  artTitleContainer: {
+    flexDirection: 'row',
+    paddingRight: 20,
+    paddingLeft: 20,
   },
   artTitle: {
     textAlign: 'center',
@@ -67,7 +74,18 @@ const styles = StyleSheet.create({
     marginRight: 15,
     marginBottom: 20,
     marginTop: 20,
-    color: colors.black
+    color: colors.black,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.white,
+    padding: 16,
+  },
+  button: {
+    backgroundColor: colors.secondary,
   },
 });
 

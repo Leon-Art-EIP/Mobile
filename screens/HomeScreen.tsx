@@ -13,6 +13,7 @@ import {
   Text,
   RefreshControl
 } from 'react-native';
+import Entypo from 'react-native-vector-icons/Entypo';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MainContext } from '../context/MainContext';
 import { getImageUrl } from '../helpers/ImageHelper';
@@ -29,7 +30,7 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { aiCenter, bgColor, bgGrey, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv0, mv24 } from '../constants/styles';
+import { acCenter, aiCenter, bgColor, bgGrey, bgRed, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24, fwBold, br20 } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
 
@@ -55,6 +56,9 @@ const HomeScreen = ({ navigation }: any) => {
     navigation.navigate('article', { article });
   };
 
+  const handleToArticlesList = (articles) => {
+    navigation.navigate('articles', {articles});
+  };
 
   const towardsPost = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
@@ -203,13 +207,11 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     refreshData();
-
     /* I have to patch the display, it's too slow and to low
-    if (!isNotificationRegistered()) {
-      _slidingPanel.current?.show();
-    }
-    */
-
+     if (!isNotificationRegistered()) {
+       _slidingPanel.current?.show();
+     }
+     */
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, []);
 
@@ -232,60 +234,72 @@ const HomeScreen = ({ navigation }: any) => {
         <View style={styles.titleView}>
           <Title style={{ color: colors.primary }}>Leon</Title>
           <Title>'Art</Title>
-
           <TouchableOpacity
             onPress={() => navigation.navigate('notifications')}
             style={styles.notifIconTouchable}
           >
             <MaterialIcons
-              name={"notifications"}
-              size={24}
-              color={colors.offerFg}
-            />
-            <Text style={styles.notifIconText}>{ hasUnreadNotifications }</Text>
+               name={"notifications"}
+               size={24}
+               color={colors.offerFg}
+             />
+             <Text style={styles.notifIconText}>{ hasUnreadNotifications }</Text>
           </TouchableOpacity>
         </View>
 
-        {/* News */}
         <View>
-          <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
+
+        {/* Actuality */}
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => handleToArticlesList(articles)}>
+          <Title style={[ fwBold, flex1, { marginLeft: 32, marginTop: 20, marginBottom: 8 }]} size={24} >
             Actualités
           </Title>
+          <Entypo
+            name="chevron-thin-right"
+            color={colors.black}
+            size={20}
+            style={{
+              marginRight: 230,
+              marginTop: 15,
+            }}
+          />
+        </TouchableOpacity>
 
-          {articles.length === 0 ? (
-            <View style={styles.emptyView}>
-              <Image
-                style={{ height: 50, width: 50 }}
-                source={require('../assets/icons/box.png')}
-              />
-              <Title
-                size={18}
-                style={{ color: colors.disabledFg }}
-              >C'est tout vide par ici !</Title>
-              <Text style={{
-                fontWeight: '500',
-                color: colors.disabledFg
-              }}>Essaie de recharger la page</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={articles}
-              contentContainerStyle={styles.flatList}
-              renderItem={(e: ListRenderItemInfo<ArticleType>) => (
-                <ArticleCard
-                  onPress={() => handleToArticle(e.item)}
-                  item={e.item}
-                  path="article"
-                />
-              )}
-              keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
-              showsHorizontalScrollIndicator={false}
-              pagingEnabled
-              horizontal
-              scrollEnabled
+        {articles.length === 0 ? (
+          <View style={styles.emptyView}>
+            <Image
+              style={{ height: 50, width: 50 }}
+              source={require('../assets/icons/box.png')}
             />
-          ) }
-        </View>
+            <Title
+              size={18}
+              style={{ color: colors.disabledFg }}
+            >C'est tout vide par ici !</Title>
+            <Text style={{
+              fontWeight: '500',
+              color: colors.disabledFg
+            }}>Essaie de recharger la page</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={articles}
+            contentContainerStyle={styles.flatList}
+            renderItem={(e: ListRenderItemInfo<ArticleType>) => (
+              <ArticleCard
+                onPress={() => handleToArticle(e.item)}
+                item={e.item}
+                path="article"
+              />
+            )}
+            keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
+            showsHorizontalScrollIndicator={false}
+            pagingEnabled
+            horizontal
+            scrollEnabled
+          />
+        )}
+
+      </View>
 
         {/* Artistes */}
         <View>
@@ -534,12 +548,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.offerBg,
     borderRadius: 50,
     paddingVertical: 4,
-    paddingHorizontal: 12
-  },
-  notifIconText: {
-    color: colors.offerFg,
-    fontWeight: 'bold',
-    marginHorizontal: 4,
+    paddingHorizontal: 12,
   },
   articleImage: {
     width: '100%',
@@ -574,6 +583,11 @@ const styles = StyleSheet.create({
   },
   publicationTitle: {
     color: colors.black,
+  },
+  notifIconText: {
+    color: colors.offerFg,
+    fontWeight: 'bold',
+    marginHorizontal: 4,
   },
   postImage: {
     height: 200,
