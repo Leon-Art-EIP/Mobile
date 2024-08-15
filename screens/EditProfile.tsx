@@ -7,7 +7,8 @@ import {
   ToastAndroid,
   Keyboard,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -15,6 +16,7 @@ import React, {useState, useContext, useEffect } from 'react';
 import {ImageLibraryOptions, launchImageLibrary} from 'react-native-image-picker';
 
 // Local imports
+import { Text } from 'react-native-svg';
 import { getImageUrl } from '../helpers/ImageHelper';
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
@@ -78,7 +80,8 @@ const EditProfile = () => {
   const [profilePicture, setProfilePicture] = useState<string | undefined>(undefined);
   const [bannerPicture, setBannerPicture] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const token = context?.token;
+  const userID = context?.userId;
   const [instagramUrl, setInstagramUrl] = useState<string>('');
   const [twitterUrl, setTwitterUrl] = useState<string>('');
   const [tiktokUrl, setTiktokUrl] = useState<string>('');
@@ -342,6 +345,7 @@ const EditProfile = () => {
       </View>
 
       <View style={[flex1, ph24, { marginTop: '20%' }]}>
+      <ScrollView>
         {/* Name */}
         <View>
           <Subtitle>Nom</Subtitle>
@@ -364,7 +368,6 @@ const EditProfile = () => {
             style={[bgDisabled, mh0, br20, mt8, cTextDark]}
           />
         </View>
-
         {/* Availability */}
         <View style={[mt8, flexRow]}>
           <Subtitle>Ouvert au commandes</Subtitle>
@@ -376,6 +379,68 @@ const EditProfile = () => {
             style={[mtAuto, mbAuto, mlAuto]}
           />
         </View>
+        <View style={styles.infoBlock}>
+            <Subtitle>Réseaux sociaux</Subtitle>
+            <Text>Renseigner les liens vers vos réseaux</Text>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-instagram"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Instagram"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setInstagramUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={instagramUrl || 'Non renseigné'}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-twitter"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Twitter"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setTwitterUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={twitterUrl || 'Non renseigné'}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-facebook"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Facebook"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setFacebookUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={facebookUrl || 'Non renseigné'}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-pinterest"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="TikTok"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setTiktokUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={tiktokUrl || 'Non renseigné'}
+              />
+            </View>
+
+            </View>
+        </ScrollView>
 
         { !isKeyboardFocused && (
           <View style={[flexRow, mtAuto]}>
@@ -469,6 +534,19 @@ const styles = StyleSheet.create({
   centerSubtitle: {
     fontSize: 12,
     color: 'rgba(112, 0, 255, 1)',
+  },
+  infoBlock: {
+    marginTop: 20,
+  },
+  socialMedia: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  biographyInput: {
+    flex: 1,
+    marginLeft: 8,
+    height: 40,
   },
   contactAndFollow: {
     justifyContent: 'center',
