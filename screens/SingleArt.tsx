@@ -26,9 +26,9 @@ import {
   acCenter,
   bgColor,
   bgGrey,
-  bgRed,
   br20,
   br50,
+  cTextDark,
   flex1,
   flexRow,
   mbAuto,
@@ -37,13 +37,9 @@ import {
   mlAuto,
   mr20,
   mr4,
-  mr8,
   mt4,
-  mt8,
   mtAuto,
   mv0,
-  mv24,
-  mv4,
   mv8,
   ph24,
   ph8,
@@ -52,7 +48,6 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CommentInput from '../components/CommentInput';
@@ -91,6 +86,7 @@ const SingleArt = ({ navigation, route }: any) => {
   const [infoModalMessage, setInfoModalMessage] = useState('');
   const [isReportPanelVisible, setIsReportPanelVisible] = useState<boolean>(false);
   const [currency, setCurrency] = useState<string>('€');
+  const [picture, setPicture] = useState<string | undefined>(undefined);
 
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
@@ -110,7 +106,7 @@ const SingleArt = ({ navigation, route }: any) => {
   }, [isReportPanelVisible]);
 
   useEffect(() => {
-    getPublications();
+    getPublication();
     checkIsLiked();
     checkIsSaved();
   }, [id]);
@@ -119,12 +115,16 @@ const SingleArt = ({ navigation, route }: any) => {
     if (publication && publication.userId) {
       fetchArtistDetails();
     }
+    if (publication) {
+      setPicture(publication.image);
+      console.log('picture: ', picture);
+    }
   }, [publication]);
 
   useEffect(() => {
     setIsDeleteModalShown(false);
     setIsReportPanelVisible(false);
-    getPublications();
+    getPublication();
     checkIsLiked();
     checkIsSaved();
   }, []);
@@ -182,10 +182,10 @@ const SingleArt = ({ navigation, route }: any) => {
     get(
       `/api/user/profile/${userId}`,
       context?.token,
-      (response) => {
+      (response: any) => {
         setArtist(response.data);
       },
-      (error) => {
+      (error: any) => {
         console.error('Error fetching Artist Name:', error);
       },
     );
@@ -219,19 +219,20 @@ const SingleArt = ({ navigation, route }: any) => {
     fetchPaymentSheetParams();
   };
 
-  const getPublications = () => {
+  const getPublication = () => {
     setIsRefreshing(true);
     get(
       `/api/art-publication/${id}`,
       context?.token,
-      (response) => {
-        setPublication(response?.data || []);
+      (response: any) => {
+        setPublication(response?.data);
         getArtistName(response?.data.userId);
         setSoldState(response?.data.isSold);
         setSaleState(response?.data.isForSale);
         setIsRefreshing(false);
+        console.log('publication', publication);
       },
-      (error) => {
+      (error: any) => {
         console.error('Error fetching publications:', error);
       },
     );
@@ -263,7 +264,7 @@ const SingleArt = ({ navigation, route }: any) => {
       isPublic: true,
     };
 
-    const callback = (response: any) => {
+    const callback = () => {
       Alert.alert('Oeuvre ajoutée à la collection "' + collectionName + '".');
       setIsSaved(true);
       checkIsSaved();
@@ -418,8 +419,10 @@ const SingleArt = ({ navigation, route }: any) => {
         >
           <ImageViewer
             backgroundColor="transparent"
-            imageUrls={[{ url: getImageUrl(publication?.image) ?? NOT_FOUND }]}
+            imageUrls={[{ url: getImageUrl(picture) ?? ' ' }]}
+            failImageSource={{ url: NOT_FOUND }}
             renderIndicator={() => <></>}
+            loadingRender={() => <Text style={cTextDark}>Loading...</Text>}
           />
         </View>
       ) : (

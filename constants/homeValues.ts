@@ -65,10 +65,12 @@ type PostType = {
   dimension: string;
   isForSale: boolean;
   isSold: boolean;
-  price: number;
+  price: string;
   location: string;
-  likes: [];
-  comments: []
+  likes: string[];
+  totalLikes: number;
+  isLiked: boolean;
+  comments: any[];
 }
 
 const const_news: NewsType[] = [

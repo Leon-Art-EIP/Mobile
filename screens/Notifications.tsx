@@ -14,9 +14,9 @@ import { useRefresh } from '@react-native-community/hooks';
 
 
 type NotifType = {
-  _id: string;
+  id: string;
   recipient: string;
-  type: string;
+  type: 'follow' | 'like' | 'order_shipping' | 'order_processing';
   content: string;
   referenceId: string;
   read: boolean;
@@ -116,8 +116,14 @@ const Notifications = () => {
 
       <FlatList
         data={notifs}
-        keyExtractor={item => item._id}
-        renderItem={({ item, index }) => <NotificationCard item={item} index={index} />}
+        keyExtractor={item => item.id}
+        renderItem={({ item, index }) => (
+          <NotificationCard
+            key={item.id}
+            item={item}
+            index={index}
+          />
+        ) }
         refreshControl={
           <RefreshControl
             tintColor={colors.primary}
