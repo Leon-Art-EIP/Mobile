@@ -79,6 +79,12 @@ const EditProfile = () => {
   const [bannerPicture, setBannerPicture] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const [instagramUrl, setInstagramUrl] = useState<string>('');
+  const [twitterUrl, setTwitterUrl] = useState<string>('');
+  const [tiktokUrl, setTiktokUrl] = useState<string>('');
+  const [facebookUrl, setFacebookUrl] = useState<string>('');
+
+
 
   const setNewBio = (new_bio: string) => {
     let new_userData: UserData | undefined = { ...userData };
@@ -156,15 +162,19 @@ const EditProfile = () => {
   }
 
   const handleSaveModifications = () => {
+    console.log("Modifications saved.");
     saveBiography();
     saveIsAvailable();
-    if (bannerPicture) {
+    saveSocialMediaLinks();
+  
+    if (banner) {
       uploadPicture('banner');
     }
     if (profilePicture) {
       uploadPicture('profile');
     }
-    /* navigation.goBack(); */
+    
+    navigation.goBack();
   }
 
   const saveBiography = () => {
@@ -190,19 +200,69 @@ const EditProfile = () => {
 
 
   const fetchUserData = () => {
-    setIsLoading(true);
-    get(
-      `/api/user/profile/${context?.userId}`,
-      context?.token,
-      (res: any) => {
-        setUserData({ ...res?.data });
-        console.log("new user data: ", userData);
-        setIsLoading(false);
-      },
-      (err: any) => console.error({ ...err })
-    );
+    if (!token) {
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      ToastAndroid.show("Error getting your user information. Please log in", ToastAndroid.SHORT);
+      return navigation.navigate('login');
+    }
+  
+    const url = `/api/user/profile/${userID}`;
+  
+    const callback = (response: any) => {
+      setUserData(response.data);
+      setInstagramUrl(response.data.socialMediaLinks?.instagram || '');
+      setTwitterUrl(response.data.socialMediaLinks?.twitter || '');
+      setTiktokUrl(response.data.socialMediaLinks?.tiktok || '');
+      setFacebookUrl(response.data.socialMediaLinks?.facebook || '');
+    };
+  
+    const onErrorCallback = (error: any) => {
+      console.error('Error fetching user data:', error);
+      if (error.response) {
+        console.error('Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received from server');
+      } else {
+        console.error('Error setting up the request:', error.message);
+      }
+    };
+  
+    get(url, token, callback, onErrorCallback);
   }
-
+  
+  const saveSocialMediaLinks = () => {
+    if (!token) {
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      return;
+    }
+  
+    const url = '/api/user/profile/social-links';
+    const body = {
+      instagram: instagramUrl,
+      twitter: twitterUrl,
+      facebook: facebookUrl,
+      tiktok: tiktokUrl
+    };
+  
+    const callback = (response: any) => {
+      console.log('Social media links updated:', response.data);
+      ToastAndroid.show('Social media links updated successfully!', ToastAndroid.SHORT);
+    };
+  
+    const onErrorCallback = (error: any) => {
+      console.error('Error updating social media links:', error);
+      if (error.response) {
+        console.error('Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received from server');
+      } else {
+        console.error('Error setting up the request:', error.message);
+      }
+    };
+  
+    post(url, body, token, callback, onErrorCallback);
+  }
+  
 
   const setupScreen = () => {
     fetchUserData();

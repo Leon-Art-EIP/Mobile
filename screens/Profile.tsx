@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, Linking, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-native-modal';
@@ -33,12 +33,15 @@ const Profile = () => {
   const [newCollectionName, setNewCollectionName] = useState<string>("");
   const token = context?.token;
   const userID = context?.userId;
+
   const [instagramUrl, setInstagramUrl] = useState<string>('');
   const [twitterUrl, setTwitterUrl] = useState<string>('');
   const [tiktokUrl, setTiktokUrl] = useState<string>('');
   const [facebookUrl, setFacebookUrl] = useState<string>('');
 
+
   const handleToFollowerList = () => {
+    // TODO : rendre dynamique
     navigation.navigate('follower_list');
   };
 
@@ -60,10 +63,6 @@ const Profile = () => {
 
   const handleCollectionClick = (collection: CollectionType) => {
     navigation.navigate('collection', { collection: collection });
-  };
-
-  const handleIconPress = (url) => {
-    Linking.openURL(url).catch(err => console.error("Failed to open URL", err));
   };
 
   interface Artwork {
@@ -98,13 +97,11 @@ const Profile = () => {
     bannerPicture: string;
     profilePicture: string;
     biography: string;
-    socialMediaLinks: {
-      instagram: string;
-      twitter: string;
-      tiktok: string;
-      facebook: string;
-    };
   }
+
+  const handleIconPress = (url) => {
+    Linking.openURL(url).catch(err => console.error("Failed to open URL", err));
+  };
 
   const fetchUserArtworks = async () => {
     if (!token) {
@@ -130,34 +127,34 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     if (!token) {
-      Alert.alert('Une erreur est survenue', 'Veuillez vous reconnecter.');
+      Alert.alert('Token JWT not found. Make sure the user is logged in.');
       console.error('Token JWT not found. Make sure the user is logged in.');
       return;
     }
-
+  
     const url = `/api/user/profile/${userID}`;
-
+  
     const callback = (response: any) => {
       setUserData(response.data);
       fetchUserArtworks();
       
-      // Extract and set social media links
       const socialLinks = response.data.socialMediaLinks || {};
       setInstagramUrl(socialLinks.instagram || '');
       setTwitterUrl(socialLinks.twitter || '');
       setTiktokUrl(socialLinks.tiktok || '');
       setFacebookUrl(socialLinks.facebook || '');
       
-      console.log(' 🌞 User Data:', response.data);
+      console.log('User Data:', response.data);
     };
-
+  
     const onErrorCallback = (error: any) => {
-      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
+      Alert.alert('Error fetching user data', 'An error occurred while fetching user data.');
       return console.error('Error fetching user data:', error);
     };
-
+  
     get(url, token, callback, onErrorCallback);
   };
+  
 
   const updateCollections = async () => {
     if (!token) {
@@ -184,6 +181,9 @@ const Profile = () => {
     updateCollections();
   };
 
+
+  // Should be able to create a new empty collection from the profile screen
+  // but it doesn't work yet. We're waiting for the back-end (as usual lol)
   const createCollection = async (collectionName: string) => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -437,6 +437,44 @@ const Profile = () => {
           <Text style={[styles.biography, cTextDark]}>
             {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
           </Text>
+          <View style={styles.rowContainer}>
+      {instagramUrl ? (
+        <TouchableOpacity onPress={() => handleIconPress(instagramUrl)}>
+          <Ionicons
+            name="logo-instagram"
+            color={colors.darkGreyBg}
+            size={24}
+          />
+        </TouchableOpacity>
+      ) : null}
+      {twitterUrl ? (
+        <TouchableOpacity onPress={() => handleIconPress(twitterUrl)}>
+          <Ionicons
+            name="logo-twitter"
+            color={colors.darkGreyBg}
+            size={24}
+          />
+        </TouchableOpacity>
+      ) : null}
+      {facebookUrl ? (
+        <TouchableOpacity onPress={() => handleIconPress(facebookUrl)}>
+          <Ionicons
+            name="logo-facebook"
+            color={colors.darkGreyBg}
+            size={24}
+          />
+        </TouchableOpacity>
+      ) : null}
+      {tiktokUrl ? (
+        <TouchableOpacity onPress={() => handleIconPress(tiktokUrl)}>
+          <Ionicons
+            name="logo-pinterest"
+            color={colors.darkGreyBg}
+            size={24}
+          />
+        </TouchableOpacity>
+      ) : null}
+    </View>
         </Card>
       ) }
 
@@ -616,11 +654,9 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 4,
-    marginLeft: 20,
-    marginRight: 20,
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      padding: 10,
   },
   squareFrame: {
     maxWidth: '33%',
@@ -673,7 +709,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   biography: {
-    marginTop: 15,
     marginHorizontal: 0,
     marginVertical: 0,
     fontSize: 14,
