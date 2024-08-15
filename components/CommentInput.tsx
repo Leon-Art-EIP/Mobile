@@ -6,7 +6,17 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const CommentInput = ({ id }) => {
+
+type CommentInputProps = {
+  id: string;
+  getData: () => void;
+}
+
+
+const CommentInput = ({
+  id,
+  getData
+}: CommentInputProps) => {
   const [commentInput, setCommentInput] = useState('');
   const context = useContext(MainContext);
 

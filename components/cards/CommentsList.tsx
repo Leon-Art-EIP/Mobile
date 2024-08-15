@@ -7,6 +7,7 @@ import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
 import { cTextDark } from '../../constants/styles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const CommentsList = ({ id }) => {
   const context = useContext(MainContext);
@@ -120,15 +121,11 @@ const CommentsList = ({ id }) => {
     }
   };
 
+
   const handleToArtistProfile = (_id) => {
-    // console.log('artist iddd: ', artist._id);
-    console.log('🌹🌹🌹🌹🌹 other_profile', _id);
     navigation.navigate('other_profile', { id: _id});
   };
 
-  const navigateToUserProfile = (userId) => {
-    navigation.navigate('other_profile', { id: userId });
-  };
 
   return (
     <View style={{ marginTop: 30, marginBottom: 40, marginLeft: 0, marginRight: 20 }}>
@@ -149,13 +146,19 @@ const CommentsList = ({ id }) => {
             <Text style={cTextDark}>{comment?.text ?? "Commentaire supprimé"}</Text>
           </View>
           <View style={styles.commentMeta}>
-            <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
-            <TouchableOpacity
-              onPress={() => handleDeletePress(comment._id)}
-              style={styles.deleteButton}
-            >
-              <Text style={styles.deleteButtonText}>Supprimer</Text>
-            </TouchableOpacity>
+            <Text style={styles.publishedTime}>{timeSince(comment?.createdAt)}</Text>
+
+            { comment?.userId === context?.userId && (
+              <TouchableOpacity
+                onPress={() => handleDeletePress(comment?._id)}
+              >
+                <MaterialCommunityIcons
+                  name="delete"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ) }
           </View>
 
         </View>

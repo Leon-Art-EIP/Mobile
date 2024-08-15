@@ -28,7 +28,6 @@ import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
 import CheckBox from '@react-native-community/checkbox';
-import { transform } from 'metro-transform-worker';
 
 
 interface UserData {
@@ -47,25 +46,6 @@ interface UserData {
   bannerPicture: string;
   profilePicture: string;
   biography: string;
-}
-
-
-const USERDATA: UserData = {
-  _id: "ID",
-  username: "USERNAME",
-  is_artist: false,
-  availability: " ",
-  subscription: " ",
-  collections: [],
-  subscriptions: [],
-  subscribers: [],
-  subscribersCount: 0,
-  likedPublications: [],
-  canPostArticles: false,
-  __v: 0,
-  bannerPicture: " ",
-  profilePicture: " ",
-  biography: " ",
 }
 
 
@@ -108,7 +88,7 @@ const EditProfile = () => {
       if (type === 'profile') {
         setProfilePicture(response?.assets[0]?.uri);
       } else {
-        setBannerPicture(response.assets[0]?.uri);
+        setBannerPicture(response?.assets[0]?.uri);
       }
     }
   };
@@ -116,15 +96,19 @@ const EditProfile = () => {
 
   const uploadPicture = async (type: 'banner' | 'profile') => {
     const formData = new FormData();
-    const uri: string = type === 'profile' ? profilePicture : bannerPicture;
+    console.log(type === 'banner' ? bannerPicture : profilePicture);
+    const uri: string | undefined = type === 'profile' ? profilePicture : bannerPicture;
 
     const fileData = await RNFS.readFile(uri, 'base64');
-    formData.append('profilePicture', {
-      name: 'image.jpg',
-      type: 'image/jpeg',
-      uri: Platform.OS === 'android' ? `file://${uri}` : uri,
-      data: fileData
-    });
+    formData.append(
+      type === 'profile' ? 'profilePicture' : 'bannerPicture',
+      {
+        name: 'image.jpg',
+        type: 'image/jpeg',
+        uri: Platform.OS === 'android' ? `file://${uri}` : uri,
+        data: fileData
+      }
+    );
 
     post(
       '/api/user/profile/' + (type === 'banner' ? 'banner' : 'profile') + '-pic',
@@ -294,7 +278,7 @@ const EditProfile = () => {
 
         {/* Availability */}
         <View style={[mt8, flexRow]}>
-          <Subtitle>Ouvert au commandes</Subtitle>
+          <Subtitle>Ouvert aux commandes</Subtitle>
           <CheckBox
             value={isAvailable ?? !!userData?.availability}
             onValueChange={setIsAvailable}

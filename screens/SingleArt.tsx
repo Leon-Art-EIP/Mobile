@@ -484,7 +484,7 @@ const SingleArt = ({ navigation, route }: any) => {
         <ScrollView contentContainerStyle={{ flex: 1 }}>
           <CommentsList id={id}></CommentsList>
         </ScrollView>
-        <CommentInput id={id} />
+        <CommentInput id={id} getData={getPublication} />
       </View>
 
       {/* Collection modal */}
