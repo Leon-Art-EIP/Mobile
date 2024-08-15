@@ -154,7 +154,7 @@ const EditProfile = () => {
     saveBiography();
     saveIsAvailable();
     saveSocialMediaLinks();
-  
+
     if (bannerPicture) {
       uploadPicture('banner');
     }
@@ -212,14 +212,14 @@ const EditProfile = () => {
       }
     );
   };
-  
-  
+
+
   const saveSocialMediaLinks = () => {
     if (!token) {
       console.error('Token JWT not found. Make sure the user is logged in.');
       return;
     }
-  
+
     const url = '/api/user/profile/social-links';
     const body = {
       instagram: instagramUrl,
@@ -227,12 +227,12 @@ const EditProfile = () => {
       facebook: facebookUrl,
       tiktok: tiktokUrl
     };
-  
+
     const callback = (response: any) => {
       console.log('Social media links updated:', response.data);
       ToastAndroid.show('Lien vers vos réseaux sociaux ajouté avec succès !', ToastAndroid.SHORT);
     };
-  
+
     const onErrorCallback = (error: any) => {
       console.error('Error updating social media links:', error);
       if (error.response) {
@@ -243,7 +243,7 @@ const EditProfile = () => {
         console.error('Error setting up the request:', error.message);
       }
     };
-  
+
     post(url, body, token, callback, onErrorCallback);
   }
 
@@ -351,7 +351,7 @@ const EditProfile = () => {
         </View>
         {/* Availability */}
         <View style={[mt8, flexRow]}>
-          <Subtitle>Ouvert au commandes</Subtitle>
+          <Subtitle>Ouvert aux commandes</Subtitle>
           <CheckBox
             value={isAvailable ?? !!userData?.availability}
             onValueChange={setIsAvailable}
@@ -361,7 +361,7 @@ const EditProfile = () => {
           />
         </View>
         <View style={styles.infoBlock}>
-            <Subtitle>Réseaux sociaux</Subtitle>
+            <Subtitle>Liens réseaux sociaux</Subtitle>
             <Text>Renseigner les liens vers vos réseaux</Text>
             <View style={styles.socialMedia}>
               <Ionicons
