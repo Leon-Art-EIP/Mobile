@@ -11,6 +11,9 @@ import Signup from '../screens/Signup';
 import GoogleLogin from '../screens/GoogleLogin';
 import ForgotPassword from '../screens/ForgotPassword';
 import BottomNavigator from './BottomNavigator';
+import Tutorial from '../screens/Tutorial';
+import Tutorial_2 from '../screens/Tutorial_2';
+import Tutorial_3 from '../screens/Tutorial_3';
 
 
 const ConnexionNavigator = () => {
@@ -22,6 +25,9 @@ const ConnexionNavigator = () => {
   return context?.token ? (
     <Stack.Navigator>
       <Stack.Screen name="main" component={BottomNavigator} options={options} />
+      <Stack.Screen name="tutorial" component={Tutorial} options={options} />
+      <Stack.Screen name="tutorial_2" component={Tutorial_2} options={options} />
+      <Stack.Screen name="tutorial_3" component={Tutorial_3} options={options} />
     </Stack.Navigator>
   ) : (
     <Stack.Navigator>

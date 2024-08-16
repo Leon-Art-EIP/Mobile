@@ -33,7 +33,7 @@ const Login = ({ navigation }: any) => {
       await AsyncStorage.setItem('jwt', tokenFromDB);
     } catch (error) {
       console.error('Error storing token:', error);
-      Alert.alert('Login Failed', 'Error storing token');
+      Alert.alert('Erreur de connexion', 'Nous n\'avons pas réussi à stocker votre token');
       return;
     }
 

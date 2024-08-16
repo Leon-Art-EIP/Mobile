@@ -3,13 +3,12 @@ import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 
-const Tutorial = ({ navigation }) => {
-  const next = () => {
-    navigation.navigate('tutorial2');
-  };
-
+const Tutorial = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
 
   return (
     <View style={styles.container}>
@@ -31,7 +30,10 @@ const Tutorial = ({ navigation }) => {
 
       <Button
         value="Suivant"
-        onPress={() => navigation.navigate('tutorial2')}
+        onPress={() => navigation.navigate(
+          'tutorial2',
+          { comesFromSettings: route?.params?.comesFromSettings }
+        )}
       />
     </View>
   );

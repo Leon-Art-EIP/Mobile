@@ -94,7 +94,7 @@ const Settings = () => {
         secondary
         style={[mtAuto]}
         value="Tutoriel"
-        onPress={() => navigation.navigate("tutorial")}
+        onPress={() => navigation.navigate("tutorial", { comesFromSettings: true })}
       />
 
       {/* Log out button */}
