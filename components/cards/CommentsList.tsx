@@ -6,10 +6,12 @@ import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
-import { cTextDark } from '../../constants/styles';
+import { bgRed, cBlack, cTextDark, flexRow, mbAuto, mh8, ml0, ml8, mlAuto, mr0, mr20, mrAuto, mtAuto } from '../../constants/styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Octicons from 'react-native-vector-icons/Octicons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Card from './Card';
 
 
 const CommentsList = ({ id }) => {
@@ -182,136 +184,36 @@ const CommentsList = ({ id }) => {
       }
     );
   };
->>>>>>> dev_testing
 
-  return (
-    <ScrollView>
-      <View style={{ marginTop: 30, marginBottom: 40, marginLeft: 0, marginRight: 20 }}>
-        {comments.map((comment, index) => (
-          <>
-          <View key={index} style={styles.commentContainer}>
-            <ArtistCard
-              item={userProfiles[comment.userId]}
-              style={styles.artistCard}
-              showTitle={false}
-              onPress={() => handleToArtistProfile(comment.userId)}
-            />
-            <View style={styles.commentContent}>
-              <View style={styles.commentHeader}>
-                <Text style={styles.commentAuthor}>
-                  {usernames[comment.userId]}
-                </Text>
-                <View style={styles.commentMeta}>
-                  <TouchableOpacity
-                    onPress={() => handleDeletePress(comment.id)}
-                    style={styles.deleteButton}
-                  >
-                    <Text style={styles.deleteButtonText}>Supprimer</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <Text style={cTextDark}>{comment?.text ?? "Commentaire supprimé"}</Text>
-              <View style={styles.commentFooter}>
-                <Text style={styles.publishedTime}>{timeSince(comment.createdAt)}</Text>
-                <TouchableOpacity
-                  onPress={() => handleLikePress(comment.id)}
-                  style={styles.likeButton}
-                >
-                  <AntDesign
-                    name={likes[comment.id] ? 'heart' : 'hearto'}
-                    size={20}
-                    color={likes[comment.id] ? 'red' : colors.darkGreyFg}
-                  />
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                onPress={() => handleReplyPress(comment.id)}
-                style={styles.replyButton}
-              >
-                <Text style={styles.replyButtonText}>Répondre</Text>
-              </TouchableOpacity>
-              {comment.nestedComments && comment.nestedComments.length > 0 && (
-                <TouchableOpacity
-                  onPress={() => toggleNestedComments(comment.id)}
-                  style={styles.toggleNestedCommentsButton}
-                >
-                  <Ionicons
-                    name={nestedCommentsVisible[comment.id] ? 'chevron-up' : 'chevron-down'}
-                    size={20}
-                    color={colors.darkGreyFg}
-                  />
-                </TouchableOpacity>
-              )}
-              {nestedCommentsVisible[comment.id] && comment.nestedComments.map((nestedComment, nestedIndex) => (
-                <View key={nestedIndex} style={styles.nestedCommentContainer}>
-                  <ArtistCard
-                    item={userProfiles[nestedComment.userId]}
-                    style={styles.artistCard}
-                    showTitle={false}
-                    onPress={() => handleToArtistProfile(nestedComment.userId)}
-                  />
-                  <View style={styles.commentContent}>
-                    <View style={styles.commentHeader}>
-                      <Text style={styles.commentAuthor}>
-                        {usernames[nestedComment.userId]}
-                      </Text>
-                      <View style={styles.commentMeta}>
-                        <TouchableOpacity
-                          onPress={() => handleDeletePress(nestedComment.id)}
-                          style={styles.deleteButton}
-                        >
-                          <Text style={styles.deleteButtonText}>Supprimer</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    <Text style={cTextDark}>{nestedComment?.text ?? "Commentaire supprimé"}</Text>
-                    <View style={styles.commentFooter}>
-                      <Text style={styles.publishedTime}>{timeSince(nestedComment.createdAt)}</Text>
-                      <TouchableOpacity
-                        onPress={() => handleLikePress(nestedComment.id)}
-                        style={styles.likeButton}
-                      >
-                        <AntDesign
-                          name={likes[nestedComment.id] ? 'heart' : 'hearto'}
-                          size={20}
-                          color={likes[nestedComment.id] ? 'red' : colors.darkGreyFg}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => handleReplyPress(nestedComment.id)}
-                      style={styles.replyButton}
-                    >
-                      <Text style={styles.replyButtonText}>Répondre</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-              {replyingTo === comment.id && (
-                <View style={styles.replyInputContainer}>
-                  <TextInput
-                    style={styles.replyInput}
-                    value={replyText}
-                    onChangeText={setReplyText}
-                    placeholder="Votre réponse..."
-                  />
-                  <TouchableOpacity
-                    onPress={handleReplySubmit}
-                    style={styles.replyButton}
-                  >
-                    <Text style={styles.sendButtonText}>Poster</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          </View>
 
+  /* A single comment */
+  const RenderComment = ({
+    comment,
+    index,
+    isNested = false
+  }) => (
+    <View key={index} style={styles.commentContainer}>
+      <ArtistCard
+        item={userProfiles[comment.userId]}
+        style={{
+          image: { height: 40, width: 40 },
+        }}
+        showTitle={false}
+        onPress={() => console.log(comment)}//handleToArtistProfile(comment.userId)}
+      />
+
+      <View style={styles.commentContent}>
+        <View style={styles.commentHeader}>
+          <Text style={styles.commentAuthor}>
+            {usernames[comment.userId]}
+          </Text>
           <View style={styles.commentMeta}>
-            <Text style={styles.publishedTime}>{timeSince(comment?.createdAt)}</Text>
-
+            <Text style={styles.publishedTime}>{
+              timeSince(comment?.createdAt)}
+            </Text>
             { comment?.userId === context?.userId && (
               <TouchableOpacity
-                onPress={() => handleDeletePress(comment?._id)}
+                onPress={() => handleDeletePress(comment?.id)}
               >
                 <MaterialCommunityIcons
                   name="delete"
@@ -321,9 +223,112 @@ const CommentsList = ({ id }) => {
               </TouchableOpacity>
             ) }
           </View>
+        </View>
 
-          </>
-        ))}
+        <Text style={cTextDark}>{comment?.text ?? "Commentaire supprimé"}</Text>
+
+        {/* Footer */}
+        <View style={styles.commentFooter}>
+
+          {/* Nested comments */}
+          { comment.nestedComments && comment.nestedComments.length > 0 && (
+            <TouchableOpacity
+              onPress={() => toggleNestedComments(comment.id)}
+              style={[flexRow]}
+            >
+              <Ionicons
+                name={nestedCommentsVisible[comment.id] ? 'chevron-up' : 'chevron-down'}
+                size={24}
+                color={colors.darkGreyFg}
+              />
+            </TouchableOpacity>
+          ) }
+
+          {/* Report */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('report', { id: comment?.id, type: 'post' })}
+            style={[mlAuto]}
+          >
+            <AntDesign
+              name="warning"
+              color={colors.darkGreyFg}
+              size={20}
+            />
+          </TouchableOpacity>
+
+          {/* Reply button */}
+          { !isNested && (
+            <TouchableOpacity
+              onPress={() => handleReplyPress(comment.id)}
+              style={[mh8]}
+            >
+              <Octicons
+                name='reply'
+                color={colors.darkGreyFg}
+                size={20}
+              />
+            </TouchableOpacity>
+          ) }
+
+          {/* Like */}
+          <TouchableOpacity
+            onPress={() => handleLikePress(comment.id)}
+            style={isNested ? ml8 : ml0}
+          >
+            <AntDesign
+              name={likes[comment.id] ? 'heart' : 'hearto'}
+              size={20}
+              color={likes[comment.id] ? 'red' : colors.darkGreyFg}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+
+  return (
+    <ScrollView>
+      <View style={{
+        marginBottom: 40
+      }}>
+        { comments.map((comment: any, index: number) => (
+          <Card
+            key={comment.id}
+            style={[ styles.resetCard ]}
+          >
+            <RenderComment comment={comment} index={index} />
+
+            { nestedCommentsVisible[comment.id] && comment.nestedComments.map((nestedComment, nestedIndex) => (
+              <RenderComment
+                key={nestedComment.id}
+                comment={nestedComment}
+                index={nestedIndex}
+                isNested={true}
+              />
+            )) }
+
+
+            { replyingTo === comment.id && (
+              <View style={styles.replyInputContainer}>
+                <TextInput
+                  style={styles.replyInput}
+                  value={replyText}
+                  onChangeText={setReplyText}
+                  placeholder="Votre réponse..."
+                />
+                <TouchableOpacity
+                  onPress={handleReplySubmit}
+                  style={styles.replyButton}
+                >
+                  <Text style={styles.sendButtonText}>Poster</Text>
+                </TouchableOpacity>
+              </View>
+            ) }
+          </Card>
+        )) }
+
+        {/* Delete modal */}
         <Modal
           visible={isDeleteModalShown}
           transparent={true}
@@ -347,6 +352,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  resetCard: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginVertical: 2,
+    marginHorizontal: 8,
+    borderRadius: 20
+  },
   commentsContainer: {
     marginTop: 0,
     marginBottom: 30,
@@ -360,9 +372,6 @@ const styles = StyleSheet.create({
   nestedCommentContainer: {
     flexDirection: 'row',
     marginBottom: 5,
-    marginLeft: 15,
-    borderRadius: 5,
-    padding: 5,
   },
   commentAuthor: {
     fontWeight: 'bold',
@@ -371,9 +380,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   commentContent: {
-    flex: 1,
-    marginLeft: 5,
-    marginBottom: 30,
+    flex: 1
   },
   commentHeader: {
     flexDirection: 'row',
@@ -391,10 +398,7 @@ const styles = StyleSheet.create({
   },
   commentFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  artistCard: {
   },
   modalOverlay: {
     flex: 1,
@@ -411,7 +415,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   replyButton: {
-    marginTop: 5,
   },
   replyButtonText: {
     color: colors.darkGreyFg,
@@ -420,19 +423,19 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginLeft: 50,
   },
-  toggleNestedCommentsButton: {
-  },
   replyInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    backgroundColor: colors.bg,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    marginBottom: 6
   },
   replyInput: {
     flex: 1,
     borderColor: colors.white,
     borderWidth: 1,
     borderRadius: 30,
-    paddingHorizontal: 5,
     paddingVertical: 5,
     marginRight: 5,
   },

@@ -1,22 +1,31 @@
 import React from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
 import colors from '../../constants/colors';
 
 interface CardProps {
   style?: StyleProp<ViewStyle>;
   children?: any | undefined;
   id?: number;
+  pressable?: boolean;
+  onPress?: () => void;
 }
 
 const Card = ({
   style = {},
   children = undefined,
-  id = 0
+  id = 0,
+  pressable = false,
+  onPress = () => {}
 }: CardProps) => {
   return (
-    <View style={[ styles.container, style ]} id={id}>
+    <TouchableOpacity
+      style={[ styles.container, style ]}
+      id={id}
+      disabled={!pressable}
+      onPress={onPress}
+    >
       { children && children }
-    </View>
+    </TouchableOpacity>
   );
 }
 

@@ -479,15 +479,14 @@ const SingleArt = ({ navigation, route }: any) => {
             publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"
           }</Text>
         </Card>
-
       </View>
 
-      <View style={[flex1]}>
-        <ScrollView contentContainerStyle={{ flex: 1 }}>
-          <CommentsList id={id}></CommentsList>
-        </ScrollView>
-        <CommentInput id={id} getData={getPublication} />
-      </View>
+      <View style={styles.line} />
+
+      <ScrollView contentContainerStyle={{ flex: 1 }}>
+        <CommentsList id={id}></CommentsList>
+      </ScrollView>
+      <CommentInput id={id} getData={getPublication} />
 
       {/* Collection modal */}
       <Modal isVisible={isModalVisible} style={styles.modal}>
@@ -572,6 +571,13 @@ const styles = StyleSheet.create({
     height: 40,
     marginVertical: 0,
     flex: 1,
+  },
+  line: {
+    backgroundColor: colors.disabledFg,
+    height: 1,
+    marginHorizontal: '20%',
+    marginVertical: 4,
+    borderRadius: 20
   },
   logo: {
     flexDirection: 'row',

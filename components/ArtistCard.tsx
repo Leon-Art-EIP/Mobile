@@ -20,37 +20,37 @@ const ArtistCard = ({
   style = {},
   showTitle = true,
 }: ArtistCardProps) => (
-  <TouchableOpacity onPress={onPress}>
-    <Card style={[styles.container, style?.container]}>
-      {item?.profilePicture && (
+    <Card
+      style={[styles.container, style?.container, style?.image]}
+      onPress={onPress}
+      pressable
+    >
+      { item?.profilePicture && (
         <Image
           style={[styles.image, style?.image]}
           source={{ uri: getImageUrl(item?.profilePicture) }}
         />
-      )}
+      ) }
+
+      { showTitle && (
+        <Title size={16} style={[styles.title, style.title]}>
+          {item?.username}
+        </Title>
+      ) }
     </Card>
-    {showTitle && (
-      <Title size={16} style={[styles.title, style.title]}>
-        {item?.username}
-      </Title>
-    )}
-  </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
-    marginRight: 5,
+    marginRight: 12,
+    marginLeft: 0,
     marginBottom: 10,
-    width: 80,
-    height: 80,
-    position: 'relative',
     borderRadius: 40,
+    paddingHorizontal: 0,
+    paddingVertical: 0
   },
   image: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
     width: 80,
     height: 80,
     borderRadius: 40,

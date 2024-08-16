@@ -20,7 +20,7 @@ const CommentInput = ({
   const [commentInput, setCommentInput] = useState('');
   const context = useContext(MainContext);
 
-  const handleCommentInput = (text) => {
+  const handleCommentInput = (text: string) => {
     setCommentInput(text);
   };
 
@@ -53,33 +53,29 @@ const CommentInput = ({
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.commentInputContainer}>
-        <TextInput
-          placeholder="Commenter..."
-          placeholderTextColor={colors.disabledFg}
-          style={styles.commentInput}
-          onChangeText={(text) => handleCommentInput(text)}
-          value={commentInput}
+    <View style={styles.commentInputContainer}>
+      <TextInput
+        placeholder="Commenter..."
+        placeholderTextColor={colors.disabledFg}
+        style={styles.commentInput}
+        onChangeText={(text) => handleCommentInput(text)}
+        value={commentInput}
+      />
+      <TouchableOpacity
+        style={styles.sendButtonView}
+        onPress={postComment}
+      >
+        <Ionicons
+          name="send"
+          color={colors.offerFg}
+          size={24}
         />
-        <TouchableOpacity
-          style={styles.sendButtonView}
-          onPress={postComment}
-        >
-          <Ionicons
-            name="send"
-            color={colors.offerFg}
-            size={24}
-          />
-        </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-  },
   commentsContainer: {
     marginTop: 20,
     marginBottom: 30,
@@ -109,10 +105,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    position: 'absolute',
     bottom: 2,
-    width: '100%',
-    backgroundColor: '#FFFFFF',
   },
   commentInput: {
     color: colors.textDark,
