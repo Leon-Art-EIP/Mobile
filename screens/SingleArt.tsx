@@ -26,6 +26,7 @@ import {
   acCenter,
   bgColor,
   bgGrey,
+  bgRed,
   br20,
   br50,
   cTextDark,
@@ -37,6 +38,7 @@ import {
   mlAuto,
   mr20,
   mr4,
+  mrAuto,
   mt4,
   mtAuto,
   mv0,
@@ -491,13 +493,17 @@ const SingleArt = ({ navigation, route }: any) => {
       <Modal isVisible={isModalVisible} style={styles.modal}>
         <View style={styles.modalContent}>
           <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
-          <Input style={styles.input} placeholder="Nouvelle collection" onTextChanged={(text: string) => setNewCollectionName(text)} />
 
           <FlatList
+            contentContainerStyle={[mlAuto, mrAuto]}
             data={userCollections}
             keyExtractor={(item) => item._id}
+            numColumns={3}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.collectionButton} onPress={() => addToCollection(item.name)}>
+              <TouchableOpacity
+                style={styles.collectionButton}
+                onPress={() => addToCollection(item.name)}
+              >
                 <Text style={styles.collectionButtonText}>{item.name}</Text>
               </TouchableOpacity>
             )}
@@ -664,13 +670,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.black,
   },
   modal: {
-    width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
     width: Dimensions.get('window').width - 24,
-    height: Dimensions.get('window').height - 24,
+    /* height: Dimensions.get('window').height - 24, */
     backgroundColor: colors.white,
     padding: 20,
     borderRadius: 10,
@@ -682,19 +687,22 @@ const styles = StyleSheet.create({
   },
   collectionButton: {
     padding: 10,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    borderRadius: 12,
+    backgroundColor: colors.offerBg,
     marginBottom: 10,
+    marginHorizontal: 2,
+    height: 100,
+    minWidth: 100,
     alignItems: 'center',
   },
   collectionButtonText: {
-    color: '#3498db',
+    color: colors.offerFg
   },
   input: {
     backgroundColor: colors.disabledBg,
     marginHorizontal: 4,
     marginVertical: 8,
+    height: 40
   },
   createButton: {
     padding: 10,

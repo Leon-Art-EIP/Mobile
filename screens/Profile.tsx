@@ -9,7 +9,7 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24, bgRed } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -370,8 +370,9 @@ const Profile = () => {
         <>
           { userCollections.length !== 0 ? (
             <FlatList
+              contentContainerStyle={[mh24]}
               data={userCollections}
-              numColumns={2}
+              numColumns={3}
               renderItem={({ item }: any) => (
                 <TouchableOpacity
                   key={item?._id.toString()}
@@ -604,7 +605,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   squareFrame: {
-    maxWidth: '33%',
+    flex: 1,
     height: 115,
     backgroundColor: colors.platinium,
     borderRadius: 10,
