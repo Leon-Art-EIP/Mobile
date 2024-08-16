@@ -7,7 +7,8 @@ import {
   ToastAndroid,
   Keyboard,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -15,6 +16,7 @@ import React, {useState, useContext, useEffect } from 'react';
 import {ImageLibraryOptions, launchImageLibrary} from 'react-native-image-picker';
 
 // Local imports
+import { Text } from 'react-native-svg';
 import { getImageUrl } from '../helpers/ImageHelper';
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
@@ -58,6 +60,11 @@ const EditProfile = () => {
   const [profilePicture, setProfilePicture] = useState<string | undefined>(undefined);
   const [bannerPicture, setBannerPicture] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const token = context?.token;
+  const [instagramUrl, setInstagramUrl] = useState<string>('');
+  const [twitterUrl, setTwitterUrl] = useState<string>('');
+  const [tiktokUrl, setTiktokUrl] = useState<string>('');
+  const [facebookUrl, setFacebookUrl] = useState<string>('');
 
 
   const setNewBio = (new_bio: string) => {
@@ -125,17 +132,18 @@ const EditProfile = () => {
   }
 
   const handleSaveModifications = () => {
+    console.log("Modifications saved.");
     saveBiography();
     saveIsAvailable();
+    saveSocialMediaLinks();
+
     if (bannerPicture) {
       uploadPicture('banner');
     }
     if (profilePicture) {
       uploadPicture('profile');
     }
-    /* navigation.goBack(); */
   }
-
 
   const saveBiography = () => {
     post(
@@ -161,16 +169,64 @@ const EditProfile = () => {
 
   const fetchUserData = () => {
     setIsLoading(true);
+
     get(
       `/api/user/profile/${context?.userId}`,
       context?.token,
       (res: any) => {
         setUserData({ ...res?.data });
-        console.log("new user data: ", userData);
+        setInstagramUrl(res.data.socialMediaLinks?.instagram || '');
+        setTwitterUrl(res.data.socialMediaLinks?.twitter || '');
+        setTiktokUrl(res.data.socialMediaLinks?.tiktok || '');
+        setFacebookUrl(res.data.socialMediaLinks?.facebook || '');
+        console.log("new user data: ", res?.data);
         setIsLoading(false);
       },
-      (err: any) => console.error({ ...err })
+      (err: any) => {
+        console.error('Error fetching user data:', err);
+        if (err.response) {
+          console.error('Server responded with non-2xx status:', err.response.data);
+        } else if (err.request) {
+          console.error('No response received from server');
+        } else {
+          console.error('Error setting up the request:', err.message);
+        }
+      }
     );
+  };
+
+
+  const saveSocialMediaLinks = () => {
+    if (!token) {
+      console.error('Token JWT not found. Make sure the user is logged in.');
+      return;
+    }
+
+    const url = '/api/user/profile/social-links';
+    const body = {
+      instagram: instagramUrl,
+      twitter: twitterUrl,
+      facebook: facebookUrl,
+      tiktok: tiktokUrl
+    };
+
+    const callback = (response: any) => {
+      console.log('Social media links updated:', response.data);
+      ToastAndroid.show('Lien vers vos réseaux sociaux ajouté avec succès !', ToastAndroid.SHORT);
+    };
+
+    const onErrorCallback = (error: any) => {
+      console.error('Error updating social media links:', error);
+      if (error.response) {
+        console.error('Server responded with non-2xx status:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received from server');
+      } else {
+        console.error('Error setting up the request:', error.message);
+      }
+    };
+
+    post(url, body, token, callback, onErrorCallback);
   }
 
 
@@ -185,7 +241,6 @@ const EditProfile = () => {
   useFocusEffect(
     React.useCallback(setupScreen, [navigation])
   );
-
 
   useEffect(() => {
     if (!!userData?.availability !== isAvailable) {
@@ -253,6 +308,7 @@ const EditProfile = () => {
       </View>
 
       <View style={[flex1, ph24, { marginTop: '20%' }]}>
+      <ScrollView>
         {/* Name */}
         <View>
           <Subtitle>Nom</Subtitle>
@@ -275,7 +331,6 @@ const EditProfile = () => {
             style={[bgDisabled, mh0, br20, mt8, cTextDark]}
           />
         </View>
-
         {/* Availability */}
         <View style={[mt8, flexRow]}>
           <Subtitle>Ouvert aux commandes</Subtitle>
@@ -287,6 +342,68 @@ const EditProfile = () => {
             style={[mtAuto, mbAuto, mlAuto]}
           />
         </View>
+        <View style={styles.infoBlock}>
+            <Subtitle>Liens réseaux sociaux</Subtitle>
+            <Text>Renseigner les liens vers vos réseaux</Text>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-instagram"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Instagram"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setInstagramUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={instagramUrl || 'Non renseigné'}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-twitter"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Twitter"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setTwitterUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={twitterUrl || 'Non renseigné'}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-facebook"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="Facebook"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setFacebookUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={facebookUrl || 'Non renseigné'}
+              />
+            </View>
+            <View style={styles.socialMedia}>
+              <Ionicons
+                name="logo-pinterest"
+                color={colors.darkGreyBg}
+                size={24}
+              />
+              <Input
+                placeholder="TikTok"
+                placeholderTextColor={colors.darkGreyBg}
+                onTextChanged={setTiktokUrl}
+                style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
+                value={tiktokUrl || 'Non renseigné'}
+              />
+            </View>
+
+            </View>
+        </ScrollView>
 
         { !isKeyboardFocused && (
           <View style={[flexRow, mtAuto]}>
@@ -345,7 +462,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'absolute',
     top: -55,
-
   },
   textBlocks: {
     flexDirection: 'row',
@@ -381,6 +497,20 @@ const styles = StyleSheet.create({
   centerSubtitle: {
     fontSize: 12,
     color: 'rgba(112, 0, 255, 1)',
+  },
+  infoBlock: {
+    marginTop: 20,
+  },
+  socialMedia: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  biographyInput: {
+    flex: 1,
+    marginLeft: 8,
+    height: 40,
   },
   contactAndFollow: {
     justifyContent: 'center',
@@ -432,7 +562,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.tertiary,
-    // backgroundColor: colors.tertiary,
     padding: 8,
     marginBottom: 10,
     borderRadius: 40,

@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-native-modal';
@@ -33,6 +33,12 @@ const Profile = () => {
   const [newCollectionName, setNewCollectionName] = useState<string>("");
   const token = context?.token;
   const userID = context?.userId;
+
+  const [instagramUrl, setInstagramUrl] = useState<string>('');
+  const [twitterUrl, setTwitterUrl] = useState<string>('');
+  const [tiktokUrl, setTiktokUrl] = useState<string>('');
+  const [facebookUrl, setFacebookUrl] = useState<string>('');
+
 
   const handleToFollowerList = () => {
     // TODO : rendre dynamique
@@ -93,6 +99,10 @@ const Profile = () => {
     biography: string;
   }
 
+  const handleIconPress = (url) => {
+    Linking.openURL(url).catch(err => console.error("Failed to open URL", err));
+  };
+
   const fetchUserArtworks = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -121,21 +131,28 @@ const Profile = () => {
       console.error('Token JWT not found. Make sure the user is logged in.');
       return;
     }
-
+  
     const url = `/api/user/profile/${userID}`;
-
+  
     const callback = (response: any) => {
       setUserData(response.data);
       fetchUserArtworks();
+      
+      const socialLinks = response.data.socialMediaLinks || {};
+      setInstagramUrl(socialLinks.instagram || '');
+      setTwitterUrl(socialLinks.twitter || '');
+      setTiktokUrl(socialLinks.tiktok || '');
+      setFacebookUrl(socialLinks.facebook || '');
     };
-
+  
     const onErrorCallback = (error: any) => {
       Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
       return console.error('Error fetching user data:', error);
     };
-
+  
     get(url, token, callback, onErrorCallback);
   };
+  
 
   const updateCollections = async () => {
     if (!token) {
@@ -419,6 +436,45 @@ const Profile = () => {
           <Text style={[styles.biography, cTextDark]}>
             {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
           </Text>
+          <View style={styles.rowContainer}>
+
+            { instagramUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(instagramUrl)}>
+                <Ionicons
+                  name="logo-instagram"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+            { twitterUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(twitterUrl)}>
+                <Ionicons
+                  name="logo-twitter"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+            { facebookUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(facebookUrl)}>
+                <Ionicons
+                  name="logo-facebook"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+            { tiktokUrl && (
+              <TouchableOpacity onPress={() => handleIconPress(tiktokUrl)}>
+                <Ionicons
+                  name="logo-pinterest"
+                  color={colors.darkGreyBg}
+                  size={24}
+                />
+              </TouchableOpacity>
+            ) }
+          </View>
         </Card>
       ) }
 

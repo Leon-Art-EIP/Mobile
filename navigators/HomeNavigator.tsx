@@ -12,6 +12,7 @@ import Collection from '../screens/Collection';
 import ReportScreen from '../screens/ReportScreen';
 import SingleOrder from '../screens/SingleOrder';
 import SinglePost from '../screens/SinglePost';
+import ArticlesList from '../screens/ArticleList';
 
 const HomeNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ const HomeNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="homemain" component={HomeScreen} options={options} />
       <Stack.Screen name="article" component={Article} options={options} />
+      <Stack.Screen name="articles" component={ArticlesList} options={options} />
       <Stack.Screen name="singleart" component={SingleArt} options={options} />
       <Stack.Screen name="singlepost" component={SinglePost} options={options} />
       <Stack.Screen name="other_profile" component={OtherProfile} options={options} />

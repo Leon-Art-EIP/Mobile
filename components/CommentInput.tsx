@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
 import { post } from '../constants/fetch';
 import { StyleSheet } from 'react-native';
 import colors from '../constants/colors';
@@ -25,14 +25,13 @@ const CommentInput = ({
   };
 
   const postComment = async () => {
-    // Check if empty
     if (!commentInput.trim()) {
       console.warn('Comment cannot be empty');
       return;
     }
 
     const body = {
-      text: commentInput, // Use the commentInput state here
+      text: commentInput,
     };
 
     post(
@@ -41,7 +40,7 @@ const CommentInput = ({
       context?.token,
       (response) => {
         if (response && response.data) {
-          setCommentInput(''); // Clear the input after successful post
+          setCommentInput('');
           console.log(response.data);
         } else {
           console.error('Invalid response:', response);
@@ -113,6 +112,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 2,
     width: '100%',
+    backgroundColor: '#FFFFFF',
   },
   commentInput: {
     color: colors.textDark,
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderRadius: 50,
-    marginLeft: 8
+    marginLeft: 8,
   }
 });
 
