@@ -21,7 +21,7 @@ const HomeNavigator = () => {
   const options = { headerShown: false };
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName='homemain'>
       <Stack.Screen name="homemain" component={HomeScreen} options={options} />
       <Stack.Screen name="article" component={Article} options={options} />
       <Stack.Screen name="articles" component={ArticlesList} options={options} />

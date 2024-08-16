@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform, StatusBar, ToastAndroid } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform, StatusBar, ToastAndroid, Dimensions } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';  // Importer les filtres
 import Entypo from 'react-native-vector-icons/Entypo';  // Pour les icônes des filtres
+import Ionicons from 'react-native-vector-icons/Ionicons';  // Pour les icônes des filtres
 
 import { post, get } from '../constants/fetch';
 import colors from '../constants/colors';
@@ -11,7 +12,7 @@ import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
-import { bgColor, bgGrey, br0, br20, cPrimary, cTextDark, flex1, flexRow, jcSA, mb24, mbAuto, mh0, mh24, mh4, mtAuto, mv24, mv8, ph24, ph4, ph8, pv24, pv8 } from '../constants/styles';
+import { bgColor, bgGrey, bgOffer, bgRed, br0, br20, cOffer, cPrimary, cTextDark, flex1, flexRow, jcSA, mb24, mbAuto, mh0, mh24, mh4, mh8, mtAuto, mv24, mv8, pb8, ph24, ph4, ph8, pv24, pv8 } from '../constants/styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Input from '../components/textInput/Input';
 import Card from '../components/cards/Card';
@@ -62,6 +63,10 @@ const AddPublication = ({ navigation }: any) => {
   };
 
 
+  /*
+    * Not used for now as we cannot sell actual art during the beta
+    *
+    */
   const checkAccountLinkStatus = () => {
     get(
       `/api/stripe/account-link-status`,
@@ -119,7 +124,10 @@ const AddPublication = ({ navigation }: any) => {
       '/api/art-publication',
       formData,
       context?.token,
-      () => navigation.navigate('main'),
+      () => {
+        context?.setIsKeyboard(true);
+        navigation.navigate('main');
+      },
       (error) => {
         console.error('Error publishing:', error);
         if (error.response && error.response.data && error.response.data.errors) {
@@ -134,28 +142,6 @@ const AddPublication = ({ navigation }: any) => {
     setModalMessage("Votre œuvre a bien été publiée.");
     setModalVisible(true);
     navigation.navigate('homemain');
-  };
-
-
-  const linkStripeAccount = () => {
-    post(
-      '/api/stripe/account-link',
-      undefined,
-      context?.token,
-      (response) => {
-        if (response && response.data && response.data.url) {
-          const url = response.data.url;
-          Linking.openURL(url)
-            .then(() => console.log('Link opened successfully'))
-            .catch((err) => console.error('Error opening link:', err));
-        } else {
-          console.error('Error: Unable to retrieve URL');
-        }
-      },
-      (error) => {
-        console.error('Error linking Stripe account:', error);
-      }
-    );
   };
 
 
@@ -203,11 +189,16 @@ const AddPublication = ({ navigation }: any) => {
 
 
   const sendText = () => {
+    if (!postText) {
+      return;
+    }
+
     return post(
       `/api/posts`,
       { text: postText, artPublicationId: undefined },
       context?.token,
       () => {
+        context?.setIsKeyboard(true);
         navigation.navigate('Home');
         ToastAndroid.show("Post envoyé !", ToastAndroid.SHORT);
       },
@@ -286,7 +277,6 @@ const AddPublication = ({ navigation }: any) => {
 
 
   useEffect(() => {
-    checkAccountLinkStatus();
   }, []);
 
 
@@ -423,19 +413,25 @@ const AddPublication = ({ navigation }: any) => {
               </View>
             )) }
 
-            <Button
-              value="Publier et mettre à la vente"
-              onPress={sellWithAccount}
-              style={styles.saleButton}
-            />
           </View>
 
-          <View style={mtAuto}>
+          <View style={[mtAuto]}>
             <Button
               value="Publier sans possibilité d'achat"
               onPress={publish}
-              style={styles.nosaleButton}
+              secondary
             />
+
+            <Button
+              disabled
+              value="Publier et mettre à la vente"
+              onPress={sellWithAccount}
+            />
+            <Card style={[bgOffer, flexRow, { marginHorizontal: 16 }]}>
+              <Text style={cOffer}>
+                Vous ne pouvez pas vendre vos oeuvres pendant la beta !
+              </Text>
+            </Card>
 
             <InfoModal
               isVisible={isModalVisible}
@@ -455,6 +451,8 @@ const AddPublication = ({ navigation }: any) => {
               placeholder='Laissez libre court à vos pensées'
               multiline
               numberOfLines={10}
+              onBlur={() => context?.setIsKeyboard(false)}
+              onFocus={() => context?.setIsKeyboard(true)}
               style={[ cTextDark, flex1, bgGrey, br0, mh0, { textAlignVertical: 'top' } ]}
               placeholderTextColor={colors.disabledFg}
             />
@@ -476,7 +474,8 @@ const AddPublication = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 30,
     backgroundColor: colors.bg,
   },
   tabButton: {
@@ -520,15 +519,6 @@ const styles = StyleSheet.create({
     overlayColor: colors.black,
     borderBottomWidth: 1,
     borderBottomColor: colors.platinium,
-  },
-  saleButton: {
-    backgroundColor: colors.primary,
-    marginBottom: 0,
-    marginTop: 30,
-  },
-  nosaleButton: {
-    backgroundColor: colors.darkGreyBg,
-    marginBottom: 40,
   },
   filterTouchableOpacity: {
     flexDirection: 'row',

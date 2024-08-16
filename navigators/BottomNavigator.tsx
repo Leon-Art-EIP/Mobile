@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeNavigator from './HomeNavigator';
@@ -11,16 +11,18 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SearchNavigator from './SearchNavigator';
 import AddPublication from '../screens/AddPublication';
+import { MainContext } from '../context/MainContext';
 
 
 const BottomNavigator = () => {
   const Tab = createBottomTabNavigator();
+  const context = useContext(MainContext);
 
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => ({
-        tabBarHideOnKeyboard: true,
+        tabBarHideOnKeyboard: context?.isKeyboard,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.disabledFg,
         tabBarShowLabel: false

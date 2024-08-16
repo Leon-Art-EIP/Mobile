@@ -9,6 +9,7 @@ import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { post } from '../constants/fetch';
+import { TokenObjectType } from '../constants/artTypes';
 
 
 const Login = ({ navigation }: any) => {
@@ -27,21 +28,29 @@ const Login = ({ navigation }: any) => {
       return;
     }
 
-    const tokenFromDB = response.data.token;
+    setPassword("");
+    setEmail("");
+    console.log('response: ', { ...response.data });
+    const tokenObject: TokenObjectType = {
+      token: response.data.token,
+      email: response.data.user.email,
+      id: response.data.user.id,
+      isArtist: !!response.data.user.availability,
+      username: response.data.user.username
+    };
+    console.log("token object: ", { ...tokenObject });
 
     try {
-      await AsyncStorage.setItem('jwt', tokenFromDB);
+      await AsyncStorage.setItem('jwt', JSON.stringify(tokenObject));
     } catch (error) {
       console.error('Error storing token:', error);
-      Alert.alert('Erreur de connexion', 'Nous n\'avons pas réussi à stocker votre token');
-      return;
     }
 
-    context?.setToken(tokenFromDB);
-    context?.setUserEmail(response.data.user.email);
-    context?.setUserId(response.data.user.id);
-    context?.setisArtist(response.data.user.is_artist);
-    context?.setUsername(response.data.user.username);
+    context?.setToken(tokenObject.token);
+    context?.setUserEmail(tokenObject.email);
+    context?.setUserId(tokenObject.id);
+    context?.setisArtist(response.data.user.availability);
+    context?.setUsername(tokenObject.username);
     setIsLoading(false);
     return navigation.navigate('main');
   }
@@ -103,6 +112,7 @@ const Login = ({ navigation }: any) => {
               onChangeText={(newEmail: string) => setEmail(newEmail)}
               placeholderTextColor={colors.disabledFg}
               style={styles.passwordInput}
+              value={email}
             />
           </View>
         </View>

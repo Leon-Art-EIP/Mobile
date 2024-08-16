@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useState } from 'react';
 
 /*
@@ -22,6 +23,8 @@ type MainContextType = {
   logOut: () => void;
   username: string | undefined;
   setUsername: (e: string | undefined) => void;
+  isKeyboard: boolean;
+  setIsKeyboard: (e: boolean) => void;
   // Add your new type value here
 };
 
@@ -37,9 +40,11 @@ const MainContextProvider = ({
   const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
   const [isArtist, setisArtist] = useState<boolean | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
+  const [isKeyboard, setIsKeyboard] = useState<boolean>(false);
 
 
   const logOut = () => {
+    AsyncStorage.removeItem('jwt', () => console.log("Storage cleared"));
     setToken(undefined);
     setUserEmail(undefined);
     setUserId(undefined);
@@ -61,7 +66,9 @@ const MainContextProvider = ({
         setisArtist,
         logOut,
         username,
-        setUsername
+        setUsername,
+        isKeyboard,
+        setIsKeyboard
         // add your value and your setValue here
       }}
     >

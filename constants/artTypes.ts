@@ -1,3 +1,10 @@
+export type TokenObjectType = {
+  token: string;
+  email: string;
+  id: string;
+  isArtist: boolean;
+  username: string;
+};
 
 export interface ArtTypeFilter {
   category: string;

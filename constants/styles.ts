@@ -77,7 +77,7 @@ const pv8: StyleProp<any> = { paddingVertical: 8 };
 const pv24: StyleProp<any> = { paddingVertical: 24 };
 
 // text
-const fwBold: StyleProp<TextStyle> = { fontWeight: 'bold', color: colors.black };
+const fwBold: StyleProp<TextStyle> = { fontWeight: 'bold' };
 const fwNormal: StyleProp<TextStyle> = { fontWeight: 'normal' };
 const taCenter: StyleProp<TextStyle> = { textAlign: 'center' };
 const taJustify: StyleProp<TextStyle> = { textAlign: 'justify' };
@@ -91,6 +91,7 @@ const bgRed: StyleProp<any> = { backgroundColor: '#f00' };
 const bgGrey: StyleProp<any> = { backgroundColor: colors.disabledBg };
 const bgPlatinium: StyleProp<any> = { backgroundColor: colors.platinium };
 const bgDisabled: StyleProp<any> = { backgroundColor: colors.disabledBg };
+const bgOffer: StyleProp<any> = { backgroundColor: colors.offerBg };
 
 // color
 const cBlack: StyleProp<any> = { color: colors.black };
@@ -99,6 +100,7 @@ const cWhite: StyleProp<any> = { color: colors.white };
 const cText: StyleProp<any> = { color: colors.text };
 const cTextDark: StyleProp<any> = { color: colors.textDark };
 const cDisabled: StyleProp<any> = { color: colors.disabledFg };
+const cOffer: StyleProp<any> = { color: colors.offerFg };
 
 // border radius
 const br0: StyleProp<any> = { borderRadius: 0 };
@@ -122,7 +124,7 @@ export {
   m4, m8, mt4, mt8, mb4, mb8, mb24, ml0, ml4, ml8, mr0, mr4, mr8, mr20,
   mv0, mv4, mv8, mv24, mh0, mh4, mh8, mh24,
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft,
-  bgColor, bgRed, bgGrey, bgPlatinium, bgDisabled,
+  bgColor, bgRed, bgGrey, bgPlatinium, bgDisabled, bgOffer,
   br0, br5, br7, br12, br20, br50,
-  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark
+  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark, cOffer
 };

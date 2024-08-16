@@ -39,7 +39,7 @@ const NotificationCard = ({
 
   const setNotifText = () => {
     switch (item?.type) {
-      case ('follow'): return setText(item.content + ' a commencé à vous suivre');
+      case ('follow'): return setText("<b>" + item.content + '</b> a commencé à vous suivre');
       case ('like'): return setText(item.content + ' a liké votre publication');
       case ('order_shipping'): return setText("Votre commande est partie de chez l'artiste");
       case ('order_processing'): return setText("L'artiste a commencé votre commande");

@@ -393,6 +393,7 @@ const HomeScreen = ({ navigation }: any) => {
                     <TouchableOpacity
                       key={e.item._id + Math.random().toString()}
                       onPress={() => towardsPost(e.item?._id)}
+                      style={{ flex: 1/3 }}
                     >
                       <View style={styles.publicationItem}>
                         <Image
@@ -579,15 +580,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   publicationItem: {
-    height: 120,
-    width: 120,
+    width: '90%',
     margin: 5,
     backgroundColor: colors.disabledBg,
     borderRadius: 7,
   },
   publicationImage: {
     height: 120,
-    width: 120,
+    width: '100%',
     borderRadius: 7,
   },
   publicationTitle: {

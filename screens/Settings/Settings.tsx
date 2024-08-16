@@ -18,8 +18,8 @@ const Settings = () => {
 
 
   const handleDisconnectClick = () => {
+    context?.logOut();
     navigation.navigate('login');
-    return context?.logOut();
   };
 
   const linkStripeAccount = () => {

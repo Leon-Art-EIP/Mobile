@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, TextInput, StyleProp, ViewStyle, Keyboard } from 'react-native';
 import colors from '../../constants/colors';
+import { MainContext } from '../../context/MainContext';
 
 interface InputProps {
   placeholder?: string;
@@ -30,6 +31,7 @@ const Input = ({
   multilines = 1
 }: InputProps) => {
   const [textValue, setTextValue] = useState<string>(value);
+  const context = useContext(MainContext);
 
   const changeText = (new_value: string) => {
     setTextValue(new_value);
@@ -37,6 +39,9 @@ const Input = ({
   }
 
   useEffect(() => {
+    Keyboard.addListener('keyboardDidShow', () => context?.setIsKeyboard(true));
+    Keyboard.addListener('keyboardDidHide', () => context?.setIsKeyboard(false));
+
     if (error) {
       return onError();
     }
@@ -59,6 +64,8 @@ const Input = ({
         disabled && styles.disabled,
         style
       ]}
+      onFocus={() => context?.setIsKeyboard(true)}
+      onBlur={() => context?.setIsKeyboard(false)}
     />
   );
 }

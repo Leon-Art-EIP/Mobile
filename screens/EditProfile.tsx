@@ -217,13 +217,6 @@ const EditProfile = () => {
 
     const onErrorCallback = (error: any) => {
       console.error('Error updating social media links:', error);
-      if (error.response) {
-        console.error('Server responded with non-2xx status:', error.response.data);
-      } else if (error.request) {
-        console.error('No response received from server');
-      } else {
-        console.error('Error setting up the request:', error.message);
-      }
     };
 
     post(url, body, token, callback, onErrorCallback);
@@ -356,7 +349,7 @@ const EditProfile = () => {
                 placeholderTextColor={colors.darkGreyBg}
                 onTextChanged={setInstagramUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={instagramUrl || 'Non renseigné'}
+                value={instagramUrl || ''}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -370,7 +363,7 @@ const EditProfile = () => {
                 placeholderTextColor={colors.darkGreyBg}
                 onTextChanged={setTwitterUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={twitterUrl || 'Non renseigné'}
+                value={twitterUrl || ''}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -384,7 +377,7 @@ const EditProfile = () => {
                 placeholderTextColor={colors.darkGreyBg}
                 onTextChanged={setFacebookUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={facebookUrl || 'Non renseigné'}
+                value={facebookUrl || ''}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -398,29 +391,27 @@ const EditProfile = () => {
                 placeholderTextColor={colors.darkGreyBg}
                 onTextChanged={setTiktokUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={tiktokUrl || 'Non renseigné'}
+                value={tiktokUrl || ''}
               />
             </View>
 
             </View>
         </ScrollView>
 
-        { !isKeyboardFocused && (
-          <View style={[flexRow, mtAuto]}>
-            <Button
-              value='Annuler'
-              onPress={navigation.goBack}
-              secondary
-              style={[flex1, ml0, mr8]}
-            />
-            <Button
-              value="Enregistrer"
-              style={[flex1, mr0, ml8]}
-              textStyle={{ fontSize: 17 }}
-              onPress={handleSaveModifications}
-            />
-          </View>
-        ) }
+        <View style={[flexRow, mtAuto]}>
+          <Button
+            value='Annuler'
+            onPress={navigation.goBack}
+            secondary
+            style={[flex1, ml0, mr8]}
+          />
+          <Button
+            value="Enregistrer"
+            style={[flex1, mr0, ml8]}
+            textStyle={{ fontSize: 17 }}
+            onPress={handleSaveModifications}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
