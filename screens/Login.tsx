@@ -74,7 +74,7 @@ const Login = ({ navigation }: any) => {
       console.log({ userInfo });
     } catch (e: any) {
       if (isErrorWithCode(e)) {
-        console.log(e.code);
+        console.log("Google auth error with code: ", e.code);
       } else {
         console.log('Another error');
       }

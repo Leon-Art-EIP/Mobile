@@ -1,6 +1,3 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-// apply plugin: 'com.android.application'
-
 buildscript {
     ext {
         buildToolsVersion = "31.0.0"
@@ -10,19 +7,19 @@ buildscript {
         googlePlayServicesAuthVersion = "20.7.0"
 
         if (System.properties['os.arch'] == "aarch64") {
-            // For M1 Users we need to use the NDK 24 which added support for aarch64
             ndkVersion = "24.0.8215888"
         } else {
-            // Otherwise we default to the side-by-side NDK version from AGP.
             ndkVersion = "21.4.7075529"
         }
     }
+
     // These lines are commented because of a recent change in Groovy
     // Plugins are not managed here anymore
     // plugins {
         // id 'org.jetbrains.kotlin.jvm' version '1.5.21' apply false
         // id 'com.google.gms.google-services' version '4.4.1' apply false
     // }
+
     repositories {
         google()
         mavenCentral()
@@ -40,16 +37,12 @@ buildscript {
 allprojects {
     repositories {
         maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url("$rootDir/../node_modules/react-native/android")
         }
         maven {
-            // Android JSC is installed from npm
             url("$rootDir/../node_modules/jsc-android/dist")
         }
         mavenCentral {
-            // We don't want to fetch react-native from Maven Central as there are
-            // older versions over there.
             content {
                 excludeGroup "com.facebook.react"
             }

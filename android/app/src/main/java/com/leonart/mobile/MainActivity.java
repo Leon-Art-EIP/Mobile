@@ -1,8 +1,9 @@
-package com.mobile;
+package com.leonart.mobile;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
+import com.leonart.mobile.BuildConfig;
 
 public class MainActivity extends ReactActivity {
 

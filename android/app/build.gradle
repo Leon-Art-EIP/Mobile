@@ -13,8 +13,6 @@ project.ext.react = [
   enableHermes: true,  // clean and rebuild if changing
 ]
 
-// apply from: "../../node_modules/react-native/react.gradle"
-
 def enableSeparateBuildPerCPUArchitecture = false
 
 def enableProguardInReleaseBuilds = false
@@ -35,7 +33,7 @@ android {
   compileSdkVersion rootProject.ext.compileSdkVersion
 
   defaultConfig {
-    applicationId "com.mobile"
+    applicationId "com.leonart.mobile"
     minSdkVersion rootProject.ext.minSdkVersion
     targetSdkVersion rootProject.ext.targetSdkVersion
     versionCode 1
@@ -101,10 +99,6 @@ android {
     }
   }
 
-  // plugins {
-  //   id 'org.jetbrains.kotlin.jvm'
-  // }
-
   splits {
     abi {
       reset()
@@ -115,15 +109,15 @@ android {
   }
   signingConfigs {
     debug {
-      storeFile file('debug.keystore')
-      storePassword 'android'
-      keyAlias 'androiddebugkey'
-      keyPassword 'android'
+      storeFile file('release.keystore')
+      storePassword 'sampleKeyPassw0rd'
+      keyAlias 'release'
+      keyPassword 'sampleKeyPassw0rd'
     }
     release {
-      storeFile file('key.keystore')
+      storeFile file('release.keystore')
       storePassword 'sampleKeyPassw0rd'
-      keyAlias 'key'
+      keyAlias 'release'
       keyPassword 'sampleKeyPassw0rd'
     }
   }
@@ -137,7 +131,7 @@ android {
       proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
     }
   }
-  namespace 'com.mobile'
+  namespace 'com.leonart.mobile'
 
   applicationVariants.all { variant ->
     variant.outputs.each { output ->
@@ -180,8 +174,7 @@ dependencies {
   }
 
   if (enableHermes) {
-    //noinspection GradleDynamicVersion
-    implementation("com.facebook.react:hermes-engine:+") { // From node_modules
+    implementation("com.facebook.react:hermes-engine:+") {
       exclude group:'com.facebook.fbjni'
     }
   } else {

@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:954861130276:android:4a9f2813643a7eb3303eb1",
+        "mobilesdk_app_id": "1:954861130276:android:1f0e179cbbff9672303eb1",
         "android_client_info": {
-          "package_name": "com.mobile"
+          "package_name": "com.leonart.mobile"
         }
       },
       "oauth_client": [
         {
-          "client_id": "954861130276-clfpivj3tfsvsc4gv01pho4i3lpp16ac.apps.googleusercontent.com",
+          "client_id": "954861130276-r9b2n8367gvrf112844thku54qs5riuq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.mobile",
-            "certificate_hash": "d4701f510e9bb6a021a8dbd37f8d024f0c7728db"
+            "package_name": "com.leonart.mobile",
+            "certificate_hash": "3338e740c2f66b0b76958b548fabb71976cd0ce0"
           }
         },
         {

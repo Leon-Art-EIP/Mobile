@@ -1,4 +1,4 @@
-package com.mobile.newarchitecture;
+package com.leonart.mobile.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,10 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.mobile.BuildConfig;
-import com.mobile.newarchitecture.components.MainComponentsRegistry;
-import com.mobile.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.leonart.mobile.newarchitecture.components.MainComponentsRegistry;
+import com.leonart.mobile.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.leonart.mobile.BuildConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 

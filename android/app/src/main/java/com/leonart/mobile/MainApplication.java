@@ -1,4 +1,4 @@
-package com.mobile;
+package com.leonart.mobile;
 
 import android.app.Application;
 import android.content.Context;
@@ -9,7 +9,9 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.soloader.SoLoader;
-import com.mobile.newarchitecture.MainApplicationReactNativeHost;
+import com.leonart.mobile.newarchitecture.MainApplicationReactNativeHost;
+import com.leonart.mobile.BuildConfig;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -74,7 +76,7 @@ public class MainApplication extends Application implements ReactApplication {
          We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
-        Class<?> aClass = Class.forName("com.mobile.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("com.leonart.mobile.ReactNativeFlipper");
         aClass
             .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);
