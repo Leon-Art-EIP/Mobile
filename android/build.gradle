@@ -7,6 +7,7 @@ buildscript {
         minSdkVersion = 21
         compileSdkVersion = 33
         targetSdkVersion = 33
+        googlePlayServicesAuthVersion = "20.7.0"
 
         if (System.properties['os.arch'] == "aarch64") {
             // For M1 Users we need to use the NDK 24 which added support for aarch64
@@ -16,8 +17,11 @@ buildscript {
             ndkVersion = "21.4.7075529"
         }
     }
+    // These lines are commented because of a recent change in Groovy
+    // Plugins are not managed here anymore
     // plugins {
-    //     id 'org.jetbrains.kotlin.jvm' version '1.5.21' apply false
+        // id 'org.jetbrains.kotlin.jvm' version '1.5.21' apply false
+        // id 'com.google.gms.google-services' version '4.4.1' apply false
     // }
     repositories {
         google()

@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "30560177674",
-    "project_id": "leon-art",
-    "storage_bucket": "leon-art.appspot.com"
+    "project_number": "954861130276",
+    "project_id": "leon-art-d8942",
+    "storage_bucket": "leon-art-d8942.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:30560177674:android:21185bcf5eccdb75e919f3",
+        "mobilesdk_app_id": "1:954861130276:android:4a9f2813643a7eb3303eb1",
         "android_client_info": {
           "package_name": "com.mobile"
         }
       },
       "oauth_client": [
         {
-          "client_id": "30560177674-4t580rm8qo89g6339lkrlgo9j0qg2pfg.apps.googleusercontent.com",
+          "client_id": "954861130276-clfpivj3tfsvsc4gv01pho4i3lpp16ac.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mobile",
+            "certificate_hash": "d4701f510e9bb6a021a8dbd37f8d024f0c7728db"
+          }
+        },
+        {
+          "client_id": "954861130276-oqh82tphcg0hp6ljvgrf58uikgm44kbd.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAw5GzfNjnp91JUvZPEOZ7U2g5Zq5Ndx8M"
+          "current_key": "AIzaSyAtTIi3YFHGM7uV0NZhgIVfH-jIwWZjh88"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "30560177674-4t580rm8qo89g6339lkrlgo9j0qg2pfg.apps.googleusercontent.com",
+              "client_id": "954861130276-k63stco8403ruvp5alvnisn9ddsgj1js.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

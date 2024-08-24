@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Image, Text, View } from "react-native";
+import { StyleSheet, Image, Text, View, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../constants/colors";
 import { cPrimary, flexRow, mb24, mtAuto } from "../constants/styles";
@@ -8,6 +8,10 @@ import { cPrimary, flexRow, mb24, mtAuto } from "../constants/styles";
 const Splash = () => {
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar
+        backgroundColor={colors.bg}
+        barStyle='dark-content'
+      />
       <View style={styles.center}>
         <Image
           source={require('../assets/images/icon.png')}

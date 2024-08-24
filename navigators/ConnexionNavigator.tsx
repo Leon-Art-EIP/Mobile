@@ -15,8 +15,6 @@ import Tutorial from '../screens/Tutorial';
 import Tutorial_2 from '../screens/Tutorial_2';
 import Tutorial_3 from '../screens/Tutorial_3';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Text } from 'react-native-svg';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Splash from '../screens/Splash';
 import { TokenObjectType } from '../constants/artTypes';
 
