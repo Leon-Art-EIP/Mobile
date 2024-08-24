@@ -10,6 +10,15 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { post } from '../constants/fetch';
 import { TokenObjectType } from '../constants/artTypes';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  GoogleOneTapSignIn,
+  isErrorWithCode,
+  statusCodes
+} from '@react-native-google-signin/google-signin';
+import { flexRow, mlAuto, mrAuto } from '../constants/styles';
+import { stat } from 'react-native-fs';
 
 
 const Login = ({ navigation }: any) => {
@@ -53,6 +62,23 @@ const Login = ({ navigation }: any) => {
     context?.setUsername(tokenObject.username);
     setIsLoading(false);
     return navigation.navigate('main');
+  }
+
+
+  const googleOauth = async () => {
+    console.log("google oauth2");
+    try {
+      GoogleSignin.configure();
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log({ userInfo });
+    } catch (e: any) {
+      if (isErrorWithCode(e)) {
+        console.log(e.code);
+      } else {
+        console.log('Another error');
+      }
+    }
   }
 
 
@@ -173,18 +199,20 @@ const Login = ({ navigation }: any) => {
           textStyle={styles.loginButtonText}
         />
 
+        <View style={flexRow}>
+          <GoogleSigninButton
+            onPress={googleOauth}
+            size={GoogleSigninButton.Size.Icon}
+            color={GoogleSigninButton.Color.Light}
+            style={[mlAuto, mrAuto]}
+          />
+        </View>
+
         <View style={styles.orContainer}>
           <View style={styles.line} />
           <Text style={styles.orText}>Ou</Text>
           <View style={styles.line} />
         </View>
-
-        {/* <Button */}
-        {/*   onPress={() => navigation.navigate('google')} */}
-        {/*   value="Se connecter avec Google" */}
-        {/*   style={[styles.googleButton, { backgroundColor: colors.platinium }]} */}
-        {/*   textStyle={styles.googleButtonText} */}
-        {/* /> */}
 
         <Button
           onPress={() => navigation.navigate('signup')}
