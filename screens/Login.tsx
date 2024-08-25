@@ -66,12 +66,21 @@ const Login = ({ navigation }: any) => {
 
 
   const googleOauth = async () => {
-    console.log("google oauth2");
     try {
-      GoogleSignin.configure();
+      GoogleSignin.configure({
+        webClientId: process.env.REACT_APP_GOOGLE_WEBCLIENTID
+      });
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      console.log({ userInfo });
+      post(
+        "/api/mobile/google",
+        context?.token,
+        { idToken: userInfo.idToken },
+        (res: any) => {
+          console.log("res.data: ", { ...res.data });
+        },
+        (err: any) => console.error({ ...err })
+      );
     } catch (e: any) {
       if (isErrorWithCode(e)) {
         console.log("Google auth error with code: ", e.code);
