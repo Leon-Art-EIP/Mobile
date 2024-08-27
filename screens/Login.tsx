@@ -13,12 +13,9 @@ import { TokenObjectType } from '../constants/artTypes';
 import {
   GoogleSignin,
   GoogleSigninButton,
-  GoogleOneTapSignIn,
   isErrorWithCode,
-  statusCodes
 } from '@react-native-google-signin/google-signin';
 import { flexRow, mlAuto, mrAuto } from '../constants/styles';
-import { stat } from 'react-native-fs';
 
 
 const Login = ({ navigation }: any) => {
@@ -72,10 +69,15 @@ const Login = ({ navigation }: any) => {
       });
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      const postObject = {
+        username: userInfo.user.name,
+        email: userInfo.user.email
+      };
+
       post(
         "/api/mobile/google",
         context?.token,
-        { idToken: userInfo.idToken },
+        postObject,
         (res: any) => {
           console.log("res.data: ", { ...res.data });
         },
