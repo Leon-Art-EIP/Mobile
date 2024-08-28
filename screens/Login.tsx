@@ -71,15 +71,21 @@ const Login = ({ navigation }: any) => {
       const userInfo = await GoogleSignin.signIn();
       const postObject = {
         username: userInfo.user.name,
-        email: userInfo.user.email
+        email: userInfo.user.email,
+        profilePicture: userInfo.user.photo
       };
 
       post(
-        "/api/mobile/google",
-        context?.token,
+        "/api/auth/mobile/google",
         postObject,
+        context?.token,
         (res: any) => {
-          console.log("res.data: ", { ...res.data });
+          context?.setToken(res.data.token);
+          context?.setUserEmail(res.data.user.email);
+          context?.setUserId(res.data.user.id);
+          context?.setisArtist(res.data.user.availability);
+          context?.setUsername(res.data.username_lowercase);
+          return navigation.navigate('main')
         },
         (err: any) => console.error({ ...err })
       );
