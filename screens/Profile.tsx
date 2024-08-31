@@ -23,7 +23,7 @@ import Subtitle from '../components/text/Subtitle';
 
 const Profile = () => {
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('Artwork');
+  const [activeTab, setActiveTab] = useState<'A propos' | 'Artwork' | 'Collection'>('Artwork');
   const [userCollections, setUserCollections] = useState<CollectionType[]>([]);
   const [userArtworks, setUserArtworks] = useState<Artwork[]>([]);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -99,9 +99,14 @@ const Profile = () => {
     biography: string;
   }
 
-  const handleIconPress = (url) => {
-    Linking.openURL(url).catch(err => console.error("Failed to open URL", err));
+
+  const handleIconPress = (url: string) => {
+    Linking.openURL(url)
+    .catch((err: any) => {
+      console.error("Failed to open URL", { ...err });
+    });
   };
+
 
   const fetchUserArtworks = async () => {
     if (!token) {
@@ -125,34 +130,35 @@ const Profile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
+
   const fetchUserData = async () => {
     if (!token) {
       Alert.alert('Une erreur est survenue', 'Veuillez vous reconnecter.');
       console.error('Token JWT not found. Make sure the user is logged in.');
       return;
     }
-  
+
     const url = `/api/user/profile/${userID}`;
-  
+
     const callback = (response: any) => {
       setUserData(response.data);
       fetchUserArtworks();
-      
+
       const socialLinks = response.data.socialMediaLinks || {};
       setInstagramUrl(socialLinks.instagram || '');
       setTwitterUrl(socialLinks.twitter || '');
       setTiktokUrl(socialLinks.tiktok || '');
       setFacebookUrl(socialLinks.facebook || '');
     };
-  
+
     const onErrorCallback = (error: any) => {
       Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
       return console.error('Error fetching user data:', error);
     };
-  
+
     get(url, token, callback, onErrorCallback);
   };
-  
+
 
   const updateCollections = async () => {
     if (!token) {
@@ -171,6 +177,7 @@ const Profile = () => {
       (error: any) => console.error({ ...error })
     );
   };
+
 
   const reloadProfile = () => {
     console.log("context: ", context);
@@ -211,6 +218,7 @@ const Profile = () => {
     post(url, body, token, callback, onErrorCallback);
     return setIsModalVisible(false);
   };
+
 
   useFocusEffect(
     React.useCallback(reloadProfile, [navigation])
@@ -320,11 +328,11 @@ const Profile = () => {
         />
         <Button
           value="Collections"
-          secondary={activeTab !== 'Collections'}
-          tertiary={activeTab === 'Collections'}
+          secondary={activeTab !== 'Collection'}
+          tertiary={activeTab === 'Collection'}
           style={[styles.navigationTabButton, styles.marginRightForTabs]}
           textStyle={styles.navigationTabButtonText}
-          onPress={() => setActiveTab('Collections')}
+          onPress={() => setActiveTab('Collection')}
         />
         <Button
           value="A propos"
@@ -383,7 +391,7 @@ const Profile = () => {
       )}
 
       {/* Collections tab */}
-      { activeTab === 'Collections' && (
+      { activeTab === 'Collection' && (
         <>
           { userCollections.length !== 0 ? (
             <FlatList
@@ -436,6 +444,7 @@ const Profile = () => {
           <Text style={[styles.biography, cTextDark]}>
             {userData?.biography ?? "Cette personne utilise Leon'art pour redécouvrir l'art !"}
           </Text>
+
           <View style={styles.rowContainer}>
 
             { instagramUrl && (
@@ -577,15 +586,21 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     backgroundColor: colors.white,
-    borderRadius: 200
+    borderRadius: 200,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 'auto',
+    marginTop: 'auto',
   },
   circleImageContainer: {
-    width: 110,
-    height: 110,
+    width: 123,
+    height: 123,
+    backgroundColor: colors.white,
     borderRadius: 100,
-    overflow: 'hidden',
+    borderColor: colors.primary,
     position: 'absolute',
     top: -55,
+    borderWidth: 4,
   },
   textBlocks: {
     flexDirection: 'row',
@@ -703,6 +718,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   biographyContainer: {
+    minHeight: 10,
     backgroundColor: colors.bg,
     marginLeft: 24,
     marginRight: 24,

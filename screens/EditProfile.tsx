@@ -179,7 +179,6 @@ const EditProfile = () => {
         setTwitterUrl(res.data.socialMediaLinks?.twitter || '');
         setTiktokUrl(res.data.socialMediaLinks?.tiktok || '');
         setFacebookUrl(res.data.socialMediaLinks?.facebook || '');
-        console.log("new user data: ", res?.data);
         setIsLoading(false);
       },
       (err: any) => {
@@ -203,6 +202,23 @@ const EditProfile = () => {
     }
 
     const url = '/api/user/profile/social-links';
+
+    if (instagramUrl && !instagramUrl.includes('instagram.com/')) {
+      setInstagramUrl("https://www.instagram.com/" + instagramUrl);
+    }
+
+    if (twitterUrl) {
+      setTwitterUrl(twitterUrl.includes("x.com/") ? twitterUrl : "https://www.x.com/" + twitterUrl);
+    }
+
+    if (facebookUrl) {
+      setFacebookUrl(facebookUrl.includes("facebook.com/") ? facebookUrl : "https://www.facebook.com/" + facebookUrl);
+    }
+
+    if (tiktokUrl) {
+      setTiktokUrl(tiktokUrl.includes("tiktok.com/@") ? tiktokUrl : "https://www.tiktok.com/@" + tiktokUrl);
+    }
+
     const body = {
       instagram: instagramUrl,
       twitter: twitterUrl,
@@ -216,7 +232,7 @@ const EditProfile = () => {
     };
 
     const onErrorCallback = (error: any) => {
-      console.error('Error updating social media links:', error);
+      console.error('Error updating social media links:', { ...error });
     };
 
     post(url, body, token, callback, onErrorCallback);
@@ -337,7 +353,7 @@ const EditProfile = () => {
         </View>
         <View style={styles.infoBlock}>
             <Subtitle>Liens réseaux sociaux</Subtitle>
-            <Text>Renseigner les liens vers vos réseaux</Text>
+            <Text>Renseigner votre nom sur les réseaux</Text>
             <View style={styles.socialMedia}>
               <Ionicons
                 name="logo-instagram"
@@ -345,11 +361,9 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder="Instagram"
-                placeholderTextColor={colors.darkGreyBg}
+                placeholder={instagramUrl ?? 'Instagram'}
                 onTextChanged={setInstagramUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={instagramUrl || ''}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -359,11 +373,9 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder="Twitter"
-                placeholderTextColor={colors.darkGreyBg}
+                placeholder={twitterUrl !== "" ? twitterUrl : "Twitter"}
                 onTextChanged={setTwitterUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={twitterUrl || ''}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -373,11 +385,9 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder="Facebook"
-                placeholderTextColor={colors.darkGreyBg}
+                placeholder={facebookUrl !== "" ? facebookUrl : "Facebook"}
                 onTextChanged={setFacebookUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={facebookUrl || ''}
               />
             </View>
             <View style={styles.socialMedia}>
@@ -387,11 +397,9 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder="TikTok"
-                placeholderTextColor={colors.darkGreyBg}
+                placeholder={tiktokUrl !== "" ? tiktokUrl : "TikTok"}
                 onTextChanged={setTiktokUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
-                value={tiktokUrl || ''}
               />
             </View>
 
@@ -444,14 +452,22 @@ const styles = StyleSheet.create({
   profilePicture: {
     width: 110,
     height: 110,
-    backgroundColor: colors.white
+    backgroundColor: colors.white,
+    marginTop: 'auto',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 'auto',
+    borderRadius: 100
   },
   circleImageContainer: {
-    width: 110,
-    height: 110,
+    width: 123,
+    height: 123,
     borderRadius: 100,
     overflow: 'hidden',
+    backgroundColor: colors.white,
     position: 'absolute',
+    borderWidth: 4,
+    borderColor: colors.primary,
     top: -55,
   },
   textBlocks: {
