@@ -1,3 +1,4 @@
+android/app/release/*
 *.png
 *.sh
 android/app/src/main/assets/index.android.bundle
