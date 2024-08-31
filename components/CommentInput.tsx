@@ -9,16 +9,21 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type CommentInputProps = {
   id: string;
-  getData: () => void;
+  nestedId: number | undefined;
+  answeringTo: string | undefined;
+  setNestedId: Function;
 }
 
 
 const CommentInput = ({
   id,
-  getData
+  nestedId = undefined,
+  answeringTo = undefined,
+  setNestedId = () => {}
 }: CommentInputProps) => {
   const [commentInput, setCommentInput] = useState('');
   const context = useContext(MainContext);
+  const [isNested, setIsNested] = useState<boolean>(!!nestedId);
 
   const handleCommentInput = (text: string) => {
     setCommentInput(text);
@@ -30,21 +35,20 @@ const CommentInput = ({
       return;
     }
 
-    const body = {
+    let body: any = {
       text: commentInput,
     };
+
+    if (!!nestedId) {
+      body = { ...body, parentCommentId: nestedId };
+    }
 
     post(
       `/api/art-publication/comment/${id}`,
       body,
       context?.token,
-      (response) => {
-        if (response && response.data) {
-          setCommentInput('');
-          console.log(response.data);
-        } else {
-          console.error('Invalid response:', response);
-        }
+      (_) => {
+        setCommentInput('');
       },
       (error) => {
         console.error('Error posting comments:', error);
@@ -55,7 +59,7 @@ const CommentInput = ({
   return (
     <View style={styles.commentInputContainer}>
       <TextInput
-        placeholder="Commenter..."
+        placeholder={!!nestedId ? "Répondre à " + answeringTo + "..." : "Commenter..."}
         placeholderTextColor={colors.disabledFg}
         style={styles.commentInput}
         onChangeText={(text) => handleCommentInput(text)}

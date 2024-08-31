@@ -73,6 +73,8 @@ const SingleArt = ({ navigation, route }: any) => {
   const token = context?.token;
 
   const [artist, setArtist] = useState<ArtistType | undefined>(undefined);
+  const [answeringTo, setAnsweringTo] = useState<string | undefined>(undefined);
+  const [nestedId, setNestedId] = useState<number | undefined>(undefined);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isSold, setSoldState] = useState(false);
   const [isForSale, setSaleState] = useState(false);
@@ -231,8 +233,7 @@ const SingleArt = ({ navigation, route }: any) => {
         getArtistName(response?.data.userId);
         setSoldState(response?.data.isSold);
         setSaleState(response?.data.isForSale);
-        setIsRefreshing(false);
-        console.log('publication', publication);
+        return setIsRefreshing(false);
       },
       (error: any) => {
         console.error('Error fetching publications:', error);
@@ -484,9 +485,18 @@ const SingleArt = ({ navigation, route }: any) => {
       <View style={styles.line} />
 
       <ScrollView contentContainerStyle={{ flex: 1 }}>
-        <CommentsList id={id}></CommentsList>
+        <CommentsList
+          id={id}
+          nestedId={nestedId}
+          setNestedId={setNestedId}
+          setAnsweringTo={setAnsweringTo}
+        />
       </ScrollView>
-      <CommentInput id={id} getData={getPublication} />
+      <CommentInput
+        id={id}
+        nestedId={nestedId}
+        answeringTo={answeringTo}
+      />
 
       {/* Collection modal */}
       <Modal isVisible={isModalVisible} style={styles.modal}>

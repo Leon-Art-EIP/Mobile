@@ -64,8 +64,13 @@ const Input = ({
         disabled && styles.disabled,
         style
       ]}
-      onFocus={() => context?.setIsKeyboard(true)}
-      onBlur={() => context?.setIsKeyboard(false)}
+
+      /* Those two lines are supposed to hide the bottom tab bar */
+      /* when the keyboard is shown, but for some reason it brings */
+      /* a lot of bugs so I removed it until I found a better solution */
+
+      /* onFocus={() => context?.setIsKeyboard(true)} */
+      /* onBlur={() => context?.setIsKeyboard(false)} */
     />
   );
 }

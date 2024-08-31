@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal, TextInput, Keyboard, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal, TextInput, Keyboard, ScrollView, RefreshControl } from 'react-native';
 import { get, del, post, put } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import colors from '../../constants/colors';
@@ -12,11 +12,18 @@ import Octicons from 'react-native-vector-icons/Octicons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Card from './Card';
+import { isResumable } from 'react-native-fs';
 
 
-const CommentsList = ({ id }) => {
+const CommentsList = ({
+  id,
+  setNestedId,
+  setAnsweringTo,
+  nestedId = undefined
+}) => {
   const context = useContext(MainContext);
   const [comments, setComments] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [usernames, setUsernames] = useState([]);
   const [userProfiles, setUserProfiles] = useState({});
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
@@ -35,6 +42,7 @@ const CommentsList = ({ id }) => {
     if (!context?.token) {
       return;
     }
+
     get(
       `/api/user/profile/${userId}`,
       context?.token,
@@ -62,6 +70,8 @@ const CommentsList = ({ id }) => {
     if (!context?.token) {
       return;
     }
+
+    setIsRefreshing(true);
     get(
       `/api/art-publication/comment/${id}`,
       context?.token,
@@ -77,6 +87,7 @@ const CommentsList = ({ id }) => {
         } else {
           console.error('Invalid response:', response);
         }
+        return setIsRefreshing(false);
       },
       (error) => {
         console.error("Error fetching comments:", error);
@@ -84,12 +95,20 @@ const CommentsList = ({ id }) => {
     );
   };
 
+
+  useEffect(() => {
+    if (!nestedId) {
+      fetchComments();
+    }
+  }, [nestedId]);
+
+
   const deleteComment = () => {
     del(
       `/api/art-publication/comment/${commentToDelete}`,
       context?.token,
       () => {
-        setComments((prevComments) => prevComments.filter(comment => comment.id !== commentToDelete));
+        fetchComments();
         ToastAndroid.show("Commentaire supprimé", ToastAndroid.SHORT);
         setIsDeleteModalShown(false);
       },
@@ -100,10 +119,12 @@ const CommentsList = ({ id }) => {
     );
   };
 
+
   const handleDeletePress = (commentId: string) => {
     setCommentToDelete(commentId);
     setIsDeleteModalShown(true);
   };
+
 
   const timeSince = (date: Date | string | number) => {
     const now = new Date();
@@ -126,14 +147,6 @@ const CommentsList = ({ id }) => {
   };
 
 
-  const handleToArtistProfile = (_id) => {
-    navigation.navigate('other_profile', { id: _id });
-  };
-
-  const handleReplyPress = (commentId) => {
-    setReplyingTo(commentId);
-  };
-
   const handleReplySubmit = () => {
     if (!context?.token || !replyText.trim()) {
       return;
@@ -145,7 +158,7 @@ const CommentsList = ({ id }) => {
       url,
       body,
       context?.token,
-      (response) => {
+      (_) => {
         fetchComments();
         setReplyText("");
         setReplyingTo(null);
@@ -157,30 +170,31 @@ const CommentsList = ({ id }) => {
     );
   };
 
-  const toggleNestedComments = (commentId) => {
+  const toggleNestedComments = (commentId: string) => {
     setNestedCommentsVisible((prevVisible) => ({
       ...prevVisible,
       [commentId]: !prevVisible[commentId],
     }));
   };
 
-  const handleLikePress = (commentId) => {
+  const handleLikePress = (commentId: string) => {
     if (!context?.token) {
       return;
     }
-    const url = `/api/art-publication/comment/${commentId}/like`;
-    put(
-      url,
+
+    post(
+      `/api/art-publication/comment/${commentId}/like`,
       {},
       context?.token,
       () => {
+        fetchComments();
         setLikes((prevLikes) => ({
           ...prevLikes,
           [commentId]: !prevLikes[commentId],
         }));
       },
       (error) => {
-        console.error("Error liking comment:", error);
+        console.error("Error liking comment:", { ...error });
       }
     );
   };
@@ -259,12 +273,20 @@ const CommentsList = ({ id }) => {
           {/* Reply button */}
           { !isNested && (
             <TouchableOpacity
-              onPress={() => handleReplyPress(comment.id)}
+              onPress={() => {
+                if (!nestedId) {
+                  setNestedId(comment.id);
+                  setAnsweringTo(userProfiles[comment.userId].username);
+                } else {
+                  setAnsweringTo(undefined);
+                  setNestedId(undefined);
+                }
+              }}
               style={[mh8]}
             >
               <Octicons
                 name='reply'
-                color={colors.darkGreyFg}
+                color={!!nestedId ? colors.primary : colors.darkGreyFg}
                 size={20}
               />
             </TouchableOpacity>
@@ -288,7 +310,13 @@ const CommentsList = ({ id }) => {
 
 
   return (
-    <ScrollView>
+    <ScrollView
+      refreshControl={<RefreshControl
+        colors={[colors.primary]}
+        refreshing={isRefreshing}
+        onRefresh={fetchComments}
+      />}
+    >
       <View style={{
         marginBottom: 40
       }}>
