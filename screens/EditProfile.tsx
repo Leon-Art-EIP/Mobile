@@ -361,7 +361,7 @@ const EditProfile = () => {
                 size={24}
               />
               <Input
-                placeholder={instagramUrl ?? 'Instagram'}
+                placeholder={instagramUrl !== "" ? instagramUrl : 'Instagram'}
                 onTextChanged={setInstagramUrl}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               />
