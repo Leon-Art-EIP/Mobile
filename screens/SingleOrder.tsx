@@ -15,7 +15,7 @@ import {
   flex1,
   flexRow,
   mb4,
-  mh24,
+  mh0,
   mh8,
   ml4,
   mr4,
@@ -33,6 +33,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import RatingModal from '../components/modals/RatingModal';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import Input from '../components/textInput/Input';
 
 
 type OrderType = {
@@ -70,6 +71,7 @@ const SingleOrder = () => {
   const [order, setOrder] = useState<OrderType | undefined>(undefined);
   const [displayModal, setDisplayModal] = useState<boolean>(false);
   const [rating, setRating] = useState<number | undefined>(undefined);
+  const [ratingText, setRatingText] = useState<string>("");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
@@ -110,12 +112,18 @@ const SingleOrder = () => {
 
   // When the art is received by the buyer
   const validateOrder = () => {
+    const body = {
+      rating: rating,
+      orderId: order?.orderId,
+      comment: ratingText
+    };
+
     post(
       `/api/order/confirm-delivery-rate`,
-      { rating: rating, orderId: order?.orderId },
+      body,
       context?.token,
       () => {
-        ToastAndroid.show("Order validated", ToastAndroid.SHORT);
+        ToastAndroid.show("Commande validée. Félicitations !", ToastAndroid.SHORT);
         return navigation.goBack();
       },
       (err: any) => console.warn({ ...err })
@@ -199,7 +207,8 @@ const SingleOrder = () => {
             onRefresh={refreshData}
             tintColor={colors.primary}
             colors={[colors.primary]}
-          />}
+          />
+        }
         contentContainerStyle={flex1}
       >
 
@@ -226,7 +235,7 @@ const SingleOrder = () => {
           </TouchableOpacity>
         </Card>
 
-        <Card style={{ marginHorizontal: 0, flex: 1 }}>
+        <Card style={[mh0, flex1]}>
           <Text style={cTextDark}>{ order?.artPublicationDescription }</Text>
         </Card>
       </ScrollView>
@@ -274,8 +283,12 @@ const SingleOrder = () => {
           }</Text>
         </Card>
       ) : order?.orderState !== 'completed' ? (
-        <Card style={{ marginHorizontal: 0, backgroundColor: colors.white, alignContent: 'center' }}>
-          <Text style={{ color: colors.darkGreyFg, fontSize: 16, }}>Notez votre transaction avant de l'achever !</Text>
+        <Card style={styles.ratingCard}>
+
+          <Text style={{ color: colors.darkGreyFg, fontSize: 16, }}>
+            Notez votre transaction avant de l'achever !
+          </Text>
+
           <View style={[flexRow, asCenter, mv4]}>
             {[1, 2, 3, 4, 5].map((item: number) => (
               <AntDesign
@@ -287,6 +300,13 @@ const SingleOrder = () => {
               />
             ))}
           </View>
+
+          <Input
+            placeholder='Vos impressions sur cette commande ?'
+            onTextChanged={setRatingText}
+            multilines={3}
+            style={styles.ratingInput}
+          />
         </Card>
       ) : (<></>)}
 
@@ -314,20 +334,13 @@ const SingleOrder = () => {
         ) : (
           <Button
             value={order?.orderState === 'completed' ? "Oeuvre reçue" : "J'ai reçu l'oeuvre"}
-            disabled={order?.orderState === 'completed' || !rating}
+            disabled={order?.orderState === 'completed' || !rating || ratingText === ""}
             onPress={validateOrder}
             style={[flex1, noHMargin, ml4]}
           />
         )}
 
       </View>
-
-      {/* Rating modal */}
-      <RatingModal
-        isDisplayed={displayModal}
-        setDisplayed={setDisplayModal}
-        setRating={setRating}
-      />
 
     </SafeAreaView>
   );
@@ -353,6 +366,18 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 50,
     backgroundColor: colors.offerBg
+  },
+  ratingCard: {
+    marginHorizontal: 0,
+    alignContent: 'center',
+    flex: 1
+  },
+  ratingInput: {
+    borderRadius: 18,
+    marginHorizontal: 0,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    textAlignVertical: 'top'
   }
 });
 
