@@ -1,23 +1,15 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View, _ScrollView } from 'react-native';
-import SlidingUpPanel from 'rn-sliding-up-panel';
+import React, { useContext, useEffect, useState } from 'react';
+import { FlatList, ScrollView, StyleSheet, Text, ToastAndroid, View, _ScrollView } from 'react-native';
 import colors from '../constants/colors';
-import reportValues from '../constants/reportValues';
-import { flex1, flexRow } from '../constants/styles';
+import { bgGrey, bgRed, br12, br20, cTextDark, flex1, flexRow, mb24, mbAuto, mh0, mh8, mt8, pv24 } from '../constants/styles';
 import Button from '../components/buttons/Button';
 import Card from '../components/cards/Card';
 import Title from '../components/text/Title';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NavigationRouteContext, useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { get, post } from '../constants/fetch';
-import Content from '../components/text/Content';
 import { MainContext } from '../context/MainContext';
-
-
-interface ReportPanelProps {
-  type: 'account' | 'post';
-  id: string | undefined;
-}
+import Input from '../components/textInput/Input';
 
 
 const ReportScreen = () => {
@@ -27,6 +19,7 @@ const ReportScreen = () => {
   const params = route.params;
   const [reasons, setReasons] = useState<string[]>([]);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
+  const [comment, setComment] = useState<string>('');
 
 
   const getReasonsFromBack = () => {
@@ -47,13 +40,13 @@ const ReportScreen = () => {
       object = {
         userId: params?.id,
         infraction: selectedReason,
-        message: "MESSAGE"
+        message: comment
       };
     } else {
       object = {
         artPublicationId: params?.id,
         infraction: selectedReason,
-        message: "MESSAGE"
+        message: comment
       };
     }
 
@@ -62,8 +55,8 @@ const ReportScreen = () => {
       object,
       context?.token,
       () => {
-        ToastAndroid.show("Votre signalement a été pris en compte", ToastAndroid.SHORT);
-        return navigation.navigate("home");
+        ToastAndroid.show("Merci pour votre signalement !", ToastAndroid.SHORT);
+        return navigation.goBack();
       },
       (err: any) => console.error({ ...err })
     );
@@ -79,14 +72,20 @@ const ReportScreen = () => {
     <SafeAreaView style={styles.container}>
       <Title style={styles.title}>Signaler</Title>
 
-      <FlatList
-        data={reasons}
-        renderItem={({ item }) => (
-          <Card style={{
-            backgroundColor: selectedReason === item ? colors.offerBg : colors.default,
-            marginHorizontal: 0,
-          }}>
-            <TouchableOpacity
+      <Text style={[cTextDark, mb24, mh8]}>
+        Pourquoi voulez-vous signaler ce contenu ?
+      </Text>
+
+      <View style={{ flex: 2 }}>
+        <FlatList
+          data={reasons}
+          renderItem={({ item }) => (
+            <Card
+              style={{
+                backgroundColor: selectedReason === item ? colors.offerBg : colors.default,
+                marginHorizontal: 0,
+              }}
+              pressable
               onPress={() => setSelectedReason(item)}
             >
               <ScrollView horizontal>
@@ -94,10 +93,23 @@ const ReportScreen = () => {
                   style={{ color: selectedReason === item ? colors.offerFg : colors.textDark }}
                 >{ item.toString() }</Text>
               </ScrollView>
-            </TouchableOpacity>
-          </Card>
-        )}
-      />
+            </Card>
+          )}
+        />
+      </View>
+
+      <View style={[mbAuto, flex1]}>
+        <Text style={[cTextDark, mb24, mh8, mt8]}>
+          Pouvez-vous nous donner plus d'information sur la nature de l'infraction ?
+        </Text>
+
+        <Input
+          placeholder='Dites-nous en plus...'
+          onTextChanged={setComment}
+          style={[{ backgroundColor: colors.default }, br20, mh0]}
+          multilines={3}
+        />
+      </View>
 
       <View style={[ flexRow ]}>
 

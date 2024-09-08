@@ -5,7 +5,6 @@ import {
   FlatList,
   Image,
   Linking,
-  RefreshControl,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -26,7 +25,6 @@ import {
   acCenter,
   bgColor,
   bgGrey,
-  bgRed,
   br20,
   br50,
   cTextDark,
@@ -52,6 +50,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CommentInput from '../components/CommentInput';
 import CommentsList from '../components/cards/CommentsList';
 import Subtitle from '../components/text/Subtitle';
@@ -383,9 +382,9 @@ const SingleArt = ({ navigation, route }: any) => {
               style={[mtAuto, mbAuto, mlAuto, mr20]}
               onPress={() => navigation.navigate('report', { id: publication?._id, type: 'post' })}
             >
-              <AntDesign
-                name="warning"
-                color={colors.black}
+              <MaterialIcons
+                name="report-problem"
+                color={colors.tertiary}
                 size={24}
               />
             </TouchableOpacity>
