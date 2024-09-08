@@ -448,40 +448,40 @@ const Profile = () => {
           <View style={styles.rowContainer}>
 
             { instagramUrl && (
-              <TouchableOpacity onPress={() => handleIconPress(instagramUrl)}>
+              <Card pressable onPress={() => handleIconPress(instagramUrl)}>
                 <Ionicons
                   name="logo-instagram"
                   color={colors.darkGreyBg}
                   size={24}
                 />
-              </TouchableOpacity>
+              </Card>
             ) }
             { twitterUrl && (
-              <TouchableOpacity onPress={() => handleIconPress(twitterUrl)}>
+              <Card pressable onPress={() => handleIconPress(twitterUrl)}>
                 <Ionicons
                   name="logo-twitter"
                   color={colors.darkGreyBg}
                   size={24}
                 />
-              </TouchableOpacity>
+              </Card>
             ) }
             { facebookUrl && (
-              <TouchableOpacity onPress={() => handleIconPress(facebookUrl)}>
+              <Card pressable onPress={() => handleIconPress(facebookUrl)}>
                 <Ionicons
                   name="logo-facebook"
                   color={colors.darkGreyBg}
                   size={24}
                 />
-              </TouchableOpacity>
+              </Card>
             ) }
             { tiktokUrl && (
-              <TouchableOpacity onPress={() => handleIconPress(tiktokUrl)}>
+              <Card pressable onPress={() => handleIconPress(tiktokUrl)}>
                 <Ionicons
                   name="logo-pinterest"
                   color={colors.darkGreyBg}
                   size={24}
                 />
-              </TouchableOpacity>
+              </Card>
             ) }
           </View>
         </Card>

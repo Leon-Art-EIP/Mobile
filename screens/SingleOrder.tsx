@@ -282,7 +282,7 @@ const SingleOrder = () => {
                 key={item}
                 onPress={() => setRating(item)}
                 name={rating && rating >= item ? 'star' : 'staro'}
-                color={rating && rating >= item ? colors.deepyellow : colors.deepyellow}
+                color={colors.deepyellow}
                 size={32}
               />
             ))}
