@@ -11,9 +11,9 @@ import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
 import Button from '../components/buttons/Button';
 import InfoModal from '../components/infos/InfoModal';
-import Title from '../components/text/Title';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
+
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
@@ -112,6 +112,7 @@ const SearchScreen = ({ navigation }: any) => {
 
   const clearFilters = () => {
     setPriceValues("0-1000");
+    setSearch('');
     setSelectedSubFilters([]);
     ToastAndroid.show("Les filtres ont été réinitialisés", ToastAndroid.SHORT);
   }

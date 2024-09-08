@@ -8,11 +8,12 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, flexRow, jcCenter, mh8, mlAuto, mrAuto, mv4, taCenter } from '../constants/styles';
+import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, flexRow, fwBold, jcCenter, mb8, mh8, ml4, ml8, mlAuto, mr8, mrAuto, mv4, taCenter, tavCenter } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import Card from '../components/cards/Card';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Title from '../components/text/Title';
+import { VerifyMicrodepositsError } from '@stripe/stripe-react-native';
 
 
 type UserDataType = {
@@ -544,20 +545,41 @@ const OtherProfile = () => {
           </Card>
 
           <Card>
-            <Title size={20}>Commentaires</Title>
+            <Title size={20} style={mb8}>Commentaires</Title>
 
             { ratings.length !== 0 ? (
               <FlatList
                 data={ratings}
                 renderItem={({ item }: { item: RatingType }) => (
                   <View>
-                  <Image
-                    source={{ uri: getImageUrl(item.buyerProfilePicture) }}
-                    style={styles.ratingProfilePictureImage}
-                  />
-                  <Text>{ item.buyerUsername }</Text>
+                    <View style={flexRow}>
+                      <Image
+                        source={{ uri: getImageUrl(item.buyerProfilePicture) }}
+                        style={styles.ratingProfilePictureImage}
+                      />
+                      <Text style={[cTextDark, tavCenter, ml8, fwBold]}>
+                        { item.buyerUsername }
+                      </Text>
 
+                      <View style={[ mlAuto, flexRow ]}>
+                        <Text style={[
+                          cTextDark,
+                          tavCenter,
+                          { color: item.rating >= 3 ? colors.textDark : colors.primary }
+                        ]}>
+                          { item.rating }/5
+                        </Text>
+                        <AntDesign
+                          name={'star'}
+                          color={item.rating >= 3 ? colors.deepyellow : colors.primary}
+                          size={24}
+                          style={ml4}
+                        />
+                      </View>
+                    </View>
 
+                    <Text>{ item.comment }</Text>
+                    <View style={styles.line} />
                   </View>
                 )}
               />
@@ -710,9 +732,17 @@ const styles = StyleSheet.create({
     padding: 8
   },
   ratingProfilePictureImage: {
-    height: 20,
-    width: 20,
+    height: 30,
+    width: 30,
     borderRadius: 50
+  },
+  line: {
+    backgroundColor: colors.text,
+    height: 1,
+    width: "50%",
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginVertical: 4
   }
 });
 
