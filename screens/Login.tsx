@@ -79,14 +79,7 @@ const Login = ({ navigation }: any) => {
         "/api/auth/mobile/google",
         postObject,
         context?.token,
-        (res: any) => {
-          context?.setToken(res.data.token);
-          context?.setUserEmail(res.data.user.email);
-          context?.setUserId(res.data.user.id);
-          context?.setisArtist(res.data.user.availability);
-          context?.setUsername(res.data.username_lowercase);
-          return navigation.navigate('main')
-        },
+        onLogin,
         (err: any) => console.error({ ...err })
       );
     } catch (e: any) {

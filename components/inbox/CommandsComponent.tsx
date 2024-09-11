@@ -10,35 +10,59 @@ import Button from '../buttons/Button';
 import Subtitle from '../text/Subtitle';
 import { formatName } from '../../helpers/NamesHelper';
 
+
+type BuyOrderType = {
+  orderId: string;
+  buyerId: string,
+  sellerId: string;
+  orderState: string;
+  paymentStatus: string;
+  orderPrice: string;
+  createdAt: string;
+  updatedAt: string;
+  artPublicationId: string;
+  artPublicationName: string;
+  artPublicationDescription: string;
+  artPublicationPrice: string;
+  artPublicationImage: string;
+};
+
+
 const CommandsComponent = () => {
   const navigation = useNavigation();
-  const [orders, setOrders] = useState([]);
-  const [sales, setSales] = useState([]);
+  const [orders, setOrders] = useState<BuyOrderType[]>([]);
+  // Not sure sales are BuyOrderType[]. See with back-end in case of errors
+  const [sales, setSales] = useState<BuyOrderType[]>([]);
   const [ordersState, setOrdersState] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const context = useContext(MainContext);
 
 
   const getCommands = () => {
+    setIsRefreshing(true);
+
     if (!context?.token) {
       return console.log("Couldn't find token");
     }
-    get(
-      `/api/order/latest-buy-orders?limit=50&page=1`,
-      context.token,
-      (response) => {
-        setOrders(response?.data || []);
-        setOrdersState(response?.data.order);
-      },
-      (error) => console.error('Error fetching orders: ', error)
-    );
 
     get(
       `/api/order/latest-sell-orders?limit=50&page=1`,
       context?.token,
-      (response) => setSales(response?.data || []),
-      (error) => console.error('Error fetching sales:', error)
+      (response: any) => setSales(response?.data || []),
+      (error: any) => console.error({ ...error })
     );
+
+    get(
+      `/api/order/latest-buy-orders?limit=50&page=1`,
+      context.token,
+      (response: any) => {
+        setOrders(response?.data || []);
+        setOrdersState(response?.data.order);
+        setIsRefreshing(false);
+      },
+      (error: any) => console.error({ ...error })
+    );
+
   }
 
 
@@ -88,13 +112,13 @@ const CommandsComponent = () => {
 
         { orders.map((order, index) => (
           <TouchableOpacity
-            key={order.orderId + Math.random().toString()}
+            key={order.orderId?.toString() + '_order'}
             onPress={() => navigation.navigate('single_order', {
               id: order?.orderId,
               buy: true
             })}
           >
-            <View key={order._id || index} style={styles.orderItem}>
+            <View key={order.orderId || index} style={styles.orderItem}>
               <Image
                 style={styles.image}
                 source={{ uri: getImageUrl(order.artPublicationImage) }}
@@ -140,13 +164,13 @@ const CommandsComponent = () => {
 
         { sales.map((sale, index) => (
           <TouchableOpacity
-            key={sale.saleId + Math.random().toString()}
+            key={sale.orderId.toString() + "_sale"}
             onPress={() => navigation.navigate('single_order', {
               id: sale?.orderId,
               buy: false
             })}
           >
-            <View key={sale._id || index} style={styles.orderItem}>
+            <View key={sale.orderId || index} style={styles.orderItem}>
               <Image
                 style={styles.image}
                 source={{ uri: getImageUrl(sale.artPublicationImage) }}

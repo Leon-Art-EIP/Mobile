@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Alert, View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, StatusBar, RefreshControl, ToastAndroid, FlatList, ListRenderItem, FlatListProps } from 'react-native';
-import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
+import { Alert, Text, StyleSheet, Image, TouchableOpacity, RefreshControl, ToastAndroid, FlatList, StatusBar, View, ScrollView } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { acCenter, aiCenter, bgRed, cBlack, cTextDark, flex1, jcCenter, mbAuto, mh8, mlAuto, mrAuto, mtAuto, mv4, pt8 } from '../constants/styles';
+import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, flexRow, fwBold, jcCenter, mb8, mh8, ml4, ml8, mlAuto, mr8, mrAuto, mv4, taCenter, tavCenter } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import Card from '../components/cards/Card';
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Title from '../components/text/Title';
+import { VerifyMicrodepositsError } from '@stripe/stripe-react-native';
 
 
 type UserDataType = {
@@ -58,6 +60,16 @@ type UserArtworkType = {
 };
 
 
+type RatingType = {
+  orderId: string;
+  rating: number;
+  comment: string;
+  completedAt: Date;
+  buyerUsername: string;
+  buyerProfilePicture: string;
+}
+
+
 const OtherProfile = () => {
   const route = useRoute();
   const navigation = useNavigation();
@@ -71,14 +83,19 @@ const OtherProfile = () => {
   const [activeTab, setActiveTab] = useState<string>('Artwork');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [collections, setCollections] = useState([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [ratings, setRatings] = useState<RatingType[]>([]);
+
 
   const handleArtworkClick = (publicationId: string) => {
     navigation.navigate('singleart', { id: publicationId });
   };
 
+
   const handleBackButtonClick = () => {
     navigation.goBack();
   };
+
 
   const handleContactButtonClick = () => {
     const navigateToConversation = (
@@ -145,6 +162,7 @@ const OtherProfile = () => {
     fetchUserData();
   };
 
+
   const checkIsFollowing = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -165,6 +183,7 @@ const OtherProfile = () => {
     );
   };
 
+
   const fetchUserArtworks = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -183,6 +202,7 @@ const OtherProfile = () => {
 
     get(url, token, callback, onErrorCallback);
   };
+
 
   const fetchUserData = () => {
     if (!token) {
@@ -203,6 +223,7 @@ const OtherProfile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
+
   const getCollections = () => {
     return get(
       `/api/collection/user/${id}/collections`,
@@ -220,20 +241,59 @@ const OtherProfile = () => {
     );
   };
 
+
+  const getAverageRating = () => {
+    if (!userData?._id) {
+      return;
+    }
+
+    get(
+      `/api/order/user/${userData._id}/average-rating`,
+      context.token,
+      (res: any) => setAverageRating(res.data.averageRating ?? 0),
+      (err: any) => console.error({ ...err })
+    );
+  }
+
+
+  const getComments = () => {
+    if (!userData?._id) {
+      return;
+    }
+
+    get(
+      `/api/order/user/${userData._id}/ratings`,
+      context.token,
+      (res: any) => setRatings([ ...res.data ]),
+      (err: any) => console.error({ ...err })
+    );
+  }
+
+
   const fetchInfos = () => {
     setIsRefreshing(true);
-    fetchUserData();
     fetchUserArtworks();
     getCollections();
     checkIsFollowing();
+    getAverageRating();
+    getComments();
     setIsRefreshing(false);
   };
 
-  useEffect(fetchInfos, []);
+
+  useEffect(fetchInfos, [userData])
+
+
+  useEffect(() => {
+    setIsRefreshing(true);
+    fetchUserData();
+  }, []);
+
 
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
   );
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -249,7 +309,7 @@ const OtherProfile = () => {
       >
         <AntDesign
           name="left"
-          color={colors.white}
+          color={colors.tertiary}
           size={24}
         />
       </TouchableOpacity>
@@ -261,11 +321,11 @@ const OtherProfile = () => {
             id: userData?._id,
             type: 'account'
           })}
-          style={{ zIndex: 2, position: 'absolute', right: 0 }}
+          style={styles.reportDiv}
         >
           <MaterialIcons
             name="report-problem"
-            color={colors.primary}
+            color={colors.tertiary}
             size={24}
           />
         </TouchableOpacity>
@@ -274,7 +334,7 @@ const OtherProfile = () => {
       {/* Bannière */}
       <View style={styles.banner}>
         <Image
-          source={{ uri: getImageUrl(userData?.bannerImage) }}
+          source={{ uri: getImageUrl(userData?.bannerPicture) }}
           style={styles.bannerImage}
           resizeMode="cover"
         />
@@ -454,13 +514,82 @@ const OtherProfile = () => {
       )}
 
       { activeTab === 'A propos' && (
-        <Card>
-          <ScrollView>
-            <Text style={cTextDark}>
-              {userData?.biography ?? "Cet personne utilise Leon'art pour redécouvrir l'art !"}
-            </Text>
-          </ScrollView>
-        </Card>
+        <>
+          <Card>
+            <ScrollView>
+              <Title size={20}>Description</Title>
+              <Text style={cTextDark}>
+                { !!userData?.biography ?
+                  userData.biography :
+                  "Cet personne utilise Leon'art pour redécouvrir l'art !"
+                }
+              </Text>
+            </ScrollView>
+          </Card>
+
+          <Card style={flexRow}>
+            <Title size={20} style={mrAuto}>Note moyenne</Title>
+
+            { averageRating !== 0 ? [1, 2, 3, 4, 5].map((item: number) => (
+              <AntDesign
+                key={item}
+                name={averageRating && averageRating >= item ? 'star' : 'staro'}
+                color={colors.deepyellow}
+                size={32}
+              />
+            )) : (
+              <Text style={[cTextDark, asCenter]}>
+                Pas de note pour l'instant !
+              </Text>
+            ) }
+          </Card>
+
+          <Card>
+            <Title size={20} style={mb8}>Commentaires</Title>
+
+            { ratings.length !== 0 ? (
+              <FlatList
+                data={ratings}
+                renderItem={({ item }: { item: RatingType }) => (
+                  <View>
+                    <View style={flexRow}>
+                      <Image
+                        source={{ uri: getImageUrl(item.buyerProfilePicture) }}
+                        style={styles.ratingProfilePictureImage}
+                      />
+                      <Text style={[cTextDark, tavCenter, ml8, fwBold]}>
+                        { item.buyerUsername }
+                      </Text>
+
+                      <View style={[ mlAuto, flexRow ]}>
+                        <Text style={[
+                          cTextDark,
+                          tavCenter,
+                          { color: item.rating >= 3 ? colors.textDark : colors.primary }
+                        ]}>
+                          { item.rating }/5
+                        </Text>
+                        <AntDesign
+                          name={'star'}
+                          color={item.rating >= 3 ? colors.deepyellow : colors.primary}
+                          size={24}
+                          style={ml4}
+                        />
+                      </View>
+                    </View>
+
+                    <Text>{ item.comment }</Text>
+                    <View style={styles.line} />
+                  </View>
+                )}
+              />
+            ) : (
+              <Text style={cTextDark}>
+                Ce profil n'a pas reçu de commentaires pour l'instant !
+              </Text>
+            ) }
+          </Card>
+        </>
       ) }
     </SafeAreaView>
   );
@@ -580,8 +709,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
   },
   backButton: {
-    padding: 15,
+    backgroundColor: colors.bg,
+    borderRadius: 50,
+    padding: 8,
     position: 'absolute',
+    top: 18,
+    left: 18,
     zIndex: 1,
   },
   artworkImage: {
@@ -589,6 +722,28 @@ const styles = StyleSheet.create({
     width: 120,
     borderRadius: 7,
   },
+  reportDiv: {
+    zIndex: 2,
+    position: 'absolute',
+    right: 18,
+    top: 18,
+    backgroundColor: colors.bg,
+    borderRadius: 50,
+    padding: 8
+  },
+  ratingProfilePictureImage: {
+    height: 30,
+    width: 30,
+    borderRadius: 50
+  },
+  line: {
+    backgroundColor: colors.text,
+    height: 1,
+    width: "50%",
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginVertical: 4
+  }
 });
 
 export default OtherProfile;

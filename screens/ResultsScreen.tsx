@@ -8,10 +8,8 @@ import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
-    acCenter,
   aiCenter,
   bgGrey,
-  bgRed,
   br20,
   cBlack,
   cDisabled,
@@ -19,9 +17,7 @@ import {
   flexRow,
   jcCenter,
   mbAuto,
-  mh0,
   mh24,
-  mh4,
   mh8, mt8, mtAuto, mv24,
   mv4,
   mv8,
@@ -31,7 +27,6 @@ import {
 import { formatName } from '../helpers/NamesHelper';
 import { getImageUrl } from '../helpers/ImageHelper';
 import Card from '../components/cards/Card';
-import { Screen } from 'react-native-screens';
 
 
 type ArtPublicationType = {
@@ -82,7 +77,6 @@ const ResultsScreen = () => {
       let posts: ArtPublicationType[] = res?.data?.artPublications ?? [];
       let users: UserType[] = res?.data?.users ?? [];
 
-      posts = posts.filter((post: ArtPublicationType) => post?.userId !== context?.userId);
       users = users.filter((user: UserType) => user._id !== context?.userId);
 
       setPosts(posts);
