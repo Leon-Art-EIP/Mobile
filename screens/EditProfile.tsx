@@ -260,10 +260,49 @@ const EditProfile = () => {
       setUserData({ ...new_user });
     }
   }, [userData])
-
+  
+  const checkStripeLinkStatus = () => {
+    console.log("Making request to /api/stripe/account-link-status");
+    
+    get(
+      `/api/stripe/account-link-status`,
+      context?.token,
+      (response) => {
+        console.log("Received response:", response);
+  
+        let isLinked = false;
+  
+        if (response && response.data && response.data.msg) {
+          isLinked = response.data.msg !== "User has not linked a Stripe account";
+        } else {
+          console.error('Error: Unexpected response structure');
+        }
+  
+        if (isLinked) {
+          console.log("Stripe account is linked.");
+        } else {
+          console.log("Stripe account is not linked.");
+        }
+  
+        return isLinked;
+      },
+      (error) => {
+        if (error.response && error.response.status === 404) {
+          console.log("Stripe account is not linked.");
+          return false;
+        } else {
+          console.error('Error fetching Stripe account link status:', error);
+        }
+      }
+    );
+  };
+  
+  
+  
+  
   const linkStripeAccount = () => {
     post(
-      '/api/stripe/account-link',
+      `/api/stripe/account-link`,
       undefined,
       context?.token,
       (response) => {
@@ -279,11 +318,9 @@ const EditProfile = () => {
       (error) => {
         if (error.response && error.response.status === 400) {
           console.error('User already linked stripe account');
-          // Handle specific error for 400 status code, if needed
         } else {
           console.error('Error linking Stripe account:', error);
         }
-        // console.error('Error linking Stripe account:', error);
       }
     );
   };
@@ -438,7 +475,8 @@ const EditProfile = () => {
               <Button
                 secondary
                 value="Lier mon compte Stripe"
-                onPress={linkStripeAccount}
+                onPress={checkStripeLinkStatus}
+                // onPress={linkStripeAccount}
               />
             </View>
             </View>
