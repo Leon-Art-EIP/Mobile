@@ -16,7 +16,7 @@ import React, {useState, useContext, useEffect } from 'react';
 import {ImageLibraryOptions, launchImageLibrary} from 'react-native-image-picker';
 
 // Local imports
-import { Text } from 'react-native-svg';
+import { Text } from 'react-native';
 import { getImageUrl } from '../helpers/ImageHelper';
 import Button from '../components/buttons/Button';
 import colors from '../constants/colors';
@@ -30,6 +30,8 @@ import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
 import CheckBox from '@react-native-community/checkbox';
+import { Linking } from 'react-native';
+
 
 
 interface UserData {
@@ -259,6 +261,32 @@ const EditProfile = () => {
     }
   }, [userData])
 
+  const linkStripeAccount = () => {
+    post(
+      '/api/stripe/account-link',
+      undefined,
+      context?.token,
+      (response) => {
+        if (response && response.data && response.data.url) {
+          const url = response.data.url;
+          Linking.openURL(url)
+            .then(() => console.log('Link opened successfully'))
+            .catch((err) => console.error('Error opening link:', err));
+        } else {
+          console.error('Error: Unable to retrieve URL');
+        }
+      },
+      (error) => {
+        if (error.response && error.response.status === 400) {
+          console.error('User already linked stripe account');
+          // Handle specific error for 400 status code, if needed
+        } else {
+          console.error('Error linking Stripe account:', error);
+        }
+        // console.error('Error linking Stripe account:', error);
+      }
+    );
+  };
 
   useEffect(setupScreen, []);
 
@@ -402,7 +430,17 @@ const EditProfile = () => {
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               />
             </View>
-
+            <View>
+              <Subtitle>Compte Stripe</Subtitle>
+              <Text style={[flex1, ml0, mr8]}>
+                Stripe est utilisé pour sécuriser et faciliter les paiements sur notre plateforme d'échange d'œuvres d'art. Grâce à Stripe, vous pouvez acheter ou vendre en toute confiance, avec des transactions rapides et protégées. Vos informations financières sont cryptées et vos paiements sont garantis, ce qui assure une expérience simple et sécurisée.
+              </Text>
+              <Button
+                secondary
+                value="Lier mon compte Stripe"
+                onPress={linkStripeAccount}
+              />
+            </View>
             </View>
         </ScrollView>
 
