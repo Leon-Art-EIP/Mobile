@@ -220,7 +220,7 @@ const SingleOrder = () => {
               bold={false}
               style={[mb4, flex1]}
             >{ formatName(order?.artPublicationName) }</Title>
-            <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
+            <Text style={mr8}>{ order?.orderPrice?.toString() ?? "0" } €</Text>
           </View>
 
           <TouchableOpacity
