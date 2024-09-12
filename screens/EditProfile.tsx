@@ -483,6 +483,11 @@ const EditProfile = () => {
                 onPress={!isStripeLinked ? linkStripeAccount : undefined}
                 disabled={isStripeLinked}
               />
+              <Text style={{ marginTop: 10, color: isStripeLinked ? colors.success : colors.error }}>
+                {isStripeLinked
+                  ? "Votre compte Stripe est bien relié"
+                  : "Nous n’avons pas accès à vos informations de paiement. Merci de relier votre compte Stripe à l’application."}
+              </Text>
             </View>
             </View>
         </ScrollView>
