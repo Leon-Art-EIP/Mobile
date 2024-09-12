@@ -67,7 +67,7 @@ const EditProfile = () => {
   const [twitterUrl, setTwitterUrl] = useState<string>('');
   const [tiktokUrl, setTiktokUrl] = useState<string>('');
   const [facebookUrl, setFacebookUrl] = useState<string>('');
-
+  const [isStripeLinked, setIsStripeLinked] = useState<boolean | undefined>(undefined);
 
   const setNewBio = (new_bio: string) => {
     let new_userData: UserData | undefined = { ...userData };
@@ -80,6 +80,14 @@ const EditProfile = () => {
     return setUserData({ ...new_userData });
   }
 
+  useEffect(() => {
+    const checkLinkStatus = async () => {
+      const linked = await checkStripeLinkStatus();
+      setIsStripeLinked(linked);
+    };
+  
+    checkLinkStatus();
+  }, []);
 
   const selectImage = async (type: 'profile' | 'banner') => {
     const options: ImageLibraryOptions = {
@@ -297,9 +305,6 @@ const EditProfile = () => {
     );
   };
   
-  
-  
-  
   const linkStripeAccount = () => {
     post(
       `/api/stripe/account-link`,
@@ -474,9 +479,9 @@ const EditProfile = () => {
               </Text>
               <Button
                 secondary
-                value="Lier mon compte Stripe"
-                onPress={checkStripeLinkStatus}
-                // onPress={linkStripeAccount}
+                value={isStripeLinked ? "Compte lié" : "Lier mon compte Stripe"}
+                onPress={!isStripeLinked ? linkStripeAccount : undefined}
+                disabled={isStripeLinked}
               />
             </View>
             </View>
