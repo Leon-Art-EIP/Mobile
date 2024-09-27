@@ -1,20 +1,29 @@
 import React, { useContext } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, View, TouchableOpacity } from 'react-native';
+import {SafeAreaView, StyleSheet, StatusBar, View, TouchableOpacity, Text} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 // Local imports
 import { post } from '../../constants/fetch';
 import Title from '../../components/text/Title';
 import colors from '../../constants/colors';
-import Button from '../../components/buttons/Button';
 import { MainContext } from '../../context/MainContext';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { aiCenter, flexRow, mh8, mtAuto, mv24 } from "../../constants/styles";
+import {aiCenter, cTextDark, flexRow, mh8, ml8, mv24, pv24} from "../../constants/styles";
 import { Linking } from 'react-native';
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
+type SettingType = {
+  id: number;
+  name: string;
+  onPress: () => void;
+  iconName: string;
+};
+
 
 const Settings = () => {
   const navigation = useNavigation();
   const context = useContext(MainContext);
+
 
 
   const handleDisconnectClick = () => {
@@ -27,17 +36,15 @@ const Settings = () => {
       '/api/stripe/account-link',
       undefined,
       context?.token,
-      (response) => {
-        if (response && response.data && response.data.url) {
-          const url = response.data.url;
-          Linking.openURL(url)
-            .then(() => console.log('Link opened successfully'))
-            .catch((err) => console.error('Error opening link:', err));
-        } else {
+      (response: any) => {
+        if (!response || !response?.data || !response?.data.url) {
           console.error('Error: Unable to retrieve URL');
         }
+
+        console.log("Opening url: ", response.data.url);
+        return Linking.openURL(response.data.url);
       },
-      (error) => {
+      (error: any) => {
         if (error.response && error.response.status === 400) {
           console.error('User already linked stripe account');
           // Handle specific error for 400 status code, if needed
@@ -48,6 +55,46 @@ const Settings = () => {
       }
     );
   };
+
+
+  const SETTINGS: SettingType[] = [
+    {
+      id: 0,
+      name: 'Informations personnelles',
+      onPress: () => navigation.navigate('personal_informations'),
+      iconName: 'information-outline'
+    },
+    {
+      id: 1,
+      name: 'Mot de passe et sécurité',
+      onPress: () => navigation.navigate('password_and_security'),
+      iconName: 'security'
+    },
+    {
+      id: 2,
+      name: 'Conditions générales de vente',
+      onPress: () => navigation.navigate('general_conditions'),
+      iconName: 'text-box-multiple-outline'
+    },
+    {
+      id: 3,
+      name: 'Lier mon compte Stripe',
+      onPress: linkStripeAccount,
+      iconName: 'account-cash'
+    },
+    {
+      id: 4,
+      name: 'Tutoriel',
+      onPress: () => navigation.navigate('tutorial', { comesFromSettings: true}),
+      iconName: 'help'
+    },
+    {
+      id: 5,
+      name: 'Se déconnecter',
+      onPress: handleDisconnectClick,
+      iconName: 'logout'
+    }
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -67,41 +114,23 @@ const Settings = () => {
         <Title style={{ marginHorizontal: 24 }}>Paramètres</Title>
       </View>
 
-      <Button
-        value="Informations personnelles"
-        secondary
-        textStyle={{ fontSize: 16 }}
-        onPress={() => navigation.navigate("personal_informations")}
-      />
-      <Button
-        value="Mot de passe et sécurité"
-        secondary
-        textStyle={{ fontSize: 16, textAlign: 'left' }}
-        onPress={() => navigation.navigate("password_and_security")}
-      />
-      <Button
-        value="Conditions générales de vente"
-        secondary
-        textStyle={{ fontSize: 16 }}
-        onPress={() => navigation.navigate("general_conditions")}
-      />
-      <Button
-        secondary
-        value="Lier mon compte Stripe"
-        onPress={linkStripeAccount}
-      />
-      <Button
-        secondary
-        style={[mtAuto]}
-        value="Tutoriel"
-        onPress={() => navigation.navigate("tutorial", { comesFromSettings: true })}
-      />
-
-      {/* Log out button */}
-      <Button
-        value="Se déconnecter"
-        onPress={handleDisconnectClick}
-      />
+      { SETTINGS.map((setting: SettingType) => (
+        <TouchableOpacity
+          onPress={setting.onPress}
+          key={setting.id}
+          style={[ pv24, flexRow, aiCenter, mh8 ]}
+        >
+          <MaterialCommunityIcons
+            name={setting.iconName}
+            size={32}
+            color={colors.textDark}
+            style={[ mh8 ]}
+          />
+          <Text style={[ cTextDark, ml8 ]}>
+            { setting.name }
+          </Text>
+        </TouchableOpacity>
+      )) }
     </SafeAreaView>
   );
 };

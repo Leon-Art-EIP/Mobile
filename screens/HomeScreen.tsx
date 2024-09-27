@@ -433,7 +433,7 @@ const HomeScreen = ({ navigation }: any) => {
                         </View>
 
                         {/* To update according to the back-end */}
-                        <Text>{ post.item?.text }</Text>
+                        <Text style={cTextDark}>{ post.item?.text }</Text>
 
                         {/* if retweet, show picture */}
                         { post.item?.artPublication && (
