@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import {SafeAreaView, StyleSheet, StatusBar, View, TouchableOpacity, Text} from 'react-native';
+import {SafeAreaView, StyleSheet, StatusBar, View, TouchableOpacity, Text, ToastAndroid} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 // Local imports
@@ -31,10 +31,11 @@ const Settings = () => {
     navigation.navigate('login');
   };
 
+
   const linkStripeAccount = () => {
     post(
       '/api/stripe/account-link',
-      undefined,
+      { source: "mobile" },
       context?.token,
       (response: any) => {
         if (!response || !response?.data || !response?.data.url) {
@@ -45,6 +46,7 @@ const Settings = () => {
         return Linking.openURL(response.data.url);
       },
       (error: any) => {
+        ToastAndroid.show("Il y a eu une erreur. Veuillez réessayer");
         if (error.response && error.response.status === 400) {
           console.error('User already linked stripe account');
           // Handle specific error for 400 status code, if needed

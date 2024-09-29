@@ -7,7 +7,6 @@ import {
   ToastAndroid,
   Keyboard,
   ActivityIndicator,
-  Dimensions,
   ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,7 +24,7 @@ import { get, post } from '../constants/fetch';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { bgColor, bgDisabled, bgPlatinium, br12, br20, br5, br7, cBlack, cTextDark, flex1, flexRow, mbAuto, mh0, ml0, ml4, ml8, mlAuto, mr0, mr20, mr4, mr8, mrAuto, mt8, mtAuto, mv8, ph24, ph8 } from "../constants/styles";
+import { bgColor, bgDisabled, br20, cBlack, cTextDark, flex1, flexRow, mbAuto, mh0, ml0, ml8, mlAuto, mr0, mr20, mr8, mrAuto, mt8, mtAuto, ph24 } from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
@@ -69,8 +68,9 @@ const EditProfile = () => {
   const [facebookUrl, setFacebookUrl] = useState<string>('');
   const [isStripeLinked, setIsStripeLinked] = useState<boolean | undefined>(undefined);
 
+
   const setNewBio = (new_bio: string) => {
-    let new_userData: UserData | undefined = { ...userData };
+    const new_userData: UserData | undefined = { ...userData };
 
     if (!new_userData) {
       return;
@@ -78,16 +78,18 @@ const EditProfile = () => {
 
     new_userData.biography = new_bio;
     return setUserData({ ...new_userData });
-  }
+  };
+
 
   useEffect(() => {
     const checkLinkStatus = async () => {
       const linked = await checkStripeLinkStatus();
       setIsStripeLinked(linked);
     };
-  
+
     checkLinkStatus();
   }, []);
+
 
   const selectImage = async (type: 'profile' | 'banner') => {
     const options: ImageLibraryOptions = {
@@ -97,11 +99,11 @@ const EditProfile = () => {
 
     const response = await launchImageLibrary(options);
 
-    if (response.error) {
+    if (response?.error) {
       return console.log('ImagePicker Error: ', response.error);
     }
 
-    if (response.assets[0]?.uri) {
+    if (response && response?.assets && response?.assets[0]?.uri) {
       if (type === 'profile') {
         setProfilePicture(response?.assets[0]?.uri);
       } else {
@@ -115,6 +117,10 @@ const EditProfile = () => {
     const formData = new FormData();
     console.log(type === 'banner' ? bannerPicture : profilePicture);
     const uri: string | undefined = type === 'profile' ? profilePicture : bannerPicture;
+
+    if (!uri) {
+      return ToastAndroid.show("Veuillez réessayer plus tard", ToastAndroid.SHORT);
+    }
 
     const fileData = await RNFS.readFile(uri, 'base64');
     formData.append(
@@ -134,12 +140,16 @@ const EditProfile = () => {
       fetchUserData,
       (error: any) => {
         if (error.response.status === 413) {
-          ToastAndroid.show("Image trop grande (> 5 MB)", ToastAndroid.LONG);
+          ToastAndroid.show("Image trop grande (> 50 MB)", ToastAndroid.LONG);
+        }
+        if (error?.response?.status === 502) {
+          return console.error({ ...error });
         }
         console.error('Error publishing new profile picture : ', { ...error });
       }
     );
-  }
+  };
+
 
   const handleSaveModifications = () => {
     console.log("Modifications saved.");
@@ -153,7 +163,7 @@ const EditProfile = () => {
     if (profilePicture) {
       uploadPicture('profile');
     }
-  }
+  };
 
   const saveBiography = () => {
     post(
@@ -163,7 +173,7 @@ const EditProfile = () => {
       () => {},
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const saveIsAvailable = () => {
@@ -174,7 +184,7 @@ const EditProfile = () => {
       () => {},
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const fetchUserData = () => {
@@ -246,7 +256,7 @@ const EditProfile = () => {
     };
 
     post(url, body, token, callback, onErrorCallback);
-  }
+  };
 
 
   const setupScreen = () => {
@@ -254,7 +264,7 @@ const EditProfile = () => {
 
     Keyboard.addListener('keyboardDidShow', () => setIsKeyboardFocused(true));
     Keyboard.addListener('keyboardDidHide', () => setIsKeyboardFocused(false));
-  }
+  };
 
 
   useFocusEffect(
@@ -263,38 +273,27 @@ const EditProfile = () => {
 
   useEffect(() => {
     if (!!userData?.availability !== isAvailable) {
-      let new_user: UserData | undefined = { ...userData };
+      const new_user: UserData | undefined = { ...userData };
       new_user.availability = !new_user?.availability;
       setUserData({ ...new_user });
     }
-  }, [userData])
-  
+  }, [userData]);
+
+
   const checkStripeLinkStatus = () => {
-    console.log("Making request to /api/stripe/account-link-status");
-    
     get(
       `/api/stripe/account-link-status`,
       context?.token,
-      (response) => {
-        console.log("Received response:", response);
-  
+      (response: any) => {
         let isLinked = false;
-  
+
         if (response && response.data && response.data.msg) {
           isLinked = response.data.msg !== "User has not linked a Stripe account";
-        } else {
-          console.error('Error: Unexpected response structure');
         }
-  
-        if (isLinked) {
-          console.log("Stripe account is linked.");
-        } else {
-          console.log("Stripe account is not linked.");
-        }
-  
+
         return isLinked;
       },
-      (error) => {
+      (error: any) => {
         if (error.response && error.response.status === 404) {
           console.log("Stripe account is not linked.");
           return false;
@@ -304,7 +303,7 @@ const EditProfile = () => {
       }
     );
   };
-  
+
   const linkStripeAccount = () => {
     post(
       `/api/stripe/account-link`,

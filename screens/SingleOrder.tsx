@@ -1,6 +1,6 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, Image, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid, Alert, RefreshControl } from 'react-native';
+import { StatusBar, StyleSheet, Dimensions, View, Text, TouchableOpacity, ScrollView, ToastAndroid, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/buttons/Button';
 import Card from '../components/cards/Card';
@@ -31,7 +31,6 @@ import { formatName } from '../helpers/NamesHelper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import RatingModal from '../components/modals/RatingModal';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Input from '../components/textInput/Input';
 
@@ -86,7 +85,7 @@ const SingleOrder = () => {
         console.error({ ...err });
       }
     );
-  }
+  };
 
 
   const cancelOrder = () => {
@@ -107,7 +106,7 @@ const SingleOrder = () => {
       },
       (err: any) => console.warn({ ...err })
     );
-  }
+  };
 
 
   // When the art is received by the buyer
@@ -128,11 +127,11 @@ const SingleOrder = () => {
       },
       (err: any) => console.warn({ ...err })
     );
-  }
+  };
 
 
   const navigateToConversation = () => {
-    let convBody = {
+    const convBody = {
       UserOneId: context?.userId,
       UserTwoId: params.buy ? order?.sellerId : order?.buyerId
     };
@@ -155,7 +154,7 @@ const SingleOrder = () => {
       },
       (err: any) => console.warn({ ...err })
     );
-  }
+  };
 
 
   const refreshData = () => {
@@ -165,7 +164,7 @@ const SingleOrder = () => {
       (res: any) => setOrder(res?.data),
       (err: any) => console.warn({ ...err })
     );
-  }
+  };
 
 
   useEffect(refreshData, []);
@@ -220,7 +219,7 @@ const SingleOrder = () => {
               bold={false}
               style={[mb4, flex1]}
             >{ formatName(order?.artPublicationName) }</Title>
-            <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
+            <Text style={mr8}>{ order?.orderPrice?.toString() } €</Text>
           </View>
 
           <TouchableOpacity
@@ -344,7 +343,7 @@ const SingleOrder = () => {
 
     </SafeAreaView>
   );
-}
+};
 
 
 const styles = StyleSheet.create({

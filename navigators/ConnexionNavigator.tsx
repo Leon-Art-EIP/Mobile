@@ -45,15 +45,15 @@ const ConnexionNavigator = () => {
         context?.setUserEmail(data?.email);
       }
       setIsLoading(false);
-    })()
-  }
+    })();
+  };
 
 
-  useEffect(getToken, [])
+  useEffect(getToken, []);
 
 
   if (isLoading) {
-    return <Splash />
+    return <Splash />;
   }
 
   return context?.token ? (
@@ -63,6 +63,7 @@ const ConnexionNavigator = () => {
       <Stack.Screen name="tutorial_2" component={Tutorial_2} options={options} />
       <Stack.Screen name="tutorial_3" component={Tutorial_3} options={options} />
       <Stack.Screen name="login" component={Login} options={options} />
+      <Stack.Screen name="profilingquizz" component={ProfilingQuizzNavigator} options={options} />
     </Stack.Navigator>
   ) : (
     <Stack.Navigator>
