@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Card from './cards/Card';
-import { NotificationsType } from '../constants/notifications';
-import { Text, Touchable, TouchableOpacity, TouchableOpacityBase, View, ViewBase } from 'react-native';
-import { cBlack, cText, flexRow, mh24, mh4, mv4, ph24, ph8 } from '../constants/styles';
+import { TouchableOpacity, View } from 'react-native';
+import {flexRow, mh4, mv4, ph24, pv24} from '../constants/styles';
 import { useNavigation } from '@react-navigation/native';
-import { get, put } from '../constants/fetch';
+import { put } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import colors from '../constants/colors';
-import { capitalize, formatName } from '../helpers/NamesHelper';
+import { capitalize } from '../helpers/NamesHelper';
+import HTMLView from "react-native-htmlview";
 
 
 type NotifType = {
@@ -34,18 +34,17 @@ const NotificationCard = ({
   const navigation = useNavigation();
   const context = useContext(MainContext);
   const [text, setText] = useState<string>("");
-  console.log(item);
 
 
   const setNotifText = () => {
     switch (item?.type) {
-      case ('follow'): return setText("<b>" + item.content + '</b> a commencé à vous suivre');
-      case ('like'): return setText(item.content + ' a liké votre publication');
+      case ('follow'): return setText("<nobr><b>" + item.content + "</b> a commencé à vous suivre</nobr>");
+      case ('like'): return setText("<nobr><b>" + item.content + "</b> a liké votre publication</nobr>");
       case ('order_shipping'): return setText("Votre commande est partie de chez l'artiste");
       case ('order_processing'): return setText("L'artiste a commencé votre commande");
       default: setText("empty");
     }
-  }
+  };
 
 
   const callback = () => {
@@ -55,8 +54,14 @@ const NotificationCard = ({
       context?.token,
       () => {
         switch (item?.type) {
-          case ('follow'): return navigation.navigate('other_profile', { id: item?.referenceId });
-          case ('like'): return navigation.navigate('singleart', { id: item?.referenceId });
+          case ('follow'): return navigation.navigate(
+            'other_profile',
+            { id: item?.referenceId }
+          );
+          case ('like'): return navigation.navigate(
+            'singleart',
+            { id: item?.referenceId }
+          );
           case ('order_processing'): return navigation.navigate(
             'single_order',
             { id: item?.referenceId, buy: true }
@@ -70,7 +75,7 @@ const NotificationCard = ({
       },
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   useEffect(setNotifText, []);
@@ -85,8 +90,7 @@ const NotificationCard = ({
       onPress={callback}
       key={item.id}
     >
-      <Card style={[ mh4, mv4, flexRow, ph24 ]}>
-
+      <Card style={[ mh4, mv4, flexRow, ph24, pv24 ]}>
         <View style={{
           backgroundColor: item.read ? colors.transparent : colors.primary,
           borderRadius: 50,
@@ -97,21 +101,16 @@ const NotificationCard = ({
           marginRight: 12
         }} />
 
-        <Text
-          style={{
-            fontWeight: !item.read ? 'bold' : 'normal',
-            color: colors.black,
-            marginRight: 8
-          }}
-          numberOfLines={5}
-          lineBreakMode='tail'
-        >{ capitalize(text) }</Text>
+        <HTMLView
+          style={{ color: colors.textDark }}
+          value={capitalize(text)}
+        />
       </Card>
     </TouchableOpacity>
   ) : (
     <></>
   );
-}
+};
 
 
 export default NotificationCard;

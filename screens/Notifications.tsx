@@ -38,7 +38,7 @@ const Notifications = () => {
 
 
   const getNotifs = async () => {
-    let notifications = await getNotifications(context?.token, LIMIT, page);
+    const notifications = await getNotifications(context?.token, LIMIT, page);
 
     if (!notifications) {
       return ToastAndroid.show(
@@ -48,7 +48,7 @@ const Notifications = () => {
     }
 
     setNotifs([ ...notifications ]);
-  }
+  };
 
 
   // Unfortunately, if you move it BEFORE getNotifs, it does not work anymore
@@ -58,7 +58,7 @@ const Notifications = () => {
   const getNextPage = () => {
     setPage(currentPage => currentPage + 1);
     return getNotifs();
-  }
+  };
 
 
   const getPreviousPage = () => {
@@ -67,7 +67,7 @@ const Notifications = () => {
     }
     setPage(currentPage => currentPage - 1);
     return getNotifs();
-  }
+  };
 
 
   useEffect(() => {
@@ -102,7 +102,7 @@ const Notifications = () => {
       { isNotifErrorDisplayed && (
         <TouchableOpacity
           onPress={async () => {
-            await setupNotifications(context?.token)
+            await setupNotifications(context?.token);
             setIsNotifErrorDisplayed(false);
           }}
         >
@@ -123,13 +123,13 @@ const Notifications = () => {
             item={item}
             index={index}
           />
-        ) }
+        )}
         refreshControl={
           <RefreshControl
             tintColor={colors.primary}
             colors={[ colors.primary ]}
             refreshing={isRefreshing}
-            onRefresh={() => { getNotifs() }}
+            onRefresh={() => { getNotifs(); }}
           />
         }
         style={[ flex1 ]}
@@ -169,7 +169,7 @@ const Notifications = () => {
 
     </SafeAreaView>
   );
-}
+};
 
 
 const styles = StyleSheet.create({
