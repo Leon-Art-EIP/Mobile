@@ -102,7 +102,6 @@ const NotificationCard = ({
         }} />
 
         <HTMLView
-          style={{ color: colors.textDark }}
           value={capitalize(text)}
         />
       </Card>

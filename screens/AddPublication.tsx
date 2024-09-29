@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform, StatusBar, ToastAndroid, Dimensions } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, TouchableOpacity, Platform, StatusBar, ToastAndroid } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';  // Importer les filtres
 import Entypo from 'react-native-vector-icons/Entypo';  // Pour les icônes des filtres
-import Ionicons from 'react-native-vector-icons/Ionicons';  // Pour les icônes des filtres
+// Pour les icônes des filtres
 
 import { post, get } from '../constants/fetch';
 import colors from '../constants/colors';
@@ -12,7 +12,7 @@ import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
-import { bgColor, bgGrey, bgOffer, bgRed, br0, br20, cOffer, cPrimary, cTextDark, flex1, flexRow, jcSA, mb24, mbAuto, mh0, mh24, mh4, mh8, mtAuto, mv24, mv8, pb8, ph24, ph4, ph8, pv24, pv8 } from '../constants/styles';
+import { bgColor, bgGrey, bgOffer, br0, br20, cOffer, cPrimary, cTextDark, flex1, flexRow, jcSA, mb24, mbAuto, mh0, mh24, mh4, mtAuto, mv24, mv8, ph24, ph4, ph8, pv24, pv8 } from '../constants/styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Input from '../components/textInput/Input';
 import Card from '../components/cards/Card';
@@ -43,9 +43,9 @@ const AddPublication = ({ navigation }: any) => {
 
 
   // Adjust function to handle sub-filters
-  const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
+  const selectOrDeselect = (filterName: string, isSubFilter = false) => {
     let newFilterArray: string[] = [];
-    let array = isSubFilter ? selectedSubFilters : selectedFilters;
+    const array = isSubFilter ? selectedSubFilters : selectedFilters;
 
     if (array.includes(filterName)) {
       newFilterArray = array.filter(f => f !== filterName);
@@ -204,7 +204,7 @@ const AddPublication = ({ navigation }: any) => {
       },
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const sellWithAccount = async () => {
@@ -334,7 +334,7 @@ const AddPublication = ({ navigation }: any) => {
             <Button
               style={{ backgroundColor: colors.whitesmoke }}
               textStyle={{ color: colors.darkGreyBg }}
-              value={ selectedImage ? "Modifier l'image" : "Choisir une image"}
+              value={selectedImage ? "Modifier l'image" : "Choisir une image"}
               onPress={selectImage}
             />
           ) }
@@ -482,8 +482,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     flex: 1,
-    borderWidth: 1,
-    borderColor: colors.primary,
     backgroundColor: colors.bg,
   },
   logo: {

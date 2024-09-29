@@ -230,12 +230,13 @@ const HomeScreen = ({ navigation }: any) => {
       <ScrollView nestedScrollEnabled refreshControl={
         <RefreshControl
           refreshing={isRefreshing}
+          tintColor={context?.userColor ?? colors.primary}
           onRefresh={() => setIsRefreshing(current => !current)}
-          colors={[colors.primary]}
+          colors={[context?.userColor ?? colors.primary]}
         />
       }>
         <View style={styles.titleView}>
-          <Title style={{ color: colors.primary }}>Leon</Title>
+          <Title style={{ color: context?.userColor ?? colors.primary }}>Leon</Title>
           <Title>'Art</Title>
           <TouchableOpacity
             onPress={() => navigation.navigate('notifications')}

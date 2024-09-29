@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';
 import colors from '../constants/colors';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh8, mt8, bgRed, mh4, mb8, cBlack } from '../constants/styles';
+import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh4, cBlack } from '../constants/styles';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { MainContext } from '../context/MainContext';
 import { get } from '../constants/fetch';
@@ -28,9 +28,9 @@ const SearchScreen = ({ navigation }: any) => {
   const context = useContext(MainContext);
 
 
-  const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
+  const selectOrDeselect = (filterName: string, isSubFilter = false) => {
     let newFilterArray: string[] = [];
-    let array: any[] = isSubFilter ? selectedSubFilters : selectedFilters;
+    const array: any[] = isSubFilter ? selectedSubFilters : selectedFilters;
 
     if (array.includes(filterName)) {
       // if we must remove the value from the array
@@ -48,7 +48,7 @@ const SearchScreen = ({ navigation }: any) => {
       return setSelectedFilters((curr) => [ ...curr ]);
     }
     return setSelectedFilters([ ...newFilterArray ]);
-  }
+  };
 
 
   // Transform an array of subCategories into a single string, separated by ','
@@ -56,20 +56,20 @@ const SearchScreen = ({ navigation }: any) => {
     if (selectedSubFilters.length === 0) {
       return "";
     }
-    let filterString: string = selectedSubFilters.reduce(
+    const filterString: string = selectedSubFilters.reduce(
       (prev: string, curr: string) => prev + ',' + curr
     );
-    return `&artType=${filterString}`
-  }
+    return `&artType=${filterString}`;
+  };
 
 
   // Puts the arguments in the api URL and navigates to the page results
   const getSearchApi = () => {
-    "explorer/search?searchTerm=dev&artPage=1&artLimit=10&artistPage=1&artistLimit=10"
-    let args1: string = `searchTerm=${search.toLowerCase()}${filtersToString()}`;
-    let args2: string = `&priceRange=${priceValues}`;
-    let args3: string = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
-    let url: string = args1 + (priceValues === '0-1000' ? "" : args2) + args3;
+    "explorer/search?searchTerm=dev&artPage=1&artLimit=10&artistPage=1&artistLimit=10";
+    const args1 = `searchTerm=${search.toLowerCase()}${filtersToString()}`;
+    const args2 = `&priceRange=${priceValues}`;
+    const args3 = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
+    const url: string = args1 + (priceValues === '0-1000' ? "" : args2) + args3;
 
     if (!search.trim()) {
       setModalMessage("Veuillez entrer un champ pour votre recherche.");
@@ -78,7 +78,7 @@ const SearchScreen = ({ navigation }: any) => {
       return;
   }
     navigation.navigate('results', { url });
-  }
+  };
 
 
   /*
@@ -97,17 +97,17 @@ const SearchScreen = ({ navigation }: any) => {
       return console.error("Invalid slider price values: value A higher than B");
     }
 
-    let newValue = values[0].toString() + "-" + values[1].toString();
+    const newValue = values[0].toString() + "-" + values[1].toString();
     console.log('New price values: ', newValue);
     return setPriceValues(newValue);
-  }
+  };
 
 
   const getPriceValues: () => number[] = () => {
-    let min: string = priceValues.substring(0, priceValues.indexOf('-'));
-    let max: string = priceValues.substring(priceValues.indexOf('-') + 1, priceValues.length);
+    const min: string = priceValues.substring(0, priceValues.indexOf('-'));
+    const max: string = priceValues.substring(priceValues.indexOf('-') + 1, priceValues.length);
     return [parseInt(min), parseInt(max)];
-  }
+  };
 
 
   const clearFilters = () => {
@@ -115,7 +115,7 @@ const SearchScreen = ({ navigation }: any) => {
     setSearch('');
     setSelectedSubFilters([]);
     ToastAndroid.show("Les filtres ont été réinitialisés", ToastAndroid.SHORT);
-  }
+  };
 
 
   useEffect(() => console.log(selectedSubFilters), [selectedSubFilters]);
@@ -160,8 +160,8 @@ const SearchScreen = ({ navigation }: any) => {
         <MultiSlider
           values={getPriceValues()}
           max={5000}
-          selectedStyle={{ backgroundColor: colors.primary }}
-          markerStyle={{ backgroundColor: colors.primary }}
+          selectedStyle={{ backgroundColor: context?.userColor ?? colors.primary }}
+          markerStyle={{ backgroundColor: context?.userColor ?? colors.primary }}
           onValuesChange={setPriceValuesFromSlider}
           sliderLength={Dimensions.get('window').width - 192}
           containerStyle={{ ...mlAuto, ...mrAuto }}
@@ -247,7 +247,7 @@ const SearchScreen = ({ navigation }: any) => {
       </View>
     </SafeAreaView>
   );
-}
+};
 
 
 const styles = StyleSheet.create({

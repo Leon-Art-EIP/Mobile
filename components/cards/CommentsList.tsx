@@ -1,26 +1,35 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal, TextInput, Keyboard, ScrollView, RefreshControl } from 'react-native';
-import { get, del, post, put } from '../../constants/fetch';
+import { get, del, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
-import { bgRed, cBlack, cTextDark, flexRow, mbAuto, mh8, ml0, ml8, mlAuto, mr0, mr20, mrAuto, mtAuto } from '../../constants/styles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import Octicons from 'react-native-vector-icons/Octicons'
+import { cTextDark, flexRow, mh8, ml0, ml8, mlAuto } from '../../constants/styles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Octicons from 'react-native-vector-icons/Octicons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Card from './Card';
-import { isResumable } from 'react-native-fs';
+
+
+interface CommetListProps {
+  id: number;
+  setNestedId: (e: number) => void;
+  setAnsweringTo: (e: any) => void; // Supposed to be a profile, but cannot find its type
+  nestedId: number | undefined;
+  answeringTo: any; // Supposed to be a profile, but cannot find its type
+}
 
 
 const CommentsList = ({
   id,
   setNestedId,
   setAnsweringTo,
-  nestedId = undefined
-}) => {
+  nestedId = undefined,
+  answeringTo = -1
+}: CommetListProps) => {
   const context = useContext(MainContext);
   const [comments, setComments] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -101,6 +110,11 @@ const CommentsList = ({
       fetchComments();
     }
   }, [nestedId]);
+
+
+  useEffect(() => {
+
+  }, []);
 
 
   const deleteComment = () => {
@@ -275,8 +289,8 @@ const CommentsList = ({
             <TouchableOpacity
               onPress={() => {
                 if (!nestedId) {
-                  setNestedId(comment.id);
-                  setAnsweringTo(userProfiles[comment.userId].username);
+                  setNestedId(comment?.id);
+                  setAnsweringTo(userProfiles[comment.userId]);
                 } else {
                   setAnsweringTo(undefined);
                   setNestedId(undefined);
@@ -286,7 +300,10 @@ const CommentsList = ({
             >
               <Octicons
                 name='reply'
-                color={!!nestedId ? colors.primary : colors.darkGreyFg}
+                color={userProfiles[comment.userId].id === answeringTo.id ?
+                  context?.userColor ?? colors.primary :
+                  colors.darkGreyFg
+                }
                 size={20}
               />
             </TouchableOpacity>
@@ -300,7 +317,7 @@ const CommentsList = ({
             <AntDesign
               name={likes[comment.id] ? 'heart' : 'hearto'}
               size={20}
-              color={likes[comment.id] ? 'red' : colors.darkGreyFg}
+              color={likes[comment.id] ? context?.userColor ?? colors.primary : colors.darkGreyFg}
             />
           </TouchableOpacity>
         </View>
@@ -312,7 +329,8 @@ const CommentsList = ({
   return (
     <ScrollView
       refreshControl={<RefreshControl
-        colors={[colors.primary]}
+        colors={[context?.userColor ?? colors.primary]}
+        tintColor={context?.userColor ?? colors.primary}
         refreshing={isRefreshing}
         onRefresh={fetchComments}
       />}

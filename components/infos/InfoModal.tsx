@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, StyleSheet } from 'react-native';
 import colors from '../../constants/colors';
 import Button from '../buttons/Button';
 
@@ -59,8 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 16,
     paddingHorizontal: 24,
-    alignItems: "center",
-    borderWidth: 2,
+    alignItems: "center"
   },
   modalText: {
     color: 'black',

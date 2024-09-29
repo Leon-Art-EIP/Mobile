@@ -363,7 +363,7 @@ const SingleArt = ({ navigation, route }: any) => {
       <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
 
       <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
+        <Title style={{ color: context?.userColor ?? colors.primary }}>Leon</Title>
         <Title>'Art</Title>
 
         { context?.userId === publication?.userId ? (
@@ -373,7 +373,7 @@ const SingleArt = ({ navigation, route }: any) => {
             >
               <MaterialCommunityIcons
                 name='delete'
-                color={colors.primary}
+                color={context?.userColor ?? colors.primary}
                 size={32}
               />
             </TouchableOpacity>
@@ -406,7 +406,7 @@ const SingleArt = ({ navigation, route }: any) => {
       </View>
 
       {/* Post image */}
-      { !!getImageUrl(publication?.image) ? (
+      { getImageUrl(publication?.image) ? (
         <View
           style={{
             width: '95%',
@@ -440,7 +440,7 @@ const SingleArt = ({ navigation, route }: any) => {
             <AntDesign
               name={isLiked ? 'heart' : 'hearto'}
               size={24}
-              color={isLiked ? colors.primary : colors.black}
+              color={isLiked ? context?.userColor ?? colors.primary : colors.black}
             />
           </TouchableOpacity>
 
@@ -450,7 +450,7 @@ const SingleArt = ({ navigation, route }: any) => {
           >
             <Ionicons
               name={isSaved ? 'checkmark-circle' : 'add-circle-outline'}
-              color={isSaved ? colors.primary : colors.black} size={28}
+              color={isSaved ? context?.userColor ?? colors.primary : colors.black} size={28}
             />
           </TouchableOpacity>
 
@@ -483,14 +483,18 @@ const SingleArt = ({ navigation, route }: any) => {
 
       <View style={styles.line} />
 
+      {/*Comments*/}
       <ScrollView contentContainerStyle={{ flex: 1 }}>
         <CommentsList
           id={id}
           nestedId={nestedId}
           setNestedId={setNestedId}
+          answeringTo={answeringTo}
           setAnsweringTo={setAnsweringTo}
         />
       </ScrollView>
+
+      {/*Comment input*/}
       <CommentInput
         id={id}
         nestedId={nestedId}

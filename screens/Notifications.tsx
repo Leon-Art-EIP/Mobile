@@ -5,12 +5,10 @@ import colors from '../constants/colors';
 import { aiCenter, cTextDark, flex1, flexRow, mb8, mbAuto, mh24, mr8, mtAuto, mv24, taCenter } from '../constants/styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { getNotifications, isNotificationRegistered, setupNotifications } from '../constants/notifications';
+import { getNotifications, isNotificationRegistered } from '../constants/notifications';
 import { MainContext } from '../context/MainContext';
-import Card from '../components/cards/Card';
 import NotificationCard from '../components/NotificationCard';
 import Title from '../components/text/Title';
-import { useRefresh } from '@react-native-community/hooks';
 
 
 type NotifType = {
@@ -35,9 +33,11 @@ const Notifications = () => {
   const [notifs, setNotifs] = useState<NotifType[]>([]);
   const [page, setPage] = useState<number>(0);
   const [isNotifErrorDisplayed, setIsNotifErrorDisplayed] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
   const getNotifs = async () => {
+    setIsRefreshing(true);
     const notifications = await getNotifications(context?.token, LIMIT, page);
 
     if (!notifications) {
@@ -48,11 +48,8 @@ const Notifications = () => {
     }
 
     setNotifs([ ...notifications ]);
+    setIsRefreshing(false);
   };
-
-
-  // Unfortunately, if you move it BEFORE getNotifs, it does not work anymore
-  const { isRefreshing, onRefresh } = useRefresh(getNotifs);
 
 
   const getNextPage = () => {
@@ -99,7 +96,8 @@ const Notifications = () => {
         <Title style={mh24}>Notifications</Title>
       </View>
 
-      { isNotifErrorDisplayed && (
+      {/* This shit has to be fixed one day (but not today) */}
+      {/* isNotifErrorDisplayed && (
         <TouchableOpacity
           onPress={async () => {
             await setupNotifications(context?.token);
@@ -112,7 +110,7 @@ const Notifications = () => {
             </Text>
           </Card>
         </TouchableOpacity>
-      ) }
+      ) */}
 
       <FlatList
         data={notifs}
@@ -126,10 +124,10 @@ const Notifications = () => {
         )}
         refreshControl={
           <RefreshControl
-            tintColor={colors.primary}
-            colors={[ colors.primary ]}
+            tintColor={context?.userColor}
+            colors={[ context?.userColor ?? colors.primary ]}
             refreshing={isRefreshing}
-            onRefresh={() => { getNotifs(); }}
+            onRefresh={getNotifs}
           />
         }
         style={[ flex1 ]}

@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeNavigator from './HomeNavigator';
 import MessageNavigator from './MessageNavigator';
 import ProfileNavigator from './ProfileNavigator';
-import AddNavigator from './AddNavigator'
 
 import colors from '../constants/colors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -23,7 +22,7 @@ const BottomNavigator = () => {
       initialRouteName="Home"
       screenOptions={({ route }) => ({
         tabBarHideOnKeyboard: context?.isKeyboard,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: context?.userColor ?? colors.primary,
         tabBarInactiveTintColor: colors.disabledFg,
         tabBarShowLabel: false
       })}
@@ -96,6 +95,6 @@ const BottomNavigator = () => {
 
     </Tab.Navigator>
   );
-}
+};
 
 export default BottomNavigator;

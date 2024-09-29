@@ -10,8 +10,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 type CommentInputProps = {
   id: string;
   nestedId: number | undefined;
-  answeringTo: string | undefined;
-  setNestedId: Function;
+  answeringTo: any | undefined; // Profile type
+  setNestedId: (e: number) => void;
 }
 
 
@@ -23,11 +23,12 @@ const CommentInput = ({
 }: CommentInputProps) => {
   const [commentInput, setCommentInput] = useState('');
   const context = useContext(MainContext);
-  const [isNested, setIsNested] = useState<boolean>(!!nestedId);
+
 
   const handleCommentInput = (text: string) => {
     setCommentInput(text);
   };
+
 
   const postComment = async () => {
     if (!commentInput.trim()) {
@@ -39,7 +40,7 @@ const CommentInput = ({
       text: commentInput,
     };
 
-    if (!!nestedId) {
+    if (nestedId) {
       body = { ...body, parentCommentId: nestedId };
     }
 
@@ -56,10 +57,11 @@ const CommentInput = ({
     );
   };
 
+
   return (
     <View style={styles.commentInputContainer}>
       <TextInput
-        placeholder={!!nestedId ? "Répondre à " + answeringTo + "..." : "Commenter..."}
+        placeholder={nestedId ? "Répondre à " + answeringTo?.username + "..." : "Commenter..."}
         placeholderTextColor={colors.disabledFg}
         style={styles.commentInput}
         onChangeText={(text) => handleCommentInput(text)}
@@ -78,6 +80,7 @@ const CommentInput = ({
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   commentsContainer: {

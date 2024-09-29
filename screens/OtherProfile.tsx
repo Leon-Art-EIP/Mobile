@@ -8,12 +8,11 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, flexRow, fwBold, jcCenter, mb8, mh8, ml4, ml8, mlAuto, mr8, mrAuto, mv4, taCenter, tavCenter } from '../constants/styles';
+import { aiCenter, asCenter, cBlack, cTextDark, flex1, flexRow, fwBold, jcCenter, mb8, mh8, ml4, ml8, mlAuto, mrAuto, mv4, tavCenter } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import Card from '../components/cards/Card';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Title from '../components/text/Title';
-import { VerifyMicrodepositsError } from '@stripe/stripe-react-native';
 
 
 type UserDataType = {
@@ -112,7 +111,7 @@ const OtherProfile = () => {
         name: username,
         ids: [ convId, userId, userTwoId ]
       });
-    }
+    };
 
     const onSuccess = (resp: any) => {
       if (userData) {
@@ -124,7 +123,7 @@ const OtherProfile = () => {
         );
       }
       return console.error("Error loading user");
-    }
+    };
 
     return put(
       '/api/conversations/create',
@@ -135,7 +134,7 @@ const OtherProfile = () => {
        if (error.response.status === 409) {
          return onSuccess(error.response);
        }
-       return console.error({ ...error })
+       return console.error({ ...error });
       }
     );
   };
@@ -253,7 +252,7 @@ const OtherProfile = () => {
       (res: any) => setAverageRating(res.data.averageRating ?? 0),
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const getComments = () => {
@@ -267,7 +266,7 @@ const OtherProfile = () => {
       (res: any) => setRatings([ ...res.data ]),
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const fetchInfos = () => {
@@ -281,7 +280,7 @@ const OtherProfile = () => {
   };
 
 
-  useEffect(fetchInfos, [userData])
+  useEffect(fetchInfos, [userData]);
 
 
   useEffect(() => {
@@ -375,7 +374,10 @@ const OtherProfile = () => {
           <Button
             value={isFollowing ? 'Suivi' : 'Suivre'}
             secondary={isFollowing}
-            style={styles.contactAndFollowBtn}
+            style={[
+              styles.contactAndFollowBtn,
+              { backgroundColor: context?.userColor ?? colors.primary }
+            ]}
             textStyle={{ fontSize: 14, textAlign: 'center' }}
             onPress={handleFollowButtonClick}
           />
@@ -441,6 +443,7 @@ const OtherProfile = () => {
           ) : (
             <FlatList
               data={userArtworks}
+              numColumns={3}
               renderItem={({ item, index }: { item: UserArtworkType, index: number }) => (
                 <TouchableOpacity
                   key={item._id}
@@ -519,7 +522,7 @@ const OtherProfile = () => {
             <ScrollView>
               <Title size={20}>Description</Title>
               <Text style={cTextDark}>
-                { !!userData?.biography ?
+                { userData?.biography ?
                   userData.biography :
                   "Cet personne utilise Leon'art pour redécouvrir l'art !"
                 }
