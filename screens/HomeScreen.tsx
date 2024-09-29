@@ -27,10 +27,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import Title from "../components/text/Title";
 import ArtistCard from "../components/cards/ArtistCard";
 import ArticleCard from '../components/cards/ArticleCard';
-import { setupNotifications, isNotificationRegistered, getNotificationCount } from '../constants/notifications';
+import { setupNotifications, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { acCenter, aiCenter, bgColor, bgGrey, bgRed, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh4, mh8, ml4, ml8, mlAuto, mr4, mt8, mtAuto, mv24, fwBold, br20 } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, ml4, ml8, mr4, mt8, mtAuto, mv24, fwBold } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
 
@@ -106,19 +106,22 @@ const HomeScreen = ({ navigation }: any) => {
     get(
       "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
-      (response) => setPublications(response?.data),
-      (error) => {
-        ToastAndroid.show("Error fetching publications", ToastAndroid.SHORT);
-        return console.error("Error fetching publications:", error);
+      (response: any) => setPublications(response?.data),
+      (error: any) => {
+        ToastAndroid.show(
+          "Une erreur est survenue. Veuillez réessayer plus tard",
+          ToastAndroid.SHORT
+        );
+        return console.error("Error fetching publications:", {...error});
       }
     );
   };
 
 
   const getHasUnreadNotifications = async () => {
-    let unreadNumber: number | undefined = await getNotificationCount(context?.token) as number;
+    const unreadNumber: number | undefined = await getNotificationCount(context?.token) as number;
     setHasUnreadNotifications(unreadNumber ?? 0);
-  }
+  };
 
 
   const getPosts = () => {
@@ -151,7 +154,7 @@ const HomeScreen = ({ navigation }: any) => {
 
       setPosts([ ...new_array ]);
       setIsRefreshing(false);
-    }
+    };
 
     setIsRefreshing(true);
     return get(
@@ -160,7 +163,7 @@ const HomeScreen = ({ navigation }: any) => {
       callback,
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const likePost = (id: string) => {
@@ -171,7 +174,7 @@ const HomeScreen = ({ navigation }: any) => {
       getPosts,
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   // if publications is true, it will load art publications, else the posts
@@ -339,7 +342,7 @@ const HomeScreen = ({ navigation }: any) => {
                   onPress={() => handleToArtistProfile(e.item)}
                   item={e.item}
                 />
-              ) }
+              )}
             />
           ) }
         </View>
@@ -382,7 +385,7 @@ const HomeScreen = ({ navigation }: any) => {
           </View>
 
           {/* If is art publication, then post */}
-          { !!isPublications ? (
+          { isPublications ? (
               <View style={styles.publicationsContainer}>
                 <FlatList
                   horizontal={false}
