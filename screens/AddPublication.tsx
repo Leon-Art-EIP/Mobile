@@ -125,8 +125,9 @@ const AddPublication = ({ navigation }: any) => {
       formData,
       context?.token,
       () => {
-        context?.setIsKeyboard(true);
-        navigation.navigate('main');
+        context?.setIsKeyboard(false);
+        ToastAndroid.show("Votre oeuvre a été publiée avec succès !", ToastAndroid.SHORT);
+        navigation.navigate('profile');
       },
       (error) => {
         console.error('Error publishing:', error);
@@ -137,11 +138,6 @@ const AddPublication = ({ navigation }: any) => {
         }
       }
     );
-
-    setModalType('success');
-    setModalMessage("Votre œuvre a bien été publiée.");
-    setModalVisible(true);
-    navigation.navigate('homemain');
   };
 
 
@@ -198,8 +194,8 @@ const AddPublication = ({ navigation }: any) => {
       { text: postText, artPublicationId: undefined },
       context?.token,
       () => {
-        context?.setIsKeyboard(true);
-        navigation.navigate('Home');
+        context?.setIsKeyboard(false);
+        navigation.navigate('profile');
         ToastAndroid.show("Post envoyé !", ToastAndroid.SHORT);
       },
       (err: any) => console.error({ ...err })
@@ -255,7 +251,10 @@ const AddPublication = ({ navigation }: any) => {
         '/api/art-publication',
         formData,
         context?.token,
-        () => navigation.navigate('main'),
+        () => {
+          ToastAndroid.show("Votre oeuvre a été publiée avec succès !", ToastAndroid.SHORT);
+          navigation.navigate('profile');
+        },
         (error) => {
           console.error('Error publishing:', error);
           if (error.response && error.response.data && error.response.data.errors) {
@@ -265,10 +264,6 @@ const AddPublication = ({ navigation }: any) => {
           }
         }
       );
-      setModalMessage("Votre œuvre a bien été publiée.");
-      setModalType('success');
-      setModalVisible(true);
-      navigation.navigate('homemain');
     }
     else {
       Alert.alert('Account Not Linked', 'Please link your Stripe account before selling.');
@@ -375,7 +370,7 @@ const AddPublication = ({ navigation }: any) => {
                 onPress={() => setIsArtTypeDisplayed(e => !e)}
               >
                 <Text style={[ flex1, selectedFilters.length !== 0 ? cPrimary : cTextDark ]}>
-                  Genre
+                  Type
                 </Text>
                 <Entypo
                   style={[ mtAuto, mbAuto ]}

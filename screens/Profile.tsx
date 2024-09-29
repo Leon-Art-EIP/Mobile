@@ -383,7 +383,7 @@ const Profile = () => {
               )}
               refreshControl={(
                 <RefreshControl
-                  colors={[colors.primary]}
+                  colors={[context?.userColor ?? colors.primary]}
                   refreshing={isRefreshing}
                   onRefresh={reloadProfile}
                 />

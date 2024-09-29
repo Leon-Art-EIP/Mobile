@@ -29,6 +29,7 @@ import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
 import CheckBox from '@react-native-community/checkbox';
+import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 
 
 interface UserData {
@@ -305,7 +306,7 @@ const EditProfile = () => {
           onPress={() => selectImage('banner')}
           title="Modifier la bannière"
           style={[ cBlack, styles.bannerTouchable]}
-          textStyle={{ cBlack }}
+          textStyle={{ color: context?.userColor ?? colors.primary }}
         />
       </ImageBackground>
 
@@ -422,8 +423,8 @@ const EditProfile = () => {
               />
             </View>
             <View style={styles.socialMedia}>
-              <Ionicons
-                name="logo-pinterest"
+              <FontAwesome5Icon
+                name="tiktok"
                 color={colors.darkGreyBg}
                 size={24}
               />

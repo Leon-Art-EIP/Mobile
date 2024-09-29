@@ -300,7 +300,7 @@ const CommentsList = ({
             >
               <Octicons
                 name='reply'
-                color={userProfiles[comment.userId].id === answeringTo.id ?
+                color={comment.userId === answeringTo.id ?
                   context?.userColor ?? colors.primary :
                   colors.darkGreyFg
                 }

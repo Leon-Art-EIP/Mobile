@@ -17,8 +17,8 @@ import Input from '../components/textInput/Input';
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [selectedSubFilters, setSelectedSubFilters] = useState<string[]>([]);
+  const [selectedFilter, setSelectedFilter] = useState<string>("");
+  const [selectedSubFilter, setSelectedSubFilter] = useState<string>("");
   const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [priceValues, setPriceValues] = useState<string>("0-1000");
@@ -29,44 +29,19 @@ const SearchScreen = ({ navigation }: any) => {
 
 
   const selectOrDeselect = (filterName: string, isSubFilter = false) => {
-    let newFilterArray: string[] = [];
-    const array: any[] = isSubFilter ? selectedSubFilters : selectedFilters;
-
-    if (array.includes(filterName)) {
-      // if we must remove the value from the array
-      newFilterArray = array.filter(
-        (f: string) => f !== filterName
-      );
-    } else {
-      // or if we must add it
-      newFilterArray = [ ...array, filterName ];
-    }
-
     if (isSubFilter) {
-      setSelectedSubFilters([ ...newFilterArray ]);
-      // not the best thing but this only way I found to trigger rerender
-      return setSelectedFilters((curr) => [ ...curr ]);
+      setSelectedSubFilter(curr => curr === filterName ? "" : filterName);
+    } else {
+      setSelectedFilter(curr => curr === filterName ? "" : filterName);
+      setSelectedSubFilter("");
     }
-    return setSelectedFilters([ ...newFilterArray ]);
-  };
-
-
-  // Transform an array of subCategories into a single string, separated by ','
-  const filtersToString = () => {
-    if (selectedSubFilters.length === 0) {
-      return "";
-    }
-    const filterString: string = selectedSubFilters.reduce(
-      (prev: string, curr: string) => prev + ',' + curr
-    );
-    return `&artType=${filterString}`;
   };
 
 
   // Puts the arguments in the api URL and navigates to the page results
   const getSearchApi = () => {
     "explorer/search?searchTerm=dev&artPage=1&artLimit=10&artistPage=1&artistLimit=10";
-    const args1 = `searchTerm=${search.toLowerCase()}${filtersToString()}`;
+    const args1 = `searchTerm=${search.toLowerCase()}${selectedSubFilter.toLowerCase()}`;
     const args2 = `&priceRange=${priceValues}`;
     const args3 = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
     const url: string = args1 + (priceValues === '0-1000' ? "" : args2) + args3;
@@ -76,7 +51,7 @@ const SearchScreen = ({ navigation }: any) => {
       setModalType('error');
       setModalVisible(true);
       return;
-  }
+    }
     navigation.navigate('results', { url });
   };
 
@@ -113,13 +88,10 @@ const SearchScreen = ({ navigation }: any) => {
   const clearFilters = () => {
     setPriceValues("0-1000");
     setSearch('');
-    setSelectedSubFilters([]);
+    setSelectedSubFilter("");
+    setSelectedFilter('');
     ToastAndroid.show("Les filtres ont été réinitialisés", ToastAndroid.SHORT);
   };
-
-
-  useEffect(() => console.log(selectedSubFilters), [selectedSubFilters]);
-  useEffect(() => console.log(selectedFilters), [selectedFilters]);
 
 
   useEffect(() => {
@@ -207,14 +179,14 @@ const SearchScreen = ({ navigation }: any) => {
 
             {/* Subfilter list */}
             <View style={styles.subFilterList}>
-              { selectedFilters.includes(filter.category) && filter.types.map((subFilter: string) => (
+              { selectedFilter === filter.category && filter.types.map((subFilter: string) => (
                 <TouchableOpacity
                   key={subFilter}
                   style={styles.subFilterTouchableOpacity}
                   onPress={() => selectOrDeselect(subFilter, true)}
                 >
                   <Text
-                    style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary :  colors.black }}
+                    style={{ color: selectedSubFilter === subFilter ? colors.primary :  colors.black }}
                   >{ subFilter }</Text>
                 </TouchableOpacity>
               )) }
