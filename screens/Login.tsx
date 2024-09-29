@@ -36,7 +36,6 @@ const Login = ({ navigation }: any) => {
 
     setPassword("");
     setEmail("");
-    console.log('response: ', { ...response.data });
     const tokenObject: TokenObjectType = {
       token: response.data.token,
       email: response.data.user.email,
@@ -44,7 +43,6 @@ const Login = ({ navigation }: any) => {
       isArtist: !!response.data.user.availability,
       username: response.data.user.username
     };
-    console.log("token object: ", { ...tokenObject });
 
     try {
       await AsyncStorage.setItem('jwt', JSON.stringify(tokenObject));
@@ -59,10 +57,12 @@ const Login = ({ navigation }: any) => {
     context?.setUsername(tokenObject.username);
     setIsLoading(false);
     return navigation.navigate('main');
-  }
+  };
 
 
   const googleOauth = async () => {
+    setIsLoading(true);
+
     try {
       GoogleSignin.configure({
         webClientId: process.env.REACT_APP_GOOGLE_WEBCLIENTID
@@ -89,7 +89,7 @@ const Login = ({ navigation }: any) => {
         console.log('Another error');
       }
     }
-  }
+  };
 
 
   const onLoginError = async (error: any) => {
@@ -111,7 +111,7 @@ const Login = ({ navigation }: any) => {
     }
     console.error('Error config: ', { ...error.config });
     setIsLoading(false);
-  }
+  };
 
 
   const handleLogin = () => {
@@ -124,7 +124,7 @@ const Login = ({ navigation }: any) => {
       undefined,
       onLogin,
       onLoginError
-    )
+    );
   };
 
 

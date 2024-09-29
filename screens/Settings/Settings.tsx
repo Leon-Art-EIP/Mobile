@@ -1,16 +1,24 @@
 import React, { useContext } from 'react';
-import { SafeAreaView, StyleSheet, StatusBar, View, TouchableOpacity } from 'react-native';
+import {SafeAreaView, StyleSheet, StatusBar, View, TouchableOpacity, Text, ToastAndroid} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 // Local imports
 import { post } from '../../constants/fetch';
 import Title from '../../components/text/Title';
 import colors from '../../constants/colors';
-import Button from '../../components/buttons/Button';
 import { MainContext } from '../../context/MainContext';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { aiCenter, flexRow, mh8, mtAuto, mv24 } from "../../constants/styles";
+import {aiCenter, cTextDark, flexRow, mh24, mh8, mv24, mv8, ph24, pv8} from "../../constants/styles";
 import { Linking } from 'react-native';
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
+
+type SettingType = {
+  name: string;
+  icon: string;
+  onPress: () => void;
+};
+
 
 const Settings = () => {
   const navigation = useNavigation();
@@ -40,14 +48,25 @@ const Settings = () => {
       (error) => {
         if (error.response && error.response.status === 400) {
           console.error('User already linked stripe account');
-          // Handle specific error for 400 status code, if needed
+          ToastAndroid.show("Votre compte est déjà lié !", ToastAndroid.SHORT);
         } else {
+          ToastAndroid.show("Une erreur s'est produite, veuillez réessayer plus tard", ToastAndroid.LONG);
           console.error('Error linking Stripe account:', error);
         }
-        // console.error('Error linking Stripe account:', error);
       }
     );
   };
+
+
+  const SETTINGS: SettingType[] = [
+    { name: 'Informations personnelles', icon: 'account', onPress: () => navigation.navigate('personal_informations') },
+    { name: 'Mot de passe et sécurité', icon: 'security', onPress: () => navigation?.navigate('password_and_security') },
+    { name: 'Conditions générales de vente', icon: 'text-box-outline', onPress: () => navigation.navigate('general_conditions') },
+    { name: 'Lier mon compte de paiement', icon: 'account-cash', onPress: linkStripeAccount },
+    { name: 'Tutoriel', icon: 'help', onPress: () => navigation.navigate('tutorial', { comesFromSettings: true }) },
+    { name: 'Se déconnecter', icon: 'logout', onPress: handleDisconnectClick }
+  ];
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -67,41 +86,24 @@ const Settings = () => {
         <Title style={{ marginHorizontal: 24 }}>Paramètres</Title>
       </View>
 
-      <Button
-        value="Informations personnelles"
-        secondary
-        textStyle={{ fontSize: 16 }}
-        onPress={() => navigation.navigate("personal_informations")}
-      />
-      <Button
-        value="Mot de passe et sécurité"
-        secondary
-        textStyle={{ fontSize: 16, textAlign: 'left' }}
-        onPress={() => navigation.navigate("password_and_security")}
-      />
-      <Button
-        value="Conditions générales de vente"
-        secondary
-        textStyle={{ fontSize: 16 }}
-        onPress={() => navigation.navigate("general_conditions")}
-      />
-      <Button
-        secondary
-        value="Lier mon compte Stripe"
-        onPress={linkStripeAccount}
-      />
-      <Button
-        secondary
-        style={[mtAuto]}
-        value="Tutoriel"
-        onPress={() => navigation.navigate("tutorial", { comesFromSettings: true })}
-      />
-
-      {/* Log out button */}
-      <Button
-        value="Se déconnecter"
-        onPress={handleDisconnectClick}
-      />
+      <View>
+        { SETTINGS.map((setting: SettingType) => (
+          <TouchableOpacity
+            key={setting.name}
+            onPress={setting.onPress}
+            style={[ph24, pv8, mv8, flexRow, aiCenter]}
+          >
+            <MaterialCommunityIcons
+              name={setting.icon}
+              size={24}
+              color={colors.textDark}
+            />
+            <Text style={[mh24, cTextDark]}>
+              { setting.name }
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </SafeAreaView>
   );
 };
