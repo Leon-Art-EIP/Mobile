@@ -41,7 +41,8 @@ const Login = ({ navigation }: any) => {
       email: response.data.user.email,
       id: response.data.user.id,
       isArtist: !!response.data.user.availability,
-      username: response.data.user.username
+      username: response.data.user.username,
+      userColor: colors.primary
     };
 
     try {
@@ -55,6 +56,7 @@ const Login = ({ navigation }: any) => {
     context?.setUserId(tokenObject.id);
     context?.setisArtist(response.data.user.availability);
     context?.setUsername(tokenObject.username);
+    context?.setUserColor(tokenObject.userColor);
     setIsLoading(false);
     return navigation.navigate('main');
   };

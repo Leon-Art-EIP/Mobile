@@ -1,4 +1,4 @@
-import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, Dimensions, ToastAndroid } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-native-modal';
@@ -9,7 +9,7 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24, bgRed } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24 } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -278,7 +278,10 @@ const Profile = () => {
 
       {/* Profile picture */}
       <View style={styles.overlayImage}>
-        <View style={styles.circleImageContainer}>
+        <View style={[
+          styles.circleImageContainer,
+          { borderColor: context?.userColor }
+        ]}>
           <Image
             source={{ uri: getImageUrl(userData?.profilePicture) }}
             style={styles.profilePicture}
@@ -597,7 +600,6 @@ const styles = StyleSheet.create({
     height: 123,
     backgroundColor: colors.white,
     borderRadius: 100,
-    borderColor: colors.primary,
     position: 'absolute',
     top: -55,
     borderWidth: 4,

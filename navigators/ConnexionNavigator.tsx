@@ -37,23 +37,24 @@ const ConnexionNavigator = () => {
       const data: TokenObjectType = JSON.parse(value);
 
       if (data) {
-        console.log("Found a token. Redirecting ...", ...value);
+        console.log("Found a token. Redirecting ...", value);
         context?.setToken(data?.token);
         context?.setUserId(data?.id);
         context?.setisArtist(data?.isArtist);
         context?.setUsername(data?.username);
         context?.setUserEmail(data?.email);
+        context?.setUserColor(data?.userColor);
       }
       setIsLoading(false);
-    })()
-  }
+    })();
+  };
 
 
-  useEffect(getToken, [])
+  useEffect(getToken, []);
 
 
   if (isLoading) {
-    return <Splash />
+    return <Splash />;
   }
 
   return context?.token ? (

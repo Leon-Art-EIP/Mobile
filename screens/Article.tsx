@@ -1,42 +1,58 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import React, {useEffect} from 'react';
+import {StyleSheet, ScrollView, TouchableOpacity, Text, Image} from 'react-native';
 import colors from '../constants/colors';
-import Title from '../components/text/Title';
-import Button from '../components/buttons/Button';
-import Content from '../components/text/Content';
+import HTMLView from 'react-native-htmlview';
+import {aiCenter, br12, cText, cTextDark, flexRow, fwBold, mb24, mb4, ml8, mv24} from "../constants/styles";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {useNavigation, useRoute} from "@react-navigation/native";
+import {getImageUrl} from "../helpers/ImageHelper";
+import {formatName} from "../helpers/NamesHelper";
 
-const Article = ({ navigation, route }: any) => {
+const Article = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
   const { article } = route.params;
 
-  const previous = () => {
-    navigation.navigate('homemain');
-  };
+  useEffect(() => {
+    console.log(article);
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.logo}>
-          <Title style={{ color: colors.primary }}>Leon</Title>
-          <Title>'Art</Title>
-        </View>
-        <View style={styles.artTitleContainer}>
-          <Title style={styles.artTitle}>
-            {article.title}
-          </Title>
-        </View>
-        <Content style={styles.textInput}>
-          {article.content}
-        </Content>
-      </ScrollView>
-      <View style={styles.buttonContainer}>
-        <Button
-          style={styles.button}
-          textStyle={{ color: colors.black }}
-          value="Retour"
-          onPress={previous}
+    <SafeAreaView style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={[mb4, flexRow, aiCenter]}
+      >
+        <Ionicons
+          name='chevron-back'
+          size={32}
+          color={colors.textDark}
         />
-      </View>
-    </View>
+        <Text style={[cTextDark, { fontSize: 20 }, fwBold, ml8]}>
+          { formatName(article.title, 30) }
+        </Text>
+      </TouchableOpacity>
+
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <Image
+            source={{ uri: getImageUrl(article?.mainImage) }}
+            style={[{ height: 200}, mv24, br12]}
+          />
+          <Text style={styles.artTitle}>
+            {article.title}
+          </Text>
+
+        <Text style={[cText, mb24]}>
+          Écrit par {article.author?.username ?? "un inconnu"}
+        </Text>
+
+        <HTMLView
+          value={article.content}
+        />
+
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -47,8 +63,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   scrollContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingHorizontal: 8
   },
   logo: {
     flexDirection: 'row',
@@ -57,14 +72,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 5,
   },
-  artTitleContainer: {
-    flexDirection: 'row',
-    paddingRight: 20,
-    paddingLeft: 20,
-  },
   artTitle: {
-    textAlign: 'center',
-    marginBottom: 0,
     fontSize: 40,
     color: colors.black,
     fontWeight: 'bold',
