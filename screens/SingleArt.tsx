@@ -5,6 +5,7 @@ import {
   FlatList,
   Image,
   Linking,
+  RefreshControl,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -33,9 +34,11 @@ import {
   mbAuto,
   mh8,
   ml4,
+  ml8,
   mlAuto,
   mr20,
   mr4,
+  mr8,
   mrAuto,
   mt4,
   mtAuto,
@@ -90,6 +93,7 @@ const SingleArt = ({ navigation, route }: any) => {
   const [isReportPanelVisible, setIsReportPanelVisible] = useState<boolean>(false);
   const [currency, setCurrency] = useState<string>('€');
   const [picture, setPicture] = useState<string | undefined>(undefined);
+  const [isPictureReady, setIsPictureReady] = useState<boolean>(false);
 
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
@@ -119,8 +123,8 @@ const SingleArt = ({ navigation, route }: any) => {
       fetchArtistDetails();
     }
     if (publication) {
-      setPicture(publication.image);
-      console.log('picture: ', picture);
+      setPicture(publication?.image);
+      setIsPictureReady(true);
     }
   }, [publication]);
 
@@ -358,7 +362,8 @@ const SingleArt = ({ navigation, route }: any) => {
     get(url, token, callback, onErrorCallback);
   };
 
-  return (
+
+  return !!isPictureReady ? (
     <SafeAreaView style={[bgColor, flex1, ph24, pv4]}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
 
@@ -406,29 +411,20 @@ const SingleArt = ({ navigation, route }: any) => {
       </View>
 
       {/* Post image */}
-      { getImageUrl(publication?.image) ? (
-        <View
-          style={{
-            width: '95%',
-            height: imageSize.height * 0.95,
-            maxHeight: 200,
-            borderRadius: 20,
-            overflow: 'hidden',
-            alignSelf: 'center',
-            backgroundColor: colors.disabledBg,
-            marginTop: 10,
-          }}
-        >
+      { !!picture && isPictureReady && (
           <ImageViewer
-            backgroundColor="transparent"
-            imageUrls={[{ url: getImageUrl(picture) ?? ' ' }]}
-            failImageSource={{ url: NOT_FOUND }}
+            style={{
+              marginHorizontal: 8,
+              borderRadius: 20,
+              overflow: 'hidden'
+            }}
+            backgroundColor={colors.disabledBg}
+            imageUrls={[{ url: getImageUrl(picture) ?? NOT_FOUND }]}
             renderIndicator={() => <></>}
+            onDoubleClick={() => console.log('picture: ', picture)}
+            failImageSource={{ url: NOT_FOUND }}
             loadingRender={() => <Text style={cTextDark}>Loading...</Text>}
           />
-        </View>
-      ) : (
-        <View style={styles.img} />
       ) }
 
       <View style={[pv4]}>
@@ -571,6 +567,17 @@ const SingleArt = ({ navigation, route }: any) => {
         </SlidingUpPanel>
       ) }
 
+    </SafeAreaView>
+  ) : (
+    <SafeAreaView>
+      <StatusBar barStyle='dark-content' backgroundColor={colors.bg} />
+
+      <ScrollView
+        refreshControl={<RefreshControl
+          refreshing={true}
+          onRefresh={getPublication}
+        />}
+      />
     </SafeAreaView>
   );
 };

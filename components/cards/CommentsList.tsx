@@ -6,7 +6,7 @@ import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
-import { cTextDark, flexRow, mh8, ml0, ml8, mlAuto } from '../../constants/styles';
+import { cTextDark, flexRow, mh8, ml0, ml8, mlAuto, mr8 } from '../../constants/styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -275,7 +275,7 @@ const CommentsList = ({
           {/* Report */}
           <TouchableOpacity
             onPress={() => navigation.navigate('report', { id: comment?.id, type: 'post' })}
-            style={[mlAuto]}
+            style={[mlAuto, mr8]}
           >
             <AntDesign
               name="warning"
@@ -312,7 +312,7 @@ const CommentsList = ({
           {/* Like */}
           <TouchableOpacity
             onPress={() => handleLikePress(comment.id)}
-            style={isNested ? ml8 : ml0}
+            style={ml8}
           >
             <AntDesign
               name={likes[comment.id] ? 'heart' : 'hearto'}

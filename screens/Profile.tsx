@@ -116,7 +116,6 @@ const Profile = () => {
     }
 
     const url = `/api/art-publication/user/${context.userId}`;
-    console.log(context);
 
     const callback = (response: any) => {
       setUserArtworks(response.data);
@@ -153,7 +152,6 @@ const Profile = () => {
     };
 
     const onErrorCallback = (error: any) => {
-      console.log(error.status);
       if (error?.status === 401) {
         ToastAndroid.show("Veuillez vous reconnecter", ToastAndroid.SHORT);
         return navigation.navigate('login');

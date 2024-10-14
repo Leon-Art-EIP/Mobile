@@ -2,7 +2,7 @@ import colors from '../constants/colors';
 
 
 const getImageUrl = (urlFromBack: string | undefined) => {
-  if (!urlFromBack) {
+  if (!urlFromBack || urlFromBack === "") {
     return undefined;
   }
 
