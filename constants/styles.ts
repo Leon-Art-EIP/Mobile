@@ -1,5 +1,5 @@
 import Recat from 'react';
-import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
+import { ImageStyle, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import colors from './colors';
 
 /*
@@ -111,6 +111,12 @@ const br12: StyleProp<any> = { borderRadius: 12 };
 const br20: StyleProp<any> = { borderRadius: 20 };
 const br50: StyleProp<any> = { borderRadius: 50 };
 
+
+// Aspect
+const aspVideo: StyleProp<any> = { aspectRatio: '16/9' };
+const aspSquare: StyleProp<any> = { aspectRatio: '1/1' };
+const aspImage: StyleProp<any> = { aspectRatio: '4/3' };
+
 export {
   flexRow,
   displayFlex,
@@ -127,5 +133,6 @@ export {
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft, tavCenter,
   bgColor, bgRed, bgGrey, bgPlatinium, bgDisabled, bgOffer,
   br0, br5, br7, br12, br20, br50,
-  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark, cOffer
+  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark, cOffer,
+  aspVideo, aspSquare, aspImage
 };

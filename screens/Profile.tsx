@@ -1,4 +1,4 @@
-import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, Dimensions, ToastAndroid, ScrollView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-native-modal';
@@ -9,7 +9,7 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24 } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24, aspSquare } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -142,16 +142,23 @@ const Profile = () => {
 
     const callback = (response: any) => {
       setUserData(response.data);
-      fetchUserArtworks();
 
       const socialLinks = response.data.socialMediaLinks || {};
       setInstagramUrl(socialLinks.instagram || '');
       setTwitterUrl(socialLinks.twitter || '');
       setTiktokUrl(socialLinks.tiktok || '');
       setFacebookUrl(socialLinks.facebook || '');
+
+      fetchUserArtworks();
     };
 
     const onErrorCallback = (error: any) => {
+      console.log(error.status);
+      if (error?.status === 401) {
+        ToastAndroid.show("Veuillez vous reconnecter", ToastAndroid.SHORT);
+        return navigation.navigate('login');
+      }
+
       Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
       return console.error('Error fetching user data:', error);
     };
@@ -180,10 +187,13 @@ const Profile = () => {
 
 
   const reloadProfile = () => {
-    console.log("context: ", context);
     setIsRefreshing(true);
-    fetchUserData();
-    updateCollections();
+    fetchUserData()
+    .then(() => {
+      updateCollections().then(() => {
+        setIsRefreshing(false)
+      })
+    });
   };
 
 
@@ -208,11 +218,13 @@ const Profile = () => {
 
     const callback = (response: any) => {
       Alert.alert('Oeuvre ajoutée à la collection "' + collectionName + '".');
+      setIsRefreshing(false);
     };
 
     const onErrorCallback = (error: any) => {
       console.error('Error while saving to collection:', error);
       Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+      setIsRefreshing(false);
     };
 
     post(url, body, token, callback, onErrorCallback);
@@ -267,6 +279,7 @@ const Profile = () => {
           />
         </TouchableOpacity>
       </View>
+
       {/* Banner */}
       <View style={styles.banner}>
         <Image
@@ -352,19 +365,29 @@ const Profile = () => {
         <View style={styles.squareContainer}>
 
           { userArtworks.length === 0 ? (
-            <View style={[ flex1, aiCenter, jcCenter ]}>
+            <ScrollView
+              refreshControl={(
+                <RefreshControl
+                  colors={[context?.userColor ?? colors.primary]}
+                  refreshing={isRefreshing}
+                  onRefresh={reloadProfile}
+                />
+              )}
+              contentContainerStyle={[flex1, aiCenter]}
+            >
               <Image
                 source={require('../assets/icons/box.png')}
                 style={[
                   { width: 80, height: 80 },
                   mlAuto,
+                  mtAuto,
                   mrAuto,
                 ]}
               />
-              <Text style={[ cTextDark ]}>
+              <Text style={[ cTextDark, mbAuto ]}>
                 Cet utilisateur n'a pas posté d'oeuvres !
               </Text>
-            </View>
+            </ScrollView>
           ) : (
             <FlatList
               data={userArtworks}
@@ -373,7 +396,7 @@ const Profile = () => {
                 <TouchableOpacity
                   onPress={() => handleArtworkClick(e.item._id)}
                   key={e.item._id}
-                  style={[mh4, mv4]}
+                  style={[mh4, mv4, flex1]}
                 >
                   <Image
                     source={{ uri: getImageUrl(e.item.image) }}
@@ -381,6 +404,7 @@ const Profile = () => {
                   />
                 </TouchableOpacity>
               )}
+              contentContainerStyle={{ paddingHorizontal: 12 }}
               refreshControl={(
                 <RefreshControl
                   colors={[context?.userColor ?? colors.primary]}
@@ -406,7 +430,8 @@ const Profile = () => {
                   key={item?._id.toString()}
                   style={[
                     styles.squareFrame,
-                    { backgroundColor: getRandomBgColor() }
+                    { backgroundColor: getRandomBgColor() },
+                    { maxWidth: '50%' }
                   ]}
                   onPress={() => handleCollectionClick(item)}
                 >
@@ -736,7 +761,7 @@ const styles = StyleSheet.create({
   },
   artworkImage: {
     height: 120,
-    width: 120,
+    width: '100%',
     borderRadius: 7,
   },
 });

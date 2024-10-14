@@ -75,7 +75,8 @@ const HomeScreen = ({ navigation }: any) => {
       (response) => {
         setArticles(response?.data || []);
       },
-      (error) => {
+      (error: any) => {
+        console.log('Is no good: ', error?.status);
         console.error("Error fetching articles:", error);
         ToastAndroid.show("Error fetching articles", ToastAndroid.SHORT);
       }
@@ -93,6 +94,16 @@ const HomeScreen = ({ navigation }: any) => {
       context?.token,
       (response: any) => {
         setArtists(response?.data?.artists);
+      },
+      (err: any) => {
+        if (err?.status === 401) {
+          ToastAndroid.show(
+            "Votre session a expiré. Veuillez vous reconnecter",
+            ToastAndroid.SHORT
+          );
+          return navigation.navigate('login');
+        }
+        console.warn({ ...err });
       }
     );
   };
@@ -108,6 +119,14 @@ const HomeScreen = ({ navigation }: any) => {
       context?.token,
       (response: any) => setPublications(response?.data),
       (error: any) => {
+        if (error?.status === 401) {
+          context.logOut();
+          ToastAndroid.show(
+            "Votre session a expiré. Veuillez vous reconnecter",
+            ToastAndroid.SHORT
+          );
+          return navigation.navigate('login');
+        }
         ToastAndroid.show(
           "Une erreur est survenue. Veuillez réessayer plus tard",
           ToastAndroid.SHORT
