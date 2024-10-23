@@ -14,9 +14,11 @@ const Article = () => {
   const route = useRoute();
   const { article } = route.params;
 
+
   useEffect(() => {
     console.log(article);
   }, []);
+
 
   return (
     <SafeAreaView style={styles.container}>

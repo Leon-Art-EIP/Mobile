@@ -65,27 +65,42 @@ const HomeScreen = ({ navigation }: any) => {
   };
 
 
+  const logOut = () => {
+    ToastAndroid.show('Veuillez vous reconnecter', ToastAndroid.SHORT);
+    context?.logOut();
+    return navigation.navigate('login');
+  }
+
+
+  const onErrorCallback = (error: any) => {
+    if (error.response.status === 401) {
+      return logOut();
+    }
+
+    console.error({ ...error });
+    ToastAndroid.show("Une erreur est survenue", ToastAndroid.SHORT);
+  }
+
+
   const getArticles = () => {
     if (!context?.token) {
-      return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
+      return logOut();
     }
-      get(
+
+    get(
       "/api/article/latest?limit=10&page=0",
       context?.token,
       (response) => {
         setArticles(response?.data || []);
       },
-      (error: any) => {
-        console.error("Error fetching articles:", error);
-        ToastAndroid.show("Error fetching articles", ToastAndroid.SHORT);
-      }
+      onErrorCallback
     );
   };
 
 
   const getArtists = () => {
     if (!context?.token) {
-      return ToastAndroid.show("Problem authentificating", ToastAndroid.SHORT);
+      return logOut();
     }
 
     get(
@@ -94,29 +109,21 @@ const HomeScreen = ({ navigation }: any) => {
       (response: any) => {
         setArtists(response?.data?.artists);
       },
-      (err: any) => {
-        console.warn({ ...err });
-      }
+      onErrorCallback
     );
   };
 
 
   const getPublications = () => {
     if (!context?.token) {
-      return ToastAndroid.show("Problem authenticating", ToastAndroid.SHORT);
+      return logOut();
     }
 
     get(
       "/api/art-publication/feed/latest?page=0&limit=50",
       context?.token,
       (response: any) => setPublications(response?.data),
-      (error: any) => {
-        ToastAndroid.show(
-          "Une erreur est survenue. Veuillez réessayer plus tard",
-          ToastAndroid.SHORT
-        );
-        return console.error("Error fetching publications:", {...error});
-      }
+      onErrorCallback
     );
   };
 
@@ -164,7 +171,7 @@ const HomeScreen = ({ navigation }: any) => {
       "/api/posts?filter=popular",
       context?.token,
       callback,
-      (err: any) => console.error({ ...err })
+      onErrorCallback
     );
   };
 
@@ -175,7 +182,7 @@ const HomeScreen = ({ navigation }: any) => {
       { id: id },
       context?.token,
       getPosts,
-      (err: any) => console.error({ ...err })
+      onErrorCallback
     );
   };
 
@@ -239,6 +246,12 @@ const HomeScreen = ({ navigation }: any) => {
         />
       }>
         <View style={styles.titleView}>
+
+          {/* This button is only for dev purpose */}
+          <Button
+            value='reset token'
+            onPress={() => context?.setToken(e => e + 'invalid')}
+          />
           <Title style={{ color: context?.userColor ?? colors.primary }}>Leon</Title>
           <Title>'Art</Title>
           <TouchableOpacity

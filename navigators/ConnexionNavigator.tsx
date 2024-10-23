@@ -17,6 +17,8 @@ import Tutorial_3 from '../screens/Tutorial_3';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Splash from '../screens/Splash';
 import { TokenObjectType } from '../constants/artTypes';
+import { post } from '../constants/fetch';
+import { NavigationContext } from '@react-navigation/native';
 
 
 const ConnexionNavigator = () => {
@@ -36,16 +38,32 @@ const ConnexionNavigator = () => {
 
       const data: TokenObjectType = JSON.parse(value);
 
-      if (data) {
-        console.log("Found a token. Redirecting ...", value);
-        context?.setToken(data?.token);
-        context?.setUserId(data?.id);
-        context?.setisArtist(data?.isArtist);
-        context?.setUsername(data?.username);
-        context?.setUserEmail(data?.email);
-        context?.setUserColor(data?.userColor);
+      if (!data) {
+        return setIsLoading(false);
       }
-      setIsLoading(false);
+
+      post(
+        '/api/auth/validate-reset-token',
+        { token: data?.token },
+        undefined,
+        (res: any) => {
+          console.log('no problem: ', { ...res });
+          context?.setToken(data?.token);
+          context?.setUserId(data?.id);
+          context?.setisArtist(data?.isArtist);
+          context?.setUsername(data?.username);
+          context?.setUserEmail(data?.email);
+          context?.setUserColor(data?.userColor);
+          setIsLoading(false);
+        },
+        (err: any) => {
+          console.log("error getting token: ", { ...err.response.status });
+          if (err.response.status === 404) {
+            context?.logOut();
+            setIsLoading(false);
+          }
+        }
+      );
     })();
   };
 
