@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';
 import colors from '../constants/colors';
@@ -25,6 +25,7 @@ const SearchScreen = ({ navigation }: any) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState('error');  // State to track the type of the modal
+  let _inputRef: TextInput | null = null;
   const context = useContext(MainContext);
 
 
@@ -90,17 +91,28 @@ const SearchScreen = ({ navigation }: any) => {
     setSearch('');
     setSelectedSubFilter("");
     setSelectedFilter('');
-    ToastAndroid.show("Les filtres ont été réinitialisés", ToastAndroid.SHORT);
+
+    if (!!_inputRef) {
+      _inputRef.clear();
+    }
+
+    ToastAndroid.show(
+      "Les filtres ont été réinitialisés",
+      ToastAndroid.SHORT
+    );
   };
 
 
+  // Get art filters from back-end
   useEffect(() => {
-    // Get art filters from back-end
     get(
       "/api/explorer/art-types",
       context?.token,
       (res: any) => setFilters(res?.data),
-      () => ToastAndroid.show("Error getting art types", ToastAndroid.SHORT)
+      () => ToastAndroid.show(
+        "Nous n'avons pas pu récupérer les filtres. Veuillez réessayer plus tard",
+        ToastAndroid.SHORT
+      )
     );
   }, []);
 
@@ -110,8 +122,9 @@ const SearchScreen = ({ navigation }: any) => {
       <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
 
       <View style={styles.searchView}>
-        <Input
-          onTextChanged={setSearch}
+        <TextInput
+          ref={ref => _inputRef = ref}
+          onChangeText={setSearch}
           placeholderTextColor={colors.disabledFg}
           placeholder="Rechercher..."
           style={styles.searchBar}
@@ -258,7 +271,7 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     marginBottom: 'auto',
     shadowColor: colors.transparent,
-    marginHorizontal: 12,
+    marginHorizontal: 24,
     marginVertical: 12,
     fontSize: 16,
     color: colors.black
