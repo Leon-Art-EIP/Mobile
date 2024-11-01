@@ -37,26 +37,28 @@ const Article = () => {
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Image
-            source={{ uri: getImageUrl(article?.mainImage) }}
-            style={[{ height: 200}, mv24, br12]}
-          />
-          <Text style={styles.artTitle}>
-            {article.title}
-          </Text>
+        <Image
+          source={{ uri: getImageUrl(article?.mainImage) }}
+          style={[{ height: 200}, mv24, br12]}
+        />
 
-        <Text style={[cText, mb24]}>
+        <Text style={styles.artTitle}>
+          {article.title}
+        </Text>
+
+        <Text style={[cTextDark, mb24]}>
           Écrit par {article.author?.username ?? "un inconnu"}
         </Text>
 
         <HTMLView
           value={article.content}
+          stylesheet={htmlStyles}
         />
-
       </ScrollView>
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -97,6 +99,16 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: colors.secondary,
   },
+});
+
+
+const htmlStyles = StyleSheet.create({
+  p: {
+    color: colors.textDark
+  },
+  a: {
+    color: colors.primary
+  }
 });
 
 export default Article;

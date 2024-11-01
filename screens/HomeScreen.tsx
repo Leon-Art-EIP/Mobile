@@ -30,7 +30,7 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, ml4, ml8, mr4, mt8, mtAuto, mv24, fwBold } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, ml4, ml8, mr4, mt8, mtAuto, mv24, fwBold, mvAuto, mr8, mr20, bgRed } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
 
@@ -246,12 +246,6 @@ const HomeScreen = ({ navigation }: any) => {
         />
       }>
         <View style={styles.titleView}>
-
-          {/* This button is only for dev purpose */}
-          <Button
-            value='reset token'
-            onPress={() => context?.setToken(e => e + 'invalid')}
-          />
           <Title style={{ color: context?.userColor ?? colors.primary }}>Leon</Title>
           <Title>'Art</Title>
           <TouchableOpacity
@@ -267,59 +261,61 @@ const HomeScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
 
+        {/* News */}
         <View>
-
-        {/* Actuality */}
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => handleToArticlesList(articles)}>
-          <Title style={[ fwBold, flex1, { marginLeft: 32, marginTop: 20, marginBottom: 8 }]} size={24} >
-            Actualités
-          </Title>
-          <Entypo
-            name="chevron-thin-right"
-            color={colors.black}
-            size={20}
-            style={{
-              marginRight: 230,
-              marginTop: 15,
-            }}
-          />
-        </TouchableOpacity>
-
-        {articles.length === 0 ? (
-          <View style={styles.emptyView}>
-            <Image
-              style={{ height: 50, width: 50 }}
-              source={require('../assets/icons/box.png')}
-            />
+          <TouchableOpacity
+            style={[flexRow, aiCenter, flex1]}
+            onPress={() => handleToArticlesList(articles)}
+          >
             <Title
-              size={18}
-              style={{ color: colors.disabledFg }}
-            >C'est tout vide par ici !</Title>
-            <Text style={{
-              fontWeight: '500',
-              color: colors.disabledFg
-            }}>Essaie de recharger la page</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={articles}
-            contentContainerStyle={styles.flatList}
-            renderItem={(e: ListRenderItemInfo<ArticleType>) => (
-              <ArticleCard
-                onPress={() => handleToArticle(e.item)}
-                item={e.item}
-                path="article"
-              />
-            )}
-            keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            horizontal
-            scrollEnabled
-          />
-        )}
+              style={styles.newsTitle}
+              size={24}
+            >
+              Actualités
+            </Title>
 
-      </View>
+            <Entypo
+              name="chevron-thin-right"
+              color={colors.black}
+              size={20}
+              style={[mvAuto, mr20]}
+            />
+          </TouchableOpacity>
+
+          { articles.length === 0 ? (
+            <View style={styles.emptyView}>
+              <Image
+                style={{ height: 50, width: 50 }}
+                source={require('../assets/icons/box.png')}
+              />
+              <Title
+                size={18}
+                style={{ color: colors.disabledFg }}
+              >C'est tout vide par ici !</Title>
+              <Text style={{
+                fontWeight: '500',
+                color: colors.disabledFg
+              }}>Essaie de recharger la page</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={articles}
+              contentContainerStyle={styles.flatList}
+              renderItem={(e: ListRenderItemInfo<ArticleType>) => (
+                <ArticleCard
+                  onPress={() => handleToArticle(e.item)}
+                  item={e.item}
+                  path="article"
+                />
+              )}
+              keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              horizontal
+              scrollEnabled
+            />
+          ) }
+        </View>
 
         {/* Artistes */}
         <View>
@@ -329,6 +325,7 @@ const HomeScreen = ({ navigation }: any) => {
           >
             Artistes
           </Title>
+
           { artists.length === 0 ? (
             <View style={styles.emptyView}>
               <Image
@@ -365,19 +362,11 @@ const HomeScreen = ({ navigation }: any) => {
         </View>
 
         {/* Pour Vous */}
-
         <View>
           <View style={[flexRow]}>
             <Title size={24} style={{ margin: 32, marginBottom: 8 }}>
               Publications
             </Title>
-            {/* Button to posts screen
-            <Button
-              secondary
-              onPress={() => navigation.navigate('posts_screen')}
-              value='Posts >'
-              style={mlAuto}
-            /> */}
           </View>
 
           {/* oeuvres or posts chooser */}
@@ -403,95 +392,98 @@ const HomeScreen = ({ navigation }: any) => {
 
           {/* If is art publication, then post */}
           { isPublications ? (
-              <View style={styles.publicationsContainer}>
-                <FlatList
-                  horizontal={false}
-                  key={"artFlatList"}
-                  data={publications.filter((pub) => pub?.userId !== context?.userId)}
-                  numColumns={3}
-                  renderItem={(e) => (
-                    <TouchableOpacity
-                      key={e.item._id + Math.random().toString()}
-                      onPress={() => towardsPost(e.item?._id)}
-                      style={{ flex: 1/3 }}
-                    >
-                      <View style={styles.publicationItem}>
+            <View style={styles.publicationsContainer}>
+              <FlatList
+                horizontal={false}
+                key={"artFlatList"}
+                data={publications.filter((pub) => pub?.userId !== context?.userId)}
+                numColumns={3}
+                renderItem={(e) => (
+                  <TouchableOpacity
+                    key={e.item._id + Math.random().toString()}
+                    onPress={() => towardsPost(e.item?._id)}
+                    style={{ flex: 1/3 }}
+                  >
+                    <View style={styles.publicationItem}>
+                      <Image
+                        style={styles.publicationImage}
+                        source={{ uri: getImageUrl(e.item?.image) }}
+                        onError={() => console.log("Image loading error")}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ) : (
+            <View style={styles.publicationsContainer}>
+              <FlatList
+                key={"postFlatList"}
+                data={posts.filter((post) => post?.userId !== context?.userId)}
+                numColumns={1}
+                renderItem={(post) => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('singlepost', { post: post.item })}
+                  >
+                    <Card style={mh0}>
+                      <View style={flexRow}>
                         <Image
-                          style={styles.publicationImage}
-                          source={{ uri: getImageUrl(e.item?.image) }}
-                          onError={() => console.log("Image loading error")}
+                          source={{ uri: getImageUrl(post.item?.user?.profilePicture ?? "") }}
+                          style={{
+                            height: 30,
+                            width: 30,
+                            borderRadius: 50
+                          }}
                         />
+
+                        <Text style={[cTextDark, mtAuto, mbAuto, ml8]}>
+                          { post.item?.user?.username }
+                        </Text>
                       </View>
-                    </TouchableOpacity>
-                  )}
-                />
-              </View>
-            ) : (
-              <View style={styles.publicationsContainer}>
-                <FlatList
-                  key={"postFlatList"}
-                  data={posts.filter((post) => post?.userId !== context?.userId)}
-                  numColumns={1}
-                  renderItem={(post) => (
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('singlepost', { post: post.item })}
-                    >
-                      <Card style={mh0}>
-                        <View style={flexRow}>
+
+                      {/* To update according to the back-end */}
+                      <Text style={cTextDark}>{ post.item?.text }</Text>
+
+                      {/* if retweet, show picture */}
+                      { post.item?.artPublication && (
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate('singleart', { id: post.item?.artPublicationId })}
+                        >
                           <Image
-                            source={{ uri: getImageUrl(post.item?.user?.profilePicture ?? "") }}
-                            style={{
-                              height: 30,
-                              width: 30,
-                              borderRadius: 50
-                            }}
+                            source={{ uri: getImageUrl(post.item?.artPublication?.image ?? "") }}
+                            style={styles.postImage}
                           />
+                        </TouchableOpacity>
+                      ) }
 
-                          <Text style={[cTextDark, mtAuto, mbAuto, ml8]}>
-                            { post.item?.user?.username }
+                      {/* Post action bar */}
+                      <View style={[flexRow]}>
+
+                        {/* Like button */}
+                        <TouchableOpacity
+                          onPress={() => likePost(post.item.id)}
+                          style={[flexRow, mt8]}
+                        >
+                          <AntDesign
+                            name={post.item?.likes?.includes(context?.userId ?? "", 0) ? "heart" : "hearto"}
+                            size={18}
+                            color={post.item?.likes?.includes(context?.userId ?? "", 0) ? colors.primary : colors.textDark}
+                          />
+                          <Text style={[cTextDark, ml8, { fontSize: 12 }]}>
+                            { post.item?.likes?.length }
                           </Text>
-                        </View>
+                        </TouchableOpacity>
 
-                        {/* To update according to the back-end */}
-                        <Text>{ post.item?.text }</Text>
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ) }
+        </View>
 
-                        {/* if retweet, show picture */}
-                        { post.item?.artPublication && (
-                          <TouchableOpacity
-                            onPress={() => navigation.navigate('singleart', { id: post.item?.artPublicationId })}
-                          >
-                            <Image
-                              source={{ uri: getImageUrl(post.item?.artPublication?.image ?? "") }}
-                              style={styles.postImage}
-                            />
-                          </TouchableOpacity>
-                        ) }
-
-                        {/* Post action bar */}
-                        <View style={[flexRow]}>
-
-                          {/* Like button */}
-                          <TouchableOpacity
-                            onPress={() => likePost(post.item.id)}
-                            style={[flexRow, mt8]}
-                          >
-                            <AntDesign
-                              name={post.item?.likes?.includes(context?.userId ?? "", 0) ? "heart" : "hearto"}
-                              size={18}
-                              color={post.item?.likes?.includes(context?.userId ?? "", 0) ? colors.primary : colors.textDark}
-                            />
-                            <Text style={[cTextDark, ml8, { fontSize: 12 }]}>{ post.item?.likes?.length }</Text>
-                          </TouchableOpacity>
-
-                        </View>
-                      </Card>
-                    </TouchableOpacity>
-                  )}
-                />
-              </View>
-            ) }
-          </View>
-
+        {/* Notification Sliding Panel */}
         <SlidingUpPanel
           ref={_slidingPanel}
           height={200}
@@ -623,6 +615,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.tertiary,
     marginVertical: 8
+  },
+  newsTitle: {
+    fontWeight: 'bold',
+    flex: 1,
+    marginLeft: 32,
+    marginTop: 8,
+    marginBottom: 8
   }
 });
 
