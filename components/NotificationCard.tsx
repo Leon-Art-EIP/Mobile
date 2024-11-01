@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Card from './cards/Card';
-import { TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import {flexRow, mh4, mv4, ph24, pv24} from '../constants/styles';
 import { useNavigation } from '@react-navigation/native';
 import { put } from '../constants/fetch';
@@ -103,6 +103,7 @@ const NotificationCard = ({
 
         <HTMLView
           value={capitalize(text)}
+          stylesheet={styles}
         />
       </Card>
     </TouchableOpacity>
@@ -110,6 +111,13 @@ const NotificationCard = ({
     <></>
   );
 };
+
+
+const styles = StyleSheet.create({
+  nobr: {
+    color: colors.textDark
+  }
+});
 
 
 export default NotificationCard;

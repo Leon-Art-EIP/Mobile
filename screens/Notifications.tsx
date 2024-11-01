@@ -84,7 +84,6 @@ const Notifications = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-
       {/* Header */}
       <View style={[ flexRow, mb8 ]}>
         <TouchableOpacity
@@ -164,7 +163,6 @@ const Notifications = () => {
           />
         </TouchableOpacity>
       </View>
-
     </SafeAreaView>
   );
 };
