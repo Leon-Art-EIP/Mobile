@@ -12,6 +12,7 @@ type CommentInputProps = {
   nestedId: number | undefined;
   answeringTo: any | undefined; // Profile type
   setNestedId: (e: number) => void;
+  trigger: Function;
 }
 
 
@@ -19,7 +20,8 @@ const CommentInput = ({
   id,
   nestedId = undefined,
   answeringTo = undefined,
-  setNestedId = () => {}
+  setNestedId = () => {},
+  trigger = (curr: number) => curr + 1
 }: CommentInputProps) => {
   const [commentInput, setCommentInput] = useState('');
   const context = useContext(MainContext);
@@ -50,6 +52,7 @@ const CommentInput = ({
       context?.token,
       (_) => {
         setCommentInput('');
+        trigger((curr: number) => curr + 1);
       },
       (error) => {
         console.error('Error posting comments:', error);

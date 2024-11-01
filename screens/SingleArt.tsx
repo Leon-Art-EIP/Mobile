@@ -43,6 +43,7 @@ import {
   mt4,
   mtAuto,
   mv0,
+  mv24,
   mv8,
   ph24,
   ph8,
@@ -67,6 +68,11 @@ import { formatName } from '../helpers/NamesHelper';
 
 
 const NOT_FOUND = "https://qph.cf2.quoracdn.net/main-qimg-1a4bafe2085452fdc55f646e3e31279c-lq";
+
+type ImageSizeType = {
+  width: number;
+  height: number;
+};
 
 
 const SingleArt = ({ navigation, route }: any) => {
@@ -94,8 +100,11 @@ const SingleArt = ({ navigation, route }: any) => {
   const [currency, setCurrency] = useState<string>('€');
   const [picture, setPicture] = useState<string | undefined>(undefined);
   const [isPictureReady, setIsPictureReady] = useState<boolean>(false);
+  const [imageSize, setImageSize] = useState<ImageSizeType>({ width: 0, height: 0 });
 
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  // This is a state that triggers the refresh of the comment list
+  const [commentRefreshTrigger, setCommentsRefreshTrigger] = useState<number>(0);
+
 
   useEffect(() => {
     if (isDeleteModalShown) {
@@ -106,17 +115,20 @@ const SingleArt = ({ navigation, route }: any) => {
     }
   }, [isDeleteModalShown]);
 
+
   useEffect(() => {
     if (isReportPanelVisible) {
       setIsDeleteModalShown(false);
     }
   }, [isReportPanelVisible]);
 
+
   useEffect(() => {
     getPublication();
     checkIsLiked();
     checkIsSaved();
   }, [id]);
+
 
   useEffect(() => {
     if (publication && publication.userId) {
@@ -128,6 +140,7 @@ const SingleArt = ({ navigation, route }: any) => {
     }
   }, [publication]);
 
+
   useEffect(() => {
     setIsDeleteModalShown(false);
     setIsReportPanelVisible(false);
@@ -135,6 +148,7 @@ const SingleArt = ({ navigation, route }: any) => {
     checkIsLiked();
     checkIsSaved();
   }, []);
+
 
   useEffect(() => {
     const imageUrl = getImageUrl(publication?.image);
@@ -147,6 +161,7 @@ const SingleArt = ({ navigation, route }: any) => {
       });
     }
   }, [publication]);
+
 
   const fetchArtistDetails = async () => {
     const onErrorCallback = (error: any) => {
@@ -165,6 +180,7 @@ const SingleArt = ({ navigation, route }: any) => {
       onErrorCallback,
     );
   };
+
 
   const deletePost = () => {
     const callback = () => {
@@ -185,6 +201,7 @@ const SingleArt = ({ navigation, route }: any) => {
     del(`/api/art-publication/${id}`, context?.token, callback, onErrorCallback);
   };
 
+
   const getArtistName = (userId: string) => {
     get(
       `/api/user/profile/${userId}`,
@@ -197,6 +214,7 @@ const SingleArt = ({ navigation, route }: any) => {
       },
     );
   };
+
 
   const fetchPaymentSheetParams = () => {
     const requestData = {
@@ -222,9 +240,11 @@ const SingleArt = ({ navigation, route }: any) => {
     );
   };
 
+
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
   };
+
 
   const getPublication = () => {
     setIsRefreshing(true);
@@ -244,14 +264,17 @@ const SingleArt = ({ navigation, route }: any) => {
     );
   };
 
+
   const handleSavedButtonClick = async () => {
     setModalVisible(true);
   };
+
 
   const closeModal = () => {
     setModalVisible(false);
     setNewCollectionName('');
   };
+
 
   const addToCollection = async (collectionName: string) => {
     if (!token) {
@@ -285,6 +308,7 @@ const SingleArt = ({ navigation, route }: any) => {
     closeModal();
   };
 
+
   const likePublication = async () => {
     if (!token) {
       return console.error('Token JWT not found. Make sure the user is logged in.');
@@ -303,6 +327,7 @@ const SingleArt = ({ navigation, route }: any) => {
 
     post(url, body, token, onPost, onPostError);
   };
+
 
   const checkIsLiked = async () => {
     if (!token) {
@@ -325,6 +350,7 @@ const SingleArt = ({ navigation, route }: any) => {
 
     return get(url, token, callback, onErrorCallback);
   };
+
 
   const checkIsSaved = async () => {
     if (!token) {
@@ -367,37 +393,20 @@ const SingleArt = ({ navigation, route }: any) => {
     <SafeAreaView style={[bgColor, flex1, ph24, pv4]}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
 
-      <View style={styles.logo}>
-        <Title style={{ color: context?.userColor ?? colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
+      <View style={[flexRow, acCenter, mv24, mh8]}>
+        {/* Back button */}
+        <TouchableOpacity
+          onPress={navigation.goBack}
+          style={[mr8]}
+        >
+          <Ionicons
+            name="chevron-back-outline"
+            color={colors.black}
+            size={32}
+          />
+        </TouchableOpacity>
 
-        { context?.userId === publication?.userId ? (
-            <TouchableOpacity
-              style={[mtAuto, mbAuto, mlAuto, mr20]}
-              onPress={() => setIsDeleteModalShown(true)}
-            >
-              <MaterialCommunityIcons
-                name='delete'
-                color={context?.userColor ?? colors.primary}
-                size={32}
-              />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={[mtAuto, mbAuto, mlAuto, mr20]}
-              onPress={() => navigation.navigate('report', { id: publication?._id, type: 'post' })}
-            >
-              <MaterialIcons
-                name="report-problem"
-                color={colors.tertiary}
-                size={24}
-              />
-            </TouchableOpacity>
-          ) }
-
-      </View>
-
-      <View style={[flexRow, acCenter, mv8, mh8]}>
+        {/* User profile */}
         <TouchableOpacity
           onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
           style={[bgGrey, { borderRadius: 50, height: 30, marginTop: 'auto', marginBottom: 'auto' }]}
@@ -407,24 +416,54 @@ const SingleArt = ({ navigation, route }: any) => {
             style={{ height: 30, width: 30, borderRadius: 50 }}
           />
         </TouchableOpacity>
+
+        {/* Username */}
         <Text style={styles.artTitle}>{ formatName(publication?.name) }</Text>
+
+        {/* Report or delete button */}
+        { context?.userId === publication?.userId ? (
+          <TouchableOpacity
+            style={[mtAuto, mbAuto, mlAuto, mr8]}
+            onPress={() => setIsDeleteModalShown(true)}
+          >
+            <MaterialCommunityIcons
+              name="delete"
+              color={context?.userColor ?? colors.primary}
+              size={32}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[mtAuto, mbAuto, mlAuto, mr8]}
+            onPress={() => navigation.navigate(
+              'report',
+              { id: publication?._id, type: 'post' }
+            )}
+          >
+            <MaterialIcons
+              name="report-problem"
+              color={context?.userColor ?? colors.primary}
+              size={24}
+            />
+          </TouchableOpacity>
+        ) }
       </View>
 
       {/* Post image */}
       { !!picture && isPictureReady && (
-          <ImageViewer
-            style={{
-              marginHorizontal: 8,
-              borderRadius: 20,
-              overflow: 'hidden'
-            }}
-            backgroundColor={colors.disabledBg}
-            imageUrls={[{ url: getImageUrl(picture) ?? NOT_FOUND }]}
-            renderIndicator={() => <></>}
-            onDoubleClick={() => console.log('picture: ', picture)}
-            failImageSource={{ url: NOT_FOUND }}
-            loadingRender={() => <Text style={cTextDark}>Loading...</Text>}
-          />
+        <ImageViewer
+          style={{
+            marginHorizontal: 8,
+            borderRadius: 20,
+            overflow: 'hidden'
+          }}
+          backgroundColor={colors.disabledBg}
+          imageUrls={[{ url: getImageUrl(picture) ?? NOT_FOUND }]}
+          renderIndicator={() => <></>}
+          onDoubleClick={() => console.log('picture: ', picture)}
+          failImageSource={{ url: NOT_FOUND }}
+          loadingRender={() => <Text style={cTextDark}>Loading...</Text>}
+        />
       ) }
 
       <View style={[pv4]}>
@@ -446,7 +485,8 @@ const SingleArt = ({ navigation, route }: any) => {
           >
             <Ionicons
               name={isSaved ? 'checkmark-circle' : 'add-circle-outline'}
-              color={isSaved ? context?.userColor ?? colors.primary : colors.black} size={28}
+              color={isSaved ? context?.userColor ?? colors.primary : colors.black}
+              size={28}
             />
           </TouchableOpacity>
 
@@ -462,9 +502,9 @@ const SingleArt = ({ navigation, route }: any) => {
                 style={[mtAuto, mbAuto, ml4, mr4]}
                 color={colors.offerFg}
               />
-              <Text style={styles.priceSignText}>{
-                publication?.price?.toString() + ' ' + currency
-              }</Text>
+              <Text style={styles.priceSignText}>
+                { publication?.price?.toString() + ' ' + currency }
+              </Text>
             </TouchableOpacity>
           ) }
         </View>
@@ -487,12 +527,14 @@ const SingleArt = ({ navigation, route }: any) => {
           setNestedId={setNestedId}
           answeringTo={answeringTo}
           setAnsweringTo={setAnsweringTo}
+          trigger={commentRefreshTrigger}
         />
       </ScrollView>
 
       {/*Comment input*/}
       <CommentInput
         id={id}
+        trigger={setCommentsRefreshTrigger}
         nestedId={nestedId}
         answeringTo={answeringTo}
       />

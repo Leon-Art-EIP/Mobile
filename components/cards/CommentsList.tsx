@@ -6,7 +6,7 @@ import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
-import { cTextDark, flexRow, mh8, ml0, ml8, mlAuto, mr8 } from '../../constants/styles';
+import { cTextDark, flexRow, mh8, ml0, ml8, mlAuto, mr20, mr8 } from '../../constants/styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -20,6 +20,7 @@ interface CommetListProps {
   setAnsweringTo: (e: any) => void; // Supposed to be a profile, but cannot find its type
   nestedId: number | undefined;
   answeringTo: any; // Supposed to be a profile, but cannot find its type
+  trigger: number;
 }
 
 
@@ -28,7 +29,8 @@ const CommentsList = ({
   setNestedId,
   setAnsweringTo,
   nestedId = undefined,
-  answeringTo = -1
+  answeringTo = -1,
+  trigger = 0
 }: CommetListProps) => {
   const context = useContext(MainContext);
   const [comments, setComments] = useState([]);
@@ -43,9 +45,11 @@ const CommentsList = ({
   const [likes, setLikes] = useState({});
   const navigation = useNavigation();
 
+
   useEffect(() => {
     fetchComments();
   }, [id]);
+
 
   const getUsername = (userId: string) => {
     if (!context?.token) {
@@ -74,6 +78,7 @@ const CommentsList = ({
       }
     );
   };
+
 
   const fetchComments = () => {
     if (!context?.token) {
@@ -106,15 +111,15 @@ const CommentsList = ({
 
 
   useEffect(() => {
+    fetchComments();
+  }, [trigger]);
+
+
+  useEffect(() => {
     if (!nestedId) {
       fetchComments();
     }
   }, [nestedId]);
-
-
-  useEffect(() => {
-
-  }, []);
 
 
   const deleteComment = () => {
@@ -257,7 +262,6 @@ const CommentsList = ({
 
         {/* Footer */}
         <View style={styles.commentFooter}>
-
           {/* Nested comments */}
           { comment.nestedComments && comment.nestedComments.length > 0 && (
             <TouchableOpacity
@@ -275,7 +279,7 @@ const CommentsList = ({
           {/* Report */}
           <TouchableOpacity
             onPress={() => navigation.navigate('report', { id: comment?.id, type: 'post' })}
-            style={[mlAuto, mr8]}
+            style={[mlAuto, mr20]}
           >
             <AntDesign
               name="warning"
