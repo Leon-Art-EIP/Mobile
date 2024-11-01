@@ -404,7 +404,7 @@ const Profile = () => {
                     { maxWidth: '50%' }
                   ]}
                   onPress={() => navigation.navigate(
-                    'colletion',
+                    'collection',
                     { collection: item }
                   )}
                 >

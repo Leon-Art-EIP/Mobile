@@ -37,29 +37,36 @@ const AddPublication = ({ navigation }: any) => {
 
   // Etats pour les filtres de genres
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<string | undefined>(undefined);
   const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
-  const [selectedSubFilters, setSelectedSubFilters] = useState<string[]>([]);
+  const [selectedSubFilters, setSelectedSubFilters] = useState<string | undefined>(undefined);
 
 
   // Adjust function to handle sub-filters
   const selectOrDeselect = (filterName: string, isSubFilter = false) => {
+    /*
     let newFilterArray: string[] = [];
     const array = isSubFilter ? selectedSubFilters : selectedFilters;
 
     if (array.includes(filterName)) {
       newFilterArray = array.filter(f => f !== filterName);
       if (!isSubFilter) {
-        handleType('');
+        setType('');
       }
     } else {
       newFilterArray = [...array, filterName];
       if (!isSubFilter) {
-        handleType(filterName);
+        setType(filterName);
       }
     }
 
     isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
+    */
+    if (!!isSubFilter) {
+      setSelectedSubFilters(curr => curr === filterName ? undefined : filterName);
+    } else {
+      setSelectedFilters(curr => curr === filterName ? undefined : filterName);
+    }
   };
 
 
@@ -87,10 +94,9 @@ const AddPublication = ({ navigation }: any) => {
 
 
   const publish = async () => {
-    if (!name /*|| !artType*/ || !description || !price || !selectedImage) {
+    if (!name || !description || !selectedImage) {
       setModalMessage("Assurez-vous d'avoir renseigné tous les champs avant de publier votre œuvre.");
-      setModalVisible(true);
-      return;
+      return setModalVisible(true);
     }
 
     const parsedPrice = parseFloat(price);
@@ -98,7 +104,7 @@ const AddPublication = ({ navigation }: any) => {
     const formData = new FormData();
 
     formData.append('name', name);
-    formData.append('artType', artType !== '' ? artType : 'empty');
+    formData.append('artType', selectedSubFilters !== '' ? selectedSubFilters : 'empty');
     formData.append('description', description !== '' ? description : 'empty');
     formData.append('dimension', dimension !== '' ? dimension : 'empty');
     formData.append('isForSale', false);
@@ -176,11 +182,6 @@ const AddPublication = ({ navigation }: any) => {
 
   const handlePrice = (value: string) => {
     setPrice(value);
-  };
-
-
-  const handleType = (value: string) => {
-    setType(value);
   };
 
 
@@ -369,14 +370,14 @@ const AddPublication = ({ navigation }: any) => {
                 style={[ flexRow, ph8 ]}
                 onPress={() => setIsArtTypeDisplayed(e => !e)}
               >
-                <Text style={[ flex1, selectedFilters.length !== 0 ? cPrimary : cTextDark ]}>
+                <Text style={[ flex1, selectedSubFilters !== undefined ? cPrimary : cTextDark ]}>
                   Type
                 </Text>
                 <Entypo
                   style={[ mtAuto, mbAuto ]}
                   name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
                   size={18}
-                  color={selectedFilters.length !== 0 ? colors.primary : colors.black}
+                  color={selectedSubFilters !== undefined ? colors.primary : colors.black}
                 />
               </TouchableOpacity>
             </Card>
@@ -387,24 +388,23 @@ const AddPublication = ({ navigation }: any) => {
                   style={styles.filterTouchableOpacity}
                   onPress={() => selectOrDeselect(filter.category)}
                 >
-                  <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
+                  <Text style={{ color: selectedFilters === filter.category ? colors.primary : colors.black }}>
                     {filter.category}
                   </Text>
                 </TouchableOpacity>
 
                 {/* Display sub-filters if main filter is selected */}
-                { selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
+                { selectedFilters === filter.category && filter.types.map(subFilter => (
                   <TouchableOpacity
                     key={subFilter}
                     style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
                     onPress={() => selectOrDeselect(subFilter, true)}
                   >
-                    <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
+                    <Text style={{ color: selectedSubFilters === subFilter ? colors.primary : colors.black }}>
                       {subFilter}
                     </Text>
                   </TouchableOpacity>
                 )) }
-
               </View>
             )) }
 
@@ -418,7 +418,8 @@ const AddPublication = ({ navigation }: any) => {
             />
 
             <Button
-              disabled
+              disabled={!price || true}
+              // for the beta, it is disabled
               value="Publier et mettre à la vente"
               onPress={sellWithAccount}
             />
