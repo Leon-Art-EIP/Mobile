@@ -69,7 +69,7 @@ const MainContextProvider = ({
       token,
       email: userEmail,
       id: userId,
-      isArtist,
+      is_artist: isArtist,
       username,
       userColor
     };
