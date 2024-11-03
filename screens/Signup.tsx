@@ -19,14 +19,15 @@ const Signup = ({ navigation }: any) => {
   const [password, setPassword] = useState<string | undefined>(undefined);
   const [password2, setPassword2] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [isArtist, setIsArtist] = useState <boolean>(true);
   const context = useContext(MainContext);
 
 
   const handleSignup = () => {
-    const requestData = { username, email, password };
+    const requestData = { username, email, password, is_artist: isArtist };
 
     if (password !== password2) {
-      return setError("Les mots de passe ne matchent pas");
+      return setError("Les mots de passe ne correspondent pas");
     }
 
     axios.post(`${API_URL}/api/auth/signup`, requestData)
@@ -43,6 +44,7 @@ const Signup = ({ navigation }: any) => {
             context?.setToken(token);
             context?.setUserId(userId);
             context?.setUsername(username);
+            context?.setisArtist(isArtist);
             navigation.navigate('profilingquizz');
           } catch (error) {
             console.error('Error storing token:', error);
@@ -65,6 +67,7 @@ const Signup = ({ navigation }: any) => {
           } else {
             console.error('Other server error:', error.response.status);
             Alert.alert('Signup Failed', 'Other server error');
+            console.log(error.response.status);
           }
         } else if (error.request) {
           console.error('Request was made but no response was received:', error.request);

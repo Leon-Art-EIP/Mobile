@@ -18,7 +18,6 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       return;
     }
     postQuizDatas();
-    navigation.navigate('tutorial');
   };
 
   const postQuizDatas = () => {
@@ -46,7 +45,7 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       '/api/quizz/submit',
       requestData,
       context?.token,
-      () => navigation.navigate('main'),
+      () => navigation.navigate('tutorial'),
       (error: any) => {
         console.error('Error publishing quiz data:', error);
         if (error.response && error.response.data && error.response.data.errors) {

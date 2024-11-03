@@ -80,14 +80,6 @@ const ProfilingQuizz = ({ navigation }): any => {
       <View style={flexRow}>
         <Button
           style={[ br50, flex1 ]}
-          textStyle={cBlack}
-          secondary
-          value="Retour"
-          onPress={navigation.goBack}
-        />
-
-        <Button
-          style={[ br50, flex1 ]}
           disabled={!objective}
           value="Suivant"
           onPress={handleSubmit}

@@ -57,6 +57,7 @@ const BottomNavigator = () => {
       {/* Add tab */}
       <Tab.Screen name="Add" component={AddPublication} options={{
         headerShown: false,
+        unmountOnBlur: true,
         tabBarIcon: ({ color, size }) => (
           <MaterialIcons
             name="add-circle-outline"
