@@ -95,7 +95,6 @@ const OtherProfile = () => {
     navigation.goBack();
   };
 
-
   const handleContactButtonClick = () => {
     const navigateToConversation = (
       username: string,
@@ -139,7 +138,6 @@ const OtherProfile = () => {
     );
   };
 
-
   const handleFollowButtonClick = async () => {
     if (!token) {
       console.error('Token JWT not found. Make sure the user is logged in.');
@@ -147,21 +145,20 @@ const OtherProfile = () => {
     }
 
     const url = `/api/follow/${id}`;
-
+  
     const callback = () => {
-      return fetchInfos();
+      setIsFollowing(prev => !prev);
+      fetchUserData(); 
     };
-
-    const onErrorCallback = (error: any) => {
-      console.error('Erreur de follow :', error);
-      return Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+    
+    const onErrorCallback = () => {
+      console.error('Erreur de follow :');
+      Alert.alert('Erreur de follow', "Une erreur s'est produite.");
     };
-
+    
     post(url, {}, token, callback, onErrorCallback);
-    fetchUserData();
   };
-
-
+  
   const checkIsFollowing = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -179,7 +176,10 @@ const OtherProfile = () => {
         );
       },
       (error: any) => console.error("[api/follow/following]", { ...error })
+      
     );
+    console.log('💕22222', isFollowing);
+
   };
 
 
@@ -202,7 +202,6 @@ const OtherProfile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
-
   const fetchUserData = () => {
     if (!token) {
       return console.error('Token JWT not found. Make sure the user is logged in.');
@@ -222,7 +221,6 @@ const OtherProfile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
-
   const getCollections = () => {
     return get(
       `/api/collection/user/${id}/collections`,
@@ -240,7 +238,6 @@ const OtherProfile = () => {
     );
   };
 
-
   const getAverageRating = () => {
     if (!userData?._id) {
       return;
@@ -253,7 +250,6 @@ const OtherProfile = () => {
       (err: any) => console.error({ ...err })
     );
   };
-
 
   const getComments = () => {
     if (!userData?._id) {
@@ -268,26 +264,21 @@ const OtherProfile = () => {
     );
   };
 
-
   const fetchInfos = () => {
     setIsRefreshing(true);
     fetchUserArtworks();
     getCollections();
-    checkIsFollowing();
     getAverageRating();
     getComments();
     setIsRefreshing(false);
   };
 
-
   useEffect(fetchInfos, [userData]);
-
 
   useEffect(() => {
     setIsRefreshing(true);
     fetchUserData();
   }, []);
-
 
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
@@ -371,15 +362,13 @@ const OtherProfile = () => {
       {/* Boutons "Suivre" et "Ecrire" */}
       { userData?._id !== context?.userId && (
         <View style={styles.contactAndFollowView}>
-          <Button
-            value={isFollowing ? 'Suivi' : 'Suivre'}
-            secondary={isFollowing}
-            style={[
-              styles.contactAndFollowBtn,
-              { backgroundColor: context?.userColor ?? colors.primary }
-            ]}
-            textStyle={{ fontSize: 14, textAlign: 'center' }}
-            onPress={handleFollowButtonClick}
+        <Button
+          value={isFollowing ? 'Suivi' : 'Suivre'}
+          style={[
+            isFollowing ? styles.followingButton : styles.contactAndFollowBtn,
+          ]}
+          textStyle={{ fontSize: 14, textAlign: 'center' }}
+          onPress={handleFollowButtonClick}
           />
           <Button
             value="Ecrire"
@@ -674,6 +663,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8
   },
   contactAndFollowBtn: {
+    flex: 1,
+    borderRadius: 50
+  },
+  followingButton: {
+    flex: 1,
+    borderRadius: 50
+  },
+  followButton: {
     flex: 1,
     borderRadius: 50
   },
