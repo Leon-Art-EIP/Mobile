@@ -95,6 +95,11 @@ const OtherProfile = () => {
     navigation.goBack();
   };
 
+
+  const isUserFollowing = () => {
+    return userData?.subscribers.includes(context?.userId ?? "UNDEFINED");
+  }
+
   const handleContactButtonClick = () => {
     const navigateToConversation = (
       username: string,
@@ -145,20 +150,20 @@ const OtherProfile = () => {
     }
 
     const url = `/api/follow/${id}`;
-  
+
     const callback = () => {
+      fetchUserData();
       setIsFollowing(prev => !prev);
-      fetchUserData(); 
     };
-    
+
     const onErrorCallback = () => {
       console.error('Erreur de follow :');
       Alert.alert('Erreur de follow', "Une erreur s'est produite.");
     };
-    
+
     post(url, {}, token, callback, onErrorCallback);
   };
-  
+
   const checkIsFollowing = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
@@ -168,18 +173,16 @@ const OtherProfile = () => {
     get(
       '/api/follow/following',
       token,
-      (response) => {
-        setIsFollowing(
-          !!response.data?.subscriptions.some(
-            (subscription: any) => subscription._id === id
-          )
-        );
+      (response: any) => {
+        if (response?.data?.subscribers?.length > 0) {
+          return setIsFollowing(
+            !!response.data?.subscribers?.includes(id)
+          );
+        }
       },
-      (error: any) => console.error("[api/follow/following]", { ...error })
-      
-    );
-    console.log('💕22222', isFollowing);
+      (error: any) => console.error("[api/follow/following]", error)
 
+    );
   };
 
 
@@ -270,6 +273,7 @@ const OtherProfile = () => {
     getCollections();
     getAverageRating();
     getComments();
+    checkIsFollowing();
     setIsRefreshing(false);
   };
 
@@ -278,6 +282,7 @@ const OtherProfile = () => {
   useEffect(() => {
     setIsRefreshing(true);
     fetchUserData();
+    checkIsFollowing();
   }, []);
 
   useFocusEffect(
@@ -344,8 +349,12 @@ const OtherProfile = () => {
       {/* Blocs de texte */}
       <View style={styles.textBlocks}>
         <View style={styles.textBlock}>
-          <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-          <Text style={styles.title}>followers</Text>
+          <Text style={styles.value}>
+            { userData ? Math.max(userData.subscribers.length, 0) : 0 }
+          </Text>
+          <Text style={styles.title}>
+            followers
+          </Text>
         </View>
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ''}</Text>
@@ -362,13 +371,19 @@ const OtherProfile = () => {
       {/* Boutons "Suivre" et "Ecrire" */}
       { userData?._id !== context?.userId && (
         <View style={styles.contactAndFollowView}>
-        <Button
-          value={isFollowing ? 'Suivi' : 'Suivre'}
-          style={[
-            isFollowing ? styles.followingButton : styles.contactAndFollowBtn,
-          ]}
-          textStyle={{ fontSize: 14, textAlign: 'center' }}
-          onPress={handleFollowButtonClick}
+          <Button
+            value={isUserFollowing() ? 'Suivi' : 'Suivre'}
+            style={[
+              isUserFollowing() ? styles.isFollowingButton : styles.followButton,
+              { borderColor: context?.userColor }
+            ]}
+            textStyle={{
+              fontSize: 14,
+              textAlign: 'center',
+              fontWeight: '600',
+              color: isUserFollowing() ? context?.userColor : colors.white,
+            }}
+            onPress={handleFollowButtonClick}
           />
           <Button
             value="Ecrire"
@@ -673,6 +688,12 @@ const styles = StyleSheet.create({
   followButton: {
     flex: 1,
     borderRadius: 50
+  },
+  isFollowingButton: {
+    flex: 1,
+    borderRadius: 50,
+    borderWidth: 2,
+    backgroundColor: colors.disabledBg,
   },
   decorativeLine: {
     height: 1,
