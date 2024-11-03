@@ -84,7 +84,6 @@ const SingleArt = ({ navigation, route }: any) => {
   const [answeringTo, setAnsweringTo] = useState<string | undefined>(undefined);
   const [nestedId, setNestedId] = useState<number | undefined>(undefined);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [isSold, setSoldState] = useState(false);
   const [isForSale, setSaleState] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -252,10 +251,10 @@ const SingleArt = ({ navigation, route }: any) => {
       `/api/art-publication/${id}`,
       context?.token,
       (response: any) => {
+        console.log('here is the response I got: ', response.data);
         setPublication(response?.data);
         getArtistName(response?.data.userId);
-        setSoldState(response?.data.isSold);
-        setSaleState(response?.data.isForSale);
+        setSaleState(!!response?.data.isForSale);
         return setIsRefreshing(false);
       },
       (error: any) => {
@@ -450,7 +449,7 @@ const SingleArt = ({ navigation, route }: any) => {
       </View>
 
       {/* Post image */}
-      { !!picture && isPictureReady && (
+      { !!picture && !!isPictureReady && (
         <ImageViewer
           style={{
             marginHorizontal: 8,
@@ -490,11 +489,11 @@ const SingleArt = ({ navigation, route }: any) => {
             />
           </TouchableOpacity>
 
-          { publication?.price && (
+          { !!publication?.price && (
             <TouchableOpacity
               onPress={openPaymentSheet}
               style={styles.priceSignView}
-              disabled={!isForSale || isSold || context?.userId === publication?.userId}
+              disabled={!isForSale || context?.userId === publication?.userId}
             >
               <Feather
                 name="shopping-cart"
@@ -540,9 +539,14 @@ const SingleArt = ({ navigation, route }: any) => {
       />
 
       {/* Collection modal */}
-      <Modal isVisible={isModalVisible} style={styles.modal}>
+      <Modal
+        isVisible={isModalVisible}
+        style={styles.modal}
+      >
         <View style={styles.modalContent}>
-          <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
+          <Subtitle style={styles.modalTitle}>
+            Enregistrer dans...
+          </Subtitle>
 
           <FlatList
             contentContainerStyle={[mlAuto, mrAuto]}
@@ -593,17 +597,34 @@ const SingleArt = ({ navigation, route }: any) => {
           containerStyle={bgColor}
         >
           <>
-            <Text style={{ marginHorizontal: 24, marginTop: 24, color: colors.textDark, fontSize: 16 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+            <Text style={{
+              marginHorizontal: 24,
+              marginTop: 24,
+              color: colors.textDark,
+              fontSize: 16 }}
+            >
+              Voulez-vous vraiment supprimer cette oeuvre ?
+            </Text>
 
             <View style={flexRow}>
-              <Button value="Oui" onPress={deletePost} style={flex1} />
-              <Button secondary value="Non" style={flex1} onPress={() => setIsDeleteModalShown(false)} />
+              <Button
+                value="Oui"
+                onPress={deletePost}
+                style={flex1}
+              />
+              <Button
+                secondary
+                value="Non"
+                style={flex1}
+                onPress={() => setIsDeleteModalShown(false)}
+              />
             </View>
 
             <InfoModal
               isVisible={isInfoModalVisible}
               message={infoModalMessage}
-              onClose={() => setInfoModalVisible(false)} messageType="success"
+              onClose={() => setInfoModalVisible(false)}
+              messageType="success"
             />
           </>
         </SlidingUpPanel>
@@ -617,7 +638,7 @@ const SingleArt = ({ navigation, route }: any) => {
       <ScrollView
         refreshControl={<RefreshControl
           refreshing={true}
-          onRefresh={getPublication}
+          onRefresh={() => getPublication()}
         />}
       />
     </SafeAreaView>
