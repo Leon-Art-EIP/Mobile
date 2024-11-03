@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import colors from '../constants/colors';
 import Title from '../components/text/Title';
@@ -7,8 +7,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { flex1 } from '../constants/styles';
 
 
-const Tutorial_3 = () => {
-  const navigation = useNavigation();
+const Tutorial_3 = ({ navigation }: any) => {
   const route = useRoute();
   const comesFromSettings = !!route?.params?.comesFromSettings;
 
@@ -42,7 +41,7 @@ const Tutorial_3 = () => {
           style={flex1}
           value={comesFromSettings ? "Fermer" : "Suivant"}
           onPress={() => navigation.navigate(
-            comesFromSettings ? 'settings' : 'mainNav'
+            comesFromSettings ? 'settings' : 'homemain'
           )}
         />
       </View>
