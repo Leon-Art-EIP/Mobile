@@ -158,7 +158,7 @@ const OtherProfile = () => {
 
     const onErrorCallback = () => {
       console.error('Erreur de follow :');
-      Alert.alert('Erreur de follow', "Une erreur s'est produite.");
+      Alert.alert('Erreur', "Une erreur s'est produite lors du suivi utilisateur.");
     };
 
     post(url, {}, token, callback, onErrorCallback);
@@ -167,7 +167,7 @@ const OtherProfile = () => {
   const checkIsFollowing = async () => {
     if (!token) {
       console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      return Alert.alert('Erreur', 'Veuillez vous reconnecter');
+      return Alert.alert('Erreur', 'Veuillez vous reconnecter.');
     }
 
     get(
@@ -198,7 +198,7 @@ const OtherProfile = () => {
     const callback = (res: any) => setUserArtworks(res.data);
 
     const onErrorCallback = (error: any) => {
-      Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
+      Alert.alert('Erreur', 'Les publications d\'artistes n\'ont pas pu être récupérées.');
       return console.error('Error fetching user artworks:', error);
     };
 

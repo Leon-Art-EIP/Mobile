@@ -229,7 +229,7 @@ const SingleArt = ({ navigation, route }: any) => {
           const paymentUrl = response.data.url;
           Linking.openURL(paymentUrl).catch((err) => {
             console.error('Failed to open URL:', err);
-            Alert.alert('Error', 'Failed to open the payment page.');
+            Alert.alert('Erreur', "Echec de l'ouverture de la page de paiement.");
           });
         }
       },
