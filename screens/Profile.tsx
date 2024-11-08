@@ -9,7 +9,7 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24, aspSquare } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, pt8, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24, aspSquare } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -351,8 +351,8 @@ const Profile = () => {
                   mrAuto,
                 ]}
               />
-              <Text style={[ cTextDark, mbAuto ]}>
-                Cet utilisateur n'a pas posté d'oeuvres !
+              <Text style={[ cTextDark, mbAuto, pt8 ]}>
+                Vous n'avez pas posté d'oeuvres pour l'instant !
               </Text>
             </ScrollView>
           ) : (
