@@ -1,49 +1,52 @@
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import Button from '../components/buttons/Button';
 import Input from '../components/textInput/Input';
 import Title from '../components/text/Title';
 import colors from "../constants/colors";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { bgGrey, br12, br20, flex1, flexRow, mbAuto, mtAuto, ph24, ph8 } from '../constants/styles';
 
 const ForgotPassword = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const handleResetPassword = () => {
-  };
 
-  const handleLoginNavigation = () => {
+  const handleResetPassword = () => {
+    //TODO Reset the fucking password wtf is this
     navigation.navigate('login');
   };
 
+
   return (
-    <View style={styles.container}>
-      <View style={styles.titleView}>
-        <Title style={{color: colors.primary, fontSize: 70 }}>Leon</Title>
-        <Title style={{fontSize: 70}}>'Art</Title>
+    <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={colors.bg} />
+
+      <View style={[mtAuto, mbAuto, bgGrey, ph8, br20]}>
+        <Title style={styles.forgotPasswordTitle}>Mot de passe oublié</Title>
+
+        <Input
+          placeholder="Email"
+          onTextChanged={setEmail}
+          style={styles.input}
+        />
+
+        <View style={[flexRow, { marginTop: 24 }]}>
+          <Button
+            onPress={() => navigation.goBack()}
+            value="Retour"
+            style={[flex1]}
+            tertiary
+          />
+          <Button
+            onPress={handleResetPassword}
+            value="Soumettre"
+            style={[flex1]}
+            textStyle={styles.submitButtonText}
+          />
+        </View>
       </View>
-      <Title style={styles.forgotPasswordTitle}>Mot de passe oublié</Title>
-
-      <Input
-        placeholder="Email"
-        onTextChanged={setEmail}
-        style={styles.input}
-      />
-
-      <Button
-        onPress={handleResetPassword}
-        value="Soumettre"
-        style={[styles.submitButton, { backgroundColor: colors.primary }]}
-        textStyle={styles.submitButtonText}
-      />
-
-      <View style={styles.loginContainer}>
-        <Text style={styles.loginText}>Retour à la </Text>
-        <TouchableOpacity onPress={handleLoginNavigation}>
-          <Text style={styles.loginLinkText}>connexion</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -51,6 +54,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: colors.bg,
   },
   forgotPasswordTitle: {
     fontSize: 30,
@@ -71,7 +75,6 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
     textAlign: 'center',
     color: 'white',
   },
@@ -91,6 +94,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loginText: {
+    color: colors.textDark,
     marginRight: 3,
   },
   loginLinkText: {

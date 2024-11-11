@@ -15,7 +15,7 @@ import {
   GoogleSigninButton,
   isErrorWithCode,
 } from '@react-native-google-signin/google-signin';
-import { flexRow, mlAuto, mrAuto } from '../constants/styles';
+import { acCenter, aiCenter, bgGrey, br20, cTextDark, flex1, flexRow, mb24, mh24, mh8, mlAuto, mrAuto, mv8, pv24, pv8 } from '../constants/styles';
 
 
 const Login = ({ navigation }: any) => {
@@ -80,7 +80,7 @@ const Login = ({ navigation }: any) => {
       post(
         "/api/auth/mobile/google",
         postObject,
-        context?.token,
+        undefined,
         onLogin,
         (err: any) => console.error({ ...err })
       );
@@ -88,7 +88,7 @@ const Login = ({ navigation }: any) => {
       if (isErrorWithCode(e)) {
         console.log("Google auth error with code: ", e.code);
       } else {
-        console.log('Another error');
+        console.log('Another error: ', { ...e });
       }
     }
   };
@@ -131,122 +131,125 @@ const Login = ({ navigation }: any) => {
 
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeView}>
+      <StatusBar
+        backgroundColor={colors.bg}
+        barStyle='dark-content'
+      />
 
-      {/* Use this to set the correct color on the status bar */}
-      <StatusBar backgroundColor="#F2F2F2" barStyle='dark-content' />
+      {/* Title */}
+      <View style={styles.titleView}>
+        <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
+        <Title style={{ fontSize: 70 }}>'Art</Title>
+      </View>
 
-      <SafeAreaView style={styles.safeView}>
-        <View style={styles.titleView}>
-          <Title style={{ color: colors.primary, fontSize: 70 }}>Leon</Title>
-          <Title style={{ fontSize: 70 }}>'Art</Title>
-        </View>
-        <Title style={styles.loginTitle}>Connexion</Title>
-        <View style={styles.passwordContainer}>
-          <View style={styles.inputContainer}>
-            <Image source={require('../assets/mail_icon.png')} style={styles.icon} />
-            <TextInput
-              placeholder="Email"
-              onChangeText={(newEmail: string) => setEmail(newEmail)}
-              placeholderTextColor={colors.disabledFg}
-              style={styles.passwordInput}
-              value={email}
-            />
-          </View>
-        </View>
-        <View style={styles.passwordContainer}>
-          <View style={styles.inputContainer}>
-            <Image source={require('../assets/password_icon.png')} style={styles.icon} />
-            <TextInput
-              placeholder="Mot de passe"
-              placeholderTextColor={colors.disabledFg}
-              onChangeText={(newPsw: string) => setPassword(newPsw)}
-              style={styles.passwordInput}
-              secureTextEntry={!showPassword}
-              value={password}
-            />
-            {password ? (
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-                activeOpacity={0.7}
-              >
-                <Image source={require('../assets/eye_icon.png')} style={styles.eyeIconImage} />
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        </View>
+      <Title style={styles.loginTitle}>Connexion</Title>
 
-        <TouchableOpacity
-          onPress={() => setRememberMe((currentValue: boolean) => !currentValue)}
-        >
-          <View style={styles.checkboxContainer}>
-            <CheckBox
-              tintColors={{ true: colors.primary, false: colors.textDark }}
-              tintColor={colors.textDark}
-              onFillColor={colors.primary}
-              value={rememberMe}
-              onValueChange={(value: boolean) => setRememberMe(value)}
-            />
-            <Text style={styles.rememberMeText}>Se souvenir de moi</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('recover')}>
-          <Text style={styles.forgotPassword}>Mot de passe oublié ?</Text>
-        </TouchableOpacity>
-
-        { isLoading && (
-          <ActivityIndicator color={colors.primary} />
-        )}
-
-        <Button
-          onPress={handleLogin}
-          value="Se connecter"
-          disabled={isLoading}
-          style={[
-            styles.loginButton,
-            { backgroundColor: isLoading ? "#CA847A" : colors.primary }
-          ]}
-          textStyle={styles.loginButtonText}
-        />
-
-        <View style={flexRow}>
-          <GoogleSigninButton
-            onPress={googleOauth}
-            size={GoogleSigninButton.Size.Icon}
-            color={GoogleSigninButton.Color.Light}
-            style={[mlAuto, mrAuto]}
+      {/* Title */}
+      <View style={styles.passwordContainer}>
+        <View style={styles.inputContainer}>
+          <Image
+            source={require('../assets/mail_icon.png')}
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Email"
+            onChangeText={(newEmail: string) => setEmail(newEmail)}
+            placeholderTextColor={colors.disabledFg}
+            style={styles.passwordInput}
+            value={email}
           />
         </View>
-
-        <View style={styles.orContainer}>
-          <View style={styles.line} />
-          <Text style={styles.orText}>Ou</Text>
-          <View style={styles.line} />
+      </View>
+      <View style={styles.passwordContainer}>
+        <View style={styles.inputContainer}>
+          <Image source={require('../assets/password_icon.png')} style={styles.icon} />
+          <TextInput
+            placeholder="Mot de passe"
+            placeholderTextColor={colors.disabledFg}
+            onChangeText={(newPsw: string) => setPassword(newPsw)}
+            style={styles.passwordInput}
+            secureTextEntry={!showPassword}
+            value={password}
+          />
+          {password ? (
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+              activeOpacity={0.7}
+            >
+              <Image source={require('../assets/eye_icon.png')} style={styles.eyeIconImage} />
+            </TouchableOpacity>
+          ) : null}
         </View>
+      </View>
+
+      { isLoading && (
+        <ActivityIndicator color={colors.primary} />
+      )}
+
+      <Button
+        onPress={handleLogin}
+        value="Se connecter"
+        disabled={isLoading}
+        style={[
+          styles.loginButton,
+          { backgroundColor: isLoading ? "#CA847A" : colors.primary }
+        ]}
+        textStyle={styles.loginButtonText}
+      />
+
+      {/* Elegant separator */}
+      <View style={styles.orContainer}>
+        <View style={styles.line} />
+        <Text style={styles.orText}>Ou</Text>
+        <View style={styles.line} />
+      </View>
+
+      {/* Connect with Google */}
+      <View style={[bgGrey, br20, pv24, { marginHorizontal: 16 }]}>
+        <Title
+          style={[cTextDark, mh24, mb24]}
+          size={20}
+        >
+          Vous préférez Google ?
+        </Title>
+
+        <GoogleSigninButton
+          onPress={googleOauth}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Light}
+          style={[mlAuto, mrAuto]}
+        />
+      </View>
+
+      {/* Forgot password + signup */}
+      <View style={[flexRow]}>
+        <Button
+          onPress={() => navigation.navigate('recover')}
+          value="Mot de passe oublié ?"
+          textStyle={{ fontSize: 13 }}
+          style={[flex1]}
+          secondary
+        />
 
         <Button
           onPress={() => navigation.navigate('signup')}
           value="S'inscrire"
+          style={[flex1]}
           tertiary
         />
-      </SafeAreaView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 
 const styles = StyleSheet.create({
-  container: {
-    margin: 0,
-    paddingHorizontal: 16,
-    flex: 1
-  },
   safeView: {
-    backgroundColor: '#F2F2F2',
-    width:  '100%',
-    height: Dimensions.get('window').height
+    backgroundColor: colors.bg,
+    flex: 1,
+    paddingHorizontal: 24
   },
   loginTitle: {
     fontSize: 30,
@@ -267,6 +270,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginVertical: 16,
+    marginHorizontal: 12
   },
   loginButtonText: {
     fontSize: 16,
@@ -353,13 +357,14 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.disabledBg,
     borderRadius: 100,
     marginBottom: 16,
     paddingHorizontal: 10,
   },
   passwordInput: {
     color: colors.black,
+    backgroundColor: colors.disabledBg,
     marginLeft: 0,
     marginRight: 0,
     flex: 1,
@@ -374,7 +379,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
-    marginRight: 10,
+    marginHorizontal: 12,
   }
 });
 

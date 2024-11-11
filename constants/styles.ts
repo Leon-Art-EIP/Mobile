@@ -112,6 +112,8 @@ const cText: StyleProp<any> = { color: colors.text };
 const cTextDark: StyleProp<any> = { color: colors.textDark };
 const cDisabled: StyleProp<any> = { color: colors.disabledFg };
 const cOffer: StyleProp<any> = { color: colors.offerFg };
+const cError: StyleProp<any> = { color: colors.error };
+const cCheck: StyleProp<any> = { color: '#00aa22' };
 
 // border radius
 const br0: StyleProp<any> = { borderRadius: 0 };
@@ -128,9 +130,7 @@ const aspSquare: StyleProp<any> = { aspectRatio: '1/1' };
 const aspImage: StyleProp<any> = { aspectRatio: '4/3' };
 
 export {
-  flexRow,
-  displayFlex,
-  flex1,
+  flexRow, displayFlex, flex1,
   asCenter, acCenter, aiCenter,
   jcEnd, jcCenter, jcStart, jcSA,
   mlAuto, mrAuto, mtAuto, mbAuto,
@@ -144,7 +144,7 @@ export {
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft, tavCenter,
   bgColor, bgRed, bgGrey, bgPlatinium, bgDisabled, bgOffer,
   br0, br5, br7, br12, br20, br50,
-  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark, cOffer,
+  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark, cOffer, cError, cCheck,
   aspVideo, aspSquare, aspImage,
   wFull, w50, w33, hFull, h50, h33
 };

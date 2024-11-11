@@ -59,7 +59,9 @@ const ConnexionNavigator = () => {
         (err: any) => {
           console.log("error getting token: ", { ...err.response.status });
           if (err.response.status === 404) {
+            console.log("test1");
             context?.logOut();
+            console.log("test2");
             setIsLoading(false);
           }
         }

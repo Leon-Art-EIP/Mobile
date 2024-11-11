@@ -62,20 +62,21 @@ const MainContextProvider = ({
 
   const saveContextToJwt = () => {
     if (!token || !userEmail || !userId || !isArtist || !username || !userColor) {
-      return console.warn('Failed saving context to JWT: a field may be undefined');
+      console.warn('Failed saving context to JWT: a field may be undefined');
     }
 
     const tokenObject: TokenObjectType = {
-      token,
-      email: userEmail,
-      id: userId,
-      is_artist: isArtist,
-      username,
+      token: token ?? "",
+      email: userEmail ?? "",
+      id: userId ?? "",
+      isArtist: !!isArtist,
+      username: username ?? "",
       userColor
     };
+    console.log("tokenObject: ", tokenObject);
 
     AsyncStorage.setItem('jwt', JSON.stringify(tokenObject))
-    .catch((err: any) => console.error('Failed setting JWT in storage: ', err));
+    .catch((err: any) => console.error('Failed setting JWT in storage: ', err, tokenObject));
   };
 
 
