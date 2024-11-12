@@ -47,12 +47,6 @@ const SearchScreen = ({ navigation }: any) => {
     const args3 = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
     const url: string = args1 + (priceValues === '0-1000' ? "" : args2) + args3;
 
-    if (!search.trim()) {
-      setModalMessage("Veuillez entrer un champ pour votre recherche.");
-      setModalType('error');
-      setModalVisible(true);
-      return;
-    }
     navigation.navigate('results', { url });
   };
 
