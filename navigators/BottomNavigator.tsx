@@ -21,7 +21,7 @@ const BottomNavigator = () => {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => ({
-        tabBarHideOnKeyboard: context?.isKeyboard,
+        //tabBarHideOnKeyboard: context?.isKeyboard,
         tabBarActiveTintColor: context?.userColor ?? colors.primary,
         tabBarInactiveTintColor: colors.disabledFg,
         tabBarShowLabel: false

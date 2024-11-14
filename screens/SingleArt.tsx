@@ -75,13 +75,21 @@ type ImageSizeType = {
 };
 
 
+type AnsweringToType = {
+  userId: string;
+  commentId: string;
+  username: string;
+};
+
+
 const SingleArt = ({ navigation, route }: any) => {
   const { id } = route.params;
   const context = useContext(MainContext);
   const token = context?.token;
 
   const [artist, setArtist] = useState<ArtistType | undefined>(undefined);
-  const [answeringTo, setAnsweringTo] = useState<string | undefined>(undefined);
+  // Changed this to comment ID instead of user ID
+  const [answeringTo, setAnsweringTo] = useState<AnsweringToType | undefined>(undefined);
   const [nestedId, setNestedId] = useState<number | undefined>(undefined);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isForSale, setSaleState] = useState(false);
@@ -534,6 +542,7 @@ const SingleArt = ({ navigation, route }: any) => {
       <CommentInput
         id={id}
         trigger={setCommentsRefreshTrigger}
+        setAnsweringTo={setAnsweringTo}
         nestedId={nestedId}
         answeringTo={answeringTo}
       />
