@@ -11,7 +11,7 @@ interface ButtonProps {
   secondary?: boolean;
   tertiary?: boolean;
   disabled?: boolean;
-  color?:string;
+  color?: string;
 }
 
 const Button = ({

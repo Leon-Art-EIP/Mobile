@@ -1,21 +1,65 @@
-import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, StatusBar, Alert, RefreshControl, ActivityIndicator, ToastAndroid } from 'react-native';
 import Button from '../components/buttons/Button';
 import Input from '../components/textInput/Input';
 import Title from '../components/text/Title';
 import colors from "../constants/colors";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { bgGrey, br12, br20, flex1, flexRow, mbAuto, mtAuto, ph24, ph8 } from '../constants/styles';
+import { bgGrey, br12, br20, cError, flex1, flexRow, mbAuto, mh24, mtAuto, ph24, ph8 } from '../constants/styles';
+import { post } from '../constants/fetch';
 
 const ForgotPassword = ({ navigation }: any) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isEmailOkay, setIsEmailOkay] = useState<boolean>(false);
+
+
+  const isEmailFormatOkay = (text: string = ""): boolean => {
+    console.log("olol");
+    if (!text) {
+      setIsEmailOkay(false);
+      return false
+    }
+
+    const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
+    const resp: boolean = !!emailRegex.test(text);
+    setIsEmailOkay(resp);
+    return resp;
+  }
 
 
   const handleResetPassword = () => {
-    //TODO Reset the fucking password wtf is this
-    navigation.navigate('login');
+    setIsLoading(true);
+    post(
+      '/api/auth/request-reset',
+      { email },
+      undefined,
+      (res: any) => {
+        navigation.navigate('login');
+        ToastAndroid.show(
+          "Vous allez recevoir un email sous peu",
+          ToastAndroid.SHORT
+        );
+        return setIsLoading(false);
+      },
+      (err: any) => {
+        setIsLoading(false);
+        if (err.response.status === 404) {
+          return setError("L'adresse email n'a pas été trouvée");
+        }
+        return setError("Une errreur est survenue. Veuillez réessayer plus tard");
+      }
+    );
   };
+
+
+  useEffect(() => {
+    isEmailFormatOkay(email);
+  }, [email]);
+
+
+  useEffect(() => console.log(isEmailOkay), [isEmailOkay]);
 
 
   return (
@@ -31,6 +75,19 @@ const ForgotPassword = ({ navigation }: any) => {
           style={styles.input}
         />
 
+        { isLoading && (
+          <ActivityIndicator
+            size={32}
+            color={colors.primary}
+          />
+        ) }
+
+        { !!error && (
+          <Text style={[cError, mh24]}>
+            { error }
+          </Text>
+        ) }
+
         <View style={[flexRow, { marginTop: 24 }]}>
           <Button
             onPress={() => navigation.goBack()}
@@ -41,6 +98,7 @@ const ForgotPassword = ({ navigation }: any) => {
           <Button
             onPress={handleResetPassword}
             value="Soumettre"
+            disabled={!(isEmailOkay && !isLoading)}
             style={[flex1]}
             textStyle={styles.submitButtonText}
           />
