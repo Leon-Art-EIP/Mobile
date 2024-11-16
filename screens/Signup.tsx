@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Alert, Text, View, StyleSheet, StatusBar } from 'react-native';
+import { Alert, Text, View, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import axios from 'axios';
 import { MainContext } from '../context/MainContext';
 
@@ -139,74 +139,76 @@ const Signup = () => {
         Inscription
       </Title>
 
-      {/* Email input */}
-      <Input
-        placeholder="Email"
-        onTextChanged={setEmail}
-        style={[
-          styles.input,
-          !!checkEmail(email) ? cCheck : cError
-        ]}
-      />
+      <ScrollView>
+        {/* Email input */}
+        <Input
+          placeholder="Email"
+          onTextChanged={setEmail}
+          style={[
+            styles.input,
+            !!checkEmail(email) ? cCheck : cError
+          ]}
+        />
 
-      {/* Username input */}
-      <Input
-        placeholder="Nom d'utilisateur"
-        onTextChanged={setUsername}
-        style={styles.input}
-      />
+        {/* Username input */}
+        <Input
+          placeholder="Nom d'utilisateur"
+          onTextChanged={setUsername}
+          style={styles.input}
+        />
 
-      <View style={[mh24, mt8, mb24]}>
-        <Text style={[cTextDark]}>
-          Votre identifiant doit contenir au moins :
-        </Text>
-        <Text style={betwStr(3, username, 20) ? cCheck : cError}>
-          - Entre 3 et 20 caractères
-        </Text>
-        <Text style={isAlphaNumeric(username) ? cCheck : cError}>
-          - Seulement des lettres, chiffres et underscores (_)
-        </Text>
-      </View>
+        <View style={[mh24, mt8, mb24]}>
+          <Text style={[cTextDark]}>
+            Votre identifiant doit contenir au moins :
+          </Text>
+          <Text style={betwStr(3, username, 20) ? cCheck : cError}>
+            - Entre 3 et 20 caractères
+          </Text>
+          <Text style={isAlphaNumeric(username) ? cCheck : cError}>
+            - Seulement des lettres, chiffres et underscores (_)
+          </Text>
+        </View>
 
-      {/* Password input */}
-      <Input
-        placeholder="Mot de passe"
-        secureTextEntry
-        onTextChanged={setPassword}
-        style={styles.input}
-      />
+        {/* Password input */}
+        <Input
+          placeholder="Mot de passe"
+          secureTextEntry
+          onTextChanged={setPassword}
+          style={styles.input}
+        />
 
-      {/* Password confirmation input */}
-      <Input
-        placeholder="Retapez votre mot de passe"
-        secureTextEntry
-        onTextChanged={setPassword2}
-        style={styles.input}
-      />
+        {/* Password confirmation input */}
+        <Input
+          placeholder="Retapez votre mot de passe"
+          secureTextEntry
+          onTextChanged={setPassword2}
+          style={styles.input}
+        />
 
-      <View style={[mh24, mt8, mb24]}>
-        <Text style={[cTextDark]}>
-          Votre mot de passe doit :
-        </Text>
+        <View style={[mh24, mt8, mb24]}>
+          <Text style={[cTextDark]}>
+            Votre mot de passe doit :
+          </Text>
 
-        <Text style={password && password?.length >= 8 ? cCheck : cError}>
-          - Contenir au moins 8 caractères
-        </Text>
+          <Text style={password && password?.length >= 8 ? cCheck : cError}>
+            - Contenir au moins 8 caractères
+          </Text>
 
-        <Text style={hasUppercase(password) ? cCheck : cError}>
-          - Contenir au moins une majuscule
-        </Text>
+          <Text style={hasUppercase(password) ? cCheck : cError}>
+            - Contenir au moins une majuscule
+          </Text>
 
-        <Text style={hasNumbers(password) ? cCheck : cError}>
-          - Contenir au moins un chiffre
-        </Text>
-      </View>
+          <Text style={hasNumbers(password) ? cCheck : cError}>
+            - Contenir au moins un chiffre
+          </Text>
+        </View>
 
-      { !!error && (
-        <Text style={[mh24, mv8, cError]}>
-          { error }
-        </Text>
-      )}
+        { !!error && (
+          <Text style={[mh24, mv8, cError]}>
+            { error }
+          </Text>
+        )}
+      </ScrollView>
 
       <View style={[flexRow, mh8, mtAuto]}>
         <Button
@@ -231,7 +233,7 @@ const Signup = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 8,
     backgroundColor: colors.bg
   },
   signupTitle: {
