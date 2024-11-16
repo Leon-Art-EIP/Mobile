@@ -196,7 +196,10 @@ const Signup = () => {
         />
 
         <View style={[flexRow, mh24]}>
-          <Text style={cTextDark}>
+          <Text
+            style={cTextDark}
+            onPress={() => setDisplayPsw(curr => !curr)}
+          >
             Voir le mot de passe
           </Text>
 
