@@ -62,12 +62,17 @@ const Signup = () => {
     }
 
     const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
-    return !!emailRegex.test(email);
+    return !!emailRegex.test(email.toLowerCase());
   }
 
 
   const handleSignup = () => {
-    const requestData = { username, email, password, is_artist: isArtist };
+    const requestData = {
+      username: username?.trim().toLowerCase(),
+      email: email?.toLowerCase(),
+      password,
+      is_artist: isArtist
+    };
 
     if (!checkUsername(username)) {
       return setError("Il y a un problème avec votre email ou votre identifiant");
@@ -182,7 +187,10 @@ const Signup = () => {
           placeholder="Retapez votre mot de passe"
           secureTextEntry
           onTextChanged={setPassword2}
-          style={styles.input}
+          style={[
+            styles.input,
+            { borderWidth: password === password2 ? 0 : 2}
+          ]}
         />
 
         <View style={[mh24, mt8, mb24]}>
@@ -247,6 +255,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
+    borderColor: colors.primary,
     backgroundColor: colors.disabledBg,
     marginLeft: 10,
     marginRight: 10,

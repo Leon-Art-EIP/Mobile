@@ -30,10 +30,14 @@ const ForgotPassword = ({ navigation }: any) => {
 
 
   const handleResetPassword = () => {
+    if (!isEmailFormatOkay(email)) {
+      return setError("Votre email est invalide");
+    }
+
     setIsLoading(true);
     post(
       '/api/auth/request-reset',
-      { email },
+      { email: email?.toLowerCase() },
       undefined,
       (res: any) => {
         navigation.navigate('login');

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from 'react-native';
+import {Alert, Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator, ToastAndroid } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -94,23 +94,25 @@ const Login = ({ navigation }: any) => {
   };
 
 
+  const displayError = (msg: string = ""): void => {
+    if (!msg) {
+      return;
+    }
+
+    Alert.alert("Erreur de connexion", msg);
+    return console.log("login error: ", msg);
+  }
+
+
   const onLoginError = async (error: any) => {
     if (error.response) {
-      console.error('Server responded with an error: ', { ...error.response.data });
-      if (error.response.status === 422) {
-        console.error('Validation error. Please check your input data.');
-        Alert.alert("Informations invalides", "Veuillez vérifier vos informations de connexion");
-      } else {
-        console.error('Other server error: ', { ...error.response.status });
-        Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
+      switch (error.response.status) {
+        case (401): displayError("Le mot de passe ou l'adresse mail est incorrecte"); break;
+        case (422): displayError("Email invalide"); break;
+        case (500): displayError("Veuillez réessayer plus tard"); break;
       }
-    } else if (error.request) {
-      console.error('Request was made but no response was received: ', { ...error.request });
-      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
-    } else {
-      console.error('Error setting up the request: ', { ...error.message });
-      Alert.alert("Connexion échouée", "Veuillez réessayer plus tard");
     }
+
     console.error('Error config: ', { ...error.config });
     setIsLoading(false);
   };

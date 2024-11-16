@@ -26,8 +26,10 @@ import {
   acCenter,
   bgColor,
   bgGrey,
+  bgRed,
   br20,
   br50,
+  cBlack,
   cTextDark,
   flex1,
   flexRow,
@@ -45,6 +47,7 @@ import {
   mv0,
   mv24,
   mv8,
+  mvAuto,
   ph24,
   ph8,
   pv4,
@@ -424,8 +427,8 @@ const SingleArt = ({ navigation, route }: any) => {
           />
         </TouchableOpacity>
 
-        {/* Username */}
-        <Text style={styles.artTitle}>{ formatName(publication?.name) }</Text>
+        {/* Art title */}
+        <Text style={styles.artTitle}>{ formatName(publication?.name, 20) }</Text>
 
         {/* Report or delete button */}
         { context?.userId === publication?.userId ? (
@@ -518,9 +521,9 @@ const SingleArt = ({ navigation, route }: any) => {
 
         {/* Description */}
         <Card style={[ mh8, mv0, br20, mt4 ]}>
-          <Text style={{ fontSize: 13, color: colors.textDark }}>{
-            publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"
-          }</Text>
+          <Text style={{ fontSize: 13, ...cBlack }}>
+            { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
+          </Text>
         </Card>
       </View>
 

@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, StyleSheet, } from 'react-native';
 import colors from '../../constants/colors';
+import { mAuto } from '../../constants/styles';
 import {MainContext} from "../../context/MainContext";
 
 interface ButtonProps {
@@ -72,6 +73,8 @@ const styles = StyleSheet.create({
   },
   primaryTextStyle: {
     color: colors.primaryText,
+    ...mAuto,
+    textAlign: 'center',
     fontFamily: 'Manrope',
     fontStyle: 'normal',
     fontSize: 16,
