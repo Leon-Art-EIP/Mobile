@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, scrollView } from 'react';
 import { Alert, Text, StyleSheet, Image, TouchableOpacity, RefreshControl, ToastAndroid, FlatList, StatusBar, View, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -522,8 +522,8 @@ const OtherProfile = () => {
 
       { activeTab === 'A propos' && (
         <>
+        <ScrollView>
           <Card>
-            <ScrollView>
               <Title size={20}>Description</Title>
               <Text style={cTextDark}>
                 { userData?.biography ?
@@ -531,7 +531,7 @@ const OtherProfile = () => {
                   "Cet personne utilise Leon'art pour redécouvrir l'art !"
                 }
               </Text>
-            </ScrollView>
+            {/* </ScrollView> */}
           </Card>
 
           <Card style={flexRow}>
@@ -550,7 +550,6 @@ const OtherProfile = () => {
               </Text>
             ) }
           </Card>
-
           <Card>
             <Title size={20} style={mb8}>Commentaires</Title>
 
@@ -584,7 +583,6 @@ const OtherProfile = () => {
                         />
                       </View>
                     </View>
-
                     <Text>{ item.comment }</Text>
                     <View style={styles.line} />
                   </View>
@@ -595,7 +593,8 @@ const OtherProfile = () => {
                 Ce profil n'a pas reçu de commentaires pour l'instant !
               </Text>
             ) }
-          </Card>
+            </Card>
+          </ScrollView>
         </>
       ) }
     </SafeAreaView>
