@@ -100,6 +100,7 @@ const OtherProfile = () => {
     return userData?.subscribers.includes(context?.userId ?? "UNDEFINED");
   }
 
+
   const handleContactButtonClick = () => {
     const navigateToConversation = (
       username: string,
@@ -583,7 +584,7 @@ const OtherProfile = () => {
                         />
                       </View>
                     </View>
-                    <Text>{ item.comment }</Text>
+                    <Text style={cTextDark}>{ item.comment }</Text>
                     <View style={styles.line} />
                   </View>
                 )}

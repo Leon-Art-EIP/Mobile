@@ -16,7 +16,6 @@ const ForgotPassword = ({ navigation }: any) => {
 
 
   const isEmailFormatOkay = (text: string = ""): boolean => {
-    console.log("olol");
     if (!text) {
       setIsEmailOkay(false);
       return false
@@ -63,9 +62,6 @@ const ForgotPassword = ({ navigation }: any) => {
   }, [email]);
 
 
-  useEffect(() => console.log(isEmailOkay), [isEmailOkay]);
-
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.bg} />
@@ -76,7 +72,10 @@ const ForgotPassword = ({ navigation }: any) => {
         <Input
           placeholder="Email"
           onTextChanged={setEmail}
-          style={styles.input}
+          style={[
+            styles.input,
+            { borderWidth: isEmailOkay ? 0 : 2}
+          ]}
         />
 
         { isLoading && (
@@ -129,6 +128,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
+    borderColor: colors.primary,
     marginLeft: 10,
     marginRight: 10,
   },

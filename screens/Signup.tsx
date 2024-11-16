@@ -8,10 +8,11 @@ import Input from '../components/textInput/Input';
 import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { cCheck, cError, cPrimary, cTextDark, flex1, flexRow, mb24, mh24, mh4, mh8, mt8, mtAuto, mv8 } from '../constants/styles';
+import { cCheck, cError, cPrimary, cTextDark, flex1, flexRow, mb24, mbAuto, mh24, mh4, mh8, mlAuto, mt8, mtAuto, mv8 } from '../constants/styles';
 import { betwStr, hasNumbers, hasUppercase, isAlphaNumeric } from '../helpers/NamesHelper';
 import { useNavigation } from '@react-navigation/native';
 import { post } from '../constants/fetch';
+import CheckBox from '@react-native-community/checkbox';
 
 
 const Signup = () => {
@@ -21,6 +22,7 @@ const Signup = () => {
   const [password2, setPassword2] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const [isArtist, setIsArtist] = useState <boolean>(true);
+  const [displayPsw, setDisplayPsw] = useState<boolean>(false);
   const context = useContext(MainContext);
   const navigation = useNavigation();
 
@@ -151,7 +153,7 @@ const Signup = () => {
           onTextChanged={setEmail}
           style={[
             styles.input,
-            !!checkEmail(email) ? cCheck : cError
+            { borderWidth: !!checkEmail(email) ? 0 : 2}
           ]}
         />
 
@@ -177,7 +179,7 @@ const Signup = () => {
         {/* Password input */}
         <Input
           placeholder="Mot de passe"
-          secureTextEntry
+          secureTextEntry={!displayPsw}
           onTextChanged={setPassword}
           style={styles.input}
         />
@@ -185,13 +187,27 @@ const Signup = () => {
         {/* Password confirmation input */}
         <Input
           placeholder="Retapez votre mot de passe"
-          secureTextEntry
+          secureTextEntry={!displayPsw}
           onTextChanged={setPassword2}
           style={[
             styles.input,
             { borderWidth: password === password2 ? 0 : 2}
           ]}
         />
+
+        <View style={[flexRow, mh24]}>
+          <Text style={cTextDark}>
+            Voir le mot de passe
+          </Text>
+
+          <CheckBox
+            value={displayPsw}
+            onValueChange={setDisplayPsw}
+            tintColors={{ true: colors.primary, false: colors.textDark }}
+            tintColor={colors.textDark}
+            style={[mtAuto, mbAuto, mlAuto]}
+          />
+        </View>
 
         <View style={[mh24, mt8, mb24]}>
           <Text style={[cTextDark]}>
