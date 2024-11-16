@@ -11,6 +11,9 @@ import InfoModal from '../../components/infos/InfoModal';
 import { post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import Input from '../../components/textInput/Input';
+import { bgColor, bgGrey, bgRed, cText, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, mh8, mlAuto, mt8, mtAuto, mv24, ph8 } from '../../constants/styles';
+import CheckBox from '@react-native-community/checkbox';
 
 const PasswordAndSecurity = () => {
   const navigation = useNavigation();
@@ -81,71 +84,90 @@ const PasswordAndSecurity = () => {
   };
 
   return (
-    <SafeAreaView style={{ backgroundColor: colors.white, paddingHorizontal: 12, paddingBottom: 80, flex: 1 }}>
+    <SafeAreaView style={[bgColor, ph8, flex1]}>
       <StatusBar backgroundColor={colors.white} />
 
       {/* Go back button */}
       <TouchableOpacity
         onPress={() => handleBackButtonClick()}
-        style={styles.backButton}
+        style={[flexRow, mv24, mh8]}
       >
-        <Ionicons name="chevron-back-outline" color={colors.black} size={32} />
+        <Ionicons
+          name="chevron-back-outline"
+          color={colors.black}
+          size={32}
+        />
+
+        <Title style={styles.mainTitle}>
+          Mot de passe et sécurité
+        </Title>
       </TouchableOpacity>
 
-      <Title style={styles.mainTitle}>Mot de passe et sécurité</Title>
 
-      {showPasswordChangeFields && (
+      { showPasswordChangeFields ? (
         <View>
           <View style={styles.inputContainer}>
-            <TextInput
-              placeholder="Mot de passe actuel ..."
-              onChangeText={handleOldPasswordChange}
-              style={[styles.passwordInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
+            <Input
+              placeholder="Mot de passe actuel..."
+              onTextChanged={handleOldPasswordChange}
               secureTextEntry={!showPassword}
+              style={[bgGrey, mh0, flex1]}
               value={oldPassword}
             />
-            {oldPassword ? (
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-                activeOpacity={0.7}
-              >
-                <Image source={require('../../assets/eye_icon.png')} style={styles.eyeIconImage} />
-              </TouchableOpacity>
-            ) : null}
           </View>
+
           <View style={styles.inputContainer}>
-            <TextInput
-              placeholder="Nouveau mot de passe ..."
-              onChangeText={handleNewPassword1Change}
-              style={[styles.passwordInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
+            <Input
+              placeholder="Nouveau mot de passe..."
+              onTextChanged={handleNewPassword1Change}
               secureTextEntry={!showPassword}
+              style={[bgGrey, flex1, mh0]}
               value={newPassword1}
             />
           </View>
+
           <View style={styles.inputContainer}>
-            <TextInput
-              placeholder="Confirmation ..."
-              onChangeText={handleNewPassword2Change}
-              style={[styles.passwordInput, { backgroundColor: '#F0F0F0', paddingLeft: 15 }]}
+            <Input
+              placeholder="Confirmez le mot de passe..."
+              onTextChanged={handleNewPassword2Change}
               secureTextEntry={!showPassword}
+              style={[bgGrey, flex1, mh0]}
               value={newPassword2}
             />
           </View>
-        </View>
-      )}
 
-      {!showPasswordChangeFields && (
+          <TouchableOpacity
+            style={[flexRow, mh24, mt8]}
+            onPress={() => setShowPassword(curr => !curr)}
+            activeOpacity={0.9}
+          >
+            <Text style={cTextDark}>
+              Afficher les mots de passe
+            </Text>
+
+            <CheckBox
+              value={showPassword}
+              onValueChange={setShowPassword}
+              tintColors={{ true: colors.primary, false: colors.textDark }}
+              tintColor={colors.textDark}
+              style={[mtAuto, mbAuto, mlAuto]}
+            />
+          </TouchableOpacity>
+        </View>
+      ) : (
         <View style={styles.infoBlock}>
           <Title style={styles.infoTitle}>Mot de passe</Title>
-            <Text style={styles.infoValue}>************</Text>
+          <Text style={styles.infoValue}>************</Text>
         </View>
-      )}
+      ) }
+
       <Button
         value="Changer le mot de passe"
+        style={[mtAuto]}
         onPress={() => handlePasswordChangeClick()}
       />
-      <InfoModal 
+
+      <InfoModal
         isVisible={isModalVisible}
         message={modalMessage}
         onClose={() => setModalVisible(false)}
@@ -161,10 +183,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   mainTitle: {
-    marginTop: 70,
-    marginHorizontal: 12,
-    marginVertical: 32,
-    fontSize: 25
+    fontSize: 25,
+    marginLeft: 16
   },
   changePasswordButton: {
     width: '95%', // Utilise '80%' pour que le bouton occupe 80% de la largeur de l'écran
@@ -175,10 +195,6 @@ const styles = StyleSheet.create({
     marginHorizontal: '10%', // Ajoute des marges de 10% de chaque côté
   },
   backButton: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    zIndex: 1,
     color: colors.tertiary,
   },
   infoBlock: {
