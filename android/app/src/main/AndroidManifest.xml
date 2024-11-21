@@ -1,37 +1,29 @@
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.leonart.mobile">
-    <meta-data
-      android:name="com.google.firebase.messaging.default_notification_icon"
-      android:resource="@drawable/leonart_icon" />
-    <meta-data
-      android:name="com.google.firebase.messaging.default_notification_color"
-      android:resource="@color/primary" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <application
-      android:name="com.leonart.mobile.MainApplication"
-      android:label="@string/app_name"
-      android:icon="@drawable/leonart_icon"
-      android:roundIcon="@drawable/leonart_icon"
-      android:allowBackup="false"
-      android:theme="@style/AppTheme"
-      android:networkSecurityConfig="@xml/network_security_config"
-      android:usesCleartextTraffic="true"
-        tools:targetApi="m">
-      <activity
-        android:name="com.leonart.mobile.MainActivity"
-        android:label="@string/app_name"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-        android:launchMode="singleTask"
-        android:windowSoftInputMode="adjustResize"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-      </activity>
-    </application>
-    <uses-permission android:name="android.permission.INTERNET" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.leonart.mobile">
+  <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/leonart_icon"/>
+  <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/primary"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <application android:name="com.leonart.mobile.MainApplication" android:label="@string/app_name" android:icon="@drawable/leonart_icon" android:roundIcon="@drawable/leonart_icon" android:allowBackup="false" android:theme="@style/AppTheme" android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="true" tools:targetApi="m">
+    <activity android:name="com.leonart.mobile.MainActivity" android:label="@string/app_name" android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:exported="true">
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="mychat"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="http" />
+        <data android:scheme="https" />
+        <data android:host="http://front.leon-arts.fr/mobile" />
+      </intent-filter>
+    </activity>
+  </application>
 </manifest>

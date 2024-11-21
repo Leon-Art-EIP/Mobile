@@ -26,7 +26,7 @@ const AddPublication = ({ navigation }: any) => {
   const [artType, setType] = useState('');
   const [description, setDescription] = useState('');
   const [isForSale, setSale] = useState(false);
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState<string>('');
   const [location, setLocation] = useState('');
   const [dimension, setDimension] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
@@ -205,8 +205,8 @@ const AddPublication = ({ navigation }: any) => {
 
 
   const sellWithAccount = async () => {
-    if (!name || !artType || !description || !price || !selectedImage) {
-      setModalMessage("Assurez-vous d'avoir renseigner tous les champs avant de publier votre œuvre.");
+    if (!name || !description || !price || !selectedImage) {
+      setModalMessage("Assurez-vous d'avoir renseigné tous les champs avant de publier votre œuvre.");
       setModalType('error');
       setModalVisible(true);
       return;
@@ -273,6 +273,7 @@ const AddPublication = ({ navigation }: any) => {
 
 
   useEffect(() => {
+    checkAccountLinkStatus();
   }, []);
 
 
@@ -418,16 +419,10 @@ const AddPublication = ({ navigation }: any) => {
             />
 
             <Button
-              disabled={!price || true}
-              // for the beta, it is disabled
+              disabled={!price || !isAccountLinked}
               value="Publier et mettre à la vente"
               onPress={sellWithAccount}
             />
-            <Card style={[bgOffer, flexRow, { marginHorizontal: 16 }]}>
-              <Text style={cOffer}>
-                Vous ne pouvez pas vendre vos oeuvres pendant la beta !
-              </Text>
-            </Card>
 
             <InfoModal
               isVisible={isModalVisible}

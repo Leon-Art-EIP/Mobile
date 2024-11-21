@@ -33,7 +33,7 @@ const Settings = () => {
   const linkStripeAccount = () => {
     post(
       '/api/stripe/account-link',
-      undefined,
+      { source: 'mobile' },
       context?.token,
       (response) => {
         if (response && response.data && response.data.url) {
@@ -45,13 +45,13 @@ const Settings = () => {
           console.error('Error: Unable to retrieve URL');
         }
       },
-      (error) => {
+      (error: any) => {
         if (error.response && error.response.status === 400) {
           console.error('User already linked stripe account');
           ToastAndroid.show("Votre compte est déjà lié !", ToastAndroid.SHORT);
         } else {
           ToastAndroid.show("Une erreur s'est produite, veuillez réessayer plus tard", ToastAndroid.LONG);
-          console.error('Error linking Stripe account:', error);
+          console.error('Error linking Stripe account:', { ...error });
         }
       }
     );

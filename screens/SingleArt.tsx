@@ -236,6 +236,7 @@ const SingleArt = ({ navigation, route }: any) => {
       requestData,
       context?.token,
       (response: any) => {
+        console.log({ ...response });
         if (response && response.data && response.data.url) {
           const paymentUrl = response.data.url;
           Linking.openURL(paymentUrl).catch((err) => {
