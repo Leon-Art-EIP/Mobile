@@ -46,8 +46,6 @@ import {
   mtAuto,
   mv0,
   mv24,
-  mv8,
-  mvAuto,
   ph24,
   ph8,
   pv4,
@@ -229,6 +227,7 @@ const SingleArt = ({ navigation, route }: any) => {
   const fetchPaymentSheetParams = () => {
     const requestData = {
       artPublicationId: id,
+      source: 'mobile'
     };
 
     post(
@@ -246,7 +245,7 @@ const SingleArt = ({ navigation, route }: any) => {
         }
       },
       (error: any) => {
-        console.error('Error fetching payment sheet parameters:', error);
+        console.error('Error fetching payment sheet parameters:', { ...error });
       },
     );
   };
@@ -501,7 +500,7 @@ const SingleArt = ({ navigation, route }: any) => {
             />
           </TouchableOpacity>
 
-          { !!publication?.price && (
+          { !!publication?.price && !publication?.isSold && !!publication?.isForSale && (
             <TouchableOpacity
               onPress={openPaymentSheet}
               style={styles.priceSignView}

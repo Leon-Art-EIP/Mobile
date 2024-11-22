@@ -254,7 +254,7 @@ const AddPublication = ({ navigation }: any) => {
         context?.token,
         () => {
           ToastAndroid.show("Votre oeuvre a été publiée avec succès !", ToastAndroid.SHORT);
-          navigation.navigate('profile');
+          navigation.navigate('Profile');
         },
         (error) => {
           console.error('Error publishing:', error);
@@ -267,7 +267,10 @@ const AddPublication = ({ navigation }: any) => {
       );
     }
     else {
-      Alert.alert('Account Not Linked', 'Please link your Stripe account before selling.');
+      Alert.alert(
+        'Compte Stripe invalide',
+        'Veuillez lier votre compte dans Stripe dans les paramètres.'
+      );
     }
   };
 

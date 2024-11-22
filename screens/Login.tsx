@@ -45,6 +45,8 @@ const Login = ({ navigation }: any) => {
       userColor: colors.primary
     };
 
+    console.log("token: ", response.data.token);
+
     try {
       await AsyncStorage.setItem('jwt', JSON.stringify(tokenObject));
     } catch (error) {

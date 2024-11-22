@@ -14,7 +14,7 @@ import BottomNavigator from './BottomNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Splash from '../screens/Splash';
 import { TokenObjectType } from '../constants/artTypes';
-import { post } from '../constants/fetch';
+import { get, post } from '../constants/fetch';
 import { NavigationContext } from '@react-navigation/native';
 import Tutorial from '../screens/Tutorial';
 import Tutorial_2 from '../screens/Tutorial_2';
@@ -33,21 +33,22 @@ const ConnexionNavigator = () => {
       const value = await AsyncStorage.getItem('jwt');
 
       if (!value) {
+        console.warn('no jwt in storage');
         return setIsLoading(false);
       }
 
       const data: TokenObjectType = JSON.parse(value);
 
       if (!data) {
+        console.warn('failed to parse JWT');
         return setIsLoading(false);
       }
 
-      post(
-        '/api/auth/validate-reset-token',
-        { token: data?.token },
-        undefined,
+      get(
+        // '/api/auth/validate-reset-token',
+        '/api/user/profile/who-i-am',
+        data?.token,
         (res: any) => {
-          console.log('no problem: ', { ...res });
           context?.setToken(data?.token);
           context?.setUserId(data?.id);
           context?.setisArtist(data?.isArtist);
@@ -57,11 +58,9 @@ const ConnexionNavigator = () => {
           setIsLoading(false);
         },
         (err: any) => {
-          console.log("error getting token: ", { ...err.response.status });
+          console.log("error getting token: ", { ...err.response });
           if (err.response.status === 404) {
-            console.log("test1");
             context?.logOut();
-            console.log("test2");
             setIsLoading(false);
           }
         }
@@ -79,7 +78,7 @@ const ConnexionNavigator = () => {
 
   return (
     <Stack.Navigator>
-      {context?.token ? (
+      { context?.token ? (
         <>
           <Stack.Screen name="main" component={BottomNavigator} options={options} />
           <Stack.Screen name="profilingquizz" component={ProfilingQuizzNavigator} options={options} />
@@ -93,7 +92,7 @@ const ConnexionNavigator = () => {
           <Stack.Screen name="signup" component={Signup} options={options} />
           <Stack.Screen name="recover" component={ForgotPassword} options={options} />
         </>
-      )}
+      ) }
     </Stack.Navigator>
   );
 };

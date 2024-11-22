@@ -4,25 +4,39 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.INTERNET"/>
-  <application android:name="com.leonart.mobile.MainApplication" android:label="@string/app_name" android:icon="@drawable/leonart_icon" android:roundIcon="@drawable/leonart_icon" android:allowBackup="false" android:theme="@style/AppTheme" android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="true" tools:targetApi="m">
-    <activity android:name="com.leonart.mobile.MainActivity" android:label="@string/app_name" android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:exported="true">
+  <application
+      android:name="com.leonart.mobile.MainApplication"
+      android:label="@string/app_name"
+      android:icon="@drawable/leonart_icon"
+      android:roundIcon="@drawable/leonart_icon"
+      android:allowBackup="false"
+      android:theme="@style/AppTheme"
+      android:networkSecurityConfig="@xml/network_security_config"
+      android:usesCleartextTraffic="true"
+      tools:targetApi="m">
+    <activity
+        android:name="com.leonart.mobile.MainActivity"
+        android:label="@string/app_name"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+        android:launchMode="singleTask"
+        android:windowSoftInputMode="adjustResize"
+        android:exported="true">
       <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="mychat"/>
-      </intent-filter>
-      <intent-filter>
+
+      <!-- Deep links for Stripe -->
+      <intent-filter android:label="Deep link">
         <action android:name="android.intent.action.VIEW" />
+
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="http" />
-        <data android:scheme="https" />
-        <data android:host="http://front.leon-arts.fr/mobile" />
+
+        <data android:scheme="myapp" />
+        <data android:host="payment-success" />
+        <data android:host="payment-canceled" />
+        <data android:host="stripe-linked" />
       </intent-filter>
     </activity>
   </application>

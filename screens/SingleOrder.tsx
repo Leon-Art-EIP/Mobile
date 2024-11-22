@@ -11,6 +11,7 @@ import {
   aiCenter,
   asCenter,
   bgGrey,
+  cBlack,
   cTextDark,
   flex1,
   flexRow,
@@ -263,7 +264,9 @@ const SingleOrder = () => {
               size={24}
               color={colors.darkGreyFg}
             />
-            <Text style={{ marginLeft: 5, backgroundColor: bgGrey, fontSize: 16 }}>Contacter le vendeur</Text>
+            <Text style={[ml4, cBlack, { fontSize: 16 }]}>
+              Contacter le vendeur
+            </Text>
           </TouchableOpacity>
         </View>
       )}
