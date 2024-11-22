@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeNavigator from './HomeNavigator';
 import MessageNavigator from './MessageNavigator';
 import ProfileNavigator from './ProfileNavigator';
-import AddNavigator from './AddNavigator'
 
 import colors from '../constants/colors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -22,8 +21,8 @@ const BottomNavigator = () => {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => ({
-        tabBarHideOnKeyboard: context?.isKeyboard,
-        tabBarActiveTintColor: colors.primary,
+        //tabBarHideOnKeyboard: context?.isKeyboard,
+        tabBarActiveTintColor: context?.userColor ?? colors.primary,
         tabBarInactiveTintColor: colors.disabledFg,
         tabBarShowLabel: false
       })}
@@ -58,6 +57,7 @@ const BottomNavigator = () => {
       {/* Add tab */}
       <Tab.Screen name="Add" component={AddPublication} options={{
         headerShown: false,
+        unmountOnBlur: true,
         tabBarIcon: ({ color, size }) => (
           <MaterialIcons
             name="add-circle-outline"
@@ -96,6 +96,6 @@ const BottomNavigator = () => {
 
     </Tab.Navigator>
   );
-}
+};
 
 export default BottomNavigator;

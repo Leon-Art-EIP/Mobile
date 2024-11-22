@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, scrollView } from 'react';
 import { Alert, Text, StyleSheet, Image, TouchableOpacity, RefreshControl, ToastAndroid, FlatList, StatusBar, View, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -8,12 +8,11 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post, put } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { acCenter, aiCenter, asCenter, cBlack, cTextDark, flex1, flexRow, fwBold, jcCenter, mb8, mh8, ml4, ml8, mlAuto, mr8, mrAuto, mv4, taCenter, tavCenter } from '../constants/styles';
+import { aiCenter, asCenter, cBlack, cTextDark, flex1, flexRow, fwBold, jcCenter, mb8, mh8, ml4, ml8, mlAuto, mrAuto, mv4, tavCenter } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import Card from '../components/cards/Card';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Title from '../components/text/Title';
-import { VerifyMicrodepositsError } from '@stripe/stripe-react-native';
 
 
 type UserDataType = {
@@ -97,6 +96,11 @@ const OtherProfile = () => {
   };
 
 
+  const isUserFollowing = () => {
+    return userData?.subscribers.includes(context?.userId ?? "UNDEFINED");
+  }
+
+
   const handleContactButtonClick = () => {
     const navigateToConversation = (
       username: string,
@@ -112,7 +116,7 @@ const OtherProfile = () => {
         name: username,
         ids: [ convId, userId, userTwoId ]
       });
-    }
+    };
 
     const onSuccess = (resp: any) => {
       if (userData) {
@@ -124,7 +128,7 @@ const OtherProfile = () => {
         );
       }
       return console.error("Error loading user");
-    }
+    };
 
     return put(
       '/api/conversations/create',
@@ -135,11 +139,10 @@ const OtherProfile = () => {
        if (error.response.status === 409) {
          return onSuccess(error.response);
        }
-       return console.error({ ...error })
+       return console.error({ ...error });
       }
     );
   };
-
 
   const handleFollowButtonClick = async () => {
     if (!token) {
@@ -150,18 +153,17 @@ const OtherProfile = () => {
     const url = `/api/follow/${id}`;
 
     const callback = () => {
-      return fetchInfos();
+      fetchUserData();
+      setIsFollowing(prev => !prev);
     };
 
-    const onErrorCallback = (error: any) => {
-      console.error('Erreur de follow :', error);
-      return Alert.alert('Erreur de follow', 'Une erreur s\'est produite.');
+    const onErrorCallback = () => {
+      console.error('Erreur de follow :');
+      Alert.alert('Erreur de follow', "Une erreur s'est produite.");
     };
 
     post(url, {}, token, callback, onErrorCallback);
-    fetchUserData();
   };
-
 
   const checkIsFollowing = async () => {
     if (!token) {
@@ -172,14 +174,15 @@ const OtherProfile = () => {
     get(
       '/api/follow/following',
       token,
-      (response) => {
-        setIsFollowing(
-          !!response.data?.subscriptions.some(
-            (subscription: any) => subscription._id === id
-          )
-        );
+      (response: any) => {
+        if (response?.data?.subscribers?.length > 0) {
+          return setIsFollowing(
+            !!response.data?.subscribers?.includes(id)
+          );
+        }
       },
-      (error: any) => console.error("[api/follow/following]", { ...error })
+      (error: any) => console.error("[api/follow/following]", error)
+
     );
   };
 
@@ -203,7 +206,6 @@ const OtherProfile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
-
   const fetchUserData = () => {
     if (!token) {
       return console.error('Token JWT not found. Make sure the user is logged in.');
@@ -223,7 +225,6 @@ const OtherProfile = () => {
     get(url, token, callback, onErrorCallback);
   };
 
-
   const getCollections = () => {
     return get(
       `/api/collection/user/${id}/collections`,
@@ -241,7 +242,6 @@ const OtherProfile = () => {
     );
   };
 
-
   const getAverageRating = () => {
     if (!userData?._id) {
       return;
@@ -253,8 +253,7 @@ const OtherProfile = () => {
       (res: any) => setAverageRating(res.data.averageRating ?? 0),
       (err: any) => console.error({ ...err })
     );
-  }
-
+  };
 
   const getComments = () => {
     if (!userData?._id) {
@@ -267,28 +266,25 @@ const OtherProfile = () => {
       (res: any) => setRatings([ ...res.data ]),
       (err: any) => console.error({ ...err })
     );
-  }
-
+  };
 
   const fetchInfos = () => {
     setIsRefreshing(true);
     fetchUserArtworks();
     getCollections();
-    checkIsFollowing();
     getAverageRating();
     getComments();
+    checkIsFollowing();
     setIsRefreshing(false);
   };
 
-
-  useEffect(fetchInfos, [userData])
-
+  useEffect(fetchInfos, [userData]);
 
   useEffect(() => {
     setIsRefreshing(true);
     fetchUserData();
+    checkIsFollowing();
   }, []);
-
 
   useFocusEffect(
     React.useCallback(() => {}, [navigation])
@@ -354,8 +350,12 @@ const OtherProfile = () => {
       {/* Blocs de texte */}
       <View style={styles.textBlocks}>
         <View style={styles.textBlock}>
-          <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
-          <Text style={styles.title}>followers</Text>
+          <Text style={styles.value}>
+            { userData ? Math.max(userData.subscribers.length, 0) : 0 }
+          </Text>
+          <Text style={styles.title}>
+            followers
+          </Text>
         </View>
         <View style={styles.centerTextBlock}>
           <Text style={styles.centerTitle}>{userData ? userData.username : ''}</Text>
@@ -373,10 +373,17 @@ const OtherProfile = () => {
       { userData?._id !== context?.userId && (
         <View style={styles.contactAndFollowView}>
           <Button
-            value={isFollowing ? 'Suivi' : 'Suivre'}
-            secondary={isFollowing}
-            style={styles.contactAndFollowBtn}
-            textStyle={{ fontSize: 14, textAlign: 'center' }}
+            value={isUserFollowing() ? 'Suivi' : 'Suivre'}
+            style={[
+              isUserFollowing() ? styles.isFollowingButton : styles.followButton,
+              { borderColor: context?.userColor }
+            ]}
+            textStyle={{
+              fontSize: 14,
+              textAlign: 'center',
+              fontWeight: '600',
+              color: isUserFollowing() ? context?.userColor : colors.white,
+            }}
             onPress={handleFollowButtonClick}
           />
           <Button
@@ -441,6 +448,7 @@ const OtherProfile = () => {
           ) : (
             <FlatList
               data={userArtworks}
+              numColumns={3}
               renderItem={({ item, index }: { item: UserArtworkType, index: number }) => (
                 <TouchableOpacity
                   key={item._id}
@@ -515,16 +523,16 @@ const OtherProfile = () => {
 
       { activeTab === 'A propos' && (
         <>
+        <ScrollView>
           <Card>
-            <ScrollView>
               <Title size={20}>Description</Title>
               <Text style={cTextDark}>
-                { !!userData?.biography ?
+                { userData?.biography ?
                   userData.biography :
                   "Cet personne utilise Leon'art pour redécouvrir l'art !"
                 }
               </Text>
-            </ScrollView>
+            {/* </ScrollView> */}
           </Card>
 
           <Card style={flexRow}>
@@ -543,7 +551,6 @@ const OtherProfile = () => {
               </Text>
             ) }
           </Card>
-
           <Card>
             <Title size={20} style={mb8}>Commentaires</Title>
 
@@ -577,8 +584,7 @@ const OtherProfile = () => {
                         />
                       </View>
                     </View>
-
-                    <Text>{ item.comment }</Text>
+                    <Text style={cTextDark}>{ item.comment }</Text>
                     <View style={styles.line} />
                   </View>
                 )}
@@ -588,7 +594,8 @@ const OtherProfile = () => {
                 Ce profil n'a pas reçu de commentaires pour l'instant !
               </Text>
             ) }
-          </Card>
+            </Card>
+          </ScrollView>
         </>
       ) }
     </SafeAreaView>
@@ -673,6 +680,20 @@ const styles = StyleSheet.create({
   contactAndFollowBtn: {
     flex: 1,
     borderRadius: 50
+  },
+  followingButton: {
+    flex: 1,
+    borderRadius: 50
+  },
+  followButton: {
+    flex: 1,
+    borderRadius: 50
+  },
+  isFollowingButton: {
+    flex: 1,
+    borderRadius: 50,
+    borderWidth: 2,
+    backgroundColor: colors.disabledBg,
   },
   decorativeLine: {
     height: 1,

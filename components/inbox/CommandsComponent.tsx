@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {Image, RefreshControl, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import colors from '../../constants/colors';
-import { aiCenter, asCenter, bgRed, bgGrey, fwBold, mbAuto, mtAuto, mlAuto } from '../../constants/styles';
+import { aiCenter, asCenter, bgRed, bgGrey, fwBold, mbAuto, mtAuto, mlAuto, cTextDark } from '../../constants/styles';
 import { get, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import { getImageUrl } from '../../helpers/ImageHelper';
@@ -38,6 +38,23 @@ const CommandsComponent = () => {
   const context = useContext(MainContext);
 
 
+  const logOut = () => {
+    ToastAndroid.show('Veuillez vous reconnecter', ToastAndroid.SHORT);
+    context?.logOut();
+    return navigation.navigate('login');
+  }
+
+
+  const onErrorCallback = (err: any) => {
+    if (error?.response?.status === 401) {
+      return logOut();
+    }
+
+    ToastAndroid.show("Une erreur est survenue", ToastAndroid.SHORT);
+    return console.error({ ...err });
+  }
+
+
   const getCommands = () => {
     setIsRefreshing(true);
 
@@ -49,7 +66,7 @@ const CommandsComponent = () => {
       `/api/order/latest-sell-orders?limit=50&page=1`,
       context?.token,
       (response: any) => setSales(response?.data || []),
-      (error: any) => console.error({ ...error })
+      onErrorCallback
     );
 
     get(
@@ -60,7 +77,7 @@ const CommandsComponent = () => {
         setOrdersState(response?.data.order);
         setIsRefreshing(false);
       },
-      (error: any) => console.error({ ...error })
+      onErrorCallback
     );
 
   }
@@ -88,6 +105,7 @@ const CommandsComponent = () => {
     }
   };
 
+
   return (
     <>
       <ScrollView
@@ -106,7 +124,7 @@ const CommandsComponent = () => {
               source={require('../../assets/icons/box.png')}
               style={{ width: 80, height: 80 }}
             />
-            <Text style={{ marginBottom: 'auto' }}>C'est tout vide par ici !</Text>
+            <Text style={[mbAuto, cTextDark]}>C'est tout vide par ici !</Text>
           </View>
         )}
 
@@ -125,8 +143,12 @@ const CommandsComponent = () => {
                 testID="command-img"
               />
               <View style={styles.textContainer}>
-                <Text style={fwBold}>{ formatName(order.artPublicationName, 20) }</Text>
-                <Text>{order.orderPrice} €</Text>
+                <Text style={[fwBold, cTextDark]}>
+                  { formatName(order.artPublicationName, 20) }
+                </Text>
+                <Text style={cTextDark}>
+                  { order.orderPrice } €
+                </Text>
               </View>
               <View style={styles.buttonContainer}>
                 <Button
@@ -158,7 +180,9 @@ const CommandsComponent = () => {
               source={require('../../assets/icons/box.png')}
               style={{ width: 80, height: 80 }}
             />
-            <Text style={{ marginBottom: 'auto' }}>C'est tout vide par ici !</Text>
+            <Text style={[mbAuto, cTextDark]}>
+              C'est tout vide par ici !
+            </Text>
           </View>
         ) }
 
@@ -177,8 +201,12 @@ const CommandsComponent = () => {
                 testID="command-img"
               />
               <View style={styles.textContainer}>
-                <Text style={fwBold}>{sale.artPublicationName}</Text>
-                <Text>{sale.orderPrice} €</Text>
+                <Text style={[fwBold, cTextDark]}>
+                  { sale.artPublicationName }
+                </Text>
+                <Text style={cTextDark}>
+                  { sale.orderPrice } €
+                </Text>
               </View>
               <View style={styles.buttonContainer}>
                 <Button

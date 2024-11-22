@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { post } from '../constants/fetch';
 import { StyleSheet } from 'react-native';
@@ -7,27 +7,38 @@ import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
+type AnsweringToType = {
+  userId: string;
+  commentId: string;
+  username: string;
+};
+
 type CommentInputProps = {
   id: string;
   nestedId: number | undefined;
-  answeringTo: string | undefined;
-  setNestedId: Function;
+  answeringTo: AnsweringToType | undefined; // Profile type
+  setNestedId: (e: number | undefined) => void;
+  setAnsweringTo: (e: AnsweringToType | undefined) => void;
+  trigger: Function;
 }
 
 
 const CommentInput = ({
   id,
   nestedId = undefined,
-  answeringTo = undefined,
-  setNestedId = () => {}
+  answeringTo = undefined,  // Comment ID you are answering to
+  setAnsweringTo = () => {},
+  setNestedId = () => {},
+  trigger = (curr: number) => curr + 1
 }: CommentInputProps) => {
   const [commentInput, setCommentInput] = useState('');
   const context = useContext(MainContext);
-  const [isNested, setIsNested] = useState<boolean>(!!nestedId);
+
 
   const handleCommentInput = (text: string) => {
     setCommentInput(text);
   };
+
 
   const postComment = async () => {
     if (!commentInput.trim()) {
@@ -39,8 +50,8 @@ const CommentInput = ({
       text: commentInput,
     };
 
-    if (!!nestedId) {
-      body = { ...body, parentCommentId: nestedId };
+    if (nestedId) {
+      body = { ...body, parentCommentId: answeringTo?.commentId };
     }
 
     post(
@@ -49,6 +60,9 @@ const CommentInput = ({
       context?.token,
       (_) => {
         setCommentInput('');
+        setAnsweringTo(undefined);
+        setNestedId(undefined);
+        trigger((curr: number) => curr + 1);
       },
       (error) => {
         console.error('Error posting comments:', error);
@@ -56,10 +70,23 @@ const CommentInput = ({
     );
   };
 
+
+  useEffect(() => {
+    const regex = /^@\S+\s*/;
+    let newInput: string = (commentInput ?? "").replace(regex, "").trim();
+
+    if (!!answeringTo) {
+      setCommentInput('@' + answeringTo?.username + ' ' + newInput);
+    } else {
+      setCommentInput(newInput);
+    }
+  }, [answeringTo])
+
+
   return (
     <View style={styles.commentInputContainer}>
       <TextInput
-        placeholder={!!nestedId ? "Répondre à " + answeringTo + "..." : "Commenter..."}
+        placeholder={!!answeringTo ? "Répondre à " + answeringTo?.userId + "..." : "Commenter..."}
         placeholderTextColor={colors.disabledFg}
         style={styles.commentInput}
         onChangeText={(text) => handleCommentInput(text)}
@@ -78,6 +105,7 @@ const CommentInput = ({
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   commentsContainer: {

@@ -1,4 +1,4 @@
-import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, ScrollView, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, View, Text, Linking, StyleSheet, Image, TouchableOpacity, FlatList, RefreshControl, StatusBar, Dimensions, ToastAndroid, ScrollView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-native-modal';
@@ -9,7 +9,7 @@ import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { get, post } from '../constants/fetch';
 import { getImageUrl, getRandomBgColor } from '../helpers/ImageHelper';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24, bgRed } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, jcCenter, pt8, mh4, mlAuto, mrAuto, mt8, mv4, mr20, mtAuto, mbAuto, mh24, aspSquare } from '../constants/styles';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -19,6 +19,41 @@ import { formatName } from '../helpers/NamesHelper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Input from '../components/textInput/Input';
 import Subtitle from '../components/text/Subtitle';
+
+
+interface Artwork {
+  _id: string;
+  userId: string;
+  image: string;
+  artType: string;
+  name: string;
+  description: string;
+  dimension: string;
+  isForSale: boolean;
+  price: number;
+  location: string;
+  likes: any[];
+  comments: any[];
+  __v: number;
+}
+
+interface UserData {
+  _id: string;
+  username: string;
+  is_artist: boolean;
+  availability: string;
+  subscription: string;
+  collections: any[];
+  subscriptions: any[];
+  subscribers: any[];
+  subscribersCount: number;
+  likedPublications: any[];
+  canPostArticles: boolean;
+  __v: number;
+  bannerPicture: string;
+  profilePicture: string;
+  biography: string;
+}
 
 
 const Profile = () => {
@@ -40,63 +75,23 @@ const Profile = () => {
   const [facebookUrl, setFacebookUrl] = useState<string>('');
 
 
-  const handleToFollowerList = () => {
-    // TODO : rendre dynamique
-    navigation.navigate('follower_list');
-  };
-
-  const handleBackButtonClick = () => {
-    navigation.goBack();
-  };
-
-  const handleEditButtonClick = () => {
-    navigation.navigate('edit_profile');
-  };
-
-  const handleSettingsButtonClick = () => {
-    navigation.navigate('settings');
-  };
-
-  const handleArtworkClick = (id: string) => {
-    navigation.navigate('singleArt', { id: id });
-  };
-
-  const handleCollectionClick = (collection: CollectionType) => {
-    navigation.navigate('collection', { collection: collection });
-  };
-
-  interface Artwork {
-    _id: string;
-    userId: string;
-    image: string;
-    artType: string;
-    name: string;
-    description: string;
-    dimension: string;
-    isForSale: boolean;
-    price: number;
-    location: string;
-    likes: any[];
-    comments: any[];
-    __v: number;
+  const logOut = () => {
+    ToastAndroid.show("Veuillez vous reconnecter", ToastAndroid.SHORT);
+    navigation.navigate('login');
+    return context?.logOut();
   }
 
-  interface UserData {
-    _id: string;
-    username: string;
-    is_artist: boolean;
-    availability: string;
-    subscription: string;
-    collections: any[];
-    subscriptions: any[];
-    subscribers: any[];
-    subscribersCount: number;
-    likedPublications: any[];
-    canPostArticles: boolean;
-    __v: number;
-    bannerPicture: string;
-    profilePicture: string;
-    biography: string;
+
+  const onErrorCallback = (error: any) => {
+    if (error.response.status === 401) {
+      return logOut();
+    }
+
+    console.error({ ...error });
+    return ToastAndroid.show(
+      "Une erreur est survenue",
+      ToastAndroid.SHORT
+    );
   }
 
 
@@ -110,21 +105,13 @@ const Profile = () => {
 
   const fetchUserArtworks = async () => {
     if (!token) {
-      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      return;
+      return logOut();
     }
 
     const url = `/api/art-publication/user/${context.userId}`;
-    console.log(context);
 
     const callback = (response: any) => {
       setUserArtworks(response.data);
-    };
-
-    const onErrorCallback = (error: any) => {
-      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
-      return console.error('Error fetching user artworks:', error);
     };
 
     get(url, token, callback, onErrorCallback);
@@ -133,27 +120,21 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     if (!token) {
-      Alert.alert('Une erreur est survenue', 'Veuillez vous reconnecter.');
-      console.error('Token JWT not found. Make sure the user is logged in.');
-      return;
+      return logOut();
     }
 
     const url = `/api/user/profile/${userID}`;
 
     const callback = (response: any) => {
       setUserData(response.data);
-      fetchUserArtworks();
 
       const socialLinks = response.data.socialMediaLinks || {};
       setInstagramUrl(socialLinks.instagram || '');
       setTwitterUrl(socialLinks.twitter || '');
       setTiktokUrl(socialLinks.tiktok || '');
       setFacebookUrl(socialLinks.facebook || '');
-    };
 
-    const onErrorCallback = (error: any) => {
-      Alert.alert('Une erreur est survenue', 'Nous n\'avons pas pu récupérer les informations liées à votre compte.');
-      return console.error('Error fetching user data:', error);
+      fetchUserArtworks();
     };
 
     get(url, token, callback, onErrorCallback);
@@ -162,9 +143,7 @@ const Profile = () => {
 
   const updateCollections = async () => {
     if (!token) {
-      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      Alert.alert("Erreur", "Veuillez vous reconnecter");
-      return;
+      return logOut();
     }
 
     get(
@@ -174,16 +153,19 @@ const Profile = () => {
         setUserCollections(response.data);
         setIsRefreshing(false);
       },
-      (error: any) => console.error({ ...error })
+      onErrorCallback
     );
   };
 
 
   const reloadProfile = () => {
-    console.log("context: ", context);
     setIsRefreshing(true);
-    fetchUserData();
-    updateCollections();
+    fetchUserData()
+    .then(() => {
+      updateCollections().then(() => {
+        setIsRefreshing(false)
+      })
+    });
   };
 
 
@@ -191,8 +173,7 @@ const Profile = () => {
   // but it doesn't work yet. We're waiting for the back-end (as usual lol)
   const createCollection = async (collectionName: string) => {
     if (!token) {
-      console.error('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
-      return Alert.alert('Token JWT non trouvé. Assurez-vous que l\'utilisateur est connecté.');
+      return logOut();
     }
 
     if (!collectionName) {
@@ -208,11 +189,7 @@ const Profile = () => {
 
     const callback = (response: any) => {
       Alert.alert('Oeuvre ajoutée à la collection "' + collectionName + '".');
-    };
-
-    const onErrorCallback = (error: any) => {
-      console.error('Error while saving to collection:', error);
-      Alert.alert('Erreur', 'Une erreur s\'est produite lors de l\'enregistrement dans la collection.');
+      setIsRefreshing(false);
     };
 
     post(url, body, token, callback, onErrorCallback);
@@ -237,7 +214,7 @@ const Profile = () => {
 
         {/* Go back button */}
         <TouchableOpacity
-          onPress={handleBackButtonClick}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Ionicons
@@ -249,7 +226,7 @@ const Profile = () => {
 
         {/* Edit button */}
         <TouchableOpacity
-          onPress={() => handleEditButtonClick()}
+          onPress={() => navigation.navigate('edit_profile')}
           style={styles.editButton}
         >
           <Feather name="edit-2" color={colors.whitesmoke} size={24} />
@@ -257,7 +234,7 @@ const Profile = () => {
 
         {/* Settings button */}
         <TouchableOpacity
-          onPress={() => handleSettingsButtonClick()}
+          onPress={() => navigation.navigate('settings')}
           style={styles.settingButton}
         >
           <MaterialIcons
@@ -267,6 +244,7 @@ const Profile = () => {
           />
         </TouchableOpacity>
       </View>
+
       {/* Banner */}
       <View style={styles.banner}>
         <Image
@@ -278,7 +256,10 @@ const Profile = () => {
 
       {/* Profile picture */}
       <View style={styles.overlayImage}>
-        <View style={styles.circleImageContainer}>
+        <View style={[
+          styles.circleImageContainer,
+          { borderColor: context?.userColor }
+        ]}>
           <Image
             source={{ uri: getImageUrl(userData?.profilePicture) }}
             style={styles.profilePicture}
@@ -291,7 +272,9 @@ const Profile = () => {
 
         {/* Bloc de texte followers */}
         <View style={styles.textBlock}>
-          <TouchableOpacity onPress={handleToFollowerList}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('follower_list')}
+          >
             <View style={styles.centeredText}>
               <Text style={styles.value}>{userData ? Math.max(userData.subscribersCount, 0) : 0}</Text>
               <Text style={styles.title}>abonnés</Text>
@@ -349,28 +332,41 @@ const Profile = () => {
         <View style={styles.squareContainer}>
 
           { userArtworks.length === 0 ? (
-            <View style={[ flex1, aiCenter, jcCenter ]}>
+            <ScrollView
+              refreshControl={(
+                <RefreshControl
+                  colors={[context?.userColor ?? colors.primary]}
+                  refreshing={isRefreshing}
+                  onRefresh={reloadProfile}
+                />
+              )}
+              contentContainerStyle={[flex1, aiCenter]}
+            >
               <Image
                 source={require('../assets/icons/box.png')}
                 style={[
                   { width: 80, height: 80 },
                   mlAuto,
+                  mtAuto,
                   mrAuto,
                 ]}
               />
-              <Text style={[ cTextDark ]}>
-                Cet utilisateur n'a pas posté d'oeuvres !
+              <Text style={[ cTextDark, mbAuto, pt8 ]}>
+                Vous n'avez pas posté d'oeuvres pour l'instant !
               </Text>
-            </View>
+            </ScrollView>
           ) : (
             <FlatList
               data={userArtworks}
               numColumns={3}
               renderItem={(e) => (
                 <TouchableOpacity
-                  onPress={() => handleArtworkClick(e.item._id)}
+                  onPress={() => navigation.navigate(
+                    'singleArt',
+                    { id: e.item._id }
+                  )}
                   key={e.item._id}
-                  style={[mh4, mv4]}
+                  style={[mh4, mv4, flex1]}
                 >
                   <Image
                     source={{ uri: getImageUrl(e.item.image) }}
@@ -378,9 +374,10 @@ const Profile = () => {
                   />
                 </TouchableOpacity>
               )}
+              contentContainerStyle={{ paddingHorizontal: 12 }}
               refreshControl={(
                 <RefreshControl
-                  colors={[colors.primary]}
+                  colors={[context?.userColor ?? colors.primary]}
                   refreshing={isRefreshing}
                   onRefresh={reloadProfile}
                 />
@@ -403,9 +400,13 @@ const Profile = () => {
                   key={item?._id.toString()}
                   style={[
                     styles.squareFrame,
-                    { backgroundColor: getRandomBgColor() }
+                    { backgroundColor: getRandomBgColor() },
+                    { maxWidth: '50%' }
                   ]}
-                  onPress={() => handleCollectionClick(item)}
+                  onPress={() => navigation.navigate(
+                    'collection',
+                    { collection: item }
+                  )}
                 >
                   <Text style={styles.collectionName}>{
                     formatName(item?.name ?? "Collection", 10)
@@ -448,7 +449,10 @@ const Profile = () => {
           <View style={styles.rowContainer}>
 
             { instagramUrl && (
-              <Card pressable onPress={() => handleIconPress(instagramUrl)}>
+              <Card
+                pressable
+                onPress={() => handleIconPress(instagramUrl)}
+              >
                 <Ionicons
                   name="logo-instagram"
                   color={colors.darkGreyBg}
@@ -457,7 +461,10 @@ const Profile = () => {
               </Card>
             ) }
             { twitterUrl && (
-              <Card pressable onPress={() => handleIconPress(twitterUrl)}>
+              <Card
+                pressable
+                onPress={() => handleIconPress(twitterUrl)}
+              >
                 <Ionicons
                   name="logo-twitter"
                   color={colors.darkGreyBg}
@@ -466,7 +473,10 @@ const Profile = () => {
               </Card>
             ) }
             { facebookUrl && (
-              <Card pressable onPress={() => handleIconPress(facebookUrl)}>
+              <Card
+                pressable
+                onPress={() => handleIconPress(facebookUrl)}
+              >
                 <Ionicons
                   name="logo-facebook"
                   color={colors.darkGreyBg}
@@ -475,7 +485,10 @@ const Profile = () => {
               </Card>
             ) }
             { tiktokUrl && (
-              <Card pressable onPress={() => handleIconPress(tiktokUrl)}>
+              <Card
+                pressable
+                onPress={() => handleIconPress(tiktokUrl)}
+              >
                 <Ionicons
                   name="logo-pinterest"
                   color={colors.darkGreyBg}
@@ -597,7 +610,6 @@ const styles = StyleSheet.create({
     height: 123,
     backgroundColor: colors.white,
     borderRadius: 100,
-    borderColor: colors.primary,
     position: 'absolute',
     top: -55,
     borderWidth: 4,
@@ -734,7 +746,7 @@ const styles = StyleSheet.create({
   },
   artworkImage: {
     height: 120,
-    width: 120,
+    width: '100%',
     borderRadius: 7,
   },
 });

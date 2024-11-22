@@ -62,19 +62,19 @@ const ResultsScreen = () => {
 
   const navigateToPreview = (post: ArtPublicationType) => {
     navigation.navigate('single_art', { id: post?._id });
-  }
+  };
 
 
   const navigateToProfile = (user: UserType) => {
-    navigation.navigate('other_profile', { id: user._id })
-  }
+    navigation.navigate('other_profile', { id: user._id });
+  };
 
 
   const getResults = () => {
     setIsRefreshing(true);
 
     const onGetSuccessful = (res: any) => {
-      let posts: ArtPublicationType[] = res?.data?.artPublications ?? [];
+      const posts: ArtPublicationType[] = res?.data?.artPublications ?? [];
       let users: UserType[] = res?.data?.users ?? [];
 
       users = users.filter((user: UserType) => user._id !== context?.userId);
@@ -82,15 +82,15 @@ const ResultsScreen = () => {
       setPosts(posts);
       setUsers(users);
       setIsRefreshing(false);
-    }
+    };
 
     const onGetError = (err: any) => {
       ToastAndroid.show(
         "Une erreur est survenue. Veuillez réessayer plus tard",
         ToastAndroid.LONG
       );
-      return console.error(err?.response);
-    }
+      return console.error({ ...err });
+    };
 
     // Get results from received API call
     get(
@@ -99,7 +99,7 @@ const ResultsScreen = () => {
       onGetSuccessful,
       onGetError
     );
-  }
+  };
 
 
   useEffect(getResults, []);
@@ -162,8 +162,8 @@ const ResultsScreen = () => {
             <RefreshControl
               onRefresh={getResults}
               refreshing={isRefreshing}
-              tintColor={colors.primary}
-              colors={[ colors.primary ]}
+              tintColor={context?.userColor ?? colors.primary}
+              colors={[ context?.userColor ?? colors.primary ]}
             />
           }
         >
@@ -209,7 +209,7 @@ const ResultsScreen = () => {
       ) }
     </SafeAreaView>
   );
-}
+};
 
 
 const styles = StyleSheet.create({

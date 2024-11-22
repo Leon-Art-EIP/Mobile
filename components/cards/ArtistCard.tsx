@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity, Image, StyleSheet, View } from 'react-native';
 import colors from '../../constants/colors';
 import { ArtistType } from '../../constants/homeValues';
 import { getImageUrl } from '../../helpers/ImageHelper';
 import Card from './Card';
 import Title from '../text/Title';
+import { MainContext } from '../../context/MainContext';
 
 interface ArtistCardProps {
   onPress?: () => void;
@@ -18,48 +19,55 @@ const ArtistCard = ({
   item,
   style = {},
   showTitle = true,
-}: ArtistCardProps) => (
-  <View style={styles.cardContainer}>
-    <TouchableOpacity onPress={onPress} style={styles.touchable}>
-      <Card style={[styles.container]}>
-        {item?.profilePicture && (
-          <Image
-            style={styles.image}
-            source={{ uri: getImageUrl(item?.profilePicture) }}
-          />
-        )}
-      </Card>
-      {showTitle && (
-        <Title size={16} style={styles.title}>
-          {item.username}
-        </Title>
-      )}
-    </TouchableOpacity>
-  </View>
-);
+}: ArtistCardProps) => {
+  const context = useContext(MainContext);
+
+  return (
+    <View style={styles.cardContainer}>
+      <TouchableOpacity onPress={onPress} style={styles.touchable}>
+        <Card style={[styles.container]}>
+          {item?.profilePicture && (
+            <Image
+              style={[
+                styles.image,
+                { borderColor: context?.userColor }
+              ]}
+              source={{ uri: getImageUrl(item?.profilePicture) }}
+            />
+          )}
+        </Card>
+
+        { showTitle && (
+          <Title size={16} style={styles.title}>
+            {item.username}
+          </Title>
+        ) }
+      </TouchableOpacity>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   cardContainer: {
-    alignItems: 'center',  // Center align the card and title horizontally
-    // backgroundColor: colors.deepyellow,
+    alignItems: 'center',
+    borderRadius: 200
   },
   touchable: {
-    alignItems: 'center',  // Align children (image and title) center
-    width: 140,  // Define width to align text correctly
+    alignItems: 'center',
+    width: 140,
   },
   container: {
     backgroundColor: colors.white,
     width: 150,
     height: 125,
-    // border25Radius: 70,
-    marginBottom: 5,  // Space between card and title
-    overflow: 'hidden' // Ensures the image does not bleed outside the card
+    marginBottom: 5,
+    overflow: 'hidden'
   },
   image: {
+    borderWidth: 4,
     width: '100%',
     height: '100%',
-    borderRadius: 8
-    // borderRadius: 70,
+    borderRadius: 200
   },
   title: {
     color: colors.darkGreyBg,

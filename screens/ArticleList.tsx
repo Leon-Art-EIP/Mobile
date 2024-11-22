@@ -9,19 +9,21 @@ const { width } = Dimensions.get('window');
 const ArticlesList = ({ navigation, route }: any) => {
   const { articles } = route.params;
 
-  console.log('Articles data:', articles);
-
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
         <Title style={{ color: colors.primary }}>Leon</Title>
         <Title>'Art</Title>
       </View>
+
       <Title style={{ marginLeft: 20, marginBottom: 20 }} size={28}>
         Tous les articles
       </Title>
-      <ScrollView contentContainerStyle={styles.articlesContainer}>
-        {articles.map((article: any) => {
+
+      <ScrollView
+        contentContainerStyle={styles.articlesContainer}
+      >
+        { articles.map((article: any) => {
           const author = article.author ? article.author.username : 'Unknown Author';
           const publicationDate = article.createdAt ? new Date(article.createdAt).toLocaleDateString() : 'Unknown Date';
 
@@ -39,7 +41,7 @@ const ArticlesList = ({ navigation, route }: any) => {
               </Text>
             </View>
           );
-        })}
+        }) }
       </ScrollView>
     </View>
   );
@@ -68,7 +70,7 @@ const styles = StyleSheet.create({
   articleInfo: {
     marginTop: 10,
     fontSize: 14,
-    color: colors.gray,
+    color: colors.darkGreyFg,
     marginLeft: 16,
   },
   articleCard: {

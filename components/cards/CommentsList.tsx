@@ -1,45 +1,122 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ToastAndroid, Modal, TextInput, Keyboard, ScrollView, RefreshControl } from 'react-native';
-import { get, del, post, put } from '../../constants/fetch';
+import { get, del, post } from '../../constants/fetch';
 import { MainContext } from '../../context/MainContext';
 import colors from '../../constants/colors';
 import ArtistCard from '../ArtistCard';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../buttons/Button';
-import { bgRed, cBlack, cTextDark, flexRow, mbAuto, mh8, ml0, ml8, mlAuto, mr0, mr20, mrAuto, mtAuto } from '../../constants/styles';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import Octicons from 'react-native-vector-icons/Octicons'
+import { cTextDark, flex1, flexRow, mb24, mh8, ml0, ml8, mlAuto, mr20, mr8 } from '../../constants/styles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Octicons from 'react-native-vector-icons/Octicons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Card from './Card';
-import { isResumable } from 'react-native-fs';
+
+
+interface UserProfileType {
+  id: string;
+  username: string;
+  is_artist: boolean;
+  biography: string;
+  availability: string;
+  subscription: string;
+  profilePicture: string;
+  bannerPicture: string;
+  emailNotificationEnabled: boolean;
+  socialMediaLinks: {
+    instagram: string;
+    twitter: string;
+    facebook: string;
+    tiktok: string;
+  }
+}
+
+
+interface NestedComment {
+  id: string;
+  userId: string;
+  text: string;
+  createdAt: Date;
+  likes: string[];
+  isLiked: boolean;
+  parentCommentId: string;
+}
+
+
+interface CommentType {
+  id: string;
+  userId: string;
+  artPublicationId: string;
+  text: string;
+  createdAt: Date;
+  likes: string[];
+  isLiked: boolean;
+  parentCommentId: string;
+  nestedComments: NestedComment[];
+}
+
+
+interface RenderComponentProps {
+  comment: CommentType | NestedComment;
+  index: number;
+  isNested?: boolean;
+}
+
+
+interface AnsweringToType {
+  commentId: string;
+  userId: string;
+  username: string;
+}
+
+
+interface CommetListProps {
+  id: string;
+  setNestedId: (e: string | undefined) => void;
+  setAnsweringTo: (e: AnsweringToType | undefined) => void;
+  nestedId: string | undefined;
+  answeringTo: AnsweringToType | undefined;
+  trigger: number;
+}
+
+
+interface NestedCommentVisibleType {
+  parentId: string;
+  id: string;
+  userId: string;
+  visible: boolean;
+}
 
 
 const CommentsList = ({
   id,
   setNestedId,
   setAnsweringTo,
-  nestedId = undefined
-}) => {
+  nestedId = undefined,
+  answeringTo = undefined,
+  trigger = 0
+}: CommetListProps) => {
   const context = useContext(MainContext);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<CommentType[]>([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [usernames, setUsernames] = useState([]);
-  const [userProfiles, setUserProfiles] = useState({});
+  const [userProfiles, setUserProfiles] = useState<UserProfileType[]>([]);
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<string>();
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
-  const [nestedCommentsVisible, setNestedCommentsVisible] = useState({});
-  const [likes, setLikes] = useState({});
+  const [nestedCommentsVisible, setNestedCommentsVisible] = useState<NestedCommentVisibleType[]>([]);
   const navigation = useNavigation();
+
 
   useEffect(() => {
     fetchComments();
   }, [id]);
 
-  const getUsername = (userId: string) => {
-    if (!context?.token) {
+
+  // Gets user profiles for comments
+  const getUser = (userId: string) => {
+    if (!context?.token || !userId) {
       return;
     }
 
@@ -47,17 +124,21 @@ const CommentsList = ({
       `/api/user/profile/${userId}`,
       context?.token,
       (response) => {
-        if (response && response.data) {
-          setUsernames((prevUsernames) => ({
-            ...prevUsernames,
-            [userId]: response.data.username,
-          }));
-          setUserProfiles((prevProfiles) => ({
-            ...prevProfiles,
-            [userId]: response.data,
-          }));
-        } else {
+        if (!response || !response.data) {
           return console.error('Invalid response:', response);
+        }
+
+        const currId: number = userProfiles.findIndex(
+          (user: UserProfileType) => user.username === response.data.username
+        );
+
+        if (currId === -1) {
+          let newUsernames: UserProfileType[] = [...userProfiles, response.data ];
+          return setUserProfiles([ ...newUsernames ]);
+        } else {
+          let tmpNewUserProfiles: UserProfileType[] = [ ...userProfiles ];
+          tmpNewUserProfiles[currId] = response.data;
+          setUserProfiles([ ...tmpNewUserProfiles ]);
         }
       },
       (error) => {
@@ -66,6 +147,23 @@ const CommentsList = ({
     );
   };
 
+
+  /* Returns a correctly formatted NestedCommentVisibleType
+  *  From a NestedComment object
+  */
+  const nestedToNestedCommentType = (
+    comm: NestedComment
+  ): NestedCommentVisibleType => {
+    return {
+      userId: comm.userId,
+      parentId: comm.parentCommentId,
+      id: comm.id,
+      visible: false
+    };
+  }
+
+
+  // Fetches comments from the back-end
   const fetchComments = () => {
     if (!context?.token) {
       return;
@@ -75,25 +173,37 @@ const CommentsList = ({
     get(
       `/api/art-publication/comment/${id}`,
       context?.token,
-      (response) => {
-        if (response && response.data) {
-          setComments(response.data);
-          response.data.forEach((comment) => {
-            getUsername(comment.userId);
-            comment.nestedComments.forEach((nestedComment) => {
-              getUsername(nestedComment.userId);
-            });
-          });
-        } else {
-          console.error('Invalid response:', response);
+      (response: any) => {
+        if (!response || !response.data) {
+          setIsRefreshing(false);
+          ToastAndroid.show("Une erreur est survenue", ToastAndroid.SHORT);
+          return console.error('Invalid response:', response);
         }
+
+        setComments(response.data);
+        let nested: NestedCommentVisibleType[] = [];
+
+        response.data.forEach((comment: CommentType) => {
+          getUser(comment.userId);
+          comment.nestedComments.forEach((nestedComment: NestedComment) => {
+            nested.push(nestedToNestedCommentType(nestedComment));
+            getUser(nestedComment.userId);
+          });
+        });
+
+        setNestedCommentsVisible([ ...nested ]);
         return setIsRefreshing(false);
       },
-      (error) => {
+      (error: any) => {
         console.error("Error fetching comments:", error);
       }
     );
   };
+
+
+  useEffect(() => {
+    fetchComments();
+  }, [trigger]);
 
 
   useEffect(() => {
@@ -103,6 +213,7 @@ const CommentsList = ({
   }, [nestedId]);
 
 
+  // Deletes a comment with the back-end
   const deleteComment = () => {
     del(
       `/api/art-publication/comment/${commentToDelete}`,
@@ -126,6 +237,7 @@ const CommentsList = ({
   };
 
 
+  // Calculates the time spent since a comment was posted
   const timeSince = (date: Date | string | number) => {
     const now = new Date();
     const commentDate = new Date(date);
@@ -147,10 +259,12 @@ const CommentsList = ({
   };
 
 
+  // Sets the AnsweringTo object
   const handleReplySubmit = () => {
     if (!context?.token || !replyText.trim()) {
-      return;
+      return console.warn('empty reply');
     }
+
     const url = `/api/art-publication/comment/${id}`;
     const body = { text: replyText, parentCommentId: replyingTo };
 
@@ -170,15 +284,38 @@ const CommentsList = ({
     );
   };
 
-  const toggleNestedComments = (commentId: string) => {
-    setNestedCommentsVisible((prevVisible) => ({
-      ...prevVisible,
-      [commentId]: !prevVisible[commentId],
-    }));
+
+  // Opens the nested comments view on click
+  const toggleNestedComments = (parentId: string) => {
+    const currId: number = nestedCommentsVisible.findIndex(
+      (comm: NestedCommentVisibleType) => comm.parentId === parentId
+    );
+
+    if (currId === -1) {
+      ToastAndroid.show("Une erreur est survenue", ToastAndroid.SHORT);
+      return console.warn(
+        "Nested comment error: could not find nested comments for comment ID ",
+        parentId
+      );
+    }
+
+    const newNested: NestedCommentVisibleType = {
+      parentId: parentId,
+      id: nestedCommentsVisible[currId].id,
+      userId: nestedCommentsVisible[currId].userId,
+      visible: !nestedCommentsVisible[currId].visible
+    };
+
+    let tmpNewNested = [...nestedCommentsVisible];
+    tmpNewNested[currId] = { ...newNested };
+
+    setNestedCommentsVisible([ ...tmpNewNested ]);
   };
 
+
+  // Likes a comment with the back-end
   const handleLikePress = (commentId: string) => {
-    if (!context?.token) {
+    if (!context?.token || !commentId) {
       return;
     }
 
@@ -186,13 +323,7 @@ const CommentsList = ({
       `/api/art-publication/comment/${commentId}/like`,
       {},
       context?.token,
-      () => {
-        fetchComments();
-        setLikes((prevLikes) => ({
-          ...prevLikes,
-          [commentId]: !prevLikes[commentId],
-        }));
-      },
+      fetchComments,
       (error) => {
         console.error("Error liking comment:", { ...error });
       }
@@ -200,26 +331,73 @@ const CommentsList = ({
   };
 
 
+  // Returns a user by its ID, or undefined in case it does not exist
+  const getUserById = (
+    userId: string
+  ): UserProfileType | undefined => {
+    if (!userId) {
+      return undefined;
+    }
+
+    const user: UserProfileType | undefined = userProfiles.find(
+      (user: UserProfileType) => user.id === userId
+    )
+
+    return user;
+  }
+
+
+  // Returns true if comment and answeringTo are refering
+  // to the same comment
+  const getIfAnsweringTo = (
+    comment: CommentType | undefined,
+    answeringTo: AnsweringToType | undefined
+  ): boolean => {
+    if (!comment || !answeringTo) {
+      return false;
+    }
+
+    const isUserEqual: boolean = comment?.userId === answeringTo.userId;
+    const isCommentEqual: boolean = comment.id === answeringTo.commentId;
+    return isUserEqual && isCommentEqual;
+  }
+
+
+  // Returns a Nested comment from its ID, or undefined in case it does not exist
+  const getNestedCommentByParentId = (
+    commentId: string
+  ): NestedCommentVisibleType | undefined => {
+    if (!commentId) {
+      return undefined
+    }
+
+    const comm: NestedCommentVisibleType | undefined = nestedCommentsVisible.find(
+      (comm: NestedCommentVisibleType) => comm.parentId === commentId
+    );
+
+    return comm;
+  }
+
+
   /* A single comment */
   const RenderComment = ({
     comment,
-    index,
+    index = -1,
     isNested = false
-  }) => (
+  }: RenderComponentProps) => (
     <View key={index} style={styles.commentContainer}>
       <ArtistCard
-        item={userProfiles[comment.userId]}
+        item={getUserById(comment.userId)}
         style={{
           image: { height: 40, width: 40 },
         }}
         showTitle={false}
-        onPress={() => console.log(comment)}//handleToArtistProfile(comment.userId)}
       />
 
       <View style={styles.commentContent}>
         <View style={styles.commentHeader}>
           <Text style={styles.commentAuthor}>
-            {usernames[comment.userId]}
+            { getUserById(comment.userId)?.username }
           </Text>
           <View style={styles.commentMeta}>
             <Text style={styles.publishedTime}>{
@@ -243,15 +421,14 @@ const CommentsList = ({
 
         {/* Footer */}
         <View style={styles.commentFooter}>
-
           {/* Nested comments */}
-          { comment.nestedComments && comment.nestedComments.length > 0 && (
+          { 'nestedComments' in comment && comment?.nestedComments?.length > 0 && (
             <TouchableOpacity
               onPress={() => toggleNestedComments(comment.id)}
               style={[flexRow]}
             >
               <Ionicons
-                name={nestedCommentsVisible[comment.id] ? 'chevron-up' : 'chevron-down'}
+                name={getNestedCommentByParentId(comment.id)?.visible ? 'chevron-up' : 'chevron-down'}
                 size={24}
                 color={colors.darkGreyFg}
               />
@@ -260,8 +437,11 @@ const CommentsList = ({
 
           {/* Report */}
           <TouchableOpacity
-            onPress={() => navigation.navigate('report', { id: comment?.id, type: 'post' })}
-            style={[mlAuto]}
+            onPress={() => navigation.navigate(
+              'report',
+              { id: comment?.id, type: 'post' }
+            )}
+            style={[mlAuto, mr20]}
           >
             <AntDesign
               name="warning"
@@ -274,9 +454,13 @@ const CommentsList = ({
           { !isNested && (
             <TouchableOpacity
               onPress={() => {
-                if (!nestedId) {
-                  setNestedId(comment.id);
-                  setAnsweringTo(userProfiles[comment.userId].username);
+                if (!nestedId || !getIfAnsweringTo(comment, answeringTo)) {
+                  setNestedId(comment?.id);
+                  setAnsweringTo({
+                    userId: comment.userId,
+                    commentId: comment.id,
+                    username: getUserById(comment.userId)?.username ?? ""
+                  });
                 } else {
                   setAnsweringTo(undefined);
                   setNestedId(undefined);
@@ -285,8 +469,11 @@ const CommentsList = ({
               style={[mh8]}
             >
               <Octicons
-                name='reply'
-                color={!!nestedId ? colors.primary : colors.darkGreyFg}
+                name="reply"
+                color={getIfAnsweringTo(comment, answeringTo) ?
+                  context?.userColor ?? colors.primary :
+                  colors.darkGreyFg
+                }
                 size={20}
               />
             </TouchableOpacity>
@@ -295,12 +482,12 @@ const CommentsList = ({
           {/* Like */}
           <TouchableOpacity
             onPress={() => handleLikePress(comment.id)}
-            style={isNested ? ml8 : ml0}
+            style={ml8}
           >
             <AntDesign
-              name={likes[comment.id] ? 'heart' : 'hearto'}
+              name={comment.isLiked ? 'heart' : 'hearto'}
               size={20}
-              color={likes[comment.id] ? 'red' : colors.darkGreyFg}
+              color={comment.isLiked ? context?.userColor ?? colors.primary : colors.darkGreyFg}
             />
           </TouchableOpacity>
         </View>
@@ -312,7 +499,8 @@ const CommentsList = ({
   return (
     <ScrollView
       refreshControl={<RefreshControl
-        colors={[colors.primary]}
+        colors={[context?.userColor ?? colors.primary]}
+        tintColor={context?.userColor ?? colors.primary}
         refreshing={isRefreshing}
         onRefresh={fetchComments}
       />}
@@ -325,17 +513,21 @@ const CommentsList = ({
             key={comment.id}
             style={[ styles.resetCard ]}
           >
-            <RenderComment comment={comment} index={index} />
+            <RenderComment
+              comment={comment}
+              index={index}
+            />
 
-            { nestedCommentsVisible[comment.id] && comment.nestedComments.map((nestedComment, nestedIndex) => (
-              <RenderComment
-                key={nestedComment.id}
-                comment={nestedComment}
-                index={nestedIndex}
-                isNested={true}
-              />
-            )) }
-
+            { getNestedCommentByParentId(comment.id)?.visible && comment.nestedComments.map(
+              (nestedComment: NestedComment, nestedIndex: number) => (
+                <RenderComment
+                  key={nestedComment.id}
+                  comment={nestedComment}
+                  index={nestedIndex}
+                  isNested={true}
+                />
+              )
+            ) }
 
             { replyingTo === comment.id && (
               <View style={styles.replyInputContainer}>
@@ -349,7 +541,9 @@ const CommentsList = ({
                   onPress={handleReplySubmit}
                   style={styles.replyButton}
                 >
-                  <Text style={styles.sendButtonText}>Poster</Text>
+                  <Text style={styles.sendButtonText}>
+                    Poster
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) }
@@ -365,9 +559,24 @@ const CommentsList = ({
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={{ color: colors.darkGreyBg, marginBottom: 20 }}>Are you sure you want to delete this comment?</Text>
-              <Button style={{ backgroundColor: colors.primary, marginBottom: 10, width: '60%' }} value="Supprimer" onPress={deleteComment} />
-              <Button style={{ backgroundColor: colors.darkGreyBg, width: '60%' }} value="Annuler" onPress={() => setIsDeleteModalShown(false)} />
+              <Text style={[cTextDark, mb24]}>
+                Are you sure you want to delete this comment?
+              </Text>
+
+              <View style={[flexRow]}>
+                <Button
+                  style={[flex1]}
+                  value="Annuler"
+                  secondary
+                  onPress={() => setIsDeleteModalShown(false)}
+                />
+
+                <Button
+                  style={[flex1]}
+                  value="Supprimer"
+                  onPress={deleteComment}
+                />
+              </View>
             </View>
           </View>
         </Modal>
@@ -375,6 +584,7 @@ const CommentsList = ({
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -472,5 +682,6 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 });
+
 
 export default CommentsList;

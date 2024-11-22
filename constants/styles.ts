@@ -1,5 +1,5 @@
 import Recat from 'react';
-import { StyleProp, TextStyle, View, ViewStyle } from 'react-native';
+import { ImageStyle, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import colors from './colors';
 
 /*
@@ -30,6 +30,9 @@ const mbAuto: StyleProp<any> = { marginBottom: 'auto' };
 const noVMargin: StyleProp<any> = { marginVertical: 0 };
 const noHMargin: StyleProp<any> = { marginHorizontal: 0 };
 const noMargin: StyleProp<any> = { margin: 0 };
+const mhAuto: StyleProp<any> = { marginRight: 'auto', marginLeft: 'auto' };
+const mvAuto: StyleProp<any> = { marginTop: 'auto', marginBottom: 'auto' };
+const mAuto: StyleProp<any> = [ mvAuto, mhAuto ]
 const m4: StyleProp<any> = { margin: 4 };
 const m8: StyleProp<any> = { margin: 8 };
 const mt4: StyleProp<any> = { marginTop: 4 };
@@ -76,6 +79,13 @@ const pv4: StyleProp<any> = { paddingVertical: 4 };
 const pv8: StyleProp<any> = { paddingVertical: 8 };
 const pv24: StyleProp<any> = { paddingVertical: 24 };
 
+const wFull: StyleProp<any> = { width: '100%' };
+const w50: StyleProp<any> = { width: '50%' };
+const w33: StyleProp<any> = { width: '33.3333%' };
+const hFull: StyleProp<any> = { height: '100%' };
+const h50: StyleProp<any> = { height: '50%' };
+const h33: StyleProp<any> = { height: '33.3333%' };
+
 // text
 const fwBold: StyleProp<TextStyle> = { fontWeight: 'bold' };
 const fwNormal: StyleProp<TextStyle> = { fontWeight: 'normal' };
@@ -102,6 +112,8 @@ const cText: StyleProp<any> = { color: colors.text };
 const cTextDark: StyleProp<any> = { color: colors.textDark };
 const cDisabled: StyleProp<any> = { color: colors.disabledFg };
 const cOffer: StyleProp<any> = { color: colors.offerFg };
+const cError: StyleProp<any> = { color: colors.error };
+const cCheck: StyleProp<any> = { color: '#00aa22' };
 
 // border radius
 const br0: StyleProp<any> = { borderRadius: 0 };
@@ -111,10 +123,14 @@ const br12: StyleProp<any> = { borderRadius: 12 };
 const br20: StyleProp<any> = { borderRadius: 20 };
 const br50: StyleProp<any> = { borderRadius: 50 };
 
+
+// Aspect
+const aspVideo: StyleProp<any> = { aspectRatio: '16/9' };
+const aspSquare: StyleProp<any> = { aspectRatio: '1/1' };
+const aspImage: StyleProp<any> = { aspectRatio: '4/3' };
+
 export {
-  flexRow,
-  displayFlex,
-  flex1,
+  flexRow, displayFlex, flex1,
   asCenter, acCenter, aiCenter,
   jcEnd, jcCenter, jcStart, jcSA,
   mlAuto, mrAuto, mtAuto, mbAuto,
@@ -122,10 +138,13 @@ export {
   noHPadding, noVPadding, noPadding,
   p4, p8, pt4, pt8, pb4, pb8, pl4, pl8, pr4, pr8,
   pv0, pv4, pv8, pv24, ph0, ph4, ph8, ph24,
+  mAuto, mvAuto, mhAuto,
   m4, m8, mt4, mt8, mb4, mb8, mb24, ml0, ml4, ml8, mr0, mr4, mr8, mr20,
   mv0, mv4, mv8, mv24, mh0, mh4, mh8, mh24,
   fwBold, fwNormal, taCenter, taAuto, taRight, taJustify, taLeft, tavCenter,
   bgColor, bgRed, bgGrey, bgPlatinium, bgDisabled, bgOffer,
   br0, br5, br7, br12, br20, br50,
-  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark, cOffer
+  cBlack, cWhite, cPrimary, cDisabled, cText, cTextDark, cOffer, cError, cCheck,
+  aspVideo, aspSquare, aspImage,
+  wFull, w50, w33, hFull, h50, h33
 };

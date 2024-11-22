@@ -11,6 +11,7 @@ import {
   aiCenter,
   asCenter,
   bgGrey,
+  cBlack,
   cTextDark,
   flex1,
   flexRow,
@@ -220,7 +221,7 @@ const SingleOrder = () => {
               bold={false}
               style={[mb4, flex1]}
             >{ formatName(order?.artPublicationName) }</Title>
-            <Text style={mr8}>{ order?.orderPrice.toString() } €</Text>
+            <Text style={mr8}>{ order?.orderPrice?.toString() ?? "0" } €</Text>
           </View>
 
           <TouchableOpacity
@@ -263,7 +264,9 @@ const SingleOrder = () => {
               size={24}
               color={colors.darkGreyFg}
             />
-            <Text style={{ marginLeft: 5, backgroundColor: bgGrey, fontSize: 16 }}>Contacter le vendeur</Text>
+            <Text style={[ml4, cBlack, { fontSize: 16 }]}>
+              Contacter le vendeur
+            </Text>
           </TouchableOpacity>
         </View>
       )}

@@ -4,6 +4,7 @@ export type TokenObjectType = {
   id: string;
   isArtist: boolean;
   username: string;
+  userColor: string;
 };
 
 export interface ArtTypeFilter {

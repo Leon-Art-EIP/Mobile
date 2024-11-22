@@ -7,7 +7,6 @@ import {
   ToastAndroid,
   Keyboard,
   ActivityIndicator,
-  Dimensions,
   ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,11 +24,12 @@ import { get, post } from '../constants/fetch';
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { bgColor, bgDisabled, bgPlatinium, br12, br20, br5, br7, cBlack, cTextDark, flex1, flexRow, mbAuto, mh0, ml0, ml4, ml8, mlAuto, mr0, mr20, mr4, mr8, mrAuto, mt8, mtAuto, mv8, ph24, ph8 } from "../constants/styles";
+import { bgColor, bgDisabled, br20, cBlack, cTextDark, flex1, flexRow, mbAuto, mh0, ml0, ml8, mlAuto, mr0, mr20, mr8, mrAuto, mt8, mtAuto, ph24 } from "../constants/styles";
 import ModifyTag from '../components/tags/ModifyTag';
 import Subtitle from '../components/text/Subtitle';
 import Input from '../components/textInput/Input';
 import CheckBox from '@react-native-community/checkbox';
+import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 
 
 interface UserData {
@@ -68,7 +68,7 @@ const EditProfile = () => {
 
 
   const setNewBio = (new_bio: string) => {
-    let new_userData: UserData | undefined = { ...userData };
+    const new_userData: UserData | undefined = { ...userData };
 
     if (!new_userData) {
       return;
@@ -76,7 +76,7 @@ const EditProfile = () => {
 
     new_userData.biography = new_bio;
     return setUserData({ ...new_userData });
-  }
+  };
 
 
   const selectImage = async (type: 'profile' | 'banner') => {
@@ -129,7 +129,7 @@ const EditProfile = () => {
         console.error('Error publishing new profile picture : ', { ...error });
       }
     );
-  }
+  };
 
   const handleSaveModifications = () => {
     console.log("Modifications saved.");
@@ -143,7 +143,7 @@ const EditProfile = () => {
     if (profilePicture) {
       uploadPicture('profile');
     }
-  }
+  };
 
   const saveBiography = () => {
     post(
@@ -153,7 +153,7 @@ const EditProfile = () => {
       () => {},
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const saveIsAvailable = () => {
@@ -164,7 +164,7 @@ const EditProfile = () => {
       () => {},
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const fetchUserData = () => {
@@ -236,7 +236,7 @@ const EditProfile = () => {
     };
 
     post(url, body, token, callback, onErrorCallback);
-  }
+  };
 
 
   const setupScreen = () => {
@@ -244,7 +244,15 @@ const EditProfile = () => {
 
     Keyboard.addListener('keyboardDidShow', () => setIsKeyboardFocused(true));
     Keyboard.addListener('keyboardDidHide', () => setIsKeyboardFocused(false));
-  }
+  };
+
+
+  const ACCOUNTCOLORS: string[] = [
+    "#E11C0A",
+    "#090",
+    "#22f",
+    "#909"
+  ];
 
 
   useFocusEffect(
@@ -252,12 +260,12 @@ const EditProfile = () => {
   );
 
   useEffect(() => {
-    if (!!userData?.availability !== isAvailable) {
-      let new_user: UserData | undefined = { ...userData };
+    if (userData?.availability !== isAvailable) {
+      const new_user: UserData | undefined = { ...userData };
       new_user.availability = !new_user?.availability;
       setUserData({ ...new_user });
     }
-  }, [userData])
+  }, [userData]);
 
 
   useEffect(setupScreen, []);
@@ -298,14 +306,17 @@ const EditProfile = () => {
           onPress={() => selectImage('banner')}
           title="Modifier la bannière"
           style={[ cBlack, styles.bannerTouchable]}
-          textStyle={{ cBlack }}
+          textStyle={{ color: context?.userColor ?? colors.primary }}
         />
       </ImageBackground>
 
       {/* Profile picture */}
       <View style={styles.overlayImage}>
         <TouchableOpacity
-          style={styles.circleImageContainer}
+          style={[
+            styles.circleImageContainer,
+            { borderColor: context?.userColor }
+          ]}
           onPress={() => selectImage('profile')}
         >
           <Image
@@ -351,6 +362,27 @@ const EditProfile = () => {
             style={[mtAuto, mbAuto, mlAuto]}
           />
         </View>
+
+        <View>
+          <Subtitle>Couleur</Subtitle>
+          <View style={[flexRow, mt8, { justifyContent: 'space-between' }]}>
+            { ACCOUNTCOLORS.map((color: string) => (
+              <TouchableOpacity
+                style={[
+                  styles.colorChooser,
+                  { backgroundColor: color },
+                  { borderWidth: context?.userColor === color ? 1 : 0 }
+                ]}
+                key={color.toString()}
+                onPress={() => {
+                  context?.setUserColor(color);
+                  context?.saveContextToJwt();
+                }}
+              />
+            ))}
+          </View>
+        </View>
+
         <View style={styles.infoBlock}>
             <Subtitle>Liens réseaux sociaux</Subtitle>
             <Text>Renseigner votre nom sur les réseaux</Text>
@@ -391,8 +423,8 @@ const EditProfile = () => {
               />
             </View>
             <View style={styles.socialMedia}>
-              <Ionicons
-                name="logo-pinterest"
+              <FontAwesome5Icon
+                name="tiktok"
                 color={colors.darkGreyBg}
                 size={24}
               />
@@ -629,6 +661,13 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     justifyContent: 'center',
     color: colors.darkGreyFg,
+  },
+  colorChooser: {
+    height: 30,
+    width: 30,
+    backgroundColor: colors.disabledBg,
+    borderRadius: 5,
+    borderColor: colors.black
   }
 });
 

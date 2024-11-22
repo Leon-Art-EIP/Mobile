@@ -6,6 +6,7 @@ import { Text, Image, StyleSheet, ScrollView, TouchableOpacity, View, FlatList, 
 //* Local imports
 import colors from '../../constants/colors';
 import { get } from '../../constants/fetch';
+import { cTextDark, mbAuto } from '../../constants/styles';
 import { MainContext } from '../../context/MainContext';
 import SockHelper from '../../helpers/SocketHelper';
 import Title from '../text/Title';
@@ -134,7 +135,9 @@ const ConversationsComponent = () => {
                 fontWeight: item.unreadMessages ? 'bold' : 'normal',
                 flexShrink: 1,
                 color: colors.textDark
-              }}>{ item.lastMessage }</Text>
+              }}>
+                { item.lastMessage }
+              </Text>
             </View>
           </View>
           <View style={styles.lineView} />
@@ -156,7 +159,9 @@ const ConversationsComponent = () => {
         source={require('../../assets/icons/box.png')}
         style={styles.emptyImg}
       />
-      <Text style={{ marginBottom: 'auto' }}>C'est tout vide par ici !</Text>
+      <Text style={[mbAuto, cTextDark]}>
+        C'est tout vide par ici !
+      </Text>
     </View>
   );
 }

@@ -5,6 +5,7 @@ import {
   FlatList,
   Image,
   Linking,
+  RefreshControl,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -25,22 +26,26 @@ import {
   acCenter,
   bgColor,
   bgGrey,
+  bgRed,
   br20,
   br50,
+  cBlack,
   cTextDark,
   flex1,
   flexRow,
   mbAuto,
   mh8,
   ml4,
+  ml8,
   mlAuto,
   mr20,
   mr4,
+  mr8,
   mrAuto,
   mt4,
   mtAuto,
   mv0,
-  mv8,
+  mv24,
   ph24,
   ph8,
   pv4,
@@ -65,6 +70,18 @@ import { formatName } from '../helpers/NamesHelper';
 
 const NOT_FOUND = "https://qph.cf2.quoracdn.net/main-qimg-1a4bafe2085452fdc55f646e3e31279c-lq";
 
+type ImageSizeType = {
+  width: number;
+  height: number;
+};
+
+
+type AnsweringToType = {
+  userId: string;
+  commentId: string;
+  username: string;
+};
+
 
 const SingleArt = ({ navigation, route }: any) => {
   const { id } = route.params;
@@ -72,10 +89,10 @@ const SingleArt = ({ navigation, route }: any) => {
   const token = context?.token;
 
   const [artist, setArtist] = useState<ArtistType | undefined>(undefined);
-  const [answeringTo, setAnsweringTo] = useState<string | undefined>(undefined);
+  // Changed this to comment ID instead of user ID
+  const [answeringTo, setAnsweringTo] = useState<AnsweringToType | undefined>(undefined);
   const [nestedId, setNestedId] = useState<number | undefined>(undefined);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [isSold, setSoldState] = useState(false);
   const [isForSale, setSaleState] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -90,8 +107,12 @@ const SingleArt = ({ navigation, route }: any) => {
   const [isReportPanelVisible, setIsReportPanelVisible] = useState<boolean>(false);
   const [currency, setCurrency] = useState<string>('€');
   const [picture, setPicture] = useState<string | undefined>(undefined);
+  const [isPictureReady, setIsPictureReady] = useState<boolean>(false);
+  const [imageSize, setImageSize] = useState<ImageSizeType>({ width: 0, height: 0 });
 
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  // This is a state that triggers the refresh of the comment list
+  const [commentRefreshTrigger, setCommentsRefreshTrigger] = useState<number>(0);
+
 
   useEffect(() => {
     if (isDeleteModalShown) {
@@ -102,11 +123,13 @@ const SingleArt = ({ navigation, route }: any) => {
     }
   }, [isDeleteModalShown]);
 
+
   useEffect(() => {
     if (isReportPanelVisible) {
       setIsDeleteModalShown(false);
     }
   }, [isReportPanelVisible]);
+
 
   useEffect(() => {
     getPublication();
@@ -114,15 +137,17 @@ const SingleArt = ({ navigation, route }: any) => {
     checkIsSaved();
   }, [id]);
 
+
   useEffect(() => {
     if (publication && publication.userId) {
       fetchArtistDetails();
     }
     if (publication) {
-      setPicture(publication.image);
-      console.log('picture: ', picture);
+      setPicture(publication?.image);
+      setIsPictureReady(true);
     }
   }, [publication]);
+
 
   useEffect(() => {
     setIsDeleteModalShown(false);
@@ -131,6 +156,7 @@ const SingleArt = ({ navigation, route }: any) => {
     checkIsLiked();
     checkIsSaved();
   }, []);
+
 
   useEffect(() => {
     const imageUrl = getImageUrl(publication?.image);
@@ -143,6 +169,7 @@ const SingleArt = ({ navigation, route }: any) => {
       });
     }
   }, [publication]);
+
 
   const fetchArtistDetails = async () => {
     const onErrorCallback = (error: any) => {
@@ -161,6 +188,7 @@ const SingleArt = ({ navigation, route }: any) => {
       onErrorCallback,
     );
   };
+
 
   const deletePost = () => {
     const callback = () => {
@@ -181,6 +209,7 @@ const SingleArt = ({ navigation, route }: any) => {
     del(`/api/art-publication/${id}`, context?.token, callback, onErrorCallback);
   };
 
+
   const getArtistName = (userId: string) => {
     get(
       `/api/user/profile/${userId}`,
@@ -194,9 +223,11 @@ const SingleArt = ({ navigation, route }: any) => {
     );
   };
 
+
   const fetchPaymentSheetParams = () => {
     const requestData = {
       artPublicationId: id,
+      source: 'mobile'
     };
 
     post(
@@ -204,6 +235,7 @@ const SingleArt = ({ navigation, route }: any) => {
       requestData,
       context?.token,
       (response: any) => {
+        console.log({ ...response });
         if (response && response.data && response.data.url) {
           const paymentUrl = response.data.url;
           Linking.openURL(paymentUrl).catch((err) => {
@@ -213,14 +245,16 @@ const SingleArt = ({ navigation, route }: any) => {
         }
       },
       (error: any) => {
-        console.error('Error fetching payment sheet parameters:', error);
+        console.error('Error fetching payment sheet parameters:', { ...error });
       },
     );
   };
 
+
   const openPaymentSheet = async () => {
     fetchPaymentSheetParams();
   };
+
 
   const getPublication = () => {
     setIsRefreshing(true);
@@ -228,10 +262,10 @@ const SingleArt = ({ navigation, route }: any) => {
       `/api/art-publication/${id}`,
       context?.token,
       (response: any) => {
+        console.log('here is the response I got: ', response.data);
         setPublication(response?.data);
         getArtistName(response?.data.userId);
-        setSoldState(response?.data.isSold);
-        setSaleState(response?.data.isForSale);
+        setSaleState(!!response?.data.isForSale);
         return setIsRefreshing(false);
       },
       (error: any) => {
@@ -240,14 +274,17 @@ const SingleArt = ({ navigation, route }: any) => {
     );
   };
 
+
   const handleSavedButtonClick = async () => {
     setModalVisible(true);
   };
+
 
   const closeModal = () => {
     setModalVisible(false);
     setNewCollectionName('');
   };
+
 
   const addToCollection = async (collectionName: string) => {
     if (!token) {
@@ -281,6 +318,7 @@ const SingleArt = ({ navigation, route }: any) => {
     closeModal();
   };
 
+
   const likePublication = async () => {
     if (!token) {
       return console.error('Token JWT not found. Make sure the user is logged in.');
@@ -299,6 +337,7 @@ const SingleArt = ({ navigation, route }: any) => {
 
     post(url, body, token, onPost, onPostError);
   };
+
 
   const checkIsLiked = async () => {
     if (!token) {
@@ -321,6 +360,7 @@ const SingleArt = ({ navigation, route }: any) => {
 
     return get(url, token, callback, onErrorCallback);
   };
+
 
   const checkIsSaved = async () => {
     if (!token) {
@@ -358,41 +398,25 @@ const SingleArt = ({ navigation, route }: any) => {
     get(url, token, callback, onErrorCallback);
   };
 
-  return (
+
+  return !!isPictureReady ? (
     <SafeAreaView style={[bgColor, flex1, ph24, pv4]}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
 
-      <View style={styles.logo}>
-        <Title style={{ color: colors.primary }}>Leon</Title>
-        <Title>'Art</Title>
+      <View style={[flexRow, acCenter, mv24, mh8]}>
+        {/* Back button */}
+        <TouchableOpacity
+          onPress={navigation.goBack}
+          style={[mr8]}
+        >
+          <Ionicons
+            name="chevron-back-outline"
+            color={colors.black}
+            size={32}
+          />
+        </TouchableOpacity>
 
-        { context?.userId === publication?.userId ? (
-            <TouchableOpacity
-              style={[mtAuto, mbAuto, mlAuto, mr20]}
-              onPress={() => setIsDeleteModalShown(true)}
-            >
-              <MaterialCommunityIcons
-                name='delete'
-                color={colors.primary}
-                size={32}
-              />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={[mtAuto, mbAuto, mlAuto, mr20]}
-              onPress={() => navigation.navigate('report', { id: publication?._id, type: 'post' })}
-            >
-              <MaterialIcons
-                name="report-problem"
-                color={colors.tertiary}
-                size={24}
-              />
-            </TouchableOpacity>
-          ) }
-
-      </View>
-
-      <View style={[flexRow, acCenter, mv8, mh8]}>
+        {/* User profile */}
         <TouchableOpacity
           onPress={() => navigation.navigate('other_profile', { id: artist?._id })}
           style={[bgGrey, { borderRadius: 50, height: 30, marginTop: 'auto', marginBottom: 'auto' }]}
@@ -402,33 +426,54 @@ const SingleArt = ({ navigation, route }: any) => {
             style={{ height: 30, width: 30, borderRadius: 50 }}
           />
         </TouchableOpacity>
-        <Text style={styles.artTitle}>{ formatName(publication?.name) }</Text>
+
+        {/* Art title */}
+        <Text style={styles.artTitle}>{ formatName(publication?.name, 20) }</Text>
+
+        {/* Report or delete button */}
+        { context?.userId === publication?.userId ? (
+          <TouchableOpacity
+            style={[mtAuto, mbAuto, mlAuto, mr8]}
+            onPress={() => setIsDeleteModalShown(true)}
+          >
+            <MaterialCommunityIcons
+              name="delete"
+              color={context?.userColor ?? colors.primary}
+              size={32}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[mtAuto, mbAuto, mlAuto, mr8]}
+            onPress={() => navigation.navigate(
+              'report',
+              { id: publication?._id, type: 'post' }
+            )}
+          >
+            <MaterialIcons
+              name="report-problem"
+              color={context?.userColor ?? colors.primary}
+              size={24}
+            />
+          </TouchableOpacity>
+        ) }
       </View>
 
       {/* Post image */}
-      { !!getImageUrl(publication?.image) ? (
-        <View
+      { !!picture && !!isPictureReady && (
+        <ImageViewer
           style={{
-            width: '95%',
-            height: imageSize.height * 0.95,
-            maxHeight: 200,
+            marginHorizontal: 8,
             borderRadius: 20,
-            overflow: 'hidden',
-            alignSelf: 'center',
-            backgroundColor: colors.disabledBg,
-            marginTop: 10,
+            overflow: 'hidden'
           }}
-        >
-          <ImageViewer
-            backgroundColor="transparent"
-            imageUrls={[{ url: getImageUrl(picture) ?? ' ' }]}
-            failImageSource={{ url: NOT_FOUND }}
-            renderIndicator={() => <></>}
-            loadingRender={() => <Text style={cTextDark}>Loading...</Text>}
-          />
-        </View>
-      ) : (
-        <View style={styles.img} />
+          backgroundColor={colors.disabledBg}
+          imageUrls={[{ url: getImageUrl(picture) ?? NOT_FOUND }]}
+          renderIndicator={() => <></>}
+          onDoubleClick={() => console.log('picture: ', picture)}
+          failImageSource={{ url: NOT_FOUND }}
+          loadingRender={() => <Text style={cTextDark}>Loading...</Text>}
+        />
       ) }
 
       <View style={[pv4]}>
@@ -440,7 +485,7 @@ const SingleArt = ({ navigation, route }: any) => {
             <AntDesign
               name={isLiked ? 'heart' : 'hearto'}
               size={24}
-              color={isLiked ? colors.primary : colors.black}
+              color={isLiked ? context?.userColor ?? colors.primary : colors.black}
             />
           </TouchableOpacity>
 
@@ -450,15 +495,16 @@ const SingleArt = ({ navigation, route }: any) => {
           >
             <Ionicons
               name={isSaved ? 'checkmark-circle' : 'add-circle-outline'}
-              color={isSaved ? colors.primary : colors.black} size={28}
+              color={isSaved ? context?.userColor ?? colors.primary : colors.black}
+              size={28}
             />
           </TouchableOpacity>
 
-          { publication?.price && (
+          { !!publication?.price && !publication?.isSold && !!publication?.isForSale && (
             <TouchableOpacity
               onPress={openPaymentSheet}
               style={styles.priceSignView}
-              disabled={!isForSale || isSold || context?.userId === publication?.userId}
+              disabled={!isForSale || context?.userId === publication?.userId}
             >
               <Feather
                 name="shopping-cart"
@@ -466,41 +512,53 @@ const SingleArt = ({ navigation, route }: any) => {
                 style={[mtAuto, mbAuto, ml4, mr4]}
                 color={colors.offerFg}
               />
-              <Text style={styles.priceSignText}>{
-                publication?.price?.toString() + ' ' + currency
-              }</Text>
+              <Text style={styles.priceSignText}>
+                { publication?.price?.toString() + ' ' + currency }
+              </Text>
             </TouchableOpacity>
           ) }
         </View>
 
         {/* Description */}
         <Card style={[ mh8, mv0, br20, mt4 ]}>
-          <Text style={{ fontSize: 13, color: colors.textDark }}>{
-            publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre"
-          }</Text>
+          <Text style={{ fontSize: 13, ...cBlack }}>
+            { publication?.description ?? "L'artiste n'a pas donné de description à son oeuvre" }
+          </Text>
         </Card>
       </View>
 
       <View style={styles.line} />
 
+      {/*Comments*/}
       <ScrollView contentContainerStyle={{ flex: 1 }}>
         <CommentsList
           id={id}
           nestedId={nestedId}
           setNestedId={setNestedId}
+          answeringTo={answeringTo}
           setAnsweringTo={setAnsweringTo}
+          trigger={commentRefreshTrigger}
         />
       </ScrollView>
+
+      {/*Comment input*/}
       <CommentInput
         id={id}
+        trigger={setCommentsRefreshTrigger}
+        setAnsweringTo={setAnsweringTo}
         nestedId={nestedId}
         answeringTo={answeringTo}
       />
 
       {/* Collection modal */}
-      <Modal isVisible={isModalVisible} style={styles.modal}>
+      <Modal
+        isVisible={isModalVisible}
+        style={styles.modal}
+      >
         <View style={styles.modalContent}>
-          <Subtitle style={styles.modalTitle}>Enregistrer dans...</Subtitle>
+          <Subtitle style={styles.modalTitle}>
+            Enregistrer dans...
+          </Subtitle>
 
           <FlatList
             contentContainerStyle={[mlAuto, mrAuto]}
@@ -551,22 +609,50 @@ const SingleArt = ({ navigation, route }: any) => {
           containerStyle={bgColor}
         >
           <>
-            <Text style={{ marginHorizontal: 24, marginTop: 24, color: colors.textDark, fontSize: 16 }}>Voulez-vous vraiment supprimer cette oeuvre ?</Text>
+            <Text style={{
+              marginHorizontal: 24,
+              marginTop: 24,
+              color: colors.textDark,
+              fontSize: 16 }}
+            >
+              Voulez-vous vraiment supprimer cette oeuvre ?
+            </Text>
 
             <View style={flexRow}>
-              <Button value="Oui" onPress={deletePost} style={flex1} />
-              <Button secondary value="Non" style={flex1} onPress={() => setIsDeleteModalShown(false)} />
+              <Button
+                value="Oui"
+                onPress={deletePost}
+                style={flex1}
+              />
+              <Button
+                secondary
+                value="Non"
+                style={flex1}
+                onPress={() => setIsDeleteModalShown(false)}
+              />
             </View>
 
             <InfoModal
               isVisible={isInfoModalVisible}
               message={infoModalMessage}
-              onClose={() => setInfoModalVisible(false)} messageType="success"
+              onClose={() => setInfoModalVisible(false)}
+              messageType="success"
             />
           </>
         </SlidingUpPanel>
       ) }
 
+    </SafeAreaView>
+  ) : (
+    <SafeAreaView>
+      <StatusBar barStyle='dark-content' backgroundColor={colors.bg} />
+
+      <ScrollView
+        refreshControl={<RefreshControl
+          refreshing={true}
+          onRefresh={() => getPublication()}
+        />}
+      />
     </SafeAreaView>
   );
 };

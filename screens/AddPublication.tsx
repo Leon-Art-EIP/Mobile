@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, Linking, TouchableOpacity, Platform, StatusBar, ToastAndroid, Dimensions } from 'react-native';
+import { Alert, TextInput, View, StyleSheet, Text, Image, ScrollView, TouchableOpacity, Platform, StatusBar, ToastAndroid } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';  // Importer les filtres
 import Entypo from 'react-native-vector-icons/Entypo';  // Pour les icônes des filtres
-import Ionicons from 'react-native-vector-icons/Ionicons';  // Pour les icônes des filtres
+// Pour les icônes des filtres
 
 import { post, get } from '../constants/fetch';
 import colors from '../constants/colors';
@@ -12,7 +12,7 @@ import Button from '../components/buttons/Button';
 import { MainContext } from '../context/MainContext';
 import RNFS from 'react-native-fs';
 import InfoModal from '../components/infos/InfoModal';
-import { bgColor, bgGrey, bgOffer, bgRed, br0, br20, cOffer, cPrimary, cTextDark, flex1, flexRow, jcSA, mb24, mbAuto, mh0, mh24, mh4, mh8, mtAuto, mv24, mv8, pb8, ph24, ph4, ph8, pv24, pv8 } from '../constants/styles';
+import { bgColor, bgGrey, bgOffer, br0, br20, cOffer, cPrimary, cTextDark, flex1, flexRow, jcSA, mb24, mbAuto, mh0, mh24, mh4, mtAuto, mv24, mv8, ph24, ph4, ph8, pv24, pv8 } from '../constants/styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Input from '../components/textInput/Input';
 import Card from '../components/cards/Card';
@@ -26,7 +26,7 @@ const AddPublication = ({ navigation }: any) => {
   const [artType, setType] = useState('');
   const [description, setDescription] = useState('');
   const [isForSale, setSale] = useState(false);
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState<string>('');
   const [location, setLocation] = useState('');
   const [dimension, setDimension] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
@@ -37,29 +37,36 @@ const AddPublication = ({ navigation }: any) => {
 
   // Etats pour les filtres de genres
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<string | undefined>(undefined);
   const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
-  const [selectedSubFilters, setSelectedSubFilters] = useState<string[]>([]);
+  const [selectedSubFilters, setSelectedSubFilters] = useState<string | undefined>(undefined);
 
 
   // Adjust function to handle sub-filters
-  const selectOrDeselect = (filterName: string, isSubFilter: boolean = false) => {
+  const selectOrDeselect = (filterName: string, isSubFilter = false) => {
+    /*
     let newFilterArray: string[] = [];
-    let array = isSubFilter ? selectedSubFilters : selectedFilters;
+    const array = isSubFilter ? selectedSubFilters : selectedFilters;
 
     if (array.includes(filterName)) {
       newFilterArray = array.filter(f => f !== filterName);
       if (!isSubFilter) {
-        handleType('');
+        setType('');
       }
     } else {
       newFilterArray = [...array, filterName];
       if (!isSubFilter) {
-        handleType(filterName);
+        setType(filterName);
       }
     }
 
     isSubFilter ? setSelectedSubFilters(newFilterArray) : setSelectedFilters(newFilterArray);
+    */
+    if (!!isSubFilter) {
+      setSelectedSubFilters(curr => curr === filterName ? undefined : filterName);
+    } else {
+      setSelectedFilters(curr => curr === filterName ? undefined : filterName);
+    }
   };
 
 
@@ -87,10 +94,9 @@ const AddPublication = ({ navigation }: any) => {
 
 
   const publish = async () => {
-    if (!name /*|| !artType*/ || !description || !price || !selectedImage) {
+    if (!name || !description || !selectedImage) {
       setModalMessage("Assurez-vous d'avoir renseigné tous les champs avant de publier votre œuvre.");
-      setModalVisible(true);
-      return;
+      return setModalVisible(true);
     }
 
     const parsedPrice = parseFloat(price);
@@ -98,7 +104,7 @@ const AddPublication = ({ navigation }: any) => {
     const formData = new FormData();
 
     formData.append('name', name);
-    formData.append('artType', artType !== '' ? artType : 'empty');
+    formData.append('artType', selectedSubFilters !== '' ? selectedSubFilters : 'empty');
     formData.append('description', description !== '' ? description : 'empty');
     formData.append('dimension', dimension !== '' ? dimension : 'empty');
     formData.append('isForSale', false);
@@ -125,8 +131,9 @@ const AddPublication = ({ navigation }: any) => {
       formData,
       context?.token,
       () => {
-        context?.setIsKeyboard(true);
-        navigation.navigate('main');
+        context?.setIsKeyboard(false);
+        ToastAndroid.show("Votre oeuvre a été publiée avec succès !", ToastAndroid.SHORT);
+        navigation.navigate('profile');
       },
       (error) => {
         console.error('Error publishing:', error);
@@ -137,11 +144,6 @@ const AddPublication = ({ navigation }: any) => {
         }
       }
     );
-
-    setModalType('success');
-    setModalMessage("Votre œuvre a bien été publiée.");
-    setModalVisible(true);
-    navigation.navigate('homemain');
   };
 
 
@@ -183,11 +185,6 @@ const AddPublication = ({ navigation }: any) => {
   };
 
 
-  const handleType = (value: string) => {
-    setType(value);
-  };
-
-
   const sendText = () => {
     if (!postText) {
       return;
@@ -198,18 +195,18 @@ const AddPublication = ({ navigation }: any) => {
       { text: postText, artPublicationId: undefined },
       context?.token,
       () => {
-        context?.setIsKeyboard(true);
-        navigation.navigate('Home');
+        context?.setIsKeyboard(false);
+        navigation.navigate('profile');
         ToastAndroid.show("Post envoyé !", ToastAndroid.SHORT);
       },
       (err: any) => console.error({ ...err })
     );
-  }
+  };
 
 
   const sellWithAccount = async () => {
-    if (!name || !artType || !description || !price || !selectedImage) {
-      setModalMessage("Assurez-vous d'avoir renseigner tous les champs avant de publier votre œuvre.");
+    if (!name || !description || !price || !selectedImage) {
+      setModalMessage("Assurez-vous d'avoir renseigné tous les champs avant de publier votre œuvre.");
       setModalType('error');
       setModalVisible(true);
       return;
@@ -255,7 +252,10 @@ const AddPublication = ({ navigation }: any) => {
         '/api/art-publication',
         formData,
         context?.token,
-        () => navigation.navigate('main'),
+        () => {
+          ToastAndroid.show("Votre oeuvre a été publiée avec succès !", ToastAndroid.SHORT);
+          navigation.navigate('Profile');
+        },
         (error) => {
           console.error('Error publishing:', error);
           if (error.response && error.response.data && error.response.data.errors) {
@@ -265,18 +265,18 @@ const AddPublication = ({ navigation }: any) => {
           }
         }
       );
-      setModalMessage("Votre œuvre a bien été publiée.");
-      setModalType('success');
-      setModalVisible(true);
-      navigation.navigate('homemain');
     }
     else {
-      Alert.alert('Account Not Linked', 'Please link your Stripe account before selling.');
+      Alert.alert(
+        'Compte Stripe invalide',
+        'Veuillez lier votre compte dans Stripe dans les paramètres.'
+      );
     }
   };
 
 
   useEffect(() => {
+    checkAccountLinkStatus();
   }, []);
 
 
@@ -334,7 +334,7 @@ const AddPublication = ({ navigation }: any) => {
             <Button
               style={{ backgroundColor: colors.whitesmoke }}
               textStyle={{ color: colors.darkGreyBg }}
-              value={ selectedImage ? "Modifier l'image" : "Choisir une image"}
+              value={selectedImage ? "Modifier l'image" : "Choisir une image"}
               onPress={selectImage}
             />
           ) }
@@ -374,14 +374,14 @@ const AddPublication = ({ navigation }: any) => {
                 style={[ flexRow, ph8 ]}
                 onPress={() => setIsArtTypeDisplayed(e => !e)}
               >
-                <Text style={[ flex1, selectedFilters.length !== 0 ? cPrimary : cTextDark ]}>
-                  Genre
+                <Text style={[ flex1, selectedSubFilters !== undefined ? cPrimary : cTextDark ]}>
+                  Type
                 </Text>
                 <Entypo
                   style={[ mtAuto, mbAuto ]}
                   name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
                   size={18}
-                  color={selectedFilters.length !== 0 ? colors.primary : colors.black}
+                  color={selectedSubFilters !== undefined ? colors.primary : colors.black}
                 />
               </TouchableOpacity>
             </Card>
@@ -392,24 +392,23 @@ const AddPublication = ({ navigation }: any) => {
                   style={styles.filterTouchableOpacity}
                   onPress={() => selectOrDeselect(filter.category)}
                 >
-                  <Text style={{ color: selectedFilters.includes(filter.category) ? colors.primary : colors.black }}>
+                  <Text style={{ color: selectedFilters === filter.category ? colors.primary : colors.black }}>
                     {filter.category}
                   </Text>
                 </TouchableOpacity>
 
                 {/* Display sub-filters if main filter is selected */}
-                { selectedFilters.includes(filter.category) && filter.types.map(subFilter => (
+                { selectedFilters === filter.category && filter.types.map(subFilter => (
                   <TouchableOpacity
                     key={subFilter}
                     style={[styles.subFilterTouchableOpacity, { marginLeft: 20 }]}
                     onPress={() => selectOrDeselect(subFilter, true)}
                   >
-                    <Text style={{ color: selectedSubFilters.includes(subFilter) ? colors.primary : colors.black }}>
+                    <Text style={{ color: selectedSubFilters === subFilter ? colors.primary : colors.black }}>
                       {subFilter}
                     </Text>
                   </TouchableOpacity>
                 )) }
-
               </View>
             )) }
 
@@ -423,15 +422,10 @@ const AddPublication = ({ navigation }: any) => {
             />
 
             <Button
-              disabled
+              disabled={!price || !isAccountLinked}
               value="Publier et mettre à la vente"
               onPress={sellWithAccount}
             />
-            <Card style={[bgOffer, flexRow, { marginHorizontal: 16 }]}>
-              <Text style={cOffer}>
-                Vous ne pouvez pas vendre vos oeuvres pendant la beta !
-              </Text>
-            </Card>
 
             <InfoModal
               isVisible={isModalVisible}
@@ -482,8 +476,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     flex: 1,
-    borderWidth: 1,
-    borderColor: colors.primary,
     backgroundColor: colors.bg,
   },
   logo: {

@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useState } from 'react';
+import colors from "../constants/colors";
+import {TokenObjectType} from "../constants/artTypes";
 
 /*
  * If you want to add a value to the context, follow these simple steps:
@@ -25,6 +27,9 @@ type MainContextType = {
   setUsername: (e: string | undefined) => void;
   isKeyboard: boolean;
   setIsKeyboard: (e: boolean) => void;
+  userColor: string;
+  setUserColor: (e: string) => void;
+  saveContextToJwt: () => void;
   // Add your new type value here
 };
 
@@ -41,6 +46,7 @@ const MainContextProvider = ({
   const [isArtist, setisArtist] = useState<boolean | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [isKeyboard, setIsKeyboard] = useState<boolean>(false);
+  const [userColor, setUserColor] = useState<string>(colors.primary);
 
 
   const logOut = () => {
@@ -50,7 +56,28 @@ const MainContextProvider = ({
     setUserId(undefined);
     setisArtist(undefined);
     setUsername(undefined);
-  }
+    setUserColor(colors.primary);
+  };
+
+
+  const saveContextToJwt = () => {
+    if (!token || !userEmail || !userId || !isArtist || !username || !userColor) {
+      console.warn('Failed saving context to JWT: a field may be undefined');
+    }
+
+    const tokenObject: TokenObjectType = {
+      token: token ?? "",
+      email: userEmail ?? "",
+      id: userId ?? "",
+      isArtist: !!isArtist,
+      username: username ?? "",
+      userColor
+    };
+    console.log("tokenObject: ", tokenObject);
+
+    AsyncStorage.setItem('jwt', JSON.stringify(tokenObject))
+    .catch((err: any) => console.error('Failed setting JWT in storage: ', err, tokenObject));
+  };
 
 
   return (
@@ -68,15 +95,18 @@ const MainContextProvider = ({
         username,
         setUsername,
         isKeyboard,
-        setIsKeyboard
+        setIsKeyboard,
+        userColor,
+        setUserColor,
+        saveContextToJwt
         // add your value and your setValue here
       }}
     >
       { children }
     </MainContext.Provider>
   );
-}
+};
 
 
-export { MainContextProvider, MainContext }
+export { MainContextProvider, MainContext };
 export type { MainContextType };
