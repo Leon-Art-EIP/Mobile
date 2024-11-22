@@ -28,6 +28,9 @@ def reactNativeArchitectures() {
 
 
 android {
+  lintOptions {
+        disable 'RestrictedApi'
+    }
   ndkVersion rootProject.ext.ndkVersion
 
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -109,16 +112,16 @@ android {
   }
   signingConfigs {
     debug {
-      storeFile file('release.keystore')
-      storePassword 'sampleKeyPassw0rd'
-      keyAlias 'release'
-      keyPassword 'sampleKeyPassw0rd'
+      storeFile file("${System.getenv('HOME')}/.android/debug.keystore")
+      storePassword "android"
+      keyAlias "androiddebugkey"
+      keyPassword "android"
     }
     release {
       storeFile file('release.keystore')
-      storePassword 'sampleKeyPassw0rd'
-      keyAlias 'release'
-      keyPassword 'sampleKeyPassw0rd'
+      storePassword 'marine'
+      keyAlias 'Marine'
+      keyPassword 'marine'
     }
   }
   buildTypes {
