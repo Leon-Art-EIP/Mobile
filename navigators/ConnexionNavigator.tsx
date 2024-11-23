@@ -20,6 +20,7 @@ import Tutorial from '../screens/Tutorial';
 import Tutorial_2 from '../screens/Tutorial_2';
 import Tutorial_3 from '../screens/Tutorial_3';
 import ProfilingQuizz from '../screens/ProfilingQuizz';
+import { ToastAndroid } from 'react-native';
 
 const ConnexionNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -29,11 +30,16 @@ const ConnexionNavigator = () => {
 
 
   const getToken = () => {
+    const displayLogoutMsg = () => {
+      ToastAndroid.show('Veuillez vous connecter', ToastAndroid.SHORT);
+    }
+
     (async () => {
       const value = await AsyncStorage.getItem('jwt');
 
       if (!value) {
         console.warn('no jwt in storage');
+        displayLogoutMsg();
         return setIsLoading(false);
       }
 
@@ -41,11 +47,11 @@ const ConnexionNavigator = () => {
 
       if (!data) {
         console.warn('failed to parse JWT');
+        displayLogoutMsg();
         return setIsLoading(false);
       }
 
       get(
-        // '/api/auth/validate-reset-token',
         '/api/user/profile/who-i-am',
         data?.token,
         (res: any) => {
@@ -59,10 +65,9 @@ const ConnexionNavigator = () => {
         },
         (err: any) => {
           console.log("error getting token: ", { ...err.response });
-          if (err.response.status === 404) {
-            context?.logOut();
-            setIsLoading(false);
-          }
+          displayLogoutMsg();
+          context?.logOut();
+          setIsLoading(false);
         }
       );
     })();
