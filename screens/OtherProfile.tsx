@@ -199,7 +199,7 @@ const OtherProfile = () => {
     const callback = (res: any) => setUserArtworks(res.data);
 
     const onErrorCallback = (error: any) => {
-      Alert.alert('Error fetching user artworks', 'An error occurred while fetching user artworks.');
+      Alert.alert('Erreur', 'Les œuvres d\'art n\'ont pas pu être récupérées.');
       return console.error('Error fetching user artworks:', error);
     };
 
