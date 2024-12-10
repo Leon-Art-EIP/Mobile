@@ -14,7 +14,7 @@ const ART_TYPES: string[] = [
 
 
 const ProfilingQuizzArtist = ({ route, navigation } : any) => {
-  const { objective } = route.params;
+  const { objective, redo } = route.params;
   const [artSellingType, setArtSelling] = useState([]);
 
 
@@ -33,7 +33,6 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
 
 
   const next = () => {
-    console.log('Selected Selling Types:', artSellingType);
     if (artSellingType.length === 0) {
       console.log('No parameter found');
       return;
@@ -42,6 +41,7 @@ const ProfilingQuizzArtist = ({ route, navigation } : any) => {
     navigation.navigate('profilingArtist2', {
       objective: objective,
       artSellingType: artSellingType,
+      redo
     });
   };
 

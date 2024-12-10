@@ -30,7 +30,7 @@ import ArticleCard from '../components/cards/ArticleCard';
 import { setupNotifications, getNotificationCount } from '../constants/notifications';
 import Button from '../components/buttons/Button';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { aiCenter, bgColor, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, ml4, ml8, mr4, mt8, mtAuto, mv24, fwBold, mvAuto, mr8, mr20, bgRed } from '../constants/styles';
+import { aiCenter, bgColor, cTextDark, flex1, flexRow, mbAuto, mh0, mh24, ml4, ml8, mr4, mt8, mtAuto, mv24, mvAuto, mr20 } from '../constants/styles';
 import Card from '../components/cards/Card';
 import AntDesign from "react-native-vector-icons/AntDesign";
 
@@ -372,7 +372,7 @@ const HomeScreen = ({ navigation }: any) => {
           {/* oeuvres or posts chooser */}
           <View style={[ flexRow, mh24 ]}>
             <Button
-              value='Oeuvres'
+              value="Publications"
               onPress={() => setIsPublications(true)}
               secondary={!isPublications}
               tertiary={isPublications}

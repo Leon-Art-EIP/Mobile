@@ -9,7 +9,15 @@ import { flex1, flexRow } from '../constants/styles';
 
 
 const ProfilingQuizzFinal = ({ route, navigation }: any) => {
-  const { objective, artInterestType, artSellingType,  location, customCommands, budget } = route.params;
+  const {
+    objective,
+    artInterestType,
+    artSellingType,
+    location,
+    customCommands,
+    budget,
+    redo
+  } = route.params;
   const [discoveryMethod, setSelectedTag] = useState<string | null>(null);
   const context = useContext(MainContext);
 
@@ -45,7 +53,9 @@ const ProfilingQuizzFinal = ({ route, navigation }: any) => {
       '/api/quizz/submit',
       requestData,
       context?.token,
-      () => navigation.navigate('tutorial'),
+      () => {
+        navigation.navigate(redo ? 'homemain' : 'tutorial')
+      },
       (error: any) => {
         console.error('Error publishing quiz data:', error);
         if (error.response && error.response.data && error.response.data.errors) {

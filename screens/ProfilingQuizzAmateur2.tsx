@@ -6,17 +6,21 @@ import Button from '../components/buttons/Button';
 
 
 const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
-  const { objective, artInterestType } = route.params;
+  const { objective, artInterestType, redo } = route.params;
   const [budget, setBudget] = useState<string | null>(null);
   const customCommands = false;
   const location = '';
 
-  console.log('received datas', objective, artInterestType);
-
   const next = () => {
-    if (budget == null)
+    if (budget == null) {
       return;
-    navigation.navigate('profilingLast', { objective, artInterestType, budget });
+    }
+    navigation.navigate('profilingLast', {
+      objective,
+      artInterestType,
+      budget,
+      redo
+    });
   };
 
   const previous = () => {
@@ -25,22 +29,27 @@ const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
       artInterestType: artInterestType,
       location: location,
       customCommands: customCommands,
+      redo
     });
   };
+
 
   useEffect(() => {
     console.log('budget', budget);
   }, [budget]);
 
+
   const selectTag = (value: string) => {
     setBudget(budget === value ? null : value);
   };
+
 
   const getButtonStyle = (choice) => (
     budget === choice ?
       { ...styles.TagButton, backgroundColor: colors.primary } :
       styles.TagButton
   );
+
 
   return (
     <View style={styles.container}>

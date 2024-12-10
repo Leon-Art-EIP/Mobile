@@ -6,7 +6,7 @@ import Button from '../components/buttons/Button';
 import TagButton from '../components/tags/TagButton';
 
 const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
-  const { objective } = route.params;
+  const { objective, redo } = route.params;
   const [artSellingType, setArtSelling] = useState([]);
   const [artInterestType, setArtInterest] = useState([]);
 
@@ -27,7 +27,6 @@ const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
   };
 
   const next = () => {
-    console.log('Selected Selling Types:', artInterestType);
     if (artInterestType.length === 0) {
       console.log('No parameter found');
       return;
@@ -36,12 +35,14 @@ const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
     navigation.navigate('profilingAmateur2', {
       objective: objective,
       artInterestType: artInterestType,
+      redo
     });
   };
 
   const previous = () => {
-    navigation.navigate('profiling', { objective });
+    navigation.navigate('profiling', { objective, redo });
   };
+
 
   return (
     <View style={styles.container}>
@@ -66,47 +67,47 @@ const ProfilingQuizzAmateur = ({ route, navigation } : any) => {
           style={styles.TagButton}
           onPress={selectTag}
         />
-        <TagButton 
+        <TagButton
           value="Mode"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Design Graphique"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Tattoo"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Dessin"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Illustration"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Sculpture"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Ecriture"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Video"
           style={styles.TagButton}
           onPress={selectTag}
           />
-          <TagButton 
+          <TagButton
           value="Autre"
           style={styles.TagButton}
           onPress={selectTag}

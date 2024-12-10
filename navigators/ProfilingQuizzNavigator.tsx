@@ -19,18 +19,18 @@ const ProfilingQuizzNavigator = () => {
   const options = { headerShown: false };
 
     return (
-        <Stack.Navigator>
-            <Stack.Screen name="profiling" component={Profiling} options={options}/>
-            <Stack.Screen name="profilingArtist" component={ProfilingArtist1} options={options}/>
-            <Stack.Screen name="profilingArtist2" component={ProfilingArtist2} options={options}/>
-            <Stack.Screen name="profilingAmateur" component={ProfilingAmateur1} options={options}/>
-            <Stack.Screen name="profilingAmateur2" component={ProfilingAmateur2} options={options}/>
-            <Stack.Screen name="profilingLast" component={ProfilingLast} options={options}/>
-            <Stack.Screen name="mainNav" component={BottomNavigator} options={options} />
-            <Stack.Screen name="tutorial" component={Tutorial} options={options} />
-            <Stack.Screen name="tutorial2" component={Tutorial2} options={options} />
-            <Stack.Screen name="tutorial3" component={Tutorial3} options={options} />
-        </Stack.Navigator>
+      <Stack.Navigator>
+        <Stack.Screen name="profiling" component={Profiling} options={options} />
+        <Stack.Screen name="profilingArtist" component={ProfilingArtist1} options={options} />
+        <Stack.Screen name="profilingArtist2" component={ProfilingArtist2} options={options} />
+        <Stack.Screen name="profilingAmateur" component={ProfilingAmateur1} options={options} />
+        <Stack.Screen name="profilingAmateur2" component={ProfilingAmateur2} options={options} />
+        <Stack.Screen name="profilingLast" component={ProfilingLast} options={options} />
+        <Stack.Screen name="mainNav" component={BottomNavigator} options={options} />
+        <Stack.Screen name="tutorial" component={Tutorial} options={options} />
+        <Stack.Screen name="tutorial2" component={Tutorial2} options={options} />
+        <Stack.Screen name="tutorial3" component={Tutorial3} options={options} />
+      </Stack.Navigator>
     );
 }
 export default ProfilingQuizzNavigator

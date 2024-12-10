@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, StatusBar } from 'react-native';
 
 import colors from '../constants/colors';
@@ -6,10 +6,13 @@ import Title from '../components/text/Title';
 import Button from '../components/buttons/Button';
 import { cBlack, flexRow, br50, flex1 } from '../constants/styles';
 import { MainContext } from '../context/MainContext';
+import { useRoute } from '@react-navigation/native';
 
 
 const ProfilingQuizz = ({ navigation }): any => {
   const [objective, setObjective] = useState<string | undefined>(undefined);
+  const route = useRoute();
+  const redo: boolean = route?.params?.redo ?? false;
   const context = useContext(MainContext);
 
 
@@ -21,10 +24,10 @@ const ProfilingQuizz = ({ navigation }): any => {
 
     if (objective === 'sell') {
       context?.setisArtist(true);
-      navigation.navigate('profilingArtist', { objective: 'sell' });
+      navigation.navigate('profilingArtist', { objective: 'sell', redo });
     } else if (objective === 'discover') {
       context?.setisArtist(false);
-      navigation.navigate('profilingAmateur', { objective: 'discover' });
+      navigation.navigate('profilingAmateur', { objective: 'discover', redo });
     }
   };
 

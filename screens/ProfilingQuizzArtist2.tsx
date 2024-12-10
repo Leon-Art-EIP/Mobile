@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
-  const { objective, artSellingType } = route.params;
+  const { objective, artSellingType, redo } = route.params;
   const [error, setError] = useState<string | undefined>(undefined);
   const [customCommands, setCustomCommands] = useState<string | null>(null);
 
@@ -23,6 +23,7 @@ const ProfilingQuizzArtist2 = ({ route, navigation }: any) => {
       objective,
       artSellingType,
       customCommands,
+      redo
     });
   };
 

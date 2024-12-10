@@ -23,7 +23,7 @@ const PersonalInformations = () => {
   };
 
   const handleQuizzClick = () => {
-    navigation.navigate('profiling');
+
   };
 
   return (
@@ -52,9 +52,9 @@ const PersonalInformations = () => {
       </View>
 
       <Button
-          value="(Re)faire le quizz"
-          onPress={() => handleQuizzClick()}
-          />
+        value="(Re)faire le quizz"
+        onPress={() => navigation.navigate('profiling', { redo: true })}
+      />
     </SafeAreaView>
   );
 }
