@@ -9,7 +9,7 @@ import Title from '../components/text/Title';
 import colors from '../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { cCheck, cError, cPrimary, cTextDark, flex1, flexRow, mb24, mbAuto, mh24, mh4, mh8, mlAuto, mt8, mtAuto, mv8 } from '../constants/styles';
-import { betwStr, hasNumbers, hasUppercase, isAlphaNumeric } from '../helpers/NamesHelper';
+import { betwStr, hasNumbers, hasSpecialChars, hasUppercase, isAlphaNumeric } from '../helpers/NamesHelper';
 import { useNavigation } from '@react-navigation/native';
 import { post } from '../constants/fetch';
 import CheckBox from '@react-native-community/checkbox';
@@ -77,7 +77,7 @@ const Signup = () => {
     };
 
     if (!checkUsername(username)) {
-      return setError("Il y a un problème avec votre email ou votre identifiant");
+      return setError("Il y a un problème avec votre identifiant");
     }
 
     if (!checkEmail(email)) {
@@ -218,7 +218,11 @@ const Signup = () => {
           </Text>
 
           <Text style={password && password?.length >= 8 ? cCheck : cError}>
-            - Contenir au moins 8 caractères
+            - Contenir entre 8 et 20 caractères
+          </Text>
+
+          <Text style={!hasSpecialChars(password) ? cCheck : cError}>
+            - Ne doit pas contenir de caractères spéciaux (#@/!§...)
           </Text>
 
           <Text style={hasUppercase(password) ? cCheck : cError}>

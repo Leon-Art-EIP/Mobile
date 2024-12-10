@@ -15,7 +15,7 @@ import {
   GoogleSigninButton,
   isErrorWithCode,
 } from '@react-native-google-signin/google-signin';
-import { acCenter, aiCenter, bgGrey, br20, cTextDark, flex1, flexRow, mb24, mh24, mh8, mlAuto, mrAuto, mv8, pv24, pv8 } from '../constants/styles';
+import { acCenter, aiCenter, bgGrey, br20, cTextDark, flex1, flexRow, mb24, mbAuto, mh24, mh8, mlAuto, mrAuto, mtAuto, mv8, pv24, pv8 } from '../constants/styles';
 
 
 const Login = ({ navigation }: any) => {

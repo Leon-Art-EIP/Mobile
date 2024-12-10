@@ -63,6 +63,18 @@ const isAlphaNumeric = (str: string | undefined = undefined): boolean => {
 }
 
 
+// Returns true if STR has special characters in it
+// Returns false otherwise and in case of error
+const hasSpecialChars = (str: string | undefined = undefined): boolean => {
+  if (!str) {
+    return false;
+  }
+
+  const specialCharRegex = /[^a-zA-Z0-9]/;
+  return !!specialCharRegex.test(str);
+}
+
+
 // Returns true if STR has at least one uppercase letter
 // Returns false otherwise and in case of error
 const hasUppercase = (str: string | undefined = undefined): boolean => {
@@ -94,5 +106,6 @@ export {
   betwStr,
   isAlphaNumeric,
   hasUppercase,
-  hasNumbers
+  hasNumbers,
+  hasSpecialChars
 };

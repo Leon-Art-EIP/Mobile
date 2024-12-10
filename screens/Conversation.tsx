@@ -85,6 +85,14 @@ const Conversation = () => {
       (res) => {
         SockHelper.emit('send-msg', socketBody);
         addMessage(res?.data?.message)
+
+        // To mark that conversation as read
+        get(
+          `/api/conversations/single/${params?.ids[0]}`,
+          context?.token,
+          () => {},
+          (err: any) => console.warn({...err})
+        );
         return setNewMessage("");
       },
       (err) => {
@@ -93,32 +101,6 @@ const Conversation = () => {
       }
     );
   }
-
-  const selectPicture = async () => {
-    try {
-      const resp = await launchImageLibrary({
-        mediaType: 'photo',
-        quality: 1
-      });
-
-      if (resp.errorCode) {
-        ToastAndroid.show(
-          resp.errorMessage ?? SELECT_PICTURE_TEXT,
-          ToastAndroid.SHORT
-        );
-        return console.error(resp.errorMessage);
-      }
-
-      if (!resp.assets) {
-        ToastAndroid.show('Error selecting picture, try again later', ToastAndroid.SHORT);
-        return console.error('Error selecting picture: no asset found');
-      }
-      sendMessage('image', resp?.assets[0].uri?.toString());
-    } catch (e: any) {
-      console.error('Error selecting picture: ', e);
-    }
-  }
-
 
   const getConversation = () => {
     setIsLoading(true);
@@ -149,7 +131,6 @@ const Conversation = () => {
 
   useEffect(() => {
     // Get messages
-    console.log(params);
     getConversation();
 
     // Get instant messages
@@ -212,20 +193,6 @@ const Conversation = () => {
       {/* Input view */}
       <View style={styles.messageContainer}>
         <View style={styles.messageView}>
-
-          {/* Add image */}
-          {/* <TouchableOpacity */}
-          {/*   onPress={selectPicture} */}
-          {/*   style={styles.micView} */}
-          {/* > */}
-          {/*   <Ionicons */}
-          {/*     name='image-outline' */}
-          {/*     size={24} */}
-          {/*     color="#E95DAD" */}
-          {/*     style={styles.micImage} */}
-          {/*   /> */}
-          {/* </TouchableOpacity> */}
-
 
           {/* Input message */}
           <TextInput

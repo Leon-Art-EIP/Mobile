@@ -25,6 +25,7 @@ type ConversationType = {
   UserTwoId: string;
   UserTwoName: string;
   UserTwoPicture: string;
+  LastSenderId: string;
 };
 
 
@@ -43,8 +44,8 @@ const ConversationsComponent = () => {
       `/api/conversations/${context?.userId}`,
       context?.token,
       (res: any) => {
+        console.log(res.data['chats']);
         setConversations([ ...(res.data['chats'] as ConversationType[]) ]);
-        console?.log(conversations);
         return setIsRefreshing(false);
       },
       (err: any) => console.error("Couldn't get conversations: ", err)
@@ -55,7 +56,7 @@ const ConversationsComponent = () => {
   const toggleRead = (id: string) => {
     const mapCallback = (conv: ConversationType) => {
       if (conv._id === id) {
-        conv.unreadMessages = !(conv.unreadMessages);
+        conv.unreadMessages = false;
       }
       return conv;
     }
@@ -120,7 +121,7 @@ const ConversationsComponent = () => {
             {/* Unread dot */}
             <View style={[
               styles.unreadDot,
-              { backgroundColor: item.unreadMessages ? colors.primary : colors.white }
+              { backgroundColor: item.unreadMessages && item.LastSenderId !== context?.userId ? colors.primary : colors.white }
             ]} />
 
             <Image
@@ -132,7 +133,7 @@ const ConversationsComponent = () => {
                 context?.userId === item.UserTwoId ? item.UserOneName : item.UserTwoName
               }</Title>
               <Text numberOfLines={1} style={{
-                fontWeight: item.unreadMessages ? 'bold' : 'normal',
+                fontWeight: item.unreadMessages && item.LastSenderId !== context?.userId ? 'bold' : 'normal',
                 flexShrink: 1,
                 color: colors.textDark
               }}>

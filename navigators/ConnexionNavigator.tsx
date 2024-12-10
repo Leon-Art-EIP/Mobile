@@ -8,18 +8,15 @@ import ProfilingQuizzNavigator from './ProfilingQuizzNavigator';
 //Screens
 import Login from '../screens/Login';
 import Signup from '../screens/Signup';
-import GoogleLogin from '../screens/GoogleLogin';
 import ForgotPassword from '../screens/ForgotPassword';
 import BottomNavigator from './BottomNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Splash from '../screens/Splash';
 import { TokenObjectType } from '../constants/artTypes';
-import { get, post } from '../constants/fetch';
-import { NavigationContext } from '@react-navigation/native';
+import { get } from '../constants/fetch';
 import Tutorial from '../screens/Tutorial';
 import Tutorial_2 from '../screens/Tutorial_2';
 import Tutorial_3 from '../screens/Tutorial_3';
-import ProfilingQuizz from '../screens/ProfilingQuizz';
 import { ToastAndroid } from 'react-native';
 
 const ConnexionNavigator = () => {
@@ -34,21 +31,29 @@ const ConnexionNavigator = () => {
       ToastAndroid.show('Veuillez vous connecter', ToastAndroid.SHORT);
     }
 
+    const onError = (errorMsg: string, inToast: boolean = false) => {
+      const error: string = 'ConnexionNavigator::getToken - ' + errorMsg;
+
+      if (!!inToast) {
+        ToastAndroid.show(error, ToastAndroid.SHORT);
+      }
+      console.warn(error);
+      ToastAndroid.show('Veuillez vous connecter', ToastAndroid.SHORT);
+      context?.logOut();
+      return setIsLoading(false);
+    }
+
     (async () => {
       const value = await AsyncStorage.getItem('jwt');
 
       if (!value) {
-        console.warn('no jwt in storage');
-        displayLogoutMsg();
-        return setIsLoading(false);
+        return onError('No JWT in LocalStorage', true);
       }
 
       const data: TokenObjectType = JSON.parse(value);
 
       if (!data) {
-        console.warn('failed to parse JWT');
-        displayLogoutMsg();
-        return setIsLoading(false);
+        return onError('Failed to parse JWT', true);
       }
 
       get(
@@ -65,9 +70,7 @@ const ConnexionNavigator = () => {
         },
         (err: any) => {
           console.log("error getting token: ", { ...err.response });
-          displayLogoutMsg();
-          context?.logOut();
-          setIsLoading(false);
+          onError('/who-i-am returned invalid token. Redirecting...');
         }
       );
     })();
