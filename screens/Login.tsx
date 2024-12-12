@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Button from '../components/buttons/Button';
 import Title from '../components/text/Title';
-import CheckBox from '@react-native-community/checkbox';
 import colors from '../constants/colors';
 import { MainContext } from '../context/MainContext';
 import { post } from '../constants/fetch';
@@ -182,7 +181,10 @@ const Login = ({ navigation }: any) => {
               style={styles.eyeIcon}
               activeOpacity={0.7}
             >
-              <Image source={require('../assets/eye_icon.png')} style={styles.eyeIconImage} />
+              <Image
+                source={require('../assets/eye_icon.png')}
+                style={styles.eyeIconImage}
+              />
             </TouchableOpacity>
           ) : null}
         </View>

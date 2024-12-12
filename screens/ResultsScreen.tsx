@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { act, useContext, useEffect, useState } from 'react';
 import { FlatList, Image, RefreshControl, ScrollView, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Title from '../components/text/Title';
@@ -8,25 +8,30 @@ import { get } from '../constants/fetch';
 import { MainContext } from '../context/MainContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
+    acCenter,
   aiCenter,
   bgGrey,
   br20,
   cBlack,
   cDisabled,
+  cTextDark,
+  displayFlex,
   flex1,
   flexRow,
   jcCenter,
   mbAuto,
   mh24,
+  mh4,
   mh8, mt8, mtAuto, mv24,
   mv4,
   mv8,
   ph8,
-  pv24, taCenter
+  pv24, taCenter, wFull
 } from '../constants/styles';
 import { formatName } from '../helpers/NamesHelper';
 import { getImageUrl } from '../helpers/ImageHelper';
 import Card from '../components/cards/Card';
+import { setTSpan } from 'react-native-svg/lib/typescript/lib/extract/extractText';
 
 
 type ArtPublicationType = {
@@ -57,6 +62,7 @@ const ResultsScreen = () => {
   const context = useContext(MainContext);
   const [posts, setPosts] = useState<ArtPublicationType[]>([]);
   const [users, setUsers] = useState<UserType[]>([]);
+  const [tab, setTab] = useState<'art' | 'profiles'>('art');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
 
@@ -110,7 +116,7 @@ const ResultsScreen = () => {
       <StatusBar backgroundColor={colors.white} barStyle="dark-content" />
 
       {/* Header */}
-      <View style={[flexRow, aiCenter, mv24]}>
+      <View style={[flexRow, aiCenter, mv8]}>
         <Ionicons
           name='chevron-back-outline'
           size={32}
@@ -121,91 +127,149 @@ const ResultsScreen = () => {
         <Title>Search</Title>
       </View>
 
-      {/* User horizontal list */}
-      { users.length === 0 ? (
-        <View style={[jcCenter, aiCenter, pv24, br20, mh8, bgGrey]}>
-          <Image
-            source={require('../assets/icons/box.png')}
-            style={[ styles.emptyImg, mtAuto ]}
-          />
-          <Text style={[cDisabled, mt8, mbAuto]}>Il n'y a pas d'artiste qui porte ce nom !</Text>
-        </View>
-      ) : (
-        <ScrollView
-          horizontal
-          style={[flex1]}
+      <View style={[displayFlex, flexRow, wFull, pv24]}>
+        <TouchableOpacity
+          style={[flex1, aiCenter]}
+          onPress={() => setTab('art')}
         >
-          { users.map((user: UserType) => (
-            <Card
-              key={user._id}
-              pressable
-              style={[aiCenter, ph8, mh8]}
-              onPress={() => navigateToProfile(user)}
-            >
-              <Image
-                style={styles.userImg}
-                source={{ uri: getImageUrl(user.profilePicture) }}
-              />
-              <Text style={[mv4, cBlack, mtAuto]}>{ formatName(user.username, 20) }</Text>
-            </Card>
-          )) }
-        </ScrollView>
-      ) }
-
-      {/* Data */}
-      { posts.length === 0 ? (
-        <ScrollView
-          contentContainerStyle={[aiCenter, flex1]}
-          style={styles.postsFlatlist}
-          scrollEnabled={false}
-          refreshControl={
-            <RefreshControl
-              onRefresh={getResults}
-              refreshing={isRefreshing}
-              tintColor={context?.userColor ?? colors.primary}
-              colors={[ context?.userColor ?? colors.primary ]}
-            />
-          }
-        >
-          <Image
-            source={require('../assets/icons/box.png')}
-            style={[ styles.emptyImg, mtAuto ]}
-          />
-          <Text style={[ cDisabled, taCenter, mt8, mbAuto ]}>
-            Il n'y a pas de postes qui correspondent à la recherche !
+          <Text style={{
+            color: tab === 'art' ? colors.primary : colors.textDark ,
+            fontSize: 18
+          }}>
+            Oeuvres
           </Text>
-        </ScrollView>
+        </TouchableOpacity>
 
-      ) : (
+        <TouchableOpacity
+          style={[flex1, aiCenter]}
+          onPress={() => setTab('profiles')}
+        >
+          <Text style={{
+            color: tab === 'profiles' ? colors.primary : colors.textDark,
+            fontSize: 18
+          }}>
+            Profiles
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-        <FlatList
-          data={posts}
-          numColumns={3}
-          refreshControl={
-            <RefreshControl
-              onRefresh={getResults}
-              refreshing={isRefreshing}
-              tintColor={colors.primary}
-              colors={[ colors.primary ]}
-            />
-          }
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigateToPreview(item)}
-              style={styles.singleArt}
+      { tab === 'profiles' ? (
+        <>
+          {/* User horizontal list */}
+          { users.length === 0 ? (
+            <ScrollView
+              style={[pv24, br20, mh8, bgGrey]}
+              contentContainerStyle={[jcCenter, aiCenter, flex1]}
+              refreshControl={
+                <RefreshControl
+                  onRefresh={getResults}
+                  refreshing={isRefreshing}
+                  tintColor={context?.userColor ?? colors.primary}
+                  colors={[ context?.userColor ?? colors.primary ]}
+                />
+              }
             >
               <Image
-                style={{
-                  backgroundColor: colors.offerBg,
-                  width: '100%',
-                  aspectRatio: 1,
-                  borderRadius: 17
-                }}
-                source={{ uri: getImageUrl(item.image) }}
+                source={require('../assets/icons/box.png')}
+                style={[ styles.emptyImg, mtAuto ]}
               />
-            </TouchableOpacity>
-          )}
-        />
+              <Text style={[cDisabled, mt8, mbAuto]}>Il n'y a pas d'artiste qui porte ce nom !</Text>
+            </ScrollView>
+          ) : (
+            <FlatList
+              key={'_'}
+              data={users}
+              keyExtractor={(item: UserType) => item._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  key={item._id}
+                  style={[flexRow, wFull, mv8, aiCenter, mh24]}
+                  onPress={() => navigateToProfile(item)}
+                >
+                  <Image
+                    style={styles.userImg}
+                    source={{ uri: getImageUrl(item.profilePicture) }}
+                  />
+                  <Text
+                    style={[mv4, cTextDark, mh8, { fontSize: 15 }]}
+                  >
+                    { formatName(item.username, 60) }
+                  </Text>
+                </TouchableOpacity>
+              )}
+              refreshControl={
+                <RefreshControl
+                  onRefresh={getResults}
+                  refreshing={isRefreshing}
+                  tintColor={context?.userColor ?? colors.primary}
+                  colors={[ context?.userColor ?? colors.primary ]}
+                />
+              }
+            />
+          ) }
+        </>
+      ) : (
+        <>
+
+          {/* Data */}
+          { posts.length === 0 ? (
+            <ScrollView
+              contentContainerStyle={[aiCenter, flex1]}
+              style={styles.postsFlatlist}
+              scrollEnabled={false}
+              refreshControl={
+                <RefreshControl
+                  onRefresh={getResults}
+                  refreshing={isRefreshing}
+                  tintColor={context?.userColor ?? colors.primary}
+                  colors={[ context?.userColor ?? colors.primary ]}
+                />
+              }
+            >
+              <Image
+                source={require('../assets/icons/box.png')}
+                style={[ styles.emptyImg, mtAuto ]}
+              />
+              <Text style={[ cDisabled, taCenter, mt8, mbAuto ]}>
+                Il n'y a pas de postes qui correspondent à la recherche !
+              </Text>
+            </ScrollView>
+
+          ) : (
+
+            <FlatList
+              key={'#'}
+              data={posts}
+              numColumns={3}
+              refreshControl={
+                <RefreshControl
+                  onRefresh={getResults}
+                  refreshing={isRefreshing}
+                  tintColor={colors.primary}
+                  colors={[ colors.primary ]}
+                />
+              }
+              keyExtractor={(item: ArtPublicationType) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => navigateToPreview(item)}
+                  style={styles.singleArt}
+                >
+                  <Image
+                    style={{
+                      backgroundColor: colors.offerBg,
+                      width: '100%',
+                      aspectRatio: 1,
+                      borderRadius: 17
+                    }}
+                    source={{ uri: getImageUrl(item.image) }}
+                  />
+                </TouchableOpacity>
+              )}
+            />
+          ) }
+        </>
       ) }
     </SafeAreaView>
   );
@@ -220,8 +284,8 @@ const styles = StyleSheet.create({
   userImg: {
     borderRadius: 50,
     backgroundColor: colors.text,
-    height: 100,
-    width: 100
+    height: 50,
+    width: 50
   },
   emptyImg: {
     height: 70,

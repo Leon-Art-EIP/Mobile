@@ -1,129 +1,115 @@
-export type TokenObjectType = {
-  token: string;
-  email: string;
-  id: string;
-  isArtist: boolean;
-  username: string;
-  userColor: string;
-};
-
 export interface ArtTypeFilter {
   category: string;
-  types: string[];
-  collapsed: boolean;
+  types: {
+    type: string;
+    selected: boolean;
+  }[];
+  visible: boolean;
 }
-
-export type CollectionType = {
-  _id: string;
-  name: string;
-  user: string; // user id
-  __v: 0;
-  artPublications: string[]; // publication IDs
-  isPublic: boolean;
-};
 
 export const artTypeFilters: ArtTypeFilter[] = [
   {
     category: "Peinture",
     types: [
-      "Huile",
-      "Aquarelle",
-      "Acrylique",
-      "Gouache",
-      "Tempera",
-      "Fresque"
+      { type: "Huile", selected: false },
+      { type: "Aquarelle", selected: false },
+      { type: "Acrylique", selected: false },
+      { type: "Gouache", selected: false },
+      { type: "Tempera", selected: false },
+      { type: "Fresque", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Dessin",
     types: [
-      "Crayon",
-      "Fusain",
-      "Encre",
-      "Pastel",
-      "Sanguine",
-      "Craie"
+      { type: "Crayon", selected: false },
+      { type: "Fusain", selected: false },
+      { type: "Encre", selected: false },
+      { type: "Pastel", selected: false },
+      { type: "Sanguine", selected: false },
+      { type: "Craie", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Photographie",
     types: [
-      "Photographie argentique",
-      "Photographie numérique",
-      "Photographie noir et blanc",
-      "Photographie couleur"
+      { type: "Argentique", selected: false },
+      { type: "Numérique", selected: false },
+      { type: "Noir et blanc", selected: false },
+      { type: "Couleur", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Sculpture",
     types: [
-      "Bronze",
-      "Pierre",
-      "Bois",
-      "Résine",
-      "Céramique",
-      "Verre"
+      { type: "Bronze", selected: false },
+      { type: "Pierre", selected: false },
+      { type: "Bois", selected: false },
+      { type: "Résine", selected: false },
+      { type: "Céramique", selected: false },
+      { type: "Verre", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Céramique",
     types: [
-      "Porcelaine",
-      "Faïence",
-      "Grès",
-      "Terre cuite"
+      { type: "Porcelaine", selected: false },
+      { type: "Faïence", selected: false },
+      { type: "Grès", selected: false },
+      { type: "Terre cuite", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Textile",
     types: [
-      "Broderie",
-      "Tapisserie",
-      "Art vestimentaire"
+      { type: "Broderie", selected: false },
+      { type: "Tapisserie", selected: false },
+      { type: "Art vestimentaire", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Gravure",
     types: [
-      "Linogravure",
-      "Eau-forte",
-      "Lithographie",
-      "Sérigraphie",
-      "Monotype"
+      { type: "Linogravure", selected: false },
+      { type: "Eau-forte", selected: false },
+      { type: "Lithographie", selected: false },
+      { type: "Sérigraphie", selected: false },
+      { type: "Monotype", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Art du verre",
     types: [
-      "Soufflage de verre",
-      "Vitrail",
-      "Fusing"
+      { type: "Soufflage de verre", selected: false },
+      { type: "Vitrail", selected: false },
+      { type: "Fusing", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Artisanat",
     types: [
-      "Joallerie",
-      "Ébénisterie",
-      "Marqueterie",
-      "Ferronnerie d'art"
+      { type: "Joallerie", selected: false },
+      { type: "Ébénisterie", selected: false },
+      { type: "Marqueterie", selected: false },
+      { type: "Ferronnerie d'art", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
   {
     category: "Art numérique",
     types: [
-      "Impressions numériques",
-      "Art génératif"
+      { type: "Impressions numériques", selected: false },
+      { type: "Art génératif", selected: false },
     ],
-    collapsed: false,
+    visible: false,
   },
 ];
+

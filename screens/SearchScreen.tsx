@@ -5,23 +5,21 @@ import { ArtTypeFilter, artTypeFilters } from '../constants/artTypes';
 import colors from '../constants/colors';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh4, cBlack } from '../constants/styles';
-import Entypo from 'react-native-vector-icons/Entypo';
+import { mlAuto, mrAuto, fwBold, flex1, mtAuto, mbAuto, flexRow, mh4, cBlack, br12, cTextDark, aiCenter, mh0, mv4, mv0, bgOffer, bgGrey, ph4, ph8, pv4, ph0, pv0, mh8, mv8, ph24, displayFlex, pv8, br50, mv24, cPrimary, mb8 } from '../constants/styles';
 import { MainContext } from '../context/MainContext';
-import { get } from '../constants/fetch';
 import Button from '../components/buttons/Button';
 import InfoModal from '../components/infos/InfoModal';
 import Subtitle from '../components/text/Subtitle';
-import Input from '../components/textInput/Input';
+import Card from '../components/cards/Card';
 
 
 const SearchScreen = ({ navigation }: any) => {
   const [filters, setFilters] = useState<ArtTypeFilter[]>(artTypeFilters);
-  const [selectedFilter, setSelectedFilter] = useState<string>("");
-  const [selectedSubFilter, setSelectedSubFilter] = useState<string>("");
-  const [isArtTypeDisplayed, setIsArtTypeDisplayed] = useState<boolean>(false);
+  const [selectedFilter, setSelectedFilter] = useState<string | undefined>(undefined);
+  const [selectedSubFilter, setSelectedSubFilter] = useState<string | undefined>(undefined);
   const [search, setSearch] = useState<string>("");
   const [priceValues, setPriceValues] = useState<string>("0-1000");
+  const [isForSale, setIsForSale] = useState<boolean | undefined>(undefined);
   const [isModalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState('error');  // State to track the type of the modal
@@ -29,26 +27,49 @@ const SearchScreen = ({ navigation }: any) => {
   const context = useContext(MainContext);
 
 
-  const selectOrDeselect = (filterName: string, isSubFilter = false) => {
-    if (isSubFilter) {
-      setSelectedSubFilter(curr => curr === filterName ? "" : filterName);
-    } else {
-      setSelectedFilter(curr => curr === filterName ? "" : filterName);
-      setSelectedSubFilter("");
-    }
-  };
+  interface SubfilterType {
+    type: string;
+    selected: boolean
+  }
+
+
+  const getFilterSubfilters = (filtername: string): string[] => {
+    const el: ArtTypeFilter | undefined = filters.find(
+      (f: ArtTypeFilter) => f.category === filtername
+    );
+    return el ? el.types.map((s: SubfilterType) => s.type) : [];
+  }
 
 
   // Puts the arguments in the api URL and navigates to the page results
   const getSearchApi = () => {
-    "explorer/search?searchTerm=dev&artPage=1&artLimit=10&artistPage=1&artistLimit=10";
-    const args1 = `searchTerm=${search.toLowerCase()}${selectedSubFilter.toLowerCase()}`;
-    const args2 = `&priceRange=${priceValues}`;
-    const args3 = `&artPage=1&artLimit=100&artistPage=1&artistLimit=100`;
-    const url: string = args1 + (priceValues === '0-1000' ? "" : args2) + args3;
-
-    navigation.navigate('results', { url });
+    navigation.navigate('results', { url: getQueryString() });
   };
+
+
+  // Returns a string with the query that is to be sent to the back end
+  const getQueryString = () => {
+    const queryParams = [
+      !!search ? `searchTerm=${search.toLowerCase()}` : "",
+      !!selectedSubFilter ? `artType=${selectedSubFilter}` : "",
+      !!priceValues ? `priceRange=${priceValues}` : "",
+      isForSale !== undefined ? `isForSale=${isForSale}` : "",
+      "artPage=1",
+      "artLimit=50",
+      "artistPage=1",
+      "artistLimit=20"
+    ];
+
+    const queryString: string = queryParams.filter(Boolean).join("&");
+    console.log('query string: ', queryString);
+    return !!queryString ? `${queryString}` : "";
+  }
+
+  useEffect(() => {
+    if (!selectedFilter) {
+      setSelectedSubFilter(undefined);
+    }
+  }, [selectedFilter]);
 
 
   /*
@@ -97,20 +118,6 @@ const SearchScreen = ({ navigation }: any) => {
   };
 
 
-  // Get art filters from back-end
-  useEffect(() => {
-    get(
-      "/api/explorer/art-types",
-      context?.token,
-      (res: any) => setFilters(res?.data),
-      () => ToastAndroid.show(
-        "Nous n'avons pas pu récupérer les filtres. Veuillez réessayer plus tard",
-        ToastAndroid.SHORT
-      )
-    );
-  }, []);
-
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={colors.bg} barStyle="dark-content" />
@@ -132,7 +139,10 @@ const SearchScreen = ({ navigation }: any) => {
         />
       </View>
 
-      <Subtitle style={{fontSize: 16, marginTop: 20, marginBottom: 20, color: colors.darkGreyBg, marginLeft: 12,}}>Prix</Subtitle>
+      <Subtitle style={styles.subtitle}>
+        Prix
+      </Subtitle>
+
       {/* Search price */}
       <View style={styles.searchView2}>
         <Text style={[mlAuto, mrAuto, cBlack]}>{ getPriceValues()[0] } €</Text>
@@ -148,59 +158,102 @@ const SearchScreen = ({ navigation }: any) => {
         <Text style={[ mlAuto, mrAuto, cBlack ]}>{ getPriceValues()[1] } €</Text>
       </View>
 
-      {/* Art types */}
-      <ScrollView style={styles.filterScrollView}>
+      {/* Available to sell */}
+      <View style={[flexRow, aiCenter, mh4, mv0, ph4, pv4]}>
+        <Text style={[cTextDark, flex1, mh8, mv8]}>
+          Disponible à la vente
+        </Text>
 
-        {/* Title */}
-        <TouchableOpacity
-          style={[ styles.filterTouchableOpacity, flexRow ]}
-          onPress={() => setIsArtTypeDisplayed(e => !e)}
-        >
-          <Subtitle style={[
-            styles.filterText,
-            fwBold,
-            flex1,
-          ]}>
-            Types
-          </Subtitle>
-          <Entypo
-            name={isArtTypeDisplayed ? "chevron-thin-down" : "chevron-thin-right"}
-            size={24}
-            color={colors.black}
-          />
-        </TouchableOpacity>
+        <View style={[
+          flexRow, ph8, pv4, mh8, br12, ph0, pv0,
+          { backgroundColor: colors.disabledBg }
+        ]}>
 
-        {/* Filter list */}
-        { isArtTypeDisplayed && filters.map((filter: ArtTypeFilter) => (
-          <View
-            key={filter.category.toString()}
-            style={{ marginTop: 15 }}
+          {/* No option */}
+          <TouchableOpacity
+            style={[isForSale === false && bgOffer, ph8, pv4, br12]}
+            onPress={() => setIsForSale(false)}
           >
-            {/* Filter item */}
-            <TouchableOpacity
-              style={styles.filterTouchableOpacity}
-              onPress={() => selectOrDeselect(filter.category)}
-            >
-              <Text style={styles.filterText}>{ filter.category }</Text>
-            </TouchableOpacity>
+            <Text style={cTextDark}>
+              Non
+            </Text>
+          </TouchableOpacity>
 
-            {/* Subfilter list */}
-            <View style={styles.subFilterList}>
-              { selectedFilter === filter.category && filter.types.map((subFilter: string) => (
-                <TouchableOpacity
-                  key={subFilter}
-                  style={styles.subFilterTouchableOpacity}
-                  onPress={() => selectOrDeselect(subFilter, true)}
-                >
-                  <Text
-                    style={{ color: selectedSubFilter === subFilter ? colors.primary :  colors.black }}
-                  >{ subFilter }</Text>
-                </TouchableOpacity>
-              )) }
-            </View>
-          </View>
+          {/* Doesn't matter option */}
+          <TouchableOpacity
+            style={[isForSale === undefined && bgOffer, ph8, pv4, br12]}
+            onPress={() => setIsForSale(undefined)}
+          >
+            <Text style={cTextDark}>
+              Peu importe
+            </Text>
+          </TouchableOpacity>
+
+          {/* Yes option */}
+          <TouchableOpacity
+            style={[isForSale === true && bgOffer, ph8, pv4, br12]}
+            onPress={() => setIsForSale(true)}
+          >
+            <Text style={cTextDark}>
+              Oui
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Art types */}
+      <View style={[displayFlex, flexRow, mv24, { flexWrap: 'wrap' }]}>
+        {/* Filter list */}
+        { filters.map((filter: ArtTypeFilter) => (
+          <TouchableOpacity
+            key={filter.category.toString()}
+            style={[
+              br50, ph24, pv8, mv4, mh4,
+              { backgroundColor: filter.category === selectedFilter ? colors.offerBg : colors.disabledBg }
+            ]}
+            onPress={() => setSelectedFilter(
+              (c) => c === filter.category ? undefined : filter.category)
+            }
+          >
+            <Text style={{
+              fontSize: 14,
+              color: filter.category === selectedFilter ? colors.offerFg : colors.textDark
+            }}>
+              { filter.category }
+            </Text>
+          </TouchableOpacity>
         )) }
-      </ScrollView>
+      </View>
+
+      { !!selectedFilter && (
+        <Card style={[mh4]}>
+          <Subtitle style={[cTextDark, mb8]}>
+            Sous-catégories
+          </Subtitle>
+
+          <View style={[flexRow, { flexWrap: 'wrap' }, pv0, ph0]}>
+            { getFilterSubfilters(selectedFilter).map((subfilter: string) => (
+              <TouchableOpacity
+                key={subfilter}
+                style={[
+                  mh4, ph24, br50, pv8,
+                  selectedSubFilter === subfilter && bgOffer
+                ]}
+                onPress={() => setSelectedSubFilter(
+                  (c) => c === subfilter ? undefined : subfilter)
+                }
+              >
+                <Text
+                  key={subfilter}
+                  style={selectedSubFilter === subfilter ? { color: colors.offerFg } : cTextDark }
+                >
+                  { subfilter }
+                </Text>
+              </TouchableOpacity>
+            )) }
+          </View>
+        </Card>
+      ) }
 
       <View style={[flexRow, mtAuto]}>
         {/* Clear filters */}
@@ -277,14 +330,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 8
   },
-  filterTouchableOpacity: {
-    padding: 5,
-    paddingHorizontal: 23,
-    marginTop: 20,
-  },
   filterText: {
-    color: colors.black,
-    fontSize: 20
+    color: colors.textDark,
+    fontSize: 14
   },
   subFilterTouchableOpacity: {
     padding: 11,
@@ -295,6 +343,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     borderRadius: 12,
     marginLeft: 30,
+  },
+  subtitle: {
+    fontSize: 16,
+    marginTop: 20,
+    marginBottom: 20,
+    color: colors.darkGreyBg,
+    marginLeft: 12
   }
 });
 
