@@ -7,7 +7,8 @@ import {
   ToastAndroid,
   Keyboard,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -60,11 +61,17 @@ const EditProfile = () => {
   const [profilePicture, setProfilePicture] = useState<string | undefined>(undefined);
   const [bannerPicture, setBannerPicture] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const token = context?.token;
+  let initialUrls = {
+    instagram: "",
+    facebook: "",
+    tiktok: "",
+    twitter: ""
+  };
   const [instagramUrl, setInstagramUrl] = useState<string>('');
   const [twitterUrl, setTwitterUrl] = useState<string>('');
   const [tiktokUrl, setTiktokUrl] = useState<string>('');
   const [facebookUrl, setFacebookUrl] = useState<string>('');
+  const [wereLinksModified, setWereLinksModified] = useState<boolean>(false);
 
 
   const setNewBio = (new_bio: string) => {
@@ -103,7 +110,6 @@ const EditProfile = () => {
 
   const uploadPicture = async (type: 'banner' | 'profile') => {
     const formData = new FormData();
-    console.log(type === 'banner' ? bannerPicture : profilePicture);
     const uri: string | undefined = type === 'profile' ? profilePicture : bannerPicture;
 
     const fileData = await RNFS.readFile(uri, 'base64');
@@ -126,13 +132,13 @@ const EditProfile = () => {
         if (error.response.status === 413) {
           ToastAndroid.show("Image trop grande (> 5 MB)", ToastAndroid.LONG);
         }
+        ToastAndroid.show("Une erreur est survenue", ToastAndroid.SHORT);
         console.error('Error publishing new profile picture : ', { ...error });
       }
     );
   };
 
   const handleSaveModifications = () => {
-    console.log("Modifications saved.");
     saveBiography();
     saveIsAvailable();
     saveSocialMediaLinks();
@@ -175,10 +181,10 @@ const EditProfile = () => {
       context?.token,
       (res: any) => {
         setUserData({ ...res?.data });
-        setInstagramUrl(res.data.socialMediaLinks?.instagram || '');
-        setTwitterUrl(res.data.socialMediaLinks?.twitter || '');
-        setTiktokUrl(res.data.socialMediaLinks?.tiktok || '');
-        setFacebookUrl(res.data.socialMediaLinks?.facebook || '');
+        initialUrls.instagram = res.data.socialMediaLinks?.instagram || '';
+        initialUrls.twitter = res.data.socialMediaLinks?.twitter || '';
+        initialUrls.tiktok = res.data.socialMediaLinks?.tiktok || '';
+        initialUrls.facebook = res.data.socialMediaLinks?.facebook || '';
         setIsLoading(false);
       },
       (err: any) => {
@@ -196,46 +202,48 @@ const EditProfile = () => {
 
 
   const saveSocialMediaLinks = () => {
-    if (!token) {
-      console.error('Token JWT not found. Make sure the user is logged in.');
+    if (!context?.token) {
+      return console.error('Token JWT not found. Make sure the user is logged in.');
+    } else if (!wereLinksModified) {
       return;
     }
 
     const url = '/api/user/profile/social-links';
+    const body = { ...initialUrls };
 
-    if (instagramUrl && !instagramUrl.includes('instagram.com/')) {
-      setInstagramUrl("https://www.instagram.com/" + instagramUrl);
+
+    if (instagramUrl !== initialUrls.instagram) {
+      body.instagram = instagramUrl.includes('instagram.com/') ?
+        instagramUrl.toLowerCase() : "https://www.instagram.com/" + instagramUrl.toLowerCase();
     }
 
-    if (twitterUrl) {
-      setTwitterUrl(twitterUrl.includes("x.com/") ? twitterUrl : "https://www.x.com/" + twitterUrl);
+    if (twitterUrl !== initialUrls.twitter) {
+      body.twitter = twitterUrl.includes("x.com/") ?
+        twitterUrl.toLowerCase() : "https://www.x.com/" + twitterUrl.toLowerCase();
     }
 
-    if (facebookUrl) {
-      setFacebookUrl(facebookUrl.includes("facebook.com/") ? facebookUrl : "https://www.facebook.com/" + facebookUrl);
+    if (facebookUrl !== initialUrls.facebook) {
+      body.facebook = facebookUrl.includes("facebook.com/") ?
+        facebookUrl.toLowerCase() : "https://www.facebook.com/" + facebookUrl.toLowerCase();
     }
 
-    if (tiktokUrl) {
-      setTiktokUrl(tiktokUrl.includes("tiktok.com/@") ? tiktokUrl : "https://www.tiktok.com/@" + tiktokUrl);
+    if (tiktokUrl !== initialUrls.tiktok) {
+      body.tiktok = tiktokUrl.includes("tiktok.com/@") ?
+        tiktokUrl.toLowerCase() : "https://www.tiktok.com/@" + tiktokUrl.toLowerCase();
     }
-
-    const body = {
-      instagram: instagramUrl,
-      twitter: twitterUrl,
-      facebook: facebookUrl,
-      tiktok: tiktokUrl
-    };
 
     const callback = (response: any) => {
-      console.log('Social media links updated:', response.data);
       ToastAndroid.show('Lien vers vos réseaux sociaux ajouté avec succès !', ToastAndroid.SHORT);
+      setWereLinksModified(false);
     };
 
     const onErrorCallback = (error: any) => {
+      Alert.alert('Erreur de lien', "Veuillez vérifier vos liens");
       console.error('Error updating social media links:', { ...error });
+      console.error(error.response);
     };
 
-    post(url, body, token, callback, onErrorCallback);
+    post(url, body, context?.token, callback, onErrorCallback);
   };
 
 
@@ -394,7 +402,10 @@ const EditProfile = () => {
               />
               <Input
                 placeholder={instagramUrl !== "" ? instagramUrl : 'Instagram'}
-                onTextChanged={setInstagramUrl}
+                onTextChanged={(e: string) => {
+                  setWereLinksModified(true);
+                  setInstagramUrl(e);
+                }}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               />
             </View>
@@ -406,7 +417,10 @@ const EditProfile = () => {
               />
               <Input
                 placeholder={twitterUrl !== "" ? twitterUrl : "Twitter"}
-                onTextChanged={setTwitterUrl}
+                onTextChanged={(e: string) => {
+                  setTwitterUrl(e);
+                  setWereLinksModified(true);
+                }}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               />
             </View>
@@ -418,7 +432,10 @@ const EditProfile = () => {
               />
               <Input
                 placeholder={facebookUrl !== "" ? facebookUrl : "Facebook"}
-                onTextChanged={setFacebookUrl}
+                onTextChanged={(e: string) => {
+                  setFacebookUrl(e);
+                  setWereLinksModified(true);
+                }}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               />
             </View>
@@ -430,7 +447,10 @@ const EditProfile = () => {
               />
               <Input
                 placeholder={tiktokUrl !== "" ? tiktokUrl : "TikTok"}
-                onTextChanged={setTiktokUrl}
+                onTextChanged={(e: string) => {
+                  setTiktokUrl(e);
+                  setWereLinksModified(true);
+                }}
                 style={[styles.biographyInput, { backgroundColor: '#F0F0F0' }]}
               />
             </View>
